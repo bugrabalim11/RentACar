@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RentACar.DataAccess\RentACar.DataAccess.csproj" />
+    <ProjectReference Include="..\RentACar.Entities\RentACar.Entities.csproj" />
+  </ItemGroup>
+
+</Project>
