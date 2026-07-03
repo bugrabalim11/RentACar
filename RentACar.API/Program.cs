@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using RentACar.DataAccess.Contexts;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -5,6 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+// PostgreSQL ve DbContext Kaydı (Dependency Injection)
+builder.Services.AddDbContext<RentACarContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
