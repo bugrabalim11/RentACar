@@ -21,5 +21,10 @@ namespace RentACar.Entities.Concrete
         public int MiniDriverAge { get; set; }
         public string LagguageCapacity { get; set; } = string.Empty;
         public string TransmissionType { get; set; } = string.Empty;
+
+
+        // --- İLİŞKİ (Bire-Çok) ---
+        // Bir arabanın birden çok kiralama kaydı olabilir
+        public List<Rental> Rentals { get; set; } = new List<Rental>();
     }
 }

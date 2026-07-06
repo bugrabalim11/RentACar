@@ -13,5 +13,16 @@ namespace RentACar.Entities.Concrete
         public int DropOffOfficeId { get; set; }
         public DateTime RentDate { get; set; }
         public DateTime? ReturnDate { get; set; }
+
+
+
+        // --- İLİŞKİLER (NAVIGATION PROPERTIES) ---
+        // Bu özellikler SQL'de sütun olmaz, EF Core'un Foreign Key kurmasını sağlar!
+        public Car Car { get; set; } = null!;
+        public Customer Customer { get; set; } = null!;
+
+        // Ofis tablosuna iki farklı ilişki kurduğumuz için isimleri belirtiyoruz
+        public Office PickUpOffice { get; set; } = null!;
+        public Office DropOffOffice { get; set; } = null!;
     }
 }
