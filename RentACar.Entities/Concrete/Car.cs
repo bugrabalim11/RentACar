@@ -8,7 +8,7 @@ namespace RentACar.Entities.Concrete
     {
         // Temel Özellikler
         public int Id { get; set; }
-        public int BandId { get; set; }
+        public int BrandId { get; set; }
         public int Kilometer { get; set; }
         public string ModelName { get; set; } = string.Empty;
         public string Plate { get; set; } = string.Empty;
