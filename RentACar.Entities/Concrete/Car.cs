@@ -18,7 +18,7 @@ namespace RentACar.Entities.Concrete
         // Arayüzden (UI) Gelen Yeni Özellikler
         public int DoorCount { get; set; }
         public int SeatCount { get; set; }
-        public int MiniDriverAge { get; set; }
+        public int MinDriverAge { get; set; }
         public string LagguageCapacity { get; set; } = string.Empty;
         public string TransmissionType { get; set; } = string.Empty;
 
