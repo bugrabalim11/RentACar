@@ -35,9 +35,17 @@ namespace RentACar.Business.Concrete
             await _carRepository.AddAsync(car);
         }
 
-        public async Task DeleteAsync(Car car)
+        public async Task<bool> DeleteAsync(int id)
         {
+            var car = await _carRepository.GetAsync(x => x.Id == id);
+
+            if (car == null)
+            {
+                return false;  // Araba yok, işlemi iptal et ve Garsona 'false' dön!
+            }
+
             await _carRepository.DeleteAsync(car);
+            return true;  // Başarıyla silindi
         }
 
         public async Task<List<CarListDto>> GetAllAsync()
@@ -58,9 +66,20 @@ namespace RentACar.Business.Concrete
             return _mapper.Map<CarListDto?>(car);
         }
 
-        public async Task UpdateAsync(Car car)
+        public async Task<bool> UpdateAsync(CarUpdateDto carUpdateDto)
         {
-            await _carRepository.UpdateAsync(car);
+            var existingCar = await _carRepository.GetAsync(x => x.Id == carUpdateDto.Id);
+
+            if (existingCar == null)
+            {
+                return false;  // Araba yok!
+            }
+
+            // AutoMapper ile yeni gelen DTO'daki bilgileri, veritabanından bulduğumuz mevcut arabanın üstüne yazıyoruz
+            _mapper.Map(carUpdateDto, existingCar);
+
+            await _carRepository.UpdateAsync(existingCar);
+            return true;
         }
     }
 }

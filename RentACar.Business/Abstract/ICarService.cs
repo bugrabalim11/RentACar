@@ -15,7 +15,7 @@ namespace RentACar.Business.Abstract
 
         // Dışarıdan Car değil, CarAddDto alıyoruz! (Çünkü Id'yi veritabanı verecek)
         Task AddAsync(CarAddDto carAddDto);
-        Task UpdateAsync(Car car);
-        Task DeleteAsync(Car car);
+        Task<bool> UpdateAsync(CarUpdateDto carUpdateDto);
+        Task<bool> DeleteAsync(int id);
     }
 }

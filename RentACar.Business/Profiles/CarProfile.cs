@@ -17,6 +17,9 @@ namespace RentACar.Business.Profiles
 
             // 2. KURAL: Kullanıcıdan gelen CarAddDto'yu (içinde Id yok), veritabanına kaydedilecek Car nesnesine çevir
             CreateMap<CarAddDto, Car>();
+
+            // 3. KURAL: Kullanıcıdan gelen Update DTO'sunu, veritabanına gidecek Car nesnesine çevir
+            CreateMap<CarUpdateDto, Car>();
         }
     }
 }

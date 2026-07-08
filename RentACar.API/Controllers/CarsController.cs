@@ -45,5 +45,34 @@ namespace RentACar.API.Controllers
 
             return Ok(result);
         }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateCar(CarUpdateDto carUpdateDto)
+        {
+            // 1. GetByIdAsync'i SİLİYORUZ! Doğrudan UpdateAsync'i çağırıyoruz.
+            // Çünkü UpdateAsync metodu geriye 'bool' (true/false) dönecek (Yeni yazdığımız düzende).
+            var result = await _carService.UpdateAsync(carUpdateDto);
+
+            // 2. Artık result bir 'bool' olduğu için önüne rahatça '!' koyabiliriz!
+            if (!result) // Yani: "Eğer güncelleme başarısızsa (false döndüyse)"
+            {
+                return NotFound();
+            }
+
+            return Ok();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCar(int id)
+        {
+            var result = await _carService.DeleteAsync(id);
+
+            if (!result)  // Eğer sonuç 'false' döndüyse
+            {
+                return NotFound();
+            }
+
+            return Ok();
+        }
     }
 }

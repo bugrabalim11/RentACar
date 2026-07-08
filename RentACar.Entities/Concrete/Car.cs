@@ -19,7 +19,7 @@ namespace RentACar.Entities.Concrete
         public int DoorCount { get; set; }
         public int SeatCount { get; set; }
         public int MinDriverAge { get; set; }
-        public string LagguageCapacity { get; set; } = string.Empty;
+        public string LuggageCapacity { get; set; } = string.Empty;
         public string TransmissionType { get; set; } = string.Empty;
 
 
