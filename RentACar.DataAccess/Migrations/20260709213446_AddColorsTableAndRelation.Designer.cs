@@ -7,14 +7,13 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RentACar.DataAccess.Concrete.EntityFramework;
 
-
 #nullable disable
 
 namespace RentACar.DataAccess.Migrations
 {
     [DbContext(typeof(RentACarContext))]
-    [Migration("20260709105929_AddBrandsTableAndRelation")]
-    partial class AddBrandsTableAndRelation
+    [Migration("20260709213446_AddColorsTableAndRelation")]
+    partial class AddColorsTableAndRelation
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -52,6 +51,9 @@ namespace RentACar.DataAccess.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("BrandId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ColorId")
                         .HasColumnType("integer");
 
                     b.Property<decimal>("DailyPrice")
@@ -92,7 +94,26 @@ namespace RentACar.DataAccess.Migrations
 
                     b.HasIndex("BrandId");
 
+                    b.HasIndex("ColorId");
+
                     b.ToTable("Cars");
+                });
+
+            modelBuilder.Entity("RentACar.Entities.Concrete.Color", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Colors");
                 });
 
             modelBuilder.Entity("RentACar.Entities.Concrete.ContactInfo", b =>
@@ -259,7 +280,15 @@ namespace RentACar.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("RentACar.Entities.Concrete.Color", "Color")
+                        .WithMany("Cars")
+                        .HasForeignKey("ColorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Brand");
+
+                    b.Navigation("Color");
                 });
 
             modelBuilder.Entity("RentACar.Entities.Concrete.Rental", b =>
@@ -305,6 +334,11 @@ namespace RentACar.DataAccess.Migrations
             modelBuilder.Entity("RentACar.Entities.Concrete.Car", b =>
                 {
                     b.Navigation("Rentals");
+                });
+
+            modelBuilder.Entity("RentACar.Entities.Concrete.Color", b =>
+                {
+                    b.Navigation("Cars");
                 });
 
             modelBuilder.Entity("RentACar.Entities.Concrete.Customer", b =>

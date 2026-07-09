@@ -9,6 +9,12 @@ namespace RentACar.Entities.Concrete
         // Temel Özellikler
         public int Id { get; set; }
         public int BrandId { get; set; }
+
+        // Yabancı Anahtar (Foreign Key)
+        public int ColorId { get; set; }
+        // Navigasyon Özelliği (Müfettişi susturmayı unutmuyoruz)
+        public Color Color { get; set; } = null!;
+
         public int Kilometer { get; set; }
         public string ModelName { get; set; } = null!;
         public string Plate { get; set; } = null!;
