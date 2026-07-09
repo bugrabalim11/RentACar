@@ -4,7 +4,7 @@ using System.Text;
 
 namespace RentACar.Dtos.BrandDtos
 {
-    public class BrandAddDtos
+    public class BrandAddDto
     {
         public string Name { get; set; } = null!;
     }
