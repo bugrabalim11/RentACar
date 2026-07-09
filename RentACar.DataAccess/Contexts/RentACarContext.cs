@@ -18,6 +18,7 @@ namespace RentACar.DataAccess.Contexts
         public DbSet<Rental> Rentals { get; set; }
         public DbSet<Office> Offices { get; set; }      
         public DbSet<ContactMessage> ContactMessages { get; set; }      
-        public DbSet<ContactInfo> ContactInfos { get; set; }      
+        public DbSet<ContactInfo> ContactInfos { get; set; }
+        public DbSet<Brand> Brands { get; set; }
     }
 }

@@ -26,5 +26,8 @@ namespace RentACar.Entities.Concrete
         // --- İLİŞKİ (Bire-Çok) ---
         // Bir arabanın birden çok kiralama kaydı olabilir
         public List<Rental> Rentals { get; set; } = new List<Rental>();
+
+        // Senin içinde tuttuğun o BrandId numarası öylesine bir sayı değil, fiziksel bir markayı temsil ediyor.
+        public Brand Brand { get; set; } = null!;
     }
 }
