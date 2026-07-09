@@ -62,6 +62,7 @@ namespace RentACar.Business.Concrete
             }
 
             _mapper.Map(brandUpdateDto, existingBrand);
+            await _brandRepository.UpdateAsync(existingBrand);
             return true;
         }
     }
