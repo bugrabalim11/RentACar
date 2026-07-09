@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace RentACar.Entities.Concrete
+namespace RentACar.Dtos.BrandDtos
 {
-    public class Office
+    public class BrandListDto
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;
-        public string City { get; set; } = null!;
-        public string ContactNumber { get; set; } = null!;
     }
 }

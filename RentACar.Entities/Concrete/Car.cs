@@ -10,8 +10,8 @@ namespace RentACar.Entities.Concrete
         public int Id { get; set; }
         public int BrandId { get; set; }
         public int Kilometer { get; set; }
-        public string ModelName { get; set; } = string.Empty;
-        public string Plate { get; set; } = string.Empty;
+        public string ModelName { get; set; } = null!;
+        public string Plate { get; set; } = null!;
         public decimal DailyPrice { get; set; }
         public bool IsAvailable { get; set; }
 
@@ -19,8 +19,8 @@ namespace RentACar.Entities.Concrete
         public int DoorCount { get; set; }
         public int SeatCount { get; set; }
         public int MinDriverAge { get; set; }
-        public string LuggageCapacity { get; set; } = string.Empty;
-        public string TransmissionType { get; set; } = string.Empty;
+        public string LuggageCapacity { get; set; } = null!;
+        public string TransmissionType { get; set; } = null!;
 
 
         // --- İLİŞKİ (Bire-Çok) ---

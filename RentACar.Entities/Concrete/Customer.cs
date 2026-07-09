@@ -8,10 +8,10 @@ namespace RentACar.Entities.Concrete
     {
         public int Id { get; set; }
         public int DrivingLicenseYear { get; set; }
-        public string FirstName { get; set; } = string.Empty;
-        public string LastName { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string NationalIdentity { get; set; } = string.Empty;
+        public string FirstName { get; set; } = null!;
+        public string LastName { get; set; } = null!;
+        public string Email { get; set; } = null!;
+        public string NationalIdentity { get; set; } = null!;
 
 
         // --- İLİŞKİ (Bire-Çok) ---
