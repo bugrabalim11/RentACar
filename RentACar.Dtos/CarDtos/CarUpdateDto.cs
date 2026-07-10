@@ -8,6 +8,7 @@ namespace RentACar.Dtos.CarDtos
     {
         public int Id { get; set; } 
         public int BrandId { get; set; }
+        public int ColorId { get; set; }
         public string ModelName { get; set; } = null!;
         public int Kilometer { get; set; }
         public string Plate { get; set; } = null!;
