@@ -1,10 +1,12 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using FluentValidation;
+using Microsoft.Extensions.DependencyInjection;
 using RentACar.Business.Abstract;
 using RentACar.Business.Concrete;
 using RentACar.DataAccess.Abstract;
 using RentACar.DataAccess.Concrete;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 
 namespace RentACar.Business.Extensions
@@ -17,6 +19,9 @@ namespace RentACar.Business.Extensions
         {
             // DataAccess kayıtları
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+            // Business katmanındaki tüm Validator sınıflarını tara ve otomatik olarak sisteme kaydet
+            services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
             // Business kayıtları
             services.AddScoped<ICarService, CarManager>();

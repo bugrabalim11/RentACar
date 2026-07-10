@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using RentACar.Business.Abstract;
 using RentACar.DataAccess.Abstract;
 using RentACar.Dtos.CarDtos;
@@ -15,23 +16,33 @@ namespace RentACar.Business.Concrete
         private readonly IRepository<Car> _carRepository;
         private readonly IMapper _mapper;  // İşte bizim yetenekli aşçı yamağımız!
 
-        public CarManager(IRepository<Car> carRepository, IMapper mapper)
+        // 1. Güvenlik görevlimizi (Validator) tanımlıyoruz. 
+        // Sadece CarAddDto'dan anlayan bir güvenlik görevlisi istiyoruz.
+        private readonly IValidator<CarAddDto> _validator;
+
+        // 2. Constructor'a (Yapıcı Metot) ekleyerek sisteme "Bana bu görevliyi getir" diyoruz.
+        public CarManager(IRepository<Car> carRepository, IMapper mapper, IValidator<CarAddDto> validator)
         {
             _carRepository = carRepository;
             _mapper = mapper;
+            _validator = validator;
         }
 
         public async Task AddAsync(CarAddDto carAddDto)
         {
-            // 1. ADIM: Kullanıcının gönderdiği CarAddDto tabağını, SQL'in anladığı Car tenceresine çeviriyoruz
-            var car = _mapper.Map<Car>(carAddDto);
+            // 3. Mutfağa veri girdiği an ilk iş güvenlik görevlisine kontrol ettiriyoruz.
+            var validationResult = await _validator.ValidateAsync(carAddDto);
 
-            if (car.DailyPrice <= 0)
+            // 4. Eğer kural ihlali varsa (Örn: Fiyat eksi girildiyse)
+            if (!validationResult.IsValid)
             {
-                throw new ArgumentException("Günlük araç kiralama bedeli 0'dan büyük olmalıdır.");
+                // Sistemin sigortasını attırıyoruz! (Exception fırlatıyoruz)
+                // Hataları da içine koyuyoruz ki ileride kullanıcıya "Şuraları yanlış girdin" diyebilelim.
+                throw new ValidationException(validationResult.Errors);
             }
 
-            // 2. ADIM: Artık elimizde temiz bir Car nesnesi var, Repository'ye paslayabiliriz
+            // Eğer kod buraya ulaştıysa, Validator "Geçebilir" demiştir. Yemeği pişiriyoruz.
+            var car = _mapper.Map<Car>(carAddDto);  // DTO'yu Entity'e çeviriyoruz
             await _carRepository.AddAsync(car);
         }
 
