@@ -34,6 +34,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+// Kendi yazdığımız hata yakalayıcı kalkanı boru hattının en başına takıyoruz
+app.UseMiddleware<RentACar.API.Middlewares.ExceptionMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
