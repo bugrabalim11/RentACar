@@ -1,4 +1,6 @@
-﻿using System;
+﻿
+using RentACar.Entities.Enums;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -17,6 +19,6 @@ namespace RentACar.Dtos.CarDtos
         public int SeatCount { get; set; }
         public int MinDriverAge { get; set; }
         public string LuggageCapacity { get; set; } = null!;
-        public string TransmissionType { get; set; } = null!;
+        public TransmissionType TransmissionType { get; set; }
     }
 }

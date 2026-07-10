@@ -28,8 +28,9 @@ namespace RentACar.Business.ValidationRules.CarValidators
             RuleFor(x => x.LuggageCapacity)
                 .NotEmpty().WithMessage("Bagaj kapasitesi boş geçilemez.");
 
+            // YENİ HALİ:
             RuleFor(x => x.TransmissionType)
-                .NotEmpty().WithMessage("Vites tipi boş geçilemez.");  // İleride Enum yapınca burayı değiştireceğiz
+                .IsInEnum().WithMessage("Lütfen geçerli bir vites tipi seçiniz (1: Manuel, 2: Otomatik, 3: Yarı Otomatik).");
 
 
             RuleFor(x => x.DailyPrice)
