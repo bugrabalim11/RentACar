@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using RentACar.Business.Abstract;
 using RentACar.DataAccess.Abstract;
 using RentACar.Dtos.ColorDtos;
@@ -13,15 +14,23 @@ namespace RentACar.Business.Concrete
     {
         private readonly IRepository<Color> _colorRepository;
         private readonly IMapper _mapper;
+        private readonly IValidator<ColorAddDto> _validator;
 
-        public ColorManager(IRepository<Color> colorRepository, IMapper mapper)
+        public ColorManager(IRepository<Color> colorRepository, IMapper mapper, IValidator<ColorAddDto> validator)
         {
             _colorRepository = colorRepository;
             _mapper = mapper;
+            _validator = validator;
         }
 
         public async Task AddAsync(ColorAddDto colorAddDto)
         {
+            var validationResult = await _validator.ValidateAsync(colorAddDto);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
+
             var color = _mapper.Map<Color>(colorAddDto);
             await _colorRepository.AddAsync(color);
         }
