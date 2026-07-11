@@ -14,18 +14,20 @@ namespace RentACar.Business.Concrete
     {
         private readonly IRepository<Color> _colorRepository;
         private readonly IMapper _mapper;
-        private readonly IValidator<ColorAddDto> _validator;
+        private readonly IValidator<ColorAddDto> _addValidator;
+        private readonly IValidator<ColorUpdateDto> _updateValidator;
 
-        public ColorManager(IRepository<Color> colorRepository, IMapper mapper, IValidator<ColorAddDto> validator)
+        public ColorManager(IRepository<Color> colorRepository, IMapper mapper, IValidator<ColorAddDto> addValidator, IValidator<ColorUpdateDto> updateValidator)
         {
             _colorRepository = colorRepository;
             _mapper = mapper;
-            _validator = validator;
+            _addValidator = addValidator;
+            _updateValidator = updateValidator;
         }
 
         public async Task AddAsync(ColorAddDto colorAddDto)
         {
-            var validationResult = await _validator.ValidateAsync(colorAddDto);
+            var validationResult = await _addValidator.ValidateAsync(colorAddDto);
             if (!validationResult.IsValid)
             {
                 throw new ValidationException(validationResult.Errors);
@@ -60,11 +62,18 @@ namespace RentACar.Business.Concrete
 
         public async Task<bool> UpdateAsync(ColorUpdateDto colorUpdateDto)
         {
+            var validationResult = await _updateValidator.ValidateAsync(colorUpdateDto);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
+
             var existingColor = await _colorRepository.GetAsync(x => x.Id == colorUpdateDto.Id);
             if (existingColor == null)
             {
                 return false;
             }
+
             _mapper.Map(colorUpdateDto, existingColor);
             await _colorRepository.UpdateAsync(existingColor);
             return true;
