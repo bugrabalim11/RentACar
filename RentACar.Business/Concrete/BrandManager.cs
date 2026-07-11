@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using RentACar.Business.Abstract;
+using RentACar.Business.ValidationRules.BrandValidators;
 using RentACar.DataAccess.Abstract;
 using RentACar.Dtos.BrandDtos;
 using RentACar.Entities.Concrete;
@@ -13,17 +15,24 @@ namespace RentACar.Business.Concrete
     {
         private readonly IRepository<Brand> _brandRepository;
         private readonly IMapper _mapper;
+        private readonly IValidator<BrandAddDto> _validator;
 
-        public BrandManager(IRepository<Brand> brandRepository, IMapper mapper)
+        public BrandManager(IRepository<Brand> brandRepository, IMapper mapper, IValidator<BrandAddDto> validator)
         {
             _brandRepository = brandRepository;
             _mapper = mapper;
+            _validator = validator;
         }
 
         public async Task AddAsync(BrandAddDto brandAddDto)
         {
-            var brand = _mapper.Map<Brand>(brandAddDto);
+            var validationResult = await _validator.ValidateAsync(brandAddDto);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
 
+            var brand = _mapper.Map<Brand>(brandAddDto);
             await _brandRepository.AddAsync(brand);
         }
 
