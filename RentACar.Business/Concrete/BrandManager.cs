@@ -15,18 +15,20 @@ namespace RentACar.Business.Concrete
     {
         private readonly IRepository<Brand> _brandRepository;
         private readonly IMapper _mapper;
-        private readonly IValidator<BrandAddDto> _validator;
+        private readonly IValidator<BrandAddDto> _addValidator;
+        private readonly IValidator<BrandUpdateDto> _updateValidator;
 
-        public BrandManager(IRepository<Brand> brandRepository, IMapper mapper, IValidator<BrandAddDto> validator)
+        public BrandManager(IRepository<Brand> brandRepository, IMapper mapper, IValidator<BrandAddDto> addValidator, IValidator<BrandUpdateDto> updateValidator)
         {
             _brandRepository = brandRepository;
             _mapper = mapper;
-            _validator = validator;
+            _addValidator = addValidator;
+            _updateValidator = updateValidator;
         }
 
         public async Task AddAsync(BrandAddDto brandAddDto)
         {
-            var validationResult = await _validator.ValidateAsync(brandAddDto);
+            var validationResult = await _addValidator.ValidateAsync(brandAddDto);
             if (!validationResult.IsValid)
             {
                 throw new ValidationException(validationResult.Errors);
@@ -64,6 +66,12 @@ namespace RentACar.Business.Concrete
 
         public async Task<bool> UpdateAsync(BrandUpdateDto brandUpdateDto)
         {
+            var validationResult = await _updateValidator.ValidateAsync(brandUpdateDto);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
+
             var existingBrand = await _brandRepository.GetAsync(x => x.Id == brandUpdateDto.Id);
             if (existingBrand == null)
             {

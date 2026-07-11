@@ -11,6 +11,7 @@ namespace RentACar.Business.ValidationRules.CarValidators
         public CarUpdateDtoValidator()
         {
             // Update işlemine ÖZEL Kural: ID kontrolü
+            // Eğer kullanıcı Swagger'dan Id alanını hiç göndermezse, C# bunu otomatik olarak varsayılan (default) değeri olan 0 olarak kabul eder.
             RuleFor(x => x.Id).GreaterThan(0).WithMessage("Lütfen güncellencek geçerli bir araç seçiniz.");
 
             // ---- AŞAĞISI CAR ADD İLE BİREBİR AYNI ----
