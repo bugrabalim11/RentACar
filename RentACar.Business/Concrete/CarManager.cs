@@ -18,20 +18,22 @@ namespace RentACar.Business.Concrete
 
         // 1. Güvenlik görevlimizi (Validator) tanımlıyoruz. 
         // Sadece CarAddDto'dan anlayan bir güvenlik görevlisi istiyoruz.
-        private readonly IValidator<CarAddDto> _validator;
+        private readonly IValidator<CarAddDto> _addValidator;
+        private readonly IValidator<CarUpdateDto> _updateValidator;
 
         // 2. Constructor'a (Yapıcı Metot) ekleyerek sisteme "Bana bu görevliyi getir" diyoruz.
-        public CarManager(IRepository<Car> carRepository, IMapper mapper, IValidator<CarAddDto> validator)
+        public CarManager(IRepository<Car> carRepository, IMapper mapper, IValidator<CarAddDto> addValidator, IValidator<CarUpdateDto> updateValidator)
         {
             _carRepository = carRepository;
             _mapper = mapper;
-            _validator = validator;
+            _addValidator = addValidator;
+            _updateValidator = updateValidator;
         }
 
         public async Task AddAsync(CarAddDto carAddDto)
         {
             // 3. Mutfağa veri girdiği an ilk iş güvenlik görevlisine kontrol ettiriyoruz.
-            var validationResult = await _validator.ValidateAsync(carAddDto);
+            var validationResult = await _addValidator.ValidateAsync(carAddDto);
 
             // 4. Eğer kural ihlali varsa (Örn: Fiyat eksi girildiyse)
             if (!validationResult.IsValid)
@@ -79,16 +81,23 @@ namespace RentACar.Business.Concrete
 
         public async Task<bool> UpdateAsync(CarUpdateDto carUpdateDto)
         {
-            var existingCar = await _carRepository.GetAsync(x => x.Id == carUpdateDto.Id);
-
-            if (existingCar == null)
+            // 1. KAPI KONTROLÜ (Validation - Çöp veri varsa veritabanını hiç yorma!)
+            var validationResult = await _updateValidator.ValidateAsync(carUpdateDto);
+            if (!validationResult.IsValid)
             {
-                return false;  // Araba yok!
+                throw new ValidationException(validationResult.Errors);
             }
 
-            // AutoMapper ile yeni gelen DTO'daki bilgileri, veritabanından bulduğumuz mevcut arabanın üstüne yazıyoruz
-            _mapper.Map(carUpdateDto, existingCar);
+            // 2. VERİTABANI KONTROLÜ (Senin sağlam mantığın)
+            var existingCar = await _carRepository.GetAsync(x => x.Id == carUpdateDto.Id);
+            if (existingCar == null)
+            {
+                return false;  // Araba yok, işlemi iptal et
+            }
 
+            // 3. EŞLEŞTİRME VE KAYIT
+            // AutoMapper ile yeni gelen verileri, bulduğumuz mevcut arabanın üstüne yazıyoruz
+            _mapper.Map(carUpdateDto, existingCar);
             await _carRepository.UpdateAsync(existingCar);
             return true;
         }
