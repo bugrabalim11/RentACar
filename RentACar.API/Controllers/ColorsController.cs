@@ -20,48 +20,57 @@ namespace RentACar.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var values = await _colorService.GetAllAsync();
-            return Ok(values);
+            var result = await _colorService.GetAllAsync();
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var value = await _colorService.GetByIdAsync(id);
-            if (value == null)
+            var result = await _colorService.GetByIdAsync(id);
+            if (result.Success)
             {
-                return NotFound();
+                return Ok(result);
             }
-            return Ok(value);
+            return BadRequest(result);
         }
 
         [HttpPost]
         public async Task<IActionResult> AddColor(ColorAddDto colorAddDto)
         {
-            await _colorService.AddAsync(colorAddDto);
-            return Ok();
+            var result = await _colorService.AddAsync(colorAddDto);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
         }
 
         [HttpPut]
         public async Task<IActionResult> UpdateColor(ColorUpdateDto colorUpdateDto)
         {
             var result = await _colorService.UpdateAsync(colorUpdateDto);
-            if (!result)
+            if (result.Success)
             {
-                return NotFound();
+                return Ok(result);
             }
-            return Ok();
+            return BadRequest(result);
         }
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteColor(int id)
         {
             var result = await _colorService.DeleteAsync(id);
-            if (!result)
+            if (result.Success)
             {
-                return NotFound();
+                return Ok(result);
             }
-            return Ok();
+            return BadRequest(result);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using RentACar.Business.Abstract;
+using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 using RentACar.Dtos.ColorDtos;
 using RentACar.Entities.Concrete;
@@ -25,7 +26,7 @@ namespace RentACar.Business.Concrete
             _updateValidator = updateValidator;
         }
 
-        public async Task AddAsync(ColorAddDto colorAddDto)
+        public async Task<IResult> AddAsync(ColorAddDto colorAddDto)
         {
             var validationResult = await _addValidator.ValidateAsync(colorAddDto);
             if (!validationResult.IsValid)
@@ -35,32 +36,41 @@ namespace RentACar.Business.Concrete
 
             var color = _mapper.Map<Color>(colorAddDto);
             await _colorRepository.AddAsync(color);
+            return new SuccessResult("Renk başarıyla eklendi.");
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<IResult> DeleteAsync(int id)
         {
             var existingColor = await _colorRepository.GetAsync(x => x.Id == id);
             if (existingColor == null)
             {
-                return false;
+                return new ErrorResult("Silinecek renk bulunamadı.");
             }
+
             await _colorRepository.DeleteAsync(existingColor);
-            return true;
+            return new SuccessResult("Renk başarıyla silindi.");
         }
 
-        public async Task<List<ColorListDto>> GetAllAsync()
+        public async Task<IDataResult<List<ColorListDto>>> GetAllAsync()
         {
             var colors = await _colorRepository.GetAllAsync();
-            return _mapper.Map<List<ColorListDto>>(colors);
+            var colorDtos= _mapper.Map<List<ColorListDto>>(colors);
+            return new SuccessDataResult<List<ColorListDto>>(colorDtos, "Renkler başarıyla listelendi.");
         }
 
-        public async Task<ColorListDto?> GetByIdAsync(int id)
+        public async Task<IDataResult<ColorListDto>> GetByIdAsync(int id)
         {
             var color = await _colorRepository.GetAsync(x => x.Id == id);
-            return _mapper.Map<ColorListDto>(color);
+            if(color == null)
+            {
+                return new ErrorDataResult<ColorListDto>("Aranan renk bulunamadı.");
+            }
+
+            var colorDto = _mapper.Map<ColorListDto>(color);
+            return new SuccessDataResult<ColorListDto>(colorDto, "Renk başarıyla getirildi.");
         }
 
-        public async Task<bool> UpdateAsync(ColorUpdateDto colorUpdateDto)
+        public async Task<IResult> UpdateAsync(ColorUpdateDto colorUpdateDto)
         {
             var validationResult = await _updateValidator.ValidateAsync(colorUpdateDto);
             if (!validationResult.IsValid)
@@ -71,12 +81,12 @@ namespace RentACar.Business.Concrete
             var existingColor = await _colorRepository.GetAsync(x => x.Id == colorUpdateDto.Id);
             if (existingColor == null)
             {
-                return false;
+                return new ErrorResult("Güncellenecek renk bulunamadı.");
             }
 
             _mapper.Map(colorUpdateDto, existingColor);
             await _colorRepository.UpdateAsync(existingColor);
-            return true;
+            return new SuccessResult("Renk başarıyla güncellendi.");
         }
     }
 }

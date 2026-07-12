@@ -1,4 +1,5 @@
-﻿using RentACar.Dtos.BrandDtos;
+﻿using RentACar.Core.Utilities.Results;
+using RentACar.Dtos.BrandDtos;
 using RentACar.Dtos.ColorDtos;
 using System;
 using System.Collections.Generic;
@@ -8,10 +9,10 @@ namespace RentACar.Business.Abstract
 {
     public interface IColorService
     {
-        Task<List<ColorListDto>> GetAllAsync();
-        Task<ColorListDto?> GetByIdAsync(int id);
-        Task AddAsync(ColorAddDto colorAddDto);
-        Task<bool> UpdateAsync(ColorUpdateDto colorUpdateDto);
-        Task<bool> DeleteAsync(int id);
+        Task<IDataResult<List<ColorListDto>>> GetAllAsync();
+        Task<IDataResult<ColorListDto>> GetByIdAsync(int id);
+        Task<IResult> AddAsync(ColorAddDto colorAddDto);
+        Task<IResult> UpdateAsync(ColorUpdateDto colorUpdateDto);
+        Task<IResult> DeleteAsync(int id);
     }
 }
