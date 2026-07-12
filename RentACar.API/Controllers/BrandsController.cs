@@ -19,19 +19,23 @@ namespace RentACar.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var values = await _brandService.GetAllAsync();
-            return Ok(values);
+            var result = await _brandService.GetAllAsync();
+            if (result.Success)
+            {
+                return Ok(result);  // Kutuyu içindeki "data" listesiyle beraber aynen döner
+            }
+            return BadRequest(result);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var value = await _brandService.GetByIdAsync(id);
-            if (value == null)
+            var result = await _brandService.GetByIdAsync(id);
+            if (result.Success)
             {
-                return NotFound();
+                return Ok(result); // Kutuyu içindeki tek bir "data" (Brand) nesnesiyle döner
             }
-            return Ok(value);
+            return NotFound(result);
         }
 
         [HttpPost]
@@ -64,11 +68,11 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> DeleteBrand(int id)
         {
             var result = await _brandService.DeleteAsync(id);
-            if (!result)
+            if (result.Success)
             {
-                return NotFound();
+                return Ok(result);
             }
-            return Ok();
+            return BadRequest(result);
         }
     }
 }

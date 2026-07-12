@@ -42,30 +42,37 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Marka başarıyla eklendi.");
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<IResult> DeleteAsync(int id)
+        {
+            var existingBrand = await _brandRepository.GetAsync(x => x.Id == id);
+            if (existingBrand == null)
+            {
+                return new ErrorResult("Silinecek marka bulunamadı.");
+            }
+
+            await _brandRepository.DeleteAsync(existingBrand);
+            return new SuccessResult("Marka başarıyla silindi.");
+        }
+
+        public async Task<IDataResult<List<BrandListDto>>> GetAllAsync()
+        {
+            var brands = await _brandRepository.GetAllAsync();
+
+            var brandDtos = _mapper.Map<List<BrandListDto>>(brands);
+
+            return new SuccessDataResult<List<BrandListDto>>(brandDtos, "Markalar başarıyla listelendi.");
+        }
+
+        public async Task<IDataResult<BrandListDto>> GetByIdAsync(int id)
         {
             var brand = await _brandRepository.GetAsync(x => x.Id == id);
             if (brand == null)
             {
-                return false;
+                return new ErrorDataResult<BrandListDto>("Aranan marka bulunamadı.");
             }
 
-            await _brandRepository.DeleteAsync(brand);
-            return true;
-        }
-
-        public async Task<List<BrandListDto>> GetAllAsync()
-        {
-            var brands = await _brandRepository.GetAllAsync();
-
-            return _mapper.Map<List<BrandListDto>>(brands);
-        }
-
-        public async Task<BrandListDto?> GetByIdAsync(int id)
-        {
-            var brand = await _brandRepository.GetAsync(x => x.Id == id);
-
-            return _mapper.Map<BrandListDto>(brand);
+            var brandDto = _mapper.Map<BrandListDto>(brand);
+            return new SuccessDataResult<BrandListDto>(brandDto, "Marka başarıyla getirildi.");
         }
 
         public async Task<IResult> UpdateAsync(BrandUpdateDto brandUpdateDto)
