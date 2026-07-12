@@ -2,6 +2,7 @@
 using FluentValidation;
 using RentACar.Business.Abstract;
 using RentACar.Business.ValidationRules.BrandValidators;
+using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 using RentACar.Dtos.BrandDtos;
 using RentACar.Entities.Concrete;
@@ -26,7 +27,7 @@ namespace RentACar.Business.Concrete
             _updateValidator = updateValidator;
         }
 
-        public async Task AddAsync(BrandAddDto brandAddDto)
+        public async Task<IResult> AddAsync(BrandAddDto brandAddDto)
         {
             var validationResult = await _addValidator.ValidateAsync(brandAddDto);
             if (!validationResult.IsValid)
@@ -36,6 +37,9 @@ namespace RentACar.Business.Concrete
 
             var brand = _mapper.Map<Brand>(brandAddDto);
             await _brandRepository.AddAsync(brand);
+
+            // ARTIK VOID (BOŞ) DÖNMÜYORUZ, KUTU DÖNÜYORUZ!
+            return new SuccessResult("Marka başarıyla eklendi.");
         }
 
         public async Task<bool> DeleteAsync(int id)
@@ -64,7 +68,7 @@ namespace RentACar.Business.Concrete
             return _mapper.Map<BrandListDto>(brand);
         }
 
-        public async Task<bool> UpdateAsync(BrandUpdateDto brandUpdateDto)
+        public async Task<IResult> UpdateAsync(BrandUpdateDto brandUpdateDto)
         {
             var validationResult = await _updateValidator.ValidateAsync(brandUpdateDto);
             if (!validationResult.IsValid)
@@ -75,12 +79,15 @@ namespace RentACar.Business.Concrete
             var existingBrand = await _brandRepository.GetAsync(x => x.Id == brandUpdateDto.Id);
             if (existingBrand == null)
             {
-                return false;
+                // ARTIK FALSE YERİNE ERROR RESULT KUTUSU DÖNÜYORUZ!
+                return new ErrorResult("Güncellenecek marka bulunamadı.");
             }
 
             _mapper.Map(brandUpdateDto, existingBrand);
             await _brandRepository.UpdateAsync(existingBrand);
-            return true;
+
+            // ARTIK TRUE YERİNE SUCCESS RESULT KUTUSU DÖNÜYORUZ!
+            return new SuccessResult("Marka başarıyla güncellendi.");
         }
     }
 }

@@ -37,19 +37,27 @@ namespace RentACar.API.Controllers
         [HttpPost]
         public async Task<IActionResult> AddBrand(BrandAddDto brandAddDto)
         {
-            await _brandService.AddAsync(brandAddDto);
-            return Ok();
+            var result = await _brandService.AddAsync(brandAddDto);
+
+            // Kutunun üzerindeki Başarı (Success) etiketini kontrol et
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+
+            // İşlem başarısızsa, müşteriye 400 Bad Request ile kutuyu ver
+            return BadRequest(result);
         }
 
         [HttpPut]
         public async Task<IActionResult> UpdateBrand(BrandUpdateDto brandUpdateDto)
         {
             var result = await _brandService.UpdateAsync(brandUpdateDto);
-            if (!result)
+            if (result.Success)
             {
-                return NotFound();
+                return Ok(result);
             }
-            return Ok();
+            return BadRequest(result);
         }
 
         [HttpDelete("{id}")]
