@@ -1,4 +1,5 @@
-﻿using RentACar.Dtos.CarDtos;
+﻿using RentACar.Core.Utilities.Results;
+using RentACar.Dtos.CarDtos;
 using RentACar.Entities.Concrete;
 using System;
 using System.Collections.Generic;
@@ -8,14 +9,15 @@ namespace RentACar.Business.Abstract
 {
     public interface ICarService
     {
-        // Artık List<Car> değil, List<CarListDto> dönüyoruz! Tencereleri gizledik.
-        Task<List<CarListDto>> GetAllAsync();
+        // 1. Liste Dönerken (Join'li veriler bu kutuya girecek)
+        Task<IDataResult<List<CarListDto>>> GetAllAsync();
 
-        Task<CarListDto?> GetByIdAsync(int id); // Bulamazsa null döner (T? mantığı)
+        // 2. Tekil Dönerken
+        Task<IDataResult<CarListDto>> GetByIdAsync(int id);
 
-        // Dışarıdan Car değil, CarAddDto alıyoruz! (Çünkü Id'yi veritabanı verecek)
-        Task AddAsync(CarAddDto carAddDto);
-        Task<bool> UpdateAsync(CarUpdateDto carUpdateDto);
-        Task<bool> DeleteAsync(int id);
+        // 3. Ekle, Sil, Güncelle işlemleri sadece boş kargo kutusu (IResult) döner
+        Task<IResult> AddAsync(CarAddDto carAddDto);
+        Task<IResult> UpdateAsync(CarUpdateDto carUpdateDto);
+        Task<IResult> DeleteAsync(int id);
     }
 }

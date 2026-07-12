@@ -4,6 +4,7 @@ using RentACar.Business.Abstract;
 using RentACar.Business.Concrete;
 using RentACar.DataAccess.Abstract;
 using RentACar.DataAccess.Concrete;
+using RentACar.DataAccess.Concrete.EntityFramework;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -27,6 +28,7 @@ namespace RentACar.Business.Extensions
             services.AddScoped<ICarService, CarManager>();
             services.AddScoped<IBrandService, BrandManager>();
             services.AddScoped<IColorService, ColorManager>();
+            services.AddScoped<ICarRepository, CarRepository>();
 
             return services;
         }

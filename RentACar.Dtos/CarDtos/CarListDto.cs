@@ -7,9 +7,13 @@ namespace RentACar.Dtos.CarDtos
 {
     public class CarListDto
     {
-        public int Id { get; set; } // Hangi arabaya tıkladığını bilmek için Id şart!
-        public int BrandId { get; set; }
-        public int ColorId { get; set; }
+        public int Id { get; set; } 
+
+        // Müşteri ID görmek istemez, ismi görmek ister!
+        public string BrandName { get; set; } = null!;
+        public string ColorName { get; set; } = null!;
+
+        // Senin yazdığın detaylar aynen kalıyor:
         public string ModelName { get; set; } = null!;
         public int Kilometer { get; set; }
         public string Plate { get; set; } = null!;

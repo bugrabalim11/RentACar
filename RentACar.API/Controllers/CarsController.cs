@@ -17,12 +17,15 @@ namespace RentACar.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddCar(CarAddDto carAddDto)
+        public async Task<IActionResult> Add(CarAddDto carAddDto)
         {
             // İşi aşçıya (Business katmanına) devrediyoruz
-            await _carService.AddAsync(carAddDto);
-
-            return Ok();
+            var result = await _carService.AddAsync(carAddDto);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
         }
 
         [HttpGet]
@@ -30,49 +33,45 @@ namespace RentACar.API.Controllers
         {
             // Aşçıdan tabakları (DTO listesini) istiyoruz
             var result = await _carService.GetAllAsync();
-            return Ok(result);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             var result = await _carService.GetByIdAsync(id);
-
-            if (result == null)
+            if (result.Success)
             {
-                return NotFound();
+                return Ok(result);
             }
-
-            return Ok(result);
+            return BadRequest(result);
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateCar(CarUpdateDto carUpdateDto)
+        public async Task<IActionResult> Update(CarUpdateDto carUpdateDto)
         {
-            // 1. GetByIdAsync'i SİLİYORUZ! Doğrudan UpdateAsync'i çağırıyoruz.
-            // Çünkü UpdateAsync metodu geriye 'bool' (true/false) dönecek (Yeni yazdığımız düzende).
             var result = await _carService.UpdateAsync(carUpdateDto);
-
-            // 2. Artık result bir 'bool' olduğu için önüne rahatça '!' koyabiliriz!
-            if (!result) // Yani: "Eğer güncelleme başarısızsa (false döndüyse)"
+            if (result.Success)
             {
-                return NotFound();
+                return Ok(result);
             }
 
-            return Ok();
+            return BadRequest(result);
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCar(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             var result = await _carService.DeleteAsync(id);
-
-            if (!result)  // Eğer sonuç 'false' döndüyse
+            if (result.Success)
             {
-                return NotFound();
+                return Ok(result);
             }
-
-            return Ok();
+            return BadRequest(result);
         }
     }
 }
