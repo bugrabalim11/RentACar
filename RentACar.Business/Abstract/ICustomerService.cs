@@ -1,4 +1,7 @@
-﻿using RentACar.Entities.Concrete;
+﻿using RentACar.Core.Utilities.Results;
+using RentACar.Dtos.ColorDtos;
+using RentACar.Dtos.CustomerDtos;
+using RentACar.Entities.Concrete;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,10 +10,10 @@ namespace RentACar.Business.Abstract
 {
     public interface ICustomerService
     {
-        Task<List<Customer>> GetAllAsync();
-        Task<Customer?> GetByIdAsync(int id); 
-        Task AddAsync(Customer customer);
-        Task UpdateAsync(Customer customer);
-        Task DeleteAsync(Customer customer);
+        Task<IDataResult<List<CustomerListDto>>> GetAllAsync();
+        Task<IDataResult<CustomerListDto>> GetByIdAsync(int id);
+        Task<IResult> AddAsync(CustomerAddDto customerAddDto);
+        Task<IResult> UpdateAsync(CustomerUpdateDto customerUpdateDto);
+        Task<IResult> DeleteAsync(int id);
     }
 }
