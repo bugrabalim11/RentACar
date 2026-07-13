@@ -39,7 +39,7 @@ namespace RentACar.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddBrand(BrandAddDto brandAddDto)
+        public async Task<IActionResult> Add(BrandAddDto brandAddDto)
         {
             var result = await _brandService.AddAsync(brandAddDto);
 
@@ -54,7 +54,7 @@ namespace RentACar.API.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateBrand(BrandUpdateDto brandUpdateDto)
+        public async Task<IActionResult> Update(BrandUpdateDto brandUpdateDto)
         {
             var result = await _brandService.UpdateAsync(brandUpdateDto);
             if (result.Success)
@@ -65,7 +65,7 @@ namespace RentACar.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBrand(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             var result = await _brandService.DeleteAsync(id);
             if (result.Success)

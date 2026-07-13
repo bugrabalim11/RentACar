@@ -41,7 +41,7 @@ namespace RentACar.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddColor(ColorAddDto colorAddDto)
+        public async Task<IActionResult> Add(ColorAddDto colorAddDto)
         {
             var result = await _colorService.AddAsync(colorAddDto);
             if (result.Success)
@@ -52,7 +52,7 @@ namespace RentACar.API.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateColor(ColorUpdateDto colorUpdateDto)
+        public async Task<IActionResult> Update(ColorUpdateDto colorUpdateDto)
         {
             var result = await _colorService.UpdateAsync(colorUpdateDto);
             if (result.Success)
@@ -63,7 +63,7 @@ namespace RentACar.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteColor(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             var result = await _colorService.DeleteAsync(id);
             if (result.Success)
