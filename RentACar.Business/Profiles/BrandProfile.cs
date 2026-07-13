@@ -13,7 +13,7 @@ namespace RentACar.Business.Profiles
         {
             CreateMap<BrandAddDto, Brand>();
             CreateMap<BrandUpdateDto, Brand>();
-            CreateMap<Brand, BrandListDto>().ReverseMap();
+            CreateMap<Brand, BrandListDto>();
         }
     }
 }

@@ -14,9 +14,7 @@ namespace RentACar.Business.Profiles
         {
             CreateMap<ColorAddDto, Color>();
             CreateMap<ColorUpdateDto, Color>();
-
-            // Çift yönlü bilet (Joker) kuralımızı renkler için de ekliyoruz
-            CreateMap<Color, ColorListDto>().ReverseMap();
+            CreateMap<Color, ColorListDto>();
         }
     }
 }

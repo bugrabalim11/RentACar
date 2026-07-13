@@ -26,9 +26,11 @@ namespace RentACar.Business.Extensions
 
             // Business kayıtları
             services.AddScoped<ICarService, CarManager>();
+            services.AddScoped<ICarRepository, CarRepository>();
             services.AddScoped<IBrandService, BrandManager>();
             services.AddScoped<IColorService, ColorManager>();
-            services.AddScoped<ICarRepository, CarRepository>();
+            services.AddScoped<ICustomerService, CustomerManager>();
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
 
             return services;
         }

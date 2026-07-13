@@ -49,7 +49,7 @@ namespace RentACar.Business.Concrete
             }
 
             await _customerRepository.DeleteAsync(existingCustomer);
-            return new SuccessResult("Müşteri başarıyla silindi");
+            return new SuccessResult("Müşteri başarıyla silindi.");
         }
 
         public async Task<IDataResult<List<CustomerListDto>>> GetAllAsync()
