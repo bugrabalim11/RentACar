@@ -34,10 +34,8 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> AddAsync(CarAddDto carAddDto)
         {
-            // 3. Mutfağa veri girdiği an ilk iş güvenlik görevlisine kontrol ettiriyoruz.
+            // 1. GÜVENLİK (Validator - Boşluk, eksi sayı vs. kontrolü)
             var validationResult = await _addValidator.ValidateAsync(carAddDto);
-
-            // 4. Eğer kural ihlali varsa (Örn: Fiyat eksi girildiyse)
             if (!validationResult.IsValid)
             {
                 // Sistemin sigortasını attırıyoruz! (Exception fırlatıyoruz)
@@ -45,10 +43,17 @@ namespace RentACar.Business.Concrete
                 throw new ValidationException(validationResult.Errors);
             }
 
-            // Eğer kod buraya ulaştıysa, Validator "Geçebilir" demiştir. Yemeği pişiriyoruz.
-            var car = _mapper.Map<Car>(carAddDto);  // DTO'yu Entity'e çeviriyoruz
+            // 2. İŞ KURALLARI (Business Rules - Dükkanın mantık kuralları)
+            var ruleResult = await CheckIfCarPlateExistsAsync(carAddDto.Plate);
+            if (!ruleResult.Success)
+            {
+                return ruleResult; // Eğer plaka varsa, işlemi durdur ve hata kutusunu Garsona fırlat!
+            }
+
+            // 3. KAYIT (Her şey tamamsa yemeği pişir)
+            var car = _mapper.Map<Car>(carAddDto);
             await _carRepository.AddAsync(car);
-            return new SuccessResult("Araba başarıyla eklendi.");
+            return new SuccessResult("Araç başarıyla eklendi.");
         }
 
         public async Task<IResult> DeleteAsync(int id)
@@ -112,6 +117,21 @@ namespace RentACar.Business.Concrete
             _mapper.Map(carUpdateDto, existingCar);
             await _carRepository.UpdateAsync(existingCar);
             return new SuccessResult("Araç başarıyla güncellendi.");
+        }
+
+        // İş Kuralı: Aynı plaka var mı kontrolü
+        private async Task<IResult> CheckIfCarPlateExistsAsync(string plate)
+        {
+            // Depoya sor: "Bu plakaya sahip bir araba var mı?"
+            var result = await _carRepository.GetAsync(x => x.Plate == plate);
+
+            if (result != null)
+            {
+                // Varsa, kırmızı etiketli kargo kutusu dön
+                return new ErrorResult("Bu plakaya sahip araç zaten kayıtlı!");
+            }
+
+            return new SuccessResult();
         }
     }
 }
