@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RentACar.Core.Entities;
 using RentACar.DataAccess.Abstract;
 using RentACar.DataAccess.Concrete.EntityFramework;
 using System;
@@ -8,7 +9,7 @@ using System.Text;
 
 namespace RentACar.DataAccess.Concrete
 {
-    public class Repository<T> : IRepository<T> where T : class
+    public class Repository<T> : IRepository<T> where T : class, IEntity, new()
     {
         private readonly RentACarContext _context;
 
@@ -28,7 +29,7 @@ namespace RentACar.DataAccess.Concrete
         {
             // Silme işlemi önce RAM'de kaydın durumunu 'Silindi' olarak işaretler (O yüzden await yok)
             _context.Set<T>().Remove(entity);
-            await _context.SaveChangesAsync(); 
+            await _context.SaveChangesAsync();
         }
 
         // Çoklu kayıt (Liste) getirme işlemi
@@ -53,8 +54,8 @@ namespace RentACar.DataAccess.Concrete
         public async Task UpdateAsync(T entity)
         {
             // Güncelleme işlemi önce RAM'de (hafızada) kaydın durumunu 'Güncellendi' olarak işaretler (O yüzden await yok)
-            _context.Set<T>().Update(entity);   
-            await _context.SaveChangesAsync();  
+            _context.Set<T>().Update(entity);
+            await _context.SaveChangesAsync();
         }
     }
 }

@@ -1,10 +1,11 @@
-﻿using System;
+﻿using RentACar.Core.Entities;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace RentACar.Entities.Concrete
 {
-    public class Rental
+    public class Rental : IEntity
     {
         public int Id { get; set; }
         public int CarId { get; set; }

@@ -1,11 +1,14 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
+using RentACar.Core.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
 
 namespace RentACar.DataAccess.Abstract
 {
-    public interface IRepository<T>  where T : class
+    // KURAL: T tipi kesinlikle bir Sınıf (class) olmalı, IEntity VIP kartını taşımalı ve new'lenebilir olmalı!
+    public interface IRepository<T> where T : class, IEntity, new()
     {
         /// <summary>
         /// Veritabanındaki verileri listeler. İsteğe bağlı olarak filtre uygulanabilir.
