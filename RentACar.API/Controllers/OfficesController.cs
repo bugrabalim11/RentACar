@@ -7,11 +7,11 @@ namespace RentACar.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OfficeController : ControllerBase
+    public class OfficesController : ControllerBase
     {
         private readonly IOfficeService _officeService;
 
-        public OfficeController(IOfficeService officeService)
+        public OfficesController(IOfficeService officeService)
         {
             _officeService = officeService;
         }
