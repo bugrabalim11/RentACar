@@ -68,7 +68,7 @@ namespace RentACar.Business.Concrete
             }
 
             var customerDtos = _mapper.Map<CustomerListDto>(customer);
-            return new SuccessDataResult<CustomerListDto>(customerDtos, "Müşteriler başarıyla listelendi.");
+            return new SuccessDataResult<CustomerListDto>(customerDtos, "Müşteri başarıyla getirildi.");
         }
 
         public async Task<IResult> UpdateAsync(CustomerUpdateDto customerUpdateDto)

@@ -1,4 +1,7 @@
-﻿using RentACar.Entities.Concrete;
+﻿using RentACar.Core.Utilities.Results;
+using RentACar.Dtos.CustomerDtos;
+using RentACar.Dtos.OfficeDtos;
+using RentACar.Entities.Concrete;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,10 +10,10 @@ namespace RentACar.Business.Abstract
 {
     public interface IOfficeService
     {
-        Task<List<Office>> GetAllAsync();
-        Task<Office?> GetByIdAsync(int id);
-        Task AddAsync(Office office);
-        Task UpdateAsync(Office office);
-        Task DeleteAsync(Office office);
+        Task<IDataResult<List<OfficeListDto>>> GetAllAsync();
+        Task<IDataResult<OfficeListDto>> GetByIdAsync(int id);
+        Task<IResult> AddAsync(OfficeAddDto officeAddDto);
+        Task<IResult> UpdateAsync(OfficeUpdateDto officeUpdateDto);
+        Task<IResult> DeleteAsync(int id);
     }
 }
