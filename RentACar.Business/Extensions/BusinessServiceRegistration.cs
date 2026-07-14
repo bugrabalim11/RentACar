@@ -31,6 +31,8 @@ namespace RentACar.Business.Extensions
             services.AddScoped<IColorService, ColorManager>();
             services.AddScoped<ICustomerService, CustomerManager>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
+            services.AddScoped<IOfficeService, OfficeManager>();
+            services.AddScoped<IOfficeRepository, OfficeRepository>();
 
             return services;
         }
