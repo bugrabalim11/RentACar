@@ -20,7 +20,7 @@ namespace RentACar.Business.ValidationRules.OfficeValidators
             RuleFor(x => x.City)
                 .NotEmpty().WithMessage("Şehir ismi boş geçilemez.")
                 .MinimumLength(2).WithMessage("Şehir ismi en az 2 karakter olmalıdır.")
-                .MaximumLength(15).WithMessage("Şehir ismi en fazla 15 karakter olmalıdır.");
+                .MaximumLength(30).WithMessage("Şehir ismi en fazla 30 karakter olmalıdır.");
 
             RuleFor(x => x.ContactNumber)
                 .NotEmpty().WithMessage("İletişim numarası boş geçilemez.")

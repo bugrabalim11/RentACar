@@ -55,7 +55,7 @@ namespace RentACar.Business.Concrete
         {
             var offices = await _officeRepository.GetAllAsync();
             var officeDtos = _mapper.Map<List<OfficeListDto>>(offices);
-            return new SuccessDataResult<List<OfficeListDto>>(officeDtos, "Ofis başarıyla listelendi.");
+            return new SuccessDataResult<List<OfficeListDto>>(officeDtos, "Ofisler başarıyla listelendi.");
         }
 
         public async Task<IDataResult<OfficeListDto>> GetByIdAsync(int id)
