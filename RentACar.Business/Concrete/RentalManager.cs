@@ -33,6 +33,16 @@ namespace RentACar.Business.Concrete
                 throw new ValidationException(validationResult.Errors);
             }
 
+            // --- POSTGRESQL ZAMAN DİLİMİ KURALI (UTC) ---
+            // PostgreSQL, saat dilimi belirtilmemiş (Kind=Unspecified) tarihleri kabul etmez.
+            // Frontend veya Swagger'dan gelen saf tarihleri veritabanı deposuna göndermeden önce,
+            // Gümrük kurallarına uymak adına Evrensel Saate (UTC) dönüştürerek standartlaştırıyoruz.
+            rentalAddDto.RentDate = rentalAddDto.RentDate.ToUniversalTime();
+            if (rentalAddDto.ReturnDate.HasValue)
+            {
+                rentalAddDto.ReturnDate = rentalAddDto.ReturnDate.Value.ToUniversalTime();
+            }
+
             var rental = _mapper.Map<Rental>(rentalAddDto);
             await _rentalRepository.AddAsync(rental);
             return new SuccessResult("Araç kiralama başarıyla eklendi.");
@@ -59,8 +69,8 @@ namespace RentACar.Business.Concrete
 
         public async Task<IDataResult<RentalListDto>> GetByIdAsync(int id)
         {
-            var rental =await _rentalRepository.GetRentalWithDetailsByIdAsync(id);
-            if(rental == null)
+            var rental = await _rentalRepository.GetRentalWithDetailsByIdAsync(id);
+            if (rental == null)
             {
                 return new ErrorDataResult<RentalListDto>("Aranan araç kiralama bulunamadı.");
             }
@@ -81,6 +91,12 @@ namespace RentACar.Business.Concrete
             if (existingRental == null)
             {
                 return new ErrorResult("Güncellenecek araç kiralama bulunamadı.");
+            }
+
+            rentalUpdateDto.RentDate = rentalUpdateDto.RentDate.ToUniversalTime();
+            if (rentalUpdateDto.ReturnDate.HasValue)
+            {
+                rentalUpdateDto.ReturnDate = rentalUpdateDto.ReturnDate.Value.ToUniversalTime();
             }
 
             _mapper.Map(rentalUpdateDto, existingRental);

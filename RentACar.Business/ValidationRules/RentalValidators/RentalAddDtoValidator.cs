@@ -17,7 +17,7 @@ namespace RentACar.Business.ValidationRules.RentalValidators
 
             RuleFor(x => x.RentDate).NotEmpty();
             RuleFor(x => x.ReturnDate)
-                .GreaterThan(x => x.ReturnDate)   // İade tarihi, kiralama tarihinden büyük olmalı
+                .GreaterThan(x => x.RentDate)   // İade tarihi, kiralama tarihinden büyük olmalı
                 .When(x => x.ReturnDate.HasValue) // SADECE iade tarihi girilmişse (null değilse) bu kuralı çalıştır
                 .WithMessage("İade tarihi, kiralama tarihinden önce olamaz!");
         }

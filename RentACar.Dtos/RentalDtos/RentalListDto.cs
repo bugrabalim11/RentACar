@@ -7,7 +7,11 @@ namespace RentACar.Dtos.RentalDtos
     public class RentalListDto
     {
         public int Id { get; set; }
-        public string CarName { get; set; } = null!;
+        public string CarModelName { get; set; } = null!;
+
+        // Car + Brand + Name. Özelliğin adını CarBrandName yaparsan, AutoMapper anında
+        // "Tamam, Araba'nın içindeki Marka'nın Name'ini alacağım" diyecektir.
+        public string CarBrandName { get; set; } = null!;
         public string CustomerFirstName { get; set; } = null!;
         public string CustomerLastName { get; set; } = null!;
         public string PickUpOfficeName { get; set; } = null!;
