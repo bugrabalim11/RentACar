@@ -11,7 +11,7 @@ namespace RentACar.Dtos.RentalDtos
         public string CustomerFirstName { get; set; } = null!;
         public string CustomerLastName { get; set; } = null!;
         public string PickUpOfficeName { get; set; } = null!;
-        public string PickOffOfficeName { get; set; } = null!;
+        public string DropOffOfficeName { get; set; } = null!;
         public DateTime RentDate { get; set; }
         public DateTime? ReturnDate { get; set; }
     }
