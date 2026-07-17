@@ -1,5 +1,9 @@
-﻿using RentACar.Business.Abstract;
+﻿using AutoMapper;
+using FluentValidation;
+using RentACar.Business.Abstract;
+using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
+using RentACar.Dtos.RentalDtos;
 using RentACar.Entities.Concrete;
 using System;
 using System.Collections.Generic;
@@ -9,46 +13,79 @@ namespace RentACar.Business.Concrete
 {
     public class RentalManager : IRentalService
     {
-        private readonly IRepository<Rental> _rentalRepository;
-
-        public RentalManager(IRepository<Rental> rentalRepository)
+        private readonly IRentalRepository _rentalRepository;
+        private readonly IMapper _mapper;
+        private readonly IValidator<RentalAddDto> _addValidator;
+        private readonly IValidator<RentalUpdateDto> _updateValidator;
+        public RentalManager(IRentalRepository rentalRepository, IMapper mapper, IValidator<RentalAddDto> addValidator, IValidator<RentalUpdateDto> updateValidator)
         {
             _rentalRepository = rentalRepository;
+            _mapper = mapper;
+            _addValidator = addValidator;
+            _updateValidator = updateValidator;
         }
 
-        public async Task AddAsync(Rental rental)
+        public async Task<IResult> AddAsync(RentalAddDto rentalAddDto)
         {
-            // İŞ KURALI (BUSINESS RULE): Araba şu an müsait mi?
-            // Veritabanına gidip soruyoruz: "Bu CarId'ye sahip ve ReturnDate'i (Dönüş Tarihi) NULL olan bir kayıt var mı?"
-            var isCarRented = await _rentalRepository.GetAsync(r => r.CarId == rental.CarId && r.ReturnDate == null);
-
-            // Eğer isCarRented değişkeni 'null' DÖNMEDİYSE (yani içerisi doluysa), demek ki araba şu an dışarıda!
-            if (isCarRented != null) // != Eşit değilse demek
+            var validationResult = await _addValidator.ValidateAsync(rentalAddDto);
+            if (!validationResult.IsValid)
             {
-                throw new Exception("Bu araç şu an başka bir müşteride kiralık durumda. Garaja dönmeden tekrar kiralanamaz!");
+                throw new ValidationException(validationResult.Errors);
             }
 
+            var rental = _mapper.Map<Rental>(rentalAddDto);
             await _rentalRepository.AddAsync(rental);
+            return new SuccessResult("Araç kiralama başarıyla eklendi.");
         }
 
-        public async Task DeleteAsync(Rental rental)
+        public async Task<IResult> DeleteAsync(int id)
         {
-            await _rentalRepository.DeleteAsync(rental);
+            var existingRental = await _rentalRepository.GetAsync(x => x.Id == id);
+            if (existingRental == null)
+            {
+                return new ErrorResult("Silinecek araç kiralama bulunamadı.");
+            }
+
+            await _rentalRepository.DeleteAsync(existingRental);
+            return new SuccessResult("Araç kiralama başarıyla silindi.");
         }
 
-        public async Task<List<Rental>> GetAllAsync()
+        public async Task<IDataResult<List<RentalListDto>>> GetAllAsync()
         {
-            return await _rentalRepository.GetAllAsync();
+            var rentals = await _rentalRepository.GetRentalsWithDetailsAsync();
+            var rentalsListDtos = _mapper.Map<List<RentalListDto>>(rentals);
+            return new SuccessDataResult<List<RentalListDto>>(rentalsListDtos, "Kiralama işlemleri başarıyla listelendi.");
         }
 
-        public async Task<Rental?> GetByIdAsync(int id)
+        public async Task<IDataResult<RentalListDto>> GetByIdAsync(int id)
         {
-            return await _rentalRepository.GetAsync(x => x.Id == id);
+            var rental =await _rentalRepository.GetRentalWithDetailsByIdAsync(id);
+            if(rental == null)
+            {
+                return new ErrorDataResult<RentalListDto>("Aranan araç kiralama bulunamadı.");
+            }
+
+            var rentalListDto = _mapper.Map<RentalListDto>(rental);
+            return new SuccessDataResult<RentalListDto>(rentalListDto, "Araç kiralama detayı getirildi.");
         }
 
-        public async Task UpdateAsync(Rental rental)
+        public async Task<IResult> UpdateAsync(RentalUpdateDto rentalUpdateDto)
         {
-            await _rentalRepository.UpdateAsync(rental);
+            var validationResult = await _updateValidator.ValidateAsync(rentalUpdateDto);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
+
+            var existingRental = await _rentalRepository.GetAsync(x => x.Id == rentalUpdateDto.Id);
+            if (existingRental == null)
+            {
+                return new ErrorResult("Güncellenecek araç kiralama bulunamadı.");
+            }
+
+            _mapper.Map(rentalUpdateDto, existingRental);
+            await _rentalRepository.UpdateAsync(existingRental);
+            return new SuccessResult("Araç kiralama başarıyla güncellendi.");
         }
     }
 }

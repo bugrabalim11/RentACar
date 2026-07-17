@@ -26,5 +26,17 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
                .Include(x => x.DropOffOffice)
                .ToListAsync();
         }
+
+        public async Task<Rental?> GetRentalWithDetailsByIdAsync(int id)
+        {
+            return await _context.Rentals
+               .AsNoTracking()
+               .Include(x => x.Car).ThenInclude(c => c.Brand)
+               .Include(x => x.Customer)
+               .Include(x => x.PickUpOffice)
+               .Include(x => x.DropOffOffice)
+               .FirstOrDefaultAsync(x => x.Id == id);
+
+        }
     }
 }
