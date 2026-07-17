@@ -7,5 +7,6 @@ namespace RentACar.DataAccess.Abstract
 {
     public interface IRentalRepository : IRepository<Rental>
     {
+        Task<List<Rental>> GetRentalsWithDetailsAsync();
     }
 }
