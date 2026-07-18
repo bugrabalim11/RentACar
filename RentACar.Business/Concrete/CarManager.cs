@@ -128,28 +128,26 @@ namespace RentACar.Business.Concrete
         // İş Kuralı: Aynı plaka var mı kontrolü
         private async Task<IResult> CheckIfCarPlateExists(string plate)
         {
-            // Depoya sor: "Bu plakaya sahip bir araba var mı?"
-            var result = await _carRepository.GetAsync(x => x.Plate == plate);
+            // Depocuya telsizle sor: "Bu plakaya sahip araç var mı?" (isExists -> true veya false döner)
+            bool isExist = await _carRepository.AnyAsync(x => x.Plate == plate);
 
-            if (result != null)
+            if (isExist) // Eğer true ise (yani araba varsa)
             {
-                // Varsa, kırmızı etiketli kargo kutusu dön
-                return new ErrorResult("Bu plakaya sahip araç zaten kayıtlı!");
+                return new ErrorResult("Bu plakaya sahip araç zaten kayıtlı.");
             }
-
             return new SuccessResult();
         }
 
         // İş Kuralı: Güncelleme yaparken başka bir arabaya ait aynı plaka var mı kontrolü
         private async Task<IResult> CheckIfCarPlateExitsForUpdate(string plate, int currentCarId)
         {
-            // Depoya sor: "Plakası bu olan VE Id'si benimkinden FARKLI olan başka bir araba var mı?"
-            var result = await _carRepository.GetAsync(x => x.Plate == plate && x.Id != currentCarId);
-            if (result != null)
-            {
-                return new ErrorResult("Bu plakayı başka bir araç kullanıyor, güncelleyemezsiniz!");
-            }
 
+            var isExist = await _carRepository.AnyAsync(x => x.Plate == plate && x.Id != currentCarId);
+
+            if (isExist)
+            {
+                return new ErrorResult("Bu plaka zaten sistemde kayıtlı.");
+            }
             return new SuccessResult();
         }
     }
