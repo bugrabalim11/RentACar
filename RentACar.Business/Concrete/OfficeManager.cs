@@ -66,8 +66,8 @@ namespace RentACar.Business.Concrete
                 return new ErrorDataResult<OfficeListDto>("Ofis bulunamadı.");
             }
 
-            var officeDtos = _mapper.Map<OfficeListDto>(office);
-            return new SuccessDataResult<OfficeListDto>(officeDtos, "Ofis başarıyla getirildi.");
+            var officeDto = _mapper.Map<OfficeListDto>(office);
+            return new SuccessDataResult<OfficeListDto>(officeDto, "Ofis başarıyla getirildi.");
         }
 
         public async Task<IResult> UpdateAsync(OfficeUpdateDto officeUpdateDto)

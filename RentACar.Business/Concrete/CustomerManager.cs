@@ -67,8 +67,8 @@ namespace RentACar.Business.Concrete
                 return new ErrorDataResult<CustomerListDto>("Müşteri bulunamadı.");
             }
 
-            var customerDtos = _mapper.Map<CustomerListDto>(customer);
-            return new SuccessDataResult<CustomerListDto>(customerDtos, "Müşteri başarıyla getirildi.");
+            var customerDto = _mapper.Map<CustomerListDto>(customer);
+            return new SuccessDataResult<CustomerListDto>(customerDto, "Müşteri başarıyla getirildi.");
         }
 
         public async Task<IResult> UpdateAsync(CustomerUpdateDto customerUpdateDto)
