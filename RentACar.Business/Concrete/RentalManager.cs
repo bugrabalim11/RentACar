@@ -93,16 +93,22 @@ namespace RentACar.Business.Concrete
                 throw new ValidationException(validationResult.Errors);
             }
 
-            var existingRental = await _rentalRepository.GetAsync(x => x.Id == rentalUpdateDto.Id);
-            if (existingRental == null)
-            {
-                return new ErrorResult("Güncellenecek araç kiralama bulunamadı.");
-            }
-
             rentalUpdateDto.RentDate = rentalUpdateDto.RentDate.ToUniversalTime();
             if (rentalUpdateDto.ReturnDate.HasValue)
             {
                 rentalUpdateDto.ReturnDate = rentalUpdateDto.ReturnDate.Value.ToUniversalTime();
+            }
+
+            var ruleResult = await CheckIfCarAvailableForUpdate(rentalUpdateDto.Id, rentalUpdateDto.CarId, rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate);
+            if (!ruleResult.Success)
+            {
+                return ruleResult;
+            }
+
+            var existingRental = await _rentalRepository.GetAsync(x => x.Id == rentalUpdateDto.Id);
+            if (existingRental == null)
+            {
+                return new ErrorResult("Güncellenecek araç kiralama bulunamadı.");
             }
 
             _mapper.Map(rentalUpdateDto, existingRental);
@@ -121,6 +127,19 @@ namespace RentACar.Business.Concrete
                 return new ErrorResult("Lütfen geçerli tarih ve araç seçiniz.");
             }
             return new SuccessResult("Araç başarılı bir şekilde kiralandı.");
+        }
+
+        private async Task<IResult> CheckIfCarAvailableForUpdate(int rentalId, int carId, DateTime rentDate, DateTime? returnDate)
+        {
+            bool isExist = await _rentalRepository
+               .AnyAsync(x => x.CarId == carId && (x.Id != rentalId) && (x.ReturnDate == null || rentDate <= x.ReturnDate) && (returnDate == null || returnDate >= x.RentDate));
+            if (isExist)
+            {
+                // Kullanıcıya tam olarak neden reddedildiğini açıklayan net bir mesaj
+                return new ErrorResult("Bu araç, güncellemek istediğiniz tarihler arasında başka bir müşteriye kiralanmıştır.");
+            }
+            // Alt kural olduğu için sadece "Geçiş İzni" veriyoruz, tebrik mesajına gerek yok.
+            return new SuccessResult();
         }
     }
 }
