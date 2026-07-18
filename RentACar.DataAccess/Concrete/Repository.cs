@@ -25,6 +25,12 @@ namespace RentACar.DataAccess.Concrete
             await _context.SaveChangesAsync();
         }
 
+        public async Task<bool> AnyAsync(Expression<Func<T, bool>> filter)
+        {
+            // Sadece şarta uyan kayıt var mı diye bakar, True/False döner.
+            return await _context.Set<T>().AnyAsync(filter);
+        }
+
         public async Task DeleteAsync(T entity)
         {
             // Silme işlemi önce RAM'de kaydın durumunu 'Silindi' olarak işaretler (O yüzden await yok)

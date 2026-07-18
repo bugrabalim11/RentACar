@@ -10,6 +10,8 @@ namespace RentACar.DataAccess.Abstract
     // KURAL: T tipi kesinlikle bir Sınıf (class) olmalı, IEntity VIP kartını taşımalı ve new'lenebilir olmalı!
     public interface IRepository<T> where T : class, IEntity, new()
     {
+        Task<bool> AnyAsync(Expression<Func<T, bool>> filter);
+
         /// <summary>
         /// Veritabanındaki verileri listeler. İsteğe bağlı olarak filtre uygulanabilir.
         /// </summary>
