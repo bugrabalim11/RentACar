@@ -43,6 +43,12 @@ namespace RentACar.Business.Concrete
                 rentalAddDto.ReturnDate = rentalAddDto.ReturnDate.Value.ToUniversalTime();
             }
 
+            var ruleResult = await CheckIfCarAvailable(rentalAddDto.CarId, rentalAddDto.RentDate, rentalAddDto.ReturnDate);
+            if (!ruleResult.Success)
+            {
+                return ruleResult;
+            }
+
             var rental = _mapper.Map<Rental>(rentalAddDto);
             await _rentalRepository.AddAsync(rental);
             return new SuccessResult("Araç kiralama başarıyla eklendi.");
@@ -106,22 +112,15 @@ namespace RentACar.Business.Concrete
 
         // Bu metot sadece bu sınıfın (Manager'ın) içinde kullanılacağı için 'private' yapıyoruz.
         // Amacımız: Verilen araba ID'si, istenen tarihler arasında başka bir kiralama kaydında var mı?
-        //private async Task<IResult> CheckIfCarAvaible(int carId, DateTime rentDate, DateTime? returnDate)
-        //{
-        //    var result = await _rentalRepository.GetAsync(x => x.CarId == carId && x.RentDate == rentDate && x.ReturnDate == returnDate);
-
-        //}
-
-        // 1. VIP Depocuyu (Repository) çağır.
-        // 2. AnyAsync() metodunu kullanarak şunu kontrol et:
-        //    Veritabanındaki kiralama kayıtlarında (Rentals), adamın istediği 'carId'ye sahip ve
-        //    tarihleri bizimle ÇAKIŞAN bir kayıt var mı?
-        //    (İpucu: Tarih çakışma mantığını düşün. Veritabanındaki dönüş tarihi, yeni istenen kiralama tarihinden büyükse çakışma var demektir!)
-
-        // 3. Eğer AnyAsync() sonucu 'true' çıkarsa (yani içeride çakışan bir kayıt varsa):
-        //    return new ErrorResult("Bu araç seçilen tarihler arasında başka bir müşteriye kiralanmıştır.");
-
-        // 4. Eğer 'false' çıkarsa sorun yok demektir:
-        //    return new SuccessResult();
+        private async Task<IResult> CheckIfCarAvailable(int carId, DateTime rentDate, DateTime? returnDate)
+        {
+            bool isExist = await _rentalRepository
+                .AnyAsync(x => x.CarId == carId && (x.ReturnDate == null || rentDate <= x.ReturnDate) && (returnDate == null || returnDate >= x.RentDate));
+            if (isExist)
+            {
+                return new ErrorResult("Lütfen geçerli tarih ve araç seçiniz.");
+            }
+            return new SuccessResult("Araç başarılı bir şekilde kiralandı.");
+        }
     }
 }
