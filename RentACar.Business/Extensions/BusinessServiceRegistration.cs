@@ -35,6 +35,8 @@ namespace RentACar.Business.Extensions
             services.AddScoped<IOfficeRepository, OfficeRepository>();
             services.AddScoped<IRentalService, RentalManager>();
             services.AddScoped<IRentalRepository, RentalRepository>();
+            services.AddScoped<IContactMessageService, ContactMessageManager>();
+            services.AddScoped<IContactMessageRepository, ContactMessageRepository>();
 
             return services;
         }
