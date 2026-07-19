@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace RentACar.Entities.Concrete
+namespace RentACar.Core.Entities.Concrete
 {
     public class User : IEntity
     {
