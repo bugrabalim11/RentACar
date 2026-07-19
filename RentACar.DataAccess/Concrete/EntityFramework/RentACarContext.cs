@@ -21,6 +21,7 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
         public DbSet<ContactInfo> ContactInfos { get; set; }
         public DbSet<Brand> Brands { get; set; }
         public DbSet<Color> Colors { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
