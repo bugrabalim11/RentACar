@@ -10,16 +10,21 @@ namespace RentACar.Business.ValidationRules.ContactMessageValidators
     {
         public ContactMessageAddDtoValidator()
         {
-            RuleFor(x => x.Name).NotEmpty().MinimumLength(2).WithMessage("İsim en az 2 karakter olmalıdır.");
+            RuleFor(x => x.Name)
+                .NotEmpty().WithMessage("İsim boş geçilemez.")
+                .MinimumLength(2).WithMessage("İsim en az 2 karakter olmalıdır.");
 
             RuleFor(x => x.Email).NotEmpty().WithMessage("E-posta boş geçilemez.")
                 .EmailAddress().WithMessage("Lütfen geçerli bir e-posta adresi giriniz.");
 
-            RuleFor(x => x.Subject).NotEmpty()
+            RuleFor(x => x.Subject)
+                .NotEmpty().WithMessage("Konu başlığı boş geçilemez.")
                 .MinimumLength(3).WithMessage("Konu en az 3 karakter olmalıdır.")
                 .MaximumLength(100).WithMessage("Konu en fazla 100 karakter olmalıdır.");
 
-            RuleFor(x => x.Message).NotEmpty().MinimumLength(10).WithMessage("Mesaj en az 10 karakter olmalıdır.");
+            RuleFor(x => x.Message)
+                .NotEmpty().WithMessage("Mesaj boş geçilemez.")
+                .MinimumLength(10).WithMessage("Mesaj en az 10 karakter olmalıdır.");
         }
     }
 }
