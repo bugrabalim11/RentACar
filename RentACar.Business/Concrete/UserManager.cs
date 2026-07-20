@@ -31,6 +31,7 @@ namespace RentACar.Business.Concrete
             }
 
             var user = _mapper.Map<User>(userAddDto);
+            user.Status = true;
             await _userRepository.AddAsync(user);
             return new SuccessResult("Kullanıcı başarıyla eklendi");
         }
