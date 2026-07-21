@@ -84,9 +84,8 @@ namespace RentACar.Business.Concrete
             user.PasswordSalt = passwordSalt;
             user.Status = true;  // Sisteme ilk kayıt olanı aktif yapıyoruz
 
-            // 5. Kayıt (Şimdilik altı kızarabilir, çünkü IUserService'te bu aşırı yükleme (overload) yok, birazdan ekleyeceğiz)
-            await _userService.AddAsync(user);
 
+            await _userService.AddAsync(user);
             return new SuccessDataResult<User>(user, "Kayıt işlemi başarıyla tamamlandı.");
         }
 
