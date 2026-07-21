@@ -117,5 +117,16 @@ namespace RentACar.Business.Concrete
 
             return new SuccessDataResult<User>(user, "Kullanıcı başarıyla bulundu.");
         }
+
+        public async Task<IResult> AddAsync(User user)
+        {
+            // Senior Vizyonu: Burada neden Validation (Kapı Memuru) veya AutoMapper yok?
+            // Çünkü bu metodu sadece AuthManager çağıracak. AuthManager zaten kapıda şifre kurallarına baktı, 
+            // DTO'yu User'a çevirdi, şifreyi Hash'ledi. Burada tekrar kontrol yaparsak kodu tekrar etmiş (Spagetti) oluruz.
+            // O yüzden direkt ameleyle (Repository) depoya yolluyoruz!
+
+            await _userRepository.AddAsync(user);
+            return new SuccessResult("Kullancı güvenli vir şekilde sisteme eklendi.");
+        }
     }
 }

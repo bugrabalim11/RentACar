@@ -9,6 +9,10 @@ namespace RentACar.Business.Abstract
         Task<IDataResult<List<UserListDto>>> GetAllAsync();
         Task<IDataResult<UserListDto>> GetByIdAsync(int id);
         Task<IResult> AddAsync(UserAddDto userAddDto);
+
+        // Güvenlik Şefinin (AuthManager) doğrudan kullanacağı, çıplak Entity kabul eden masa
+        Task<IResult> AddAsync(User user);
+
         Task<IResult> UpdateAsync(UserUpdateDto userUpdateDto);
         Task<IResult> DeleteAsync(int id);
 
