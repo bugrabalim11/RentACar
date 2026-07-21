@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Core.Entities.Concrete;
+using RentACar.Core.Entities.DTOs;
 using RentACar.Dtos.UserDtos;
 
 namespace RentACar.Business.Profiles
@@ -11,6 +12,8 @@ namespace RentACar.Business.Profiles
             CreateMap<UserAddDto, User>();
             CreateMap<UserUpdateDto, User>();
             CreateMap<User, UserListDto>();
+
+            CreateMap<UserForRegisterDto, User>();
         }
     }
 }
