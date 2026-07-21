@@ -86,5 +86,36 @@ namespace RentACar.Business.Concrete
             await _userRepository.UpdateAsync(existingUser);
             return new SuccessResult("Kullanıcı başarıyla güncellendi.");
         }
+
+
+
+        /// <summary>
+        /// Sistem içi yetkilendirme (AuthManager) süreçlerinde kullanılmak üzere, kullanıcının veritabanındaki rollerini (OperationClaims) getirir.
+        /// Dikkat: Bu metot dışarıya (API'ye) açık değildir, DTO yerine çıplak Entity ile çalışır.
+        /// </summary>
+
+        public async Task<IDataResult<List<OperationClaim>>> GetClaimsAsync(User user)
+        {
+            // Depocunun o özel GetClaims metodunu çağırıp adamın rollerini alıyoruz.
+            var claims =await _userRepository.GetClaimsAsync(user);
+            return new SuccessDataResult<List<OperationClaim>>(claims, "Kullancı yetkileri başarıyla getirildi.");
+        }
+
+
+
+        /// <summary>
+        /// Sistem içi giriş (Login) operasyonlarında (AuthManager), kullanıcının kimliğini
+        /// ve şifre hash'ini doğrulamak amacıyla e-posta adresi üzerinden tarama yapar.
+        /// </summary>
+        public async Task<IDataResult<User>> GetByMailAsync(string email)
+        {
+            var user = await _userRepository.GetAsync(x => x.Email == email);
+            if (user == null)
+            {
+                return new ErrorDataResult<User>("Bu e-posta adresine sahip kullanıcı bulunamadı.");
+            }
+
+            return new SuccessDataResult<User>(user, "Kullanıcı başarıyla bulundu.");
+        }
     }
 }

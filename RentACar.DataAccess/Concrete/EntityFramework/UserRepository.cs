@@ -1,4 +1,5 @@
-﻿using RentACar.Core.Entities.Concrete;
+﻿using Microsoft.EntityFrameworkCore;
+using RentACar.Core.Entities.Concrete;
 using RentACar.DataAccess.Abstract;
 
 namespace RentACar.DataAccess.Concrete.EntityFramework
@@ -15,7 +16,7 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
         }
 
         // Özel görevimiz: 3 Tabloyu (Claims, UserClaims, User) birbirine dikmek!
-        public List<OperationClaim> GetClaims(User user)
+        public Task<List<OperationClaim>> GetClaimsAsync(User user)
         {
             // LINQ ile SQL Join İşlemi
             var result = from operationClaim in _context.OperationClaims
@@ -24,7 +25,7 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
                          where userOperationClaim.UserId == user.Id
                          select new OperationClaim { Id = operationClaim.Id, Name = operationClaim.Name };
 
-            return result.ToList();
+            return result.ToListAsync();
         }
     }
 }

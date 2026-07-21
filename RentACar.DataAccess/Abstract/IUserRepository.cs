@@ -6,6 +6,6 @@ namespace RentACar.DataAccess.Abstract
     {
         // Standart Ekle/Sil/Güncelle zaten IEntityRepository'den gelecek.
         // Bu bizim özel görevimiz: Kullanıcının rollerini getirmek!
-        List<OperationClaim> GetClaims(User user);
+        Task<List<OperationClaim>> GetClaimsAsync(User user);
     }
 }
