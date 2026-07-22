@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 
-namespace RentACar.Core.Entities.DTOs
+namespace RentACar.Core.Entities.DTOs.AuthDtos
 {
     public class UserForRegisterDto
     {

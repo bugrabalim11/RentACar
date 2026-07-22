@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
-using RentACar.Core.Entities.DTOs;
+using RentACar.Core.Entities.DTOs.AuthDtos;
 
 namespace RentACar.API.Controllers
 {

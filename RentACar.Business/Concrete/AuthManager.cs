@@ -2,7 +2,7 @@
 using FluentValidation;
 using RentACar.Business.Abstract;
 using RentACar.Core.Entities.Concrete;
-using RentACar.Core.Entities.DTOs;
+using RentACar.Core.Entities.DTOs.AuthDtos;
 using RentACar.Core.Utilities.Results;
 using RentACar.Core.Utilities.Security.Hashing;
 using RentACar.Core.Utilities.Security.Jwt;

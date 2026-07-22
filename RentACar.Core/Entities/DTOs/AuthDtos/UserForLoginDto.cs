@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace RentACar.Core.Entities.DTOs
+namespace RentACar.Core.Entities.DTOs.AuthDtos
 {
     public class UserForLoginDto
     {
