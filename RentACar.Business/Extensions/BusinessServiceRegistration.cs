@@ -42,6 +42,8 @@ namespace RentACar.Business.Extensions
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IAuthService, AuthManager>();
             services.AddScoped<ITokenHelper, JwtHelper>();
+            services.AddScoped<IOperationClaimService, OperationClaimManager>();
+            services.AddScoped<IOperationClaimRepository, OperationClaimRepository>();
 
             return services;
         }
