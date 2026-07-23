@@ -47,7 +47,8 @@ namespace RentACar.Business.Concrete
                 return new ErrorResult("Silinecek renk bulunamadı.");
             }
 
-            await _colorRepository.DeleteAsync(existingColor);
+            existingColor.Status = false;
+            await _colorRepository.UpdateAsync(existingColor);
             return new SuccessResult("Renk başarıyla silindi.");
         }
 

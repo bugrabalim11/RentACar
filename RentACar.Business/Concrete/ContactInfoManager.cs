@@ -47,7 +47,8 @@ namespace RentACar.Business.Concrete
                 return new ErrorResult("Silinecek iletişim bilgisi bulunamadı.");
             }
 
-            await _contactInfoRepository.DeleteAsync(existingContactInfo);
+            existingContactInfo.Status = false;
+            await _contactInfoRepository.UpdateAsync(existingContactInfo);
             return new SuccessResult("İletişim bilgisi başarıyla silindi.");
         }
 

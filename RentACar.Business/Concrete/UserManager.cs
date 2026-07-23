@@ -44,7 +44,8 @@ namespace RentACar.Business.Concrete
                 return new ErrorResult("Silinecek kullanıcı bulunamadı.");
             }
 
-            await _userRepository.DeleteAsync(existingUser);
+            existingUser.Status = false;
+            await _userRepository.UpdateAsync(existingUser);
             return new SuccessResult("Kullanıcı başarıyla silindi.");
         }
 

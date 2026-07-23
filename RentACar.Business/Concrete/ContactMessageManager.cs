@@ -61,13 +61,14 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> DeleteAsync(int id)
         {
-            var existingResult = await _contactMessageRepository.GetAsync(x => x.Id == id);
-            if (existingResult == null)
+            var existingContactMessage = await _contactMessageRepository.GetAsync(x => x.Id == id);
+            if (existingContactMessage == null)
             {
                 return new ErrorResult("Silinecek mesaj bulunamadı.");
             }
 
-            await _contactMessageRepository.DeleteAsync(existingResult);
+            existingContactMessage.Status = false;
+            await _contactMessageRepository.UpdateAsync(existingContactMessage);
             return new SuccessResult("Mesaj başarıyla silindi.");
         }
 

@@ -38,13 +38,14 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> DeleteAsync(int id)
         {
-            var existOperationClaim = await _operationClaimRepository.GetAsync(x => x.Id == id);
-            if (existOperationClaim == null)
+            var existingOperationClaim = await _operationClaimRepository.GetAsync(x => x.Id == id);
+            if (existingOperationClaim == null)
             {
                 return new ErrorResult("Silinecek yetki bulunamadı.");
             }
 
-            await _operationClaimRepository.DeleteAsync(existOperationClaim);
+            existingOperationClaim.Status = false;
+            await _operationClaimRepository.UpdateAsync(existingOperationClaim);
             return new SuccessResult("Yetki başarıyla silindi.");
         }
 

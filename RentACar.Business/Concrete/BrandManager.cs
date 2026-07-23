@@ -50,7 +50,8 @@ namespace RentACar.Business.Concrete
                 return new ErrorResult("Silinecek marka bulunamadı.");
             }
 
-            await _brandRepository.DeleteAsync(existingBrand);
+            existingBrand.Status = false;
+            await _brandRepository.UpdateAsync(existingBrand);
             return new SuccessResult("Marka başarıyla silindi.");
         }
 

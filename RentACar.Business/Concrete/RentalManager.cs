@@ -62,7 +62,8 @@ namespace RentACar.Business.Concrete
                 return new ErrorResult("Silinecek araç kiralama bulunamadı.");
             }
 
-            await _rentalRepository.DeleteAsync(existingRental);
+            existingRental.Status = false;
+            await _rentalRepository.UpdateAsync(existingRental);
             return new SuccessResult("Araç kiralama başarıyla silindi.");
         }
 

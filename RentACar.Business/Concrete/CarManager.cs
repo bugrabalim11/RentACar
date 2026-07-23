@@ -58,13 +58,14 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> DeleteAsync(int id)
         {
-            var car = await _carRepository.GetAsync(x => x.Id == id);
-            if (car == null)
+            var existingCar = await _carRepository.GetAsync(x => x.Id == id);
+            if (existingCar == null)
             {
                 return new ErrorResult("Silincek araç bulunamadı.");
             }
 
-            await _carRepository.DeleteAsync(car);
+            existingCar.Status = false;
+            await _carRepository.UpdateAsync(existingCar);
             return new SuccessResult("Araç başarıyla silindi.");
         }
 
