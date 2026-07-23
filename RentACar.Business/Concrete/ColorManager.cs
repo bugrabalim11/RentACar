@@ -54,14 +54,14 @@ namespace RentACar.Business.Concrete
         public async Task<IDataResult<List<ColorListDto>>> GetAllAsync()
         {
             var colors = await _colorRepository.GetAllAsync();
-            var colorDtos= _mapper.Map<List<ColorListDto>>(colors);
+            var colorDtos = _mapper.Map<List<ColorListDto>>(colors);
             return new SuccessDataResult<List<ColorListDto>>(colorDtos, "Renkler başarıyla listelendi.");
         }
 
         public async Task<IDataResult<ColorListDto>> GetByIdAsync(int id)
         {
             var color = await _colorRepository.GetAsync(x => x.Id == id);
-            if(color == null)
+            if (color == null)
             {
                 return new ErrorDataResult<ColorListDto>("Aranan renk bulunamadı.");
             }
