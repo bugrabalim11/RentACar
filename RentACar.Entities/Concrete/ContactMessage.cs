@@ -14,5 +14,6 @@ namespace RentACar.Entities.Concrete
         public string Message { get; set; } = null!;
         public DateTime SendDate { get; set; }
         public bool IsRead { get; set; }
+        public bool Status { get; set; } = true;
     }
 }

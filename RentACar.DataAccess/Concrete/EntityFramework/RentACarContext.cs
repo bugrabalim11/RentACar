@@ -40,6 +40,27 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
                 .WithMany()
                 .HasForeignKey(r => r.DropOffOfficeId)
                 .OnDelete(DeleteBehavior.Restrict);    // KURAL: Teslim ofisi silinirse, kiralama fişini SİLME!
+
+
+
+            // ----------------------------------------------------------------------
+            // 2. GLOBAL QUERY FILTERS (KÜRESEL SORGULAMA FİLTRELERİ) - SOFT DELETE MİMARİSİ
+            // ----------------------------------------------------------------------
+            // KURAL: Sistemde herhangi bir listeleme (Get, GetAll vs.) işlemi yapıldığında,
+            // Entity Framework arka planda otomatik olarak "Status == true" (Aktif olanlar) şartını SQL sorgusuna ekler.
+            // Bu sayede "Silinmiş" (Status = false) veriler sistemde asla listelenmez.
+
+            modelBuilder.Entity<User>().HasQueryFilter(u => u.Status == true);
+            modelBuilder.Entity<UserOperationClaim>().HasQueryFilter(uoc => uoc.Status == true);
+            modelBuilder.Entity<OperationClaim>().HasQueryFilter(oc => oc.Status == true);
+            modelBuilder.Entity<Brand>().HasQueryFilter(b => b.Status == true);
+            modelBuilder.Entity<Car>().HasQueryFilter(c => c.Status == true);
+            modelBuilder.Entity<Color>().HasQueryFilter(c => c.Status == true);
+            modelBuilder.Entity<ContactInfo>().HasQueryFilter(ci => ci.Status == true);
+            modelBuilder.Entity<ContactMessage>().HasQueryFilter(cm => cm.Status == true);
+            modelBuilder.Entity<Customer>().HasQueryFilter(c => c.Status == true);
+            modelBuilder.Entity<Office>().HasQueryFilter(o => o.Status == true);
+            modelBuilder.Entity<Rental>().HasQueryFilter(r => r.Status == true);
         }
     }
 }

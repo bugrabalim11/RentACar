@@ -8,5 +8,6 @@ namespace RentACar.Core.Entities
     // Üzerinde bu arayüz olan sınıflar "Veritabanı Tablosudur" demek istiyoruz.
     public interface IEntity
     {
+        bool Status { get; set; }
     }
 }

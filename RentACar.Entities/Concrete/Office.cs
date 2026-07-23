@@ -11,5 +11,6 @@ namespace RentACar.Entities.Concrete
         public string Name { get; set; } = null!;
         public string City { get; set; } = null!;
         public string ContactNumber { get; set; } = null!;
+        public bool Status { get; set; } = true;
     }
 }

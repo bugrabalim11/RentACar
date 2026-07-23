@@ -14,6 +14,7 @@ namespace RentACar.Entities.Concrete
         public int DropOffOfficeId { get; set; }
         public DateTime RentDate { get; set; }
         public DateTime? ReturnDate { get; set; }
+        public bool Status { get; set; } = true;
 
 
 

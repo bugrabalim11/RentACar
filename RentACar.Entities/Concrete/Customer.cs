@@ -13,6 +13,7 @@ namespace RentACar.Entities.Concrete
         public string LastName { get; set; } = null!;
         public string Email { get; set; } = null!;
         public string NationalIdentity { get; set; } = null!;
+        public bool Status { get; set; } = true;
 
 
         // --- İLİŞKİ (Bire-Çok) ---

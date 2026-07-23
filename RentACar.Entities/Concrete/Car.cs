@@ -31,6 +31,9 @@ namespace RentACar.Entities.Concrete
         public TransmissionType TransmissionType { get; set; }
 
 
+        public bool Status { get; set; } = true;
+
+
         // --- İLİŞKİ (Bire-Çok) ---
         // Bir arabanın birden çok kiralama kaydı olabilir
         public List<Rental> Rentals { get; set; } = new List<Rental>();

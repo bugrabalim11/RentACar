@@ -14,6 +14,8 @@ namespace RentACar.Entities.Concrete
         // veya EF Core nakliyecisi o tabağı birazdan getirecek, sen bana güven ve ceza yazma" demektir.
         public string Name { get; set; } = null!;
 
+        public bool Status { get; set; } = true;
+
         // Sen bir markasın ve senin bünyende, senin ID'ni taşıyan bir sürü araba olacak
         public List<Car> Cars { get; set; } = new List<Car>();
     }
