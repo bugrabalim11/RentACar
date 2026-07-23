@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using RentACar.Core.Entities;
 
 namespace RentACar.Dtos.RentalDtos
 {
-    public class RentalListDto
+    public class RentalListDto : IDto
     {
         public int Id { get; set; }
         public string CarModelName { get; set; } = null!;

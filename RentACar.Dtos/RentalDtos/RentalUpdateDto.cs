@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using RentACar.Core.Entities;
 
 namespace RentACar.Dtos.RentalDtos
 {
-    public class RentalUpdateDto
+    public class RentalUpdateDto : IDto
     {
         public int Id { get; set; }
         public int CarId { get; set; }

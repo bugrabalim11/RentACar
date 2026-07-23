@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using RentACar.Core.Entities;
 
 namespace RentACar.Dtos.CustomerDtos
 {
-    public class CustomerListDto
+    public class CustomerListDto : IDto
     {
         public int Id { get; set; }
         public string FirstName { get; set; } = null!;

@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using RentACar.Core.Entities;
 
 namespace RentACar.Dtos.ColorDtos
 {
-    public class ColorAddDto
+    public class ColorAddDto : IDto
     {
         public string Name { get; set; } = null!;
     }

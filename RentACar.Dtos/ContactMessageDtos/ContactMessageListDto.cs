@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using RentACar.Core.Entities;
 
 namespace RentACar.Dtos.ContactMessageDtos
 {
-    public class ContactMessageListDto
+    public class ContactMessageListDto : IDto
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;

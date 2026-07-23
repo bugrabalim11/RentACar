@@ -1,12 +1,10 @@
 ﻿
+using RentACar.Core.Entities;
 using RentACar.Entities.Enums;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RentACar.Dtos.CarDtos
 {
-    public class CarAddDto
+    public class CarAddDto : IDto
     {
         public int BrandId { get; set; }
         public int ColorId { get; set; }

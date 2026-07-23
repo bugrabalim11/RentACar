@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using RentACar.Core.Entities;
 
 namespace RentACar.Dtos.ContactMessageDtos
 {
-    public class ContactMessageAddDto
+    public class ContactMessageAddDto : IDto
     {
         public string Name { get; set; } = null!;
         public string Email { get; set; } = null!;

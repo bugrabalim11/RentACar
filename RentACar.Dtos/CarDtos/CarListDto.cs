@@ -1,11 +1,9 @@
-﻿using RentACar.Entities.Enums;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using RentACar.Core.Entities;
+using RentACar.Entities.Enums;
 
 namespace RentACar.Dtos.CarDtos
 {
-    public class CarListDto
+    public class CarListDto : IDto
     {
         public int Id { get; set; } 
 

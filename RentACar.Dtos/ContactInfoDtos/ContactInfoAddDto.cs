@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using RentACar.Core.Entities;
 
 namespace RentACar.Dtos.ContactInfoDtos
 {
-    public class ContactInfoAddDto
+    public class ContactInfoAddDto : IDto
     {
         public string Address { get; set; } = null!;
         public string Phone { get; set; } = null!;

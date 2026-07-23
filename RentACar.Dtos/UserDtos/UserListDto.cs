@@ -1,6 +1,8 @@
-﻿namespace RentACar.Dtos.UserDtos
+﻿using RentACar.Core.Entities;
+
+namespace RentACar.Dtos.UserDtos
 {
-    public class UserListDto
+    public class UserListDto : IDto
     {
         public int Id { get; set; }
         public string FirstName { get; set; } = null!;
