@@ -33,7 +33,7 @@ namespace RentACar.Business.Concrete
 
             var operationClaim = _mapper.Map<OperationClaim>(operationClaimAddDto);
             await _operationClaimRepository.AddAsync(operationClaim);
-            return new SuccessResult("Yeni statü başarıyla eklendi.");
+            return new SuccessResult("Yeni yetki başarıyla eklendi.");
         }
 
         public async Task<IResult> DeleteAsync(int id)
@@ -41,18 +41,18 @@ namespace RentACar.Business.Concrete
             var existOperationClaim = await _operationClaimRepository.GetAsync(x => x.Id == id);
             if (existOperationClaim == null)
             {
-                return new ErrorResult("Silinecek statü bulunamadı.");
+                return new ErrorResult("Silinecek yetki bulunamadı.");
             }
 
             await _operationClaimRepository.DeleteAsync(existOperationClaim);
-            return new SuccessResult("Statü başarıyla silindi.");
+            return new SuccessResult("Yetki başarıyla silindi.");
         }
 
         public async Task<IDataResult<List<OperationClaimListDto>>> GetAllAsync()
         {
             var operationClaims = await _operationClaimRepository.GetAllAsync();
             var operationClaimDtos = _mapper.Map<List<OperationClaimListDto>>(operationClaims);
-            return new SuccessDataResult<List<OperationClaimListDto>>(operationClaimDtos, "Statüler başarıyla listelendi.");
+            return new SuccessDataResult<List<OperationClaimListDto>>(operationClaimDtos, "Yetkiler başarıyla listelendi.");
         }
 
         public async Task<IDataResult<OperationClaimListDto>> GetByIdAsync(int id)
@@ -60,11 +60,11 @@ namespace RentACar.Business.Concrete
             var operationClaim = await _operationClaimRepository.GetAsync(x => x.Id == id);
             if (operationClaim == null)
             {
-                return new ErrorDataResult<OperationClaimListDto>("Statü bulunamadı.");
+                return new ErrorDataResult<OperationClaimListDto>("Yetki bulunamadı.");
             }
 
             var operationClaimDto = _mapper.Map<OperationClaimListDto>(operationClaim);
-            return new SuccessDataResult<OperationClaimListDto>(operationClaimDto, "Statü başarıyla getirildi.");
+            return new SuccessDataResult<OperationClaimListDto>(operationClaimDto, "Yetki başarıyla getirildi.");
         }
 
         public async Task<IResult> UpdateAsync(OperationClaimUpdateDto operationClaimUpdateDto)
@@ -78,12 +78,12 @@ namespace RentACar.Business.Concrete
             var existingOperationClaim = await _operationClaimRepository.GetAsync(x => x.Id == operationClaimUpdateDto.Id);
             if (existingOperationClaim == null)
             {
-                return new ErrorResult("Güncellenecek statü bulunamadı.");
+                return new ErrorResult("Güncellenecek yetki bulunamadı.");
             }
 
             _mapper.Map(operationClaimUpdateDto, existingOperationClaim);
             await _operationClaimRepository.UpdateAsync(existingOperationClaim);
-            return new SuccessResult("Statü başarıyla güncellendi.");
+            return new SuccessResult("Yetki başarıyla güncellendi.");
         }
     }
 }
