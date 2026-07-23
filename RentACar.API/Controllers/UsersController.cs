@@ -37,16 +37,16 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Add(UserAddDto userAddDto)
-        {
-            var result = await _userService.AddAsync(userAddDto);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
-        }
+        //[HttpPost]
+        //public async Task<IActionResult> Add(UserAddDto userAddDto)
+        //{
+        //    var result = await _userService.AddAsync(userAddDto);
+        //    if (result.Success)
+        //    {
+        //        return Ok(result);
+        //    }
+        //    return BadRequest(result);
+        //}
 
         [HttpPut]
         public async Task<IActionResult> Update(UserUpdateDto userUpdateDto)
