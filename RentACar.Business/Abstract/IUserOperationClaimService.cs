@@ -12,6 +12,6 @@ namespace RentACar.Business.Abstract
         Task<IResult> DeleteAsync(int id);
 
         // DİKKAT: Dışarıya çıplak liste değil, resmi kutumuz olan IDataResult içinde yolluyoruz!
-        IDataResult<List<UserOperationClaimDetailDto>> GetClaimDetails();
+        Task<IDataResult<List<UserOperationClaimDetailDto>>> GetClaimDetailsAsync();
     }
 }

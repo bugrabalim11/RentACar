@@ -81,10 +81,10 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<UserOperationClaimListDto>(userOperationClaimDto, "Yetki ataması başarıyla getirildi.");
         }
 
-        public IDataResult<List<UserOperationClaimDetailDto>> GetClaimDetails()
+        public async Task< IDataResult<List<UserOperationClaimDetailDto>>> GetClaimDetailsAsync()
         {
             // 1. Telsizle depocuya (Repository) seslen ve özel tabağı (JOIN sorgusunu) iste
-            var claimDetails = _userOperationClaimRepository.GetClaimDetails();
+            var claimDetails =await _userOperationClaimRepository.GetClaimDetailsAsync();
 
             // 2. Gelen bu özel tabağı, şirketimizin resmi "Başarılı Sonuç" kutusuna koy ve mesajını ekle
             return new SuccessDataResult<List<UserOperationClaimDetailDto>>(claimDetails, "Kullanıcı yetkileri detaylı olarak listelendi.");

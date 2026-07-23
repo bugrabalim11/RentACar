@@ -5,6 +5,6 @@ namespace RentACar.DataAccess.Abstract
 {
     public interface IUserOperationClaimRepository : IRepository<UserOperationClaim>
     {
-        List<UserOperationClaimDetailDto> GetClaimDetails();
+        Task<List<UserOperationClaimDetailDto>> GetClaimDetailsAsync();
     }
 }

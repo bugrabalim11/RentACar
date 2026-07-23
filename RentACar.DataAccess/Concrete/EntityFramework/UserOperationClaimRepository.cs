@@ -1,4 +1,5 @@
-﻿using RentACar.Core.Entities.Concrete;
+﻿using Microsoft.EntityFrameworkCore;
+using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Entities.DTOs.UserOperationClaimDtos;
 using RentACar.DataAccess.Abstract;
 
@@ -12,7 +13,7 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
             _context = context;
         }
 
-        public List<UserOperationClaimDetailDto> GetClaimDetails()
+        public async Task<List<UserOperationClaimDetailDto>> GetClaimDetailsAsync()
         {
             // 1. Haberci (Sorgu) asıl Lonca Kayıt Defterini açıyor. 
             // uoc: UserOperationClaims (Kimin hangi rütbeye sahip olduğunu tutan sayısal kayıtlar)
@@ -40,7 +41,7 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
                          };
 
             // 5. Hazırlanan bu temiz A4 kağıtlarını bir dosya haline getirip (Liste) vezneye (Manager'a) gönderiyoruz.
-            return result.ToList();
+            return await result.ToListAsync();
         }
     }
 }
