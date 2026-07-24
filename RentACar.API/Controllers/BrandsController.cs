@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
 using RentACar.Dtos.BrandDtos;
@@ -38,6 +39,8 @@ namespace RentACar.API.Controllers
             return NotFound(result);
         }
 
+        [Authorize(Roles = "admin")]
+        // veya [Authorize(Roles = "Admin,Moderator")] şeklinde virgülle çoklu rütbe de verebilirsin.
         [HttpPost]
         public async Task<IActionResult> Add(BrandAddDto brandAddDto)
         {
@@ -53,6 +56,7 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPut]
         public async Task<IActionResult> Update(BrandUpdateDto brandUpdateDto)
         {
@@ -64,6 +68,7 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
+        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

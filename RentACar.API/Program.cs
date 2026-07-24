@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 using RentACar.Business.Extensions;
 using RentACar.DataAccess.Concrete.EntityFramework;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,9 +12,10 @@ builder.Services.AddControllers();
 // Business katmanındaki gizli çantamızı buraya tek satırla çağırıyoruz
 builder.Services.AddBusinessServices();
 
-// SWAGGER KAYITLARI (Swashbuckle.AspNetCore paketi gerektirir)
+// .NET 10 Modern OpenAPI / Swagger Kaydı
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddOpenApi(); // Microsoft'un yerleşik modern kulesi!
+
 
 builder.Services.AddAutoMapper(cfg =>
 {
@@ -26,16 +29,21 @@ builder.Services.AddDbContext<RentACarContext>(options =>
 
 var app = builder.Build();
 
-// SWAGGER ARAYÜZÜNÜ TETİKLEME
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.MapOpenApi(); // .NET 10 Endpoint'ini açık
+
+    // Scalar Arayüzünü .NET 10 Standartlarında Tetikliyoruz
+    app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();
 // Kendi yazdığımız hata yakalayıcı kalkanı boru hattının en başına takıyoruz
 app.UseMiddleware<RentACar.API.Middlewares.ExceptionMiddleware>();
+
+// Authentication - Kimlik Doğrulama
+app.UseAuthentication();
+// Authorization - Yetkilendirme
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
