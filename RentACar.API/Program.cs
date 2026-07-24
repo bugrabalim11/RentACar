@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
+using RentACar.API.Extensions;
 using RentACar.Business.Extensions;
 using RentACar.DataAccess.Concrete.EntityFramework;
 using Scalar.AspNetCore;
@@ -11,10 +13,36 @@ builder.Services.AddControllers();
 // Business katmanındaki gizli çantamızı buraya tek satırla çağırıyoruz
 builder.Services.AddBusinessServices();
 
+// Kendi yazdığımız güvenlik ve JWT ayarlarını içeri alıyoruz
+builder.Services.AddSecurityServices(builder.Configuration);
+
 // .NET 10 Modern OpenAPI / Swagger Kaydı
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((document, context, cancellationToken) =>
+    {
+        document.Components ??= new OpenApiComponents();
+        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
 
+        document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
+        {
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "JWT Bearer token giriniz (Bearer kelimesi olmadan)"
+        };
+
+        document.Security ??= new List<OpenApiSecurityRequirement>();
+        document.Security.Add(new OpenApiSecurityRequirement
+        {
+            [new OpenApiSecuritySchemeReference("Bearer", document)] = new List<string>()
+        });
+
+        return Task.CompletedTask;
+    });
+});
 
 
 builder.Services.AddAutoMapper(cfg =>
