@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi;
 using RentACar.Business.Extensions;
 using RentACar.DataAccess.Concrete.EntityFramework;
 using Scalar.AspNetCore;
@@ -14,7 +13,8 @@ builder.Services.AddBusinessServices();
 
 // .NET 10 Modern OpenAPI / Swagger Kaydı
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddOpenApi(); // Microsoft'un yerleşik modern kulesi!
+builder.Services.AddOpenApi();
+
 
 
 builder.Services.AddAutoMapper(cfg =>

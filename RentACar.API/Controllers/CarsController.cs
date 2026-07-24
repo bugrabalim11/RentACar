@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
 using RentACar.Dtos.CarDtos;
@@ -16,6 +16,7 @@ namespace RentACar.API.Controllers
             _carService = carService;
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<IActionResult> Add(CarAddDto carAddDto)
         {
@@ -51,6 +52,7 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPut]
         public async Task<IActionResult> Update(CarUpdateDto carUpdateDto)
         {
@@ -63,6 +65,7 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
+        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

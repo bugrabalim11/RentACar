@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
 using RentACar.Dtos.UserDtos;
 
@@ -15,6 +16,7 @@ namespace RentACar.API.Controllers
             _userService = userService;
         }
 
+        [Authorize(Roles = "admin")]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -26,6 +28,7 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -48,6 +51,7 @@ namespace RentACar.API.Controllers
         //    return BadRequest(result);
         //}
 
+        [Authorize(Roles = "admin")]
         [HttpPut]
         public async Task<IActionResult> Update(UserUpdateDto userUpdateDto)
         {
@@ -59,6 +63,7 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
+        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

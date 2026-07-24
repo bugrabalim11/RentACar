@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
 using RentACar.Core.Entities.DTOs.UserOperationClaimDtos;
@@ -16,6 +17,7 @@ namespace RentACar.API.Controllers
             _userOperationClaimService = userOperationClaimService;
         }
 
+        [Authorize(Roles = "admin")]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -27,6 +29,7 @@ namespace RentACar.API.Controllers
             return BadRequest(results);
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -38,6 +41,7 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<IActionResult> Add(UserOperationClaimAddDto userOperationClaimAddDto)
         {
@@ -49,6 +53,7 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPut]
         public async Task<IActionResult> Update(UserOperationClaimUpdateDto userOperationClaimUpdateDto)
         {
@@ -60,6 +65,7 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
+        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -71,6 +77,7 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
+        [Authorize(Roles = "admin")]
         [HttpGet("Getclaimdetails")]
         public async Task<IActionResult> GetClaimDetailsAsync()
         {
