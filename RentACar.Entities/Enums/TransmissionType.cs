@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace RentACar.Entities.Enums
+﻿namespace RentACar.Entities.Enums
 {
     public enum TransmissionType
     {

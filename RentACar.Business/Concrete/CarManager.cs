@@ -79,19 +79,19 @@ namespace RentACar.Business.Concrete
         }
 
 
-        public async Task<IDataResult<CarListDto>> GetByIdAsync(int id)
+        public async Task<IDataResult<CarDetailDto>> GetByIdAsync(int id)
         {
             // ESKİSİ: var car = await _carRepository.GetAsync(x => x.Id == id);
             // YENİSİ: Artık Join'li veriyi getiren kendi özel metodumuzu kullanıyoruz!
             var car = await _carRepository.GetCarWithDetailsAsync(id);
             if (car == null)
             {
-                return new ErrorDataResult<CarListDto>("Aranan araç bulunamadı.");
+                return new ErrorDataResult<CarDetailDto>("Aranan araç detayı bulunamadı.");
             }
 
             // Bulduysa CarListDto'ya çevirir, bulamadıysa (null ise) güvenli bir şekilde null döner
-            var carListDto = _mapper.Map<CarListDto>(car);
-            return new SuccessDataResult<CarListDto>(carListDto, "Araba detayı getirildi.");
+            var carDetailDto = _mapper.Map<CarDetailDto>(car);
+            return new SuccessDataResult<CarDetailDto>(carDetailDto, "Araba detayı getirildi.");
         }
 
         public async Task<IResult> UpdateAsync(CarUpdateDto carUpdateDto)

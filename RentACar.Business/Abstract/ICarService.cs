@@ -13,7 +13,7 @@ namespace RentACar.Business.Abstract
         Task<IDataResult<List<CarListDto>>> GetAllAsync();
 
         // 2. Tekil Dönerken
-        Task<IDataResult<CarListDto>> GetByIdAsync(int id);
+        Task<IDataResult<CarDetailDto>> GetByIdAsync(int id);
 
         // 3. Ekle, Sil, Güncelle işlemleri sadece boş kargo kutusu (IResult) döner
         Task<IResult> AddAsync(CarAddDto carAddDto);
