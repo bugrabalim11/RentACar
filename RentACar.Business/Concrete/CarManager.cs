@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using RentACar.Business.Abstract;
+using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 using RentACar.Dtos.CarDtos;
@@ -44,11 +46,8 @@ namespace RentACar.Business.Concrete
             }
 
             // 2. İŞ KURALLARI (Business Rules - Dükkanın mantık kuralları)
-            var ruleResult = await CheckIfCarPlateExists(carAddDto.Plate);
-            if (!ruleResult.Success)
-            {
-                return ruleResult; // Eğer plaka varsa, işlemi durdur ve hata kutusunu Garsona fırlat!
-            }
+            carAddDto.Plate = carAddDto.Plate.Replace(" ", "").ToUpper();
+            await CheckIfCarPlateExistsAsync(carAddDto.Plate);
 
             // 3. KAYIT (Her şey tamamsa yemeği pişir)
             var car = _mapper.Map<Car>(carAddDto);
@@ -106,12 +105,9 @@ namespace RentACar.Business.Concrete
                 throw new ValidationException(validationResult.Errors);
             }
 
-            // 2. İŞ KURALI (Başka bir arabayla plaka çakışması var mı?)
-            var ruleResult = await CheckIfCarPlateExitsForUpdate(carUpdateDto.Plate, carUpdateDto.Id);
-            if (!ruleResult.Success)
-            {
-                return ruleResult;  // Kural ihlali varsa Garsona hata kutusunu fırlat!
-            }
+            // Replace -> boşluklaarı kapatır ToUpper-> büyük harf yapar
+            carUpdateDto.Plate = carUpdateDto.Plate.Replace(" ", "").ToUpper();
+            await CheckIfCarPlateExitsForUpdateAsync(carUpdateDto.Plate, carUpdateDto.Id);
 
             // 3. VERİTABANI KONTROLÜ (Güncellenecek araba gerçekten var mı?)
             var existingCar = await _carRepository.GetAsync(x => x.Id == carUpdateDto.Id);
@@ -127,29 +123,26 @@ namespace RentACar.Business.Concrete
         }
 
         // İş Kuralı: Aynı plaka var mı kontrolü
-        private async Task<IResult> CheckIfCarPlateExists(string plate)
+        private async Task CheckIfCarPlateExistsAsync(string plate)
         {
-            // Depocuya telsizle sor: "Bu plakaya sahip araç var mı?" (isExists -> true veya false döner)
-            bool isExist = await _carRepository.AnyAsync(x => x.Plate == plate);
 
-            if (isExist) // Eğer true ise (yani araba varsa)
+            bool existingPlate = await _carRepository.AnyAsync(x => x.Plate == plate);
+            if (existingPlate)
             {
-                return new ErrorResult("Bu plakaya sahip araç zaten kayıtlı.");
+                throw new BusinessException("Bu plaka zaten sistemde kayıtlı!");
             }
-            return new SuccessResult();
         }
 
         // İş Kuralı: Güncelleme yaparken başka bir arabaya ait aynı plaka var mı kontrolü
-        private async Task<IResult> CheckIfCarPlateExitsForUpdate(string plate, int currentCarId)
+        private async Task CheckIfCarPlateExitsForUpdateAsync(string plate, int currentCarId)
         {
 
-            var isExist = await _carRepository.AnyAsync(x => x.Plate == plate && x.Id != currentCarId);
+            bool isExist = await _carRepository.AnyAsync(x => x.Plate == plate && x.Id != currentCarId);
 
             if (isExist)
             {
-                return new ErrorResult("Bu plaka zaten sistemde kayıtlı.");
+                throw new BusinessException("Bu plaka zaten sistemde kayıtlı.");
             }
-            return new SuccessResult();
         }
     }
 }
