@@ -2,6 +2,8 @@
 using FluentValidation;
 using System.Net;
 using System.Text.Json;
+using RentACar.Business.Extensions;
+using RentACar.Core.Exceptions;
 
 namespace RentACar.API.Middlewares
 {
@@ -48,6 +50,17 @@ namespace RentACar.API.Middlewares
                 await context.Response.WriteAsync(result);
                 return; // İşlemi burada kesmesi için boş return koyduk
             }
+
+            else if (exception is BusinessException businessException)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                var message= businessException.Message;
+                var result = JsonSerializer.Serialize(new { BusinessError = message });
+
+                await context.Response.WriteAsync(result);
+                return;
+            }
+
 
             // Eğer kurallar dışında, sistemsel/kodsal beklenmedik bir hata fırlarsa (Örn: Veritabanı koptu)
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError; // 500
