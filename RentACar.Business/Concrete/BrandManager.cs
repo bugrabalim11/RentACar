@@ -28,6 +28,10 @@ namespace RentACar.Business.Concrete
             _updateValidator = updateValidator;
         }
 
+
+        // 1. DTO içindeki marka adının sadece başındaki ve sonundaki boşlukları temizler (Trim).
+        // 2. Vitrin (Frontend) sunumu için orijinal büyük/küçük harf formatını (Örn: 'BMW') korur.
+        // 3. İş kurallarından (Validation ve Mükerrer Kayıt) geçerse veritabanına kaydeder.
         public async Task<IResult> AddAsync(BrandAddDto brandAddDto)
         {
             var validationResult = await _addValidator.ValidateAsync(brandAddDto);
@@ -36,7 +40,9 @@ namespace RentACar.Business.Concrete
                 throw new ValidationException(validationResult.Errors);
             }
 
-            await CheckIfBrandNameExistAsync(brandAddDto.Name);
+            // Gelen verinin sağındaki ve solundaki görünmez boşlukları tıraşla (Trim) ve küçük harfe çevir.
+            brandAddDto.Name = brandAddDto.Name.Trim();
+            await CheckIfBrandNameExistAsync(brandAddDto.Name.ToLower());
 
             var brand = _mapper.Map<Brand>(brandAddDto);
             await _brandRepository.AddAsync(brand);
@@ -101,13 +107,13 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Marka başarıyla güncellendi.");
         }
 
+
+        // İş Kuralı: Marka isminin veritabanında (büyük/küçük harf fark etmeksizin) tekrar edip etmediğini kontrol eder.
+        // Not: Veritabanı büyük/küçük harf duyarlı (Case-Sensitive) olabileceği için, 
+        // karşılaştırma işlemi anlık olarak küçük harfe (ToLower) dönüştürülerek yapılır.
         private async Task CheckIfBrandNameExistAsync(string name)
         {
-            // 1. Gelen verinin sağındaki ve solundaki görünmez boşlukları tıraşla (Trim) ve küçük harfe çevir.
-            string cleanName = name.Trim().ToLower();
-
-            // 2. Arşive bu tertemiz veriyle sor.
-            bool existingBrand = await _brandRepository.AnyAsync(x => x.Name.ToLower() == cleanName);
+            bool existingBrand = await _brandRepository.AnyAsync(x => x.Name.ToLower() == name);
 
             if (existingBrand)
             {
