@@ -23,5 +23,7 @@ namespace RentACar.Business.Abstract
 
         // Silme işlemi sadece başarı/başarısızlık döner
         Task<IResult> DeleteAsync(int id);
+
+        Task<IResult> CheckIfBrandExistsAsync(int id);
     }
 }

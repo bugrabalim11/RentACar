@@ -1,16 +1,11 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using RentACar.Business.Abstract;
 using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 using RentACar.Dtos.CarDtos;
 using RentACar.Entities.Concrete;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace RentACar.Business.Concrete
 {
@@ -19,6 +14,7 @@ namespace RentACar.Business.Concrete
         // ESKİSİ: private readonly IRepository<Car> _carRepository;
         private readonly ICarRepository _carRepository;
         private readonly IMapper _mapper;  // İşte bizim yetenekli aşçı yamağımız!
+        private readonly IBrandService _brandService;
 
         // 1. Güvenlik görevlimizi (Validator) tanımlıyoruz. 
         // Sadece CarAddDto'dan anlayan bir güvenlik görevlisi istiyoruz.
@@ -26,10 +22,11 @@ namespace RentACar.Business.Concrete
         private readonly IValidator<CarUpdateDto> _updateValidator;
 
         // 2. Constructor'a (Yapıcı Metot) ekleyerek sisteme "Bana bu görevliyi getir" diyoruz.
-        public CarManager(ICarRepository carRepository, IMapper mapper, IValidator<CarAddDto> addValidator, IValidator<CarUpdateDto> updateValidator)
+        public CarManager(ICarRepository carRepository, IMapper mapper, IBrandService brandService, IValidator<CarAddDto> addValidator, IValidator<CarUpdateDto> updateValidator)
         {
             _carRepository = carRepository;
             _mapper = mapper;
+            _brandService = brandService;
             _addValidator = addValidator;
             _updateValidator = updateValidator;
         }
@@ -46,6 +43,7 @@ namespace RentACar.Business.Concrete
             }
 
             // 2. İŞ KURALLARI (Business Rules - Dükkanın mantık kuralları)
+            await CheckIfBrandExistsAsync(carAddDto.BrandId);
             carAddDto.Plate = carAddDto.Plate.Replace(" ", "").ToUpper();
             await CheckIfCarPlateExistsAsync(carAddDto.Plate);
 
@@ -105,6 +103,7 @@ namespace RentACar.Business.Concrete
                 throw new ValidationException(validationResult.Errors);
             }
 
+            await CheckIfBrandExistsAsync(carUpdateDto.BrandId);
             // Replace -> boşluklaarı kapatır ToUpper-> büyük harf yapar
             carUpdateDto.Plate = carUpdateDto.Plate.Replace(" ", "").ToUpper();
             await CheckIfCarPlateExitsForUpdateAsync(carUpdateDto.Plate, carUpdateDto.Id);
@@ -113,7 +112,7 @@ namespace RentACar.Business.Concrete
             var existingCar = await _carRepository.GetAsync(x => x.Id == carUpdateDto.Id);
             if (existingCar == null)
             {
-                return new ErrorResult("Güncellencek araç bulunamdı.");
+                return new ErrorResult("Güncellencek araç bulunamadı.");
             }
 
             // 4. EŞLEŞTİRME VE KAYIT
@@ -142,6 +141,19 @@ namespace RentACar.Business.Concrete
             if (isExist)
             {
                 throw new BusinessException("Bu plaka zaten sistemde kayıtlı.");
+            }
+        }
+
+
+        private async Task CheckIfBrandExistsAsync(int brandId)
+        {
+            var existingBrand = await _brandService.CheckIfBrandExistsAsync(brandId);
+            if (!existingBrand.Success)
+            {
+                // İş Kuralı Güvenliği (Defensive Programming):
+                // Eğer result.Message sistemden boş (null) gelirse, sistemin NullReferenceException ile çökmesini engellemek için 
+                // '??' (Null-Coalescing / Yedek Paraşüt) operatörü kullanılarak varsayılan bir hata mesajı atanmıştır.
+                throw new BusinessException(existingBrand.Message ?? "Bilinmeyen bir marka hatası oluştu!");
             }
         }
     }

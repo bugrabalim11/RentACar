@@ -51,6 +51,16 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Marka başarıyla eklendi.");
         }
 
+        public async Task<IResult> CheckIfBrandExistsAsync(int id)
+        {
+            bool existingBrand = await _brandRepository.AnyAsync(x => x.Id == id);
+            if (existingBrand)
+            {
+                return new SuccessResult();
+            }
+            return new ErrorResult("Aranan marka sistemde bulunamadı.");
+        }
+
         public async Task<IResult> DeleteAsync(int id)
         {
             var existingBrand = await _brandRepository.GetAsync(x => x.Id == id);
