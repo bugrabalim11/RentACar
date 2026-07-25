@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using RentACar.API.Extensions;
+using RentACar.API.Middlewares;
 using RentACar.Business.Extensions;
 using RentACar.DataAccess.Concrete.EntityFramework;
 using Scalar.AspNetCore;

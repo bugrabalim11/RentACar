@@ -2,6 +2,7 @@
 using FluentValidation;
 using RentACar.Business.Abstract;
 using RentACar.Business.ValidationRules.BrandValidators;
+using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 using RentACar.Dtos.BrandDtos;
@@ -34,6 +35,8 @@ namespace RentACar.Business.Concrete
             {
                 throw new ValidationException(validationResult.Errors);
             }
+
+            await CheckIfBrandNameExistAsync(brandAddDto.Name);
 
             var brand = _mapper.Map<Brand>(brandAddDto);
             await _brandRepository.AddAsync(brand);
@@ -96,6 +99,20 @@ namespace RentACar.Business.Concrete
 
             // ARTIK TRUE YERİNE SUCCESS RESULT KUTUSU DÖNÜYORUZ!
             return new SuccessResult("Marka başarıyla güncellendi.");
+        }
+
+        private async Task CheckIfBrandNameExistAsync(string name)
+        {
+            // 1. Gelen verinin sağındaki ve solundaki görünmez boşlukları tıraşla (Trim) ve küçük harfe çevir.
+            string cleanName = name.Trim().ToLower();
+
+            // 2. Arşive bu tertemiz veriyle sor.
+            bool existingBrand = await _brandRepository.AnyAsync(x => x.Name.ToLower() == cleanName);
+
+            if (existingBrand)
+            {
+                throw new BusinessException("Bu marka zaten kayıtlı!");
+            }
         }
     }
 }
