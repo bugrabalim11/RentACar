@@ -6,7 +6,6 @@ using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 using RentACar.Dtos.BrandDtos;
 using RentACar.Entities.Concrete;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace RentACar.Business.Concrete
 {

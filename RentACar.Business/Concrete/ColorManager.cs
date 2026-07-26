@@ -4,7 +4,6 @@ using RentACar.Business.Abstract;
 using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
-using RentACar.Dtos.CarDtos;
 using RentACar.Dtos.ColorDtos;
 using RentACar.Entities.Concrete;
 
@@ -39,6 +38,19 @@ namespace RentACar.Business.Concrete
             var color = _mapper.Map<Color>(colorAddDto);
             await _colorRepository.AddAsync(color);
             return new SuccessResult("Renk başarıyla eklendi.");
+        }
+
+
+        // Bu metot bu dükkanın kendi içindeki Update / Delete işlemleri için DEĞİL, dışarıdan(CarManager gibi) gelen
+        // 'Renk var mı?' sorgularına yanıt vermek için açık bırakılmıştır.Ölü kod (Dead Code) değildir.
+        public async Task<IResult> CheckIfColorExistsAsync(int id)
+        {
+            bool existingColor = await _colorRepository.AnyAsync(x => x.Id == id);
+            if (existingColor)
+            {
+                return new SuccessResult();
+            }
+            return new ErrorResult("Bu renk sistemde bulunamadı!");
         }
 
         public async Task<IResult> DeleteAsync(int id)

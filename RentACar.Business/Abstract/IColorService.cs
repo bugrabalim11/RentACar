@@ -14,5 +14,13 @@ namespace RentACar.Business.Abstract
         Task<IResult> AddAsync(ColorAddDto colorAddDto);
         Task<IResult> UpdateAsync(ColorUpdateDto colorUpdateDto);
         Task<IResult> DeleteAsync(int id);
+
+        /// <summary>
+        /// Başka departmanların (örneğin CarManager), bir rengin sistemde var olup olmadığını doğrudan veritabanına 
+        /// erişmeden kontrol edebilmesi için yazılmış dış iletişim köprüsüdür.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task<IResult> CheckIfColorExistsAsync(int id);
     }
 }
