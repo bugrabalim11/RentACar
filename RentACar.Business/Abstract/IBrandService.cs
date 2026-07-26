@@ -24,6 +24,12 @@ namespace RentACar.Business.Abstract
         // Silme işlemi sadece başarı/başarısızlık döner
         Task<IResult> DeleteAsync(int id);
 
+        /// <summary>
+        /// Başka departmanların (örneğin CarManager), bir markanın sistemde var olup olmadığını doğrudan veritabanına 
+        /// erişmeden kontrol edebilmesi için yazılmış dış iletişim köprüsüdür.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         Task<IResult> CheckIfBrandExistsAsync(int id);
     }
 }

@@ -1,26 +1,23 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using RentACar.Business.Abstract;
-using RentACar.Business.ValidationRules.BrandValidators;
 using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 using RentACar.Dtos.BrandDtos;
 using RentACar.Entities.Concrete;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace RentACar.Business.Concrete
 {
     public class BrandManager : IBrandService
     {
-        private readonly IRepository<Brand> _brandRepository;
+        private readonly IBrandRepository _brandRepository;
         private readonly IMapper _mapper;
         private readonly IValidator<BrandAddDto> _addValidator;
         private readonly IValidator<BrandUpdateDto> _updateValidator;
 
-        public BrandManager(IRepository<Brand> brandRepository, IMapper mapper, IValidator<BrandAddDto> addValidator, IValidator<BrandUpdateDto> updateValidator)
+        public BrandManager(IBrandRepository brandRepository, IMapper mapper, IValidator<BrandAddDto> addValidator, IValidator<BrandUpdateDto> updateValidator)
         {
             _brandRepository = brandRepository;
             _mapper = mapper;
@@ -51,6 +48,9 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Marka başarıyla eklendi.");
         }
 
+
+        // Bu metot bu dükkanın kendi içindeki Update / Delete işlemleri için DEĞİL, dışarıdan(CarManager gibi) gelen
+        // 'Marka var mı?' sorgularına yanıt vermek için açık bırakılmıştır.Ölü kod (Dead Code) değildir.
         public async Task<IResult> CheckIfBrandExistsAsync(int id)
         {
             bool existingBrand = await _brandRepository.AnyAsync(x => x.Id == id);
@@ -103,6 +103,9 @@ namespace RentACar.Business.Concrete
                 throw new ValidationException(validationResult.Errors);
             }
 
+            brandUpdateDto.Name = brandUpdateDto.Name.Trim();
+            await CheckIfBrandNameExistsForUpdateAsync(brandUpdateDto.Name.ToLower(), brandUpdateDto.Id);
+
             var existingBrand = await _brandRepository.GetAsync(x => x.Id == brandUpdateDto.Id);
             if (existingBrand == null)
             {
@@ -128,6 +131,15 @@ namespace RentACar.Business.Concrete
             if (existingBrand)
             {
                 throw new BusinessException("Bu marka zaten kayıtlı!");
+            }
+        }
+
+        private async Task CheckIfBrandNameExistsForUpdateAsync(string name, int brandId)
+        {
+            bool isExist = await _brandRepository.AnyAsync(x => x.Name.ToLower() == name && x.Id != brandId);
+            if (isExist)
+            {
+                throw new BusinessException("Bu marka zaten sistemde kayıtlı!");
             }
         }
     }
