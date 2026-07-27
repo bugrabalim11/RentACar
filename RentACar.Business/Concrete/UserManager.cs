@@ -98,7 +98,7 @@ namespace RentACar.Business.Concrete
         public async Task<IDataResult<List<OperationClaim>>> GetClaimsAsync(User user)
         {
             // Depocunun o özel GetClaims metodunu çağırıp adamın rollerini alıyoruz.
-            var claims =await _userRepository.GetClaimsAsync(user);
+            var claims = await _userRepository.GetClaimsAsync(user);
             return new SuccessDataResult<List<OperationClaim>>(claims, "Kullancı yetkileri başarıyla getirildi.");
         }
 
@@ -128,6 +128,16 @@ namespace RentACar.Business.Concrete
 
             await _userRepository.AddAsync(user);
             return new SuccessResult("Kullancı güvenli vir şekilde sisteme eklendi.");
+        }
+
+        public async Task<IResult> CheckIfUserExistsAsync(int id)
+        {
+            bool existingUser = await _userRepository.AnyAsync(x => x.Id == id);
+            if (existingUser)
+            {
+                return new SuccessResult();
+            }
+            return new ErrorResult("Bu kullanıcı sistemde bulunamadı!");
         }
     }
 }

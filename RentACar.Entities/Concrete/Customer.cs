@@ -1,7 +1,5 @@
 ﻿using RentACar.Core.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using RentACar.Core.Entities.Concrete;
 
 namespace RentACar.Entities.Concrete
 {
@@ -9,10 +7,10 @@ namespace RentACar.Entities.Concrete
     {
         public int Id { get; set; }
         public int DrivingLicenseYear { get; set; }
-        public string FirstName { get; set; } = null!;
-        public string LastName { get; set; } = null!;
-        public string Email { get; set; } = null!;
         public string NationalIdentity { get; set; } = null!;
+        public int UserId { get; set; }
+        // bu ilişkinin sadece bir sayıdan ibaret olmadığını, gerçekten User tablosuna bağlandığını anlasın
+        public User User { get; set; }=null!;
         public bool Status { get; set; } = true;
 
 

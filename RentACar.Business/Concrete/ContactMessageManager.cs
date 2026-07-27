@@ -89,7 +89,7 @@ namespace RentACar.Business.Concrete
 
         private async Task CheckIfUserCanSendMessageAsync(string email)
         {
-            bool sendMessage = await _contactMessageRepository.AnyAsync(x => x.Email == email && x.SendDate > DateTime.UtcNow.AddMinutes(-5));
+            bool sendMessage = await _contactMessageRepository.AnyAsync(x => x.Email == email && x.SendDate > DateTime.UtcNow.AddMinutes(-5)); // >= de olabilirdi aynı şey
             if (sendMessage)
             {
                 throw new BusinessException("Sistemimizi korumak adına peş peşe mesaj gönderemezsiniz. Lütfen 5 dakika sonra tekrar deneyiniz.");

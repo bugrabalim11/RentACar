@@ -1,14 +1,11 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using RentACar.Business.Abstract;
+using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
-using RentACar.Dtos.ColorDtos;
 using RentACar.Dtos.CustomerDtos;
 using RentACar.Entities.Concrete;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RentACar.Business.Concrete
 {
@@ -16,13 +13,15 @@ namespace RentACar.Business.Concrete
     {
         private readonly ICustomerRepository _customerRepository;
         private readonly IMapper _mapper;
+        private readonly IUserService _userService;
         private readonly IValidator<CustomerAddDto> _addValidator;
         private readonly IValidator<CustomerUpdateDto> _updateValidator;
 
-        public CustomerManager(ICustomerRepository customerRepository, IMapper mapper, IValidator<CustomerAddDto> addValidator, IValidator<CustomerUpdateDto> updateValidator)
+        public CustomerManager(ICustomerRepository customerRepository, IMapper mapper, IUserService userService, IValidator<CustomerAddDto> addValidator, IValidator<CustomerUpdateDto> updateValidator)
         {
             _customerRepository = customerRepository;
             _mapper = mapper;
+            _userService = userService;
             _addValidator = addValidator;
             _updateValidator = updateValidator;
         }
@@ -34,6 +33,9 @@ namespace RentACar.Business.Concrete
             {
                 throw new ValidationException(validationResult.Errors);
             }
+
+            await CheckIfUserExistsAsync(customerAddDto.UserId);
+            await CheckAllreadyExistCustomer(customerAddDto.UserId);
 
             var customer = _mapper.Map<Customer>(customerAddDto);
             await _customerRepository.AddAsync(customer);
@@ -90,6 +92,24 @@ namespace RentACar.Business.Concrete
             _mapper.Map(customerUpdateDto, existingCustomer);
             await _customerRepository.UpdateAsync(existingCustomer);
             return new SuccessResult("Müşteri başarıyla güncellendi.");
+        }
+
+        private async Task CheckIfUserExistsAsync(int UserId)
+        {
+            var existingUser = await _userService.CheckIfUserExistsAsync(UserId);
+            if (!existingUser.Success)
+            {
+                throw new BusinessException(existingUser.Message ?? "Bilinmeyen bir kullanıcı hatası oluştu!");
+            }
+        }
+
+        private async Task CheckAllreadyExistCustomer(int UserId)
+        {
+            bool existingCustomer = await _customerRepository.AnyAsync(x => x.UserId == UserId);
+            if (existingCustomer)
+            {
+                throw new BusinessException("Bu kullanıcı sistemde müşteri olarak kayıtlı. Lütfen başka kullancı giriniz!");
+            }
         }
     }
 }

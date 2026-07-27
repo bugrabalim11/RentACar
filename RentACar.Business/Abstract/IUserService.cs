@@ -19,5 +19,8 @@ namespace RentACar.Business.Abstract
         // Dikkat: DTO değil, doğrudan varlığın (Entity) kendisini dönüyoruz!
         Task<IDataResult<User>> GetByMailAsync(string email);
         Task<IDataResult<List<OperationClaim>>> GetClaimsAsync(User user);
+
+        // Customer için kullanıcı kayıtlı mı metodu
+        Task<IResult> CheckIfUserExistsAsync(int id);
     }
 }
