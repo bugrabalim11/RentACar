@@ -1,16 +1,11 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using RentACar.Business.Abstract;
+using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
-using RentACar.DataAccess.Concrete;
-using RentACar.DataAccess.Concrete.EntityFramework;
 using RentACar.Dtos.ContactMessageDtos;
-using RentACar.Dtos.RentalDtos;
 using RentACar.Entities.Concrete;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RentACar.Business.Concrete
 {
@@ -35,8 +30,9 @@ namespace RentACar.Business.Concrete
                 throw new ValidationException(validationResult.Errors);
             }
 
-            var contactMessage = _mapper.Map<ContactMessage>(contactMessageAddDto);
+            await CheckIfUserCanSendMessageAsync(contactMessageAddDto.Email);
 
+            var contactMessage = _mapper.Map<ContactMessage>(contactMessageAddDto);
             contactMessage.SendDate = DateTime.UtcNow;
             contactMessage.IsRead = false;
 
@@ -89,6 +85,15 @@ namespace RentACar.Business.Concrete
 
             var contactMessageDto = _mapper.Map<ContactMessageListDto>(contactMessage);
             return new SuccessDataResult<ContactMessageListDto>(contactMessageDto, "Mesaj başarıyla getirildi.");
+        }
+
+        private async Task CheckIfUserCanSendMessageAsync(string email)
+        {
+            bool sendMessage = await _contactMessageRepository.AnyAsync(x => x.Email == email && x.SendDate > DateTime.UtcNow.AddMinutes(-5));
+            if (sendMessage)
+            {
+                throw new BusinessException("Sistemimizi korumak adına peş peşe mesaj gönderemezsiniz. Lütfen 5 dakika sonra tekrar deneyiniz.");
+            }
         }
     }
 }
