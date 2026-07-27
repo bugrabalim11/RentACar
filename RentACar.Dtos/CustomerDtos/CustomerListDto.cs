@@ -6,7 +6,9 @@ namespace RentACar.Dtos.CustomerDtos
     {
         public int Id { get; set; }
         public int UserId { get; set; }
+        public string FirstName { get; set; } = null!;
+        public string LastName { get; set; } = null!;
         public string NationalIdentity { get; set; } = null!;
-        public int DrivinglicenseYear { get; set; }
+        public int DrivingLicenseYear { get; set; }
     }
 }

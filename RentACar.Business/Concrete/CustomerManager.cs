@@ -57,14 +57,14 @@ namespace RentACar.Business.Concrete
 
         public async Task<IDataResult<List<CustomerListDto>>> GetAllAsync()
         {
-            var customers = await _customerRepository.GetAllAsync();
+            var customers = await _customerRepository.GetCustomersWithDetailsAsync();
             var customerDtos = _mapper.Map<List<CustomerListDto>>(customers);
             return new SuccessDataResult<List<CustomerListDto>>(customerDtos, "Müşteriler başarıyla listelendi.");
         }
 
         public async Task<IDataResult<CustomerListDto>> GetByIdAsync(int id)
         {
-            var customer = await _customerRepository.GetAsync(x => x.Id == id);
+            var customer = await _customerRepository.GetCustomerWithDetailsAsync(id);
             if (customer == null)
             {
                 return new ErrorDataResult<CustomerListDto>("Müşteri bulunamadı.");
