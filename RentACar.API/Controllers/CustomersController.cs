@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
 using RentACar.Dtos.CustomerDtos;
+using RentACar.Dtos.RentalDtos;
 
 namespace RentACar.API.Controllers
 {
@@ -41,7 +42,6 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        //[Authorize]
         //[HttpPost]
         //public async Task<IActionResult> Add(CustomerAddDto customerAddDto)
         //{

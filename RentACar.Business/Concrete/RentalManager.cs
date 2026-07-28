@@ -5,9 +5,6 @@ using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 using RentACar.Dtos.RentalDtos;
 using RentACar.Entities.Concrete;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RentACar.Business.Concrete
 {
