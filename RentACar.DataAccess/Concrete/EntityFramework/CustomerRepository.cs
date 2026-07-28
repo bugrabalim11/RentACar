@@ -27,6 +27,7 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
         {
             return await _context.Customers
                 .Include(c => c.User)
+                .Include(c=>c.Rentals)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
     }

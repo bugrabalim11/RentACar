@@ -20,7 +20,8 @@ namespace RentACar.Business.Profiles
             CreateMap<Customer, CustomerDetailDto>()
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.User.Email))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.User.FirstName))
-                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.User.LastName));
+                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.User.LastName))
+                .ForMember(dest => dest.TotalRentals, opt => opt.MapFrom(src => src.Rentals.Count));
         }
     }
 }
