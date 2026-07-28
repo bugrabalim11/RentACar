@@ -1,13 +1,11 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using RentACar.Business.Abstract;
+using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 using RentACar.Dtos.OfficeDtos;
 using RentACar.Entities.Concrete;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RentACar.Business.Concrete
 {
@@ -33,6 +31,8 @@ namespace RentACar.Business.Concrete
             {
                 throw new ValidationException(validationResult.Errors);
             }
+
+            await CheckIfOfficeExistsAsync(officeAddDto.Name);
 
             var office = _mapper.Map<Office>(officeAddDto);
             await _officeRepository.AddAsync(office);
@@ -79,6 +79,8 @@ namespace RentACar.Business.Concrete
                 throw new ValidationException(validationResult.Errors);
             }
 
+            await ChechIfOfficeExistsForUpdateAsync(officeUpdateDto.Name,officeUpdateDto.Id);
+
             var existingOffice = await _officeRepository.GetAsync(x => x.Id == officeUpdateDto.Id);
             if (existingOffice == null)
             {
@@ -89,6 +91,24 @@ namespace RentACar.Business.Concrete
             _mapper.Map(officeUpdateDto, existingOffice);
             await _officeRepository.UpdateAsync(existingOffice);
             return new SuccessResult("Ofis başarıyla güncellendi.");
+        }
+
+        private async Task CheckIfOfficeExistsAsync(string officeName)
+        {
+            bool existingOffice = await _officeRepository.AnyAsync(x => x.Name == officeName);
+            if (existingOffice)
+            {
+                throw new BusinessException("Bu ofis sistemde kayıtlı! Lütfen başka ofis girmeyi deneyin.");
+            }
+        }
+
+        private async Task ChechIfOfficeExistsForUpdateAsync(string officeName, int officeId)
+        {
+            bool isExist = await _officeRepository.AnyAsync(x => x.Name == officeName && x.Id != officeId);
+            if (isExist)
+            {
+                throw new BusinessException("Bu ofis sistemde kayıtlı! Lütfen başka ofis girmeyi deneyin.");
+            }
         }
     }
 }
