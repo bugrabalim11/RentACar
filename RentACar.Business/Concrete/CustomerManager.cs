@@ -62,16 +62,16 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<List<CustomerListDto>>(customerDtos, "Müşteriler başarıyla listelendi.");
         }
 
-        public async Task<IDataResult<CustomerListDto>> GetByIdAsync(int id)
+        public async Task<IDataResult<CustomerDetailDto>> GetByIdAsync(int id)
         {
             var customer = await _customerRepository.GetCustomerWithDetailsAsync(id);
             if (customer == null)
             {
-                return new ErrorDataResult<CustomerListDto>("Müşteri bulunamadı.");
+                return new ErrorDataResult<CustomerDetailDto>("Müşteri bulunamadı.");
             }
 
-            var customerDto = _mapper.Map<CustomerListDto>(customer);
-            return new SuccessDataResult<CustomerListDto>(customerDto, "Müşteri başarıyla getirildi.");
+            var customerDto = _mapper.Map<CustomerDetailDto>(customer);
+            return new SuccessDataResult<CustomerDetailDto>(customerDto, "Müşteri başarıyla getirildi.");
         }
 
         public async Task<IResult> UpdateAsync(CustomerUpdateDto customerUpdateDto)

@@ -1,9 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Dtos.CustomerDtos;
 using RentACar.Entities.Concrete;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RentACar.Business.Profiles
 {
@@ -17,6 +14,11 @@ namespace RentACar.Business.Profiles
                 // DİKKAT: API sözleşmesini (DTO) veritabanı hiyerarşisine bağımlı kılmamak
                 // adına AutoMapper'ın Flattening (Düzleştirme) özelliği bilerek kullanılmamıştır.
                 // User tablosundaki isimler, DTO'ya manuel olarak (Explicit Mapping) haritalanmıştır.
+                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.User.FirstName))
+                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.User.LastName));
+
+            CreateMap<Customer, CustomerDetailDto>()
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.User.Email))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.User.FirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.User.LastName));
         }

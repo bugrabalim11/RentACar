@@ -6,6 +6,6 @@ namespace RentACar.Dtos.CustomerDtos
     {
         public int UserId { get; set; }
         public string NationalIdentity { get; set; } = null!;
-        public int DrivinglicenseYear { get; set; }
+        public int DrivingLicenseYear { get; set; }
     }
 }

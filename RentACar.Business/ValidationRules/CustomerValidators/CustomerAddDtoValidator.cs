@@ -14,7 +14,7 @@ namespace RentACar.Business.ValidationRules.CustomerValidators
                 .Length(11).WithMessage("TC kimlik numarası tam olarak 11 haneli olmak zorundadır.")
                 .Matches("^[0-9]*$").WithMessage("TC kimlik numarası sadece rakamlardan oluşmalıdır.");
 
-            RuleFor(x => x.DrivinglicenseYear)
+            RuleFor(x => x.DrivingLicenseYear)
                 .GreaterThan(1950).WithMessage("Geçerli bir ehliyet yılı giriniz.")
                 .LessThanOrEqualTo(DateTime.Now.Year).WithMessage("Ehliyet yılı geleceketeki bir yıl olamaz.");
         }
