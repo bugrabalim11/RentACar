@@ -1,5 +1,4 @@
 ﻿using RentACar.Core.Entities;
-using RentACar.Entities.Enums;
 
 namespace RentACar.Dtos.CarDtos
 {
