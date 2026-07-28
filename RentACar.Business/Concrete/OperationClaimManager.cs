@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using RentACar.Business.Abstract;
 using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Entities.DTOs.OperationClaimDtos;
+using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 
@@ -20,6 +22,9 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> AddAsync(OperationClaimAddDto operationClaimAddDto)
         {
+            operationClaimAddDto.Name = operationClaimAddDto.Name.Trim();
+            await CheckIfOperationClaimExistsAsync(operationClaimAddDto.Name);
+
             var operationClaim = _mapper.Map<OperationClaim>(operationClaimAddDto);
             await _operationClaimRepository.AddAsync(operationClaim);
             return new SuccessResult("Yeni yetki başarıyla eklendi.");
@@ -59,6 +64,9 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> UpdateAsync(OperationClaimUpdateDto operationClaimUpdateDto)
         {
+            operationClaimUpdateDto.Name = operationClaimUpdateDto.Name.Trim();
+            await CheckIfOperationClaimExistsForUpdateAsync(operationClaimUpdateDto.Name, operationClaimUpdateDto.Id);
+
             var existingOperationClaim = await _operationClaimRepository.GetAsync(x => x.Id == operationClaimUpdateDto.Id);
             if (existingOperationClaim == null)
             {
@@ -68,6 +76,27 @@ namespace RentACar.Business.Concrete
             _mapper.Map(operationClaimUpdateDto, existingOperationClaim);
             await _operationClaimRepository.UpdateAsync(existingOperationClaim);
             return new SuccessResult("Yetki başarıyla güncellendi.");
+        }
+
+        private async Task CheckIfOperationClaimExistsAsync(string operationClaim)
+        {
+            // Bekçiye == dediğinde "Bana harfi harfine BMW'yi bul" dersin. Bekçiye ILike dediğinde
+            // ise "Bana okunuşu bmw olan adamı bul,
+            // harflerin büyük küçük olması umurumda değil" dersin.
+            bool existOperationClaim = await _operationClaimRepository.AnyAsync(x => Microsoft.EntityFrameworkCore.EF.Functions.ILike(x.Name, operationClaim));
+            if (existOperationClaim)
+            {
+                throw new BusinessException("Bu statü sistemde kayıtlı! Lütfen başka statü girmeyi deneyin.");
+            }
+        }
+
+        private async Task CheckIfOperationClaimExistsForUpdateAsync(string operationClaim, int operationClaimId)
+        {
+            bool isExist = await _operationClaimRepository.AnyAsync(x => Microsoft.EntityFrameworkCore.EF.Functions.ILike(x.Name, operationClaim) && x.Id != operationClaimId);
+            if (isExist)
+            {
+                throw new BusinessException("Bu statü sistemde kayıtlı! Lütfen başka statü girmeyi deneyin.");
+            }
         }
     }
 }
