@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using FluentValidation;
 using RentACar.Business.Abstract;
 using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Results;
@@ -13,25 +12,15 @@ namespace RentACar.Business.Concrete
     {
         private readonly IColorRepository _colorRepository;
         private readonly IMapper _mapper;
-        private readonly IValidator<ColorAddDto> _addValidator;
-        private readonly IValidator<ColorUpdateDto> _updateValidator;
 
-        public ColorManager(IColorRepository colorRepository, IMapper mapper, IValidator<ColorAddDto> addValidator, IValidator<ColorUpdateDto> updateValidator)
+        public ColorManager(IColorRepository colorRepository, IMapper mapper)
         {
             _colorRepository = colorRepository;
             _mapper = mapper;
-            _addValidator = addValidator;
-            _updateValidator = updateValidator;
         }
 
         public async Task<IResult> AddAsync(ColorAddDto colorAddDto)
         {
-            var validationResult = await _addValidator.ValidateAsync(colorAddDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
             colorAddDto.Name = colorAddDto.Name.Trim();
             await CheckIfColorNameExistsAsync(colorAddDto.Name.ToLower());
 
@@ -87,12 +76,6 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> UpdateAsync(ColorUpdateDto colorUpdateDto)
         {
-            var validationResult = await _updateValidator.ValidateAsync(colorUpdateDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
             colorUpdateDto.Name = colorUpdateDto.Name.Trim();
             await CheckIfColorNameExistsForUpdateAsync(colorUpdateDto.Name.ToLower(), colorUpdateDto.Id);
 

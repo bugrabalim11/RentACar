@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using FluentValidation;
 using RentACar.Business.Abstract;
 using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Results;
@@ -13,15 +12,11 @@ namespace RentACar.Business.Concrete
     {
         private readonly IBrandRepository _brandRepository;
         private readonly IMapper _mapper;
-        private readonly IValidator<BrandAddDto> _addValidator;
-        private readonly IValidator<BrandUpdateDto> _updateValidator;
 
-        public BrandManager(IBrandRepository brandRepository, IMapper mapper, IValidator<BrandAddDto> addValidator, IValidator<BrandUpdateDto> updateValidator)
+        public BrandManager(IBrandRepository brandRepository, IMapper mapper)
         {
             _brandRepository = brandRepository;
             _mapper = mapper;
-            _addValidator = addValidator;
-            _updateValidator = updateValidator;
         }
 
 
@@ -30,12 +25,6 @@ namespace RentACar.Business.Concrete
         // 3. İş kurallarından (Validation ve Mükerrer Kayıt) geçerse veritabanına kaydeder.
         public async Task<IResult> AddAsync(BrandAddDto brandAddDto)
         {
-            var validationResult = await _addValidator.ValidateAsync(brandAddDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
             // Gelen verinin sağındaki ve solundaki görünmez boşlukları tıraşla (Trim) ve küçük harfe çevir.
             brandAddDto.Name = brandAddDto.Name.Trim();
             await CheckIfBrandNameExistAsync(brandAddDto.Name.ToLower());
@@ -96,12 +85,6 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> UpdateAsync(BrandUpdateDto brandUpdateDto)
         {
-            var validationResult = await _updateValidator.ValidateAsync(brandUpdateDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
             brandUpdateDto.Name = brandUpdateDto.Name.Trim();
             await CheckIfBrandNameExistsForUpdateAsync(brandUpdateDto.Name.ToLower(), brandUpdateDto.Id);
 

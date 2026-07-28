@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using FluentValidation;
 using RentACar.Business.Abstract;
 using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Entities.DTOs.OperationClaimDtos;
@@ -12,25 +11,15 @@ namespace RentACar.Business.Concrete
     {
         private readonly IOperationClaimRepository _operationClaimRepository;
         private readonly IMapper _mapper;
-        private readonly IValidator<OperationClaimAddDto> _addValidator;
-        private readonly IValidator<OperationClaimUpdateDto> _updateValidator;
 
-        public OperationClaimManager(IOperationClaimRepository operationClaimRepository, IMapper mapper, IValidator<OperationClaimAddDto> addValidator, IValidator<OperationClaimUpdateDto> updateValidator)
+        public OperationClaimManager(IOperationClaimRepository operationClaimRepository, IMapper mapper)
         {
             _operationClaimRepository = operationClaimRepository;
             _mapper = mapper;
-            _addValidator = addValidator;
-            _updateValidator = updateValidator;
         }
 
         public async Task<IResult> AddAsync(OperationClaimAddDto operationClaimAddDto)
         {
-            var validationResult = await _addValidator.ValidateAsync(operationClaimAddDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
             var operationClaim = _mapper.Map<OperationClaim>(operationClaimAddDto);
             await _operationClaimRepository.AddAsync(operationClaim);
             return new SuccessResult("Yeni yetki başarıyla eklendi.");
@@ -70,12 +59,6 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> UpdateAsync(OperationClaimUpdateDto operationClaimUpdateDto)
         {
-            var validationResult = await _updateValidator.ValidateAsync(operationClaimUpdateDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
             var existingOperationClaim = await _operationClaimRepository.GetAsync(x => x.Id == operationClaimUpdateDto.Id);
             if (existingOperationClaim == null)
             {

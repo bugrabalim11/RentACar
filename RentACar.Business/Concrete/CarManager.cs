@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using FluentValidation;
 using RentACar.Business.Abstract;
 using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Results;
@@ -20,33 +19,17 @@ namespace RentACar.Business.Concrete
         private readonly IBrandService _brandService;
         private readonly IColorService _colorService;
 
-        // 1. Güvenlik görevlimizi (Validator) tanımlıyoruz. 
-        // Sadece CarAddDto'dan anlayan bir güvenlik görevlisi istiyoruz.
-        private readonly IValidator<CarAddDto> _addValidator;
-        private readonly IValidator<CarUpdateDto> _updateValidator;
-
         // 2. Constructor'a (Yapıcı Metot) ekleyerek sisteme "Bana bu görevliyi getir" diyoruz.
-        public CarManager(ICarRepository carRepository, IMapper mapper, IBrandService brandService, IColorService colorService, IValidator<CarAddDto> addValidator, IValidator<CarUpdateDto> updateValidator)
+        public CarManager(ICarRepository carRepository, IMapper mapper, IBrandService brandService, IColorService colorService)
         {
             _carRepository = carRepository;
             _mapper = mapper;
             _brandService = brandService;
             _colorService = colorService;
-            _addValidator = addValidator;
-            _updateValidator = updateValidator;
         }
 
         public async Task<IResult> AddAsync(CarAddDto carAddDto)
         {
-            // 1. GÜVENLİK (Validator - Boşluk, eksi sayı vs. kontrolü)
-            var validationResult = await _addValidator.ValidateAsync(carAddDto);
-            if (!validationResult.IsValid)
-            {
-                // Sistemin sigortasını attırıyoruz! (Exception fırlatıyoruz)
-                // Hataları da içine koyuyoruz ki ileride kullanıcıya "Şuraları yanlış girdin" diyebilelim.
-                throw new ValidationException(validationResult.Errors);
-            }
-
             // 2. İŞ KURALLARI (Business Rules - Dükkanın mantık kuralları)
             await CheckIfBrandExistsAsync(carAddDto.BrandId);
             await CheckIfColorExistsAsync(carAddDto.ColorId);
@@ -102,13 +85,6 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> UpdateAsync(CarUpdateDto carUpdateDto)
         {
-            // 1. KAPI KONTROLÜ (Validator)
-            var validationResult = await _updateValidator.ValidateAsync(carUpdateDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
             await CheckIfBrandExistsAsync(carUpdateDto.BrandId);
             await CheckIfColorExistsAsync(carUpdateDto.ColorId);
             // Replace -> boşluklaarı kapatır ToUpper-> büyük harf yapar

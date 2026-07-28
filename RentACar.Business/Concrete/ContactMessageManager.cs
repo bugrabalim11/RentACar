@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using FluentValidation;
 using RentACar.Business.Abstract;
 using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Results;
@@ -13,23 +12,15 @@ namespace RentACar.Business.Concrete
     {
         private readonly IContactMessageRepository _contactMessageRepository;
         private readonly IMapper _mapper;
-        private readonly IValidator<ContactMessageAddDto> _addValidator;
 
-        public ContactMessageManager(IContactMessageRepository contactMessageRepository, IMapper mapper, IValidator<ContactMessageAddDto> addValidator)
+        public ContactMessageManager(IContactMessageRepository contactMessageRepository, IMapper mapper)
         {
             _contactMessageRepository = contactMessageRepository;
             _mapper = mapper;
-            _addValidator = addValidator;
         }
 
         public async Task<IResult> AddAsync(ContactMessageAddDto contactMessageAddDto)
         {
-            var validationResult = await _addValidator.ValidateAsync(contactMessageAddDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
             await CheckIfUserCanSendMessageAsync(contactMessageAddDto.Email);
 
             var contactMessage = _mapper.Map<ContactMessage>(contactMessageAddDto);

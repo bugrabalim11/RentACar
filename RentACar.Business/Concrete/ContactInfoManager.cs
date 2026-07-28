@@ -1,14 +1,10 @@
 ﻿using AutoMapper;
-using FluentValidation;
 using RentACar.Business.Abstract;
 using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 using RentACar.Dtos.ContactInfoDtos;
 using RentACar.Entities.Concrete;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RentACar.Business.Concrete
 {
@@ -16,25 +12,15 @@ namespace RentACar.Business.Concrete
     {
         private readonly IContactInfoRepository _contactInfoRepository;
         private readonly IMapper _mapper;
-        private readonly IValidator<ContactInfoAddDto> _addValidator;
-        private readonly IValidator<ContactInfoUpdateDto> _updateValidator;
 
-        public ContactInfoManager(IContactInfoRepository contactInfoRepository, IMapper mapper, IValidator<ContactInfoAddDto> addValidator, IValidator<ContactInfoUpdateDto> updateValidator)
+        public ContactInfoManager(IContactInfoRepository contactInfoRepository, IMapper mapper)
         {
             _contactInfoRepository = contactInfoRepository;
             _mapper = mapper;
-            _addValidator = addValidator;
-            _updateValidator = updateValidator;
         }
 
         public async Task<IResult> AddAsync(ContactInfoAddDto contactInfoAddDto)
         {
-            var validationResult = await _addValidator.ValidateAsync(contactInfoAddDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
             // Business Rule
             await CheckIfContactInfoAlreadyExistsAsync();
 
@@ -77,12 +63,6 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> UpdateAsync(ContactInfoUpdateDto contactInfoUpdateDto)
         {
-            var validationResult = await _updateValidator.ValidateAsync(contactInfoUpdateDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
             var existingContactInfo = await _contactInfoRepository.GetAsync(x => x.Id == contactInfoUpdateDto.Id);
             if (existingContactInfo == null)
             {

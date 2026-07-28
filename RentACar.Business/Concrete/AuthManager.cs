@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using FluentValidation;
 using RentACar.Business.Abstract;
 using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Entities.DTOs.AuthDtos;
@@ -14,16 +13,12 @@ namespace RentACar.Business.Concrete
         private readonly IUserService _userService;
         private readonly ITokenHelper _tokenHelper;
         private readonly IMapper _mapper;
-        private readonly IValidator<UserForRegisterDto> _registerValidator;
-        private readonly IValidator<UserForLoginDto> _loginValidator;
 
-        public AuthManager(IUserService userService, ITokenHelper tokenHelper, IMapper mapper, IValidator<UserForRegisterDto> registerValidator, IValidator<UserForLoginDto> loginValidator)
+        public AuthManager(IUserService userService, ITokenHelper tokenHelper, IMapper mapper)
         {
             _userService = userService;
             _tokenHelper = tokenHelper;
             _mapper = mapper;
-            _registerValidator = registerValidator;
-            _loginValidator = loginValidator;
         }
 
         public async Task<IDataResult<AccessToken>> CreateAccessToken(User user)
@@ -40,12 +35,6 @@ namespace RentACar.Business.Concrete
 
         public async Task<IDataResult<User>> Login(UserForLoginDto userForLoginDto)
         {
-            var validationResult = await _loginValidator.ValidateAsync(userForLoginDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
             // 2. Telsizle e-posta kontrolü
             var userToCheck = await _userService.GetByMailAsync(userForLoginDto.Email);
             if (!userToCheck.Success || userToCheck.Data == null)
@@ -66,12 +55,6 @@ namespace RentACar.Business.Concrete
 
         public async Task<IDataResult<User>> Register(UserForRegisterDto userForRegisterDto, string password)
         {
-            var validationResult = await _registerValidator.ValidateAsync(userForRegisterDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
             // 1. Blender Makinesi: Şifreyi püre yap (out ile kavanozları dolduruyoruz)
             byte[] passwordHash, passwordSalt;
             HashingHelper.CreatePasswordHash(password, out passwordHash, out passwordSalt);

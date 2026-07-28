@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using FluentValidation;
 using RentACar.Business.Abstract;
 using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Utilities.Results;
@@ -12,24 +11,14 @@ namespace RentACar.Business.Concrete
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
-        private readonly IValidator<UserAddDto> _addValidator;
-        private readonly IValidator<UserUpdateDto> _updateValidator;
-        public UserManager(IUserRepository userRepository, IMapper mapper, IValidator<UserAddDto> addValidator, IValidator<UserUpdateDto> updateValidator)
+        public UserManager(IUserRepository userRepository, IMapper mapper)
         {
             _userRepository = userRepository;
             _mapper = mapper;
-            _addValidator = addValidator;
-            _updateValidator = updateValidator;
         }
 
         public async Task<IResult> AddAsync(UserAddDto userAddDto)
         {
-            var validationResult = await _addValidator.ValidateAsync(userAddDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
             var user = _mapper.Map<User>(userAddDto);
             user.Status = true;
             await _userRepository.AddAsync(user);
@@ -70,13 +59,7 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> UpdateAsync(UserUpdateDto userUpdateDto)
         {
-            var validationResult = await _updateValidator.ValidateAsync(userUpdateDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
-            var existingUser = await _userRepository.GetAsync(x => x.Id == userUpdateDto.Id);
+             var existingUser = await _userRepository.GetAsync(x => x.Id == userUpdateDto.Id);
             if (existingUser == null)
             {
                 return new ErrorResult("Güncellenecek kullanıcı bulunamadı.");

@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using FluentValidation;
 using RentACar.Business.Abstract;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
@@ -12,24 +11,14 @@ namespace RentACar.Business.Concrete
     {
         private readonly IRentalRepository _rentalRepository;
         private readonly IMapper _mapper;
-        private readonly IValidator<RentalAddDto> _addValidator;
-        private readonly IValidator<RentalUpdateDto> _updateValidator;
-        public RentalManager(IRentalRepository rentalRepository, IMapper mapper, IValidator<RentalAddDto> addValidator, IValidator<RentalUpdateDto> updateValidator)
+        public RentalManager(IRentalRepository rentalRepository, IMapper mapper)
         {
             _rentalRepository = rentalRepository;
             _mapper = mapper;
-            _addValidator = addValidator;
-            _updateValidator = updateValidator;
         }
 
         public async Task<IResult> AddAsync(RentalAddDto rentalAddDto)
         {
-            var validationResult = await _addValidator.ValidateAsync(rentalAddDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
             // --- POSTGRESQL ZAMAN DİLİMİ KURALI (UTC) ---
             // PostgreSQL, saat dilimi belirtilmemiş (Kind=Unspecified) tarihleri kabul etmez.
             // Frontend veya Swagger'dan gelen saf tarihleri veritabanı deposuna göndermeden önce,
@@ -85,12 +74,6 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> UpdateAsync(RentalUpdateDto rentalUpdateDto)
         {
-            var validationResult = await _updateValidator.ValidateAsync(rentalUpdateDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
             rentalUpdateDto.RentDate = rentalUpdateDto.RentDate.ToUniversalTime();
             if (rentalUpdateDto.ReturnDate.HasValue)
             {

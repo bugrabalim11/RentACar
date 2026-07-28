@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using FluentValidation;
 using RentACar.Business.Abstract;
 using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Results;
@@ -14,26 +13,16 @@ namespace RentACar.Business.Concrete
         private readonly ICustomerRepository _customerRepository;
         private readonly IMapper _mapper;
         private readonly IUserService _userService;
-        private readonly IValidator<CustomerAddDto> _addValidator;
-        private readonly IValidator<CustomerUpdateDto> _updateValidator;
 
-        public CustomerManager(ICustomerRepository customerRepository, IMapper mapper, IUserService userService, IValidator<CustomerAddDto> addValidator, IValidator<CustomerUpdateDto> updateValidator)
+        public CustomerManager(ICustomerRepository customerRepository, IMapper mapper, IUserService userService)
         {
             _customerRepository = customerRepository;
             _mapper = mapper;
             _userService = userService;
-            _addValidator = addValidator;
-            _updateValidator = updateValidator;
         }
 
         public async Task<IResult> AddAsync(CustomerAddDto customerAddDto)
         {
-            var validationResult = await _addValidator.ValidateAsync(customerAddDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
             await CheckIfUserExistsAsync(customerAddDto.UserId);
             await CheckAllreadyExistCustomer(customerAddDto.UserId);
 
@@ -76,12 +65,6 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> UpdateAsync(CustomerUpdateDto customerUpdateDto)
         {
-            var validationResult = await _updateValidator.ValidateAsync(customerUpdateDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
             var existingCustomer = await _customerRepository.GetAsync(x => x.Id == customerUpdateDto.Id);
             if (existingCustomer == null)
             {
