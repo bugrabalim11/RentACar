@@ -1,21 +1,41 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using RentACar.API.Extensions;
-using RentACar.API.Middlewares;
+using RentACar.API.Filters;
 using RentACar.Business.Extensions;
+using RentACar.Business.ValidationRules.OfficeValidators;
 using RentACar.DataAccess.Concrete.EntityFramework;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ValidationFilters>();
+});
+
+// 1. Adım: FluentValidation'ın otomatik doğrulama (AutoValidation) özelliğini aktif et.
+builder.Services.AddFluentValidationAutoValidation();
+
+// 2. Adım: Validator kurallarımızın (RuleFor...) nerede olduğunu sisteme göster.
+// (OfficeAddDtoValidator veya herhangi bir Validator sınıfını referans verebilirsin, sistem o projedeki hepsini bulur)
+builder.Services.AddValidatorsFromAssemblyContaining<OfficeAddDtoValidator>();
 
 // Business katmanındaki gizli çantamızı buraya tek satırla çağırıyoruz
 builder.Services.AddBusinessServices();
 
 // Kendi yazdığımız güvenlik ve JWT ayarlarını içeri alıyoruz
 builder.Services.AddSecurityServices(builder.Configuration);
+
+// Microsoft'a "ModelState'i otomatik kontrol etme, ben kendi cihazımı kullanacağım" demektir
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
 
 // .NET 10 Modern OpenAPI / Swagger Kaydı
 builder.Services.AddEndpointsApiExplorer();

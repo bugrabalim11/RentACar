@@ -13,25 +13,15 @@ namespace RentACar.Business.Concrete
     {
         private readonly IOfficeRepository _officeRepository;
         private readonly IMapper _mapper;
-        private readonly IValidator<OfficeAddDto> _addValidator;
-        private readonly IValidator<OfficeUpdateDto> _updateValidator;
 
-        public OfficeManager(IOfficeRepository officeRepository, IMapper mapper, IValidator<OfficeAddDto> addValidator, IValidator<OfficeUpdateDto> updateValidator)
+        public OfficeManager(IOfficeRepository officeRepository, IMapper mapper)
         {
             _officeRepository = officeRepository;
             _mapper = mapper;
-            _addValidator = addValidator;
-            _updateValidator = updateValidator;
         }
 
         public async Task<IResult> AddAsync(OfficeAddDto officeAddDto)
         {
-            var validationResult = await _addValidator.ValidateAsync(officeAddDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
             await CheckIfOfficeExistsAsync(officeAddDto.Name);
 
             var office = _mapper.Map<Office>(officeAddDto);
@@ -73,13 +63,7 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> UpdateAsync(OfficeUpdateDto officeUpdateDto)
         {
-            var validationResult = await _updateValidator.ValidateAsync(officeUpdateDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
-            await ChechIfOfficeExistsForUpdateAsync(officeUpdateDto.Name,officeUpdateDto.Id);
+            await CheckIfOfficeExistsForUpdateAsync(officeUpdateDto.Name,officeUpdateDto.Id);
 
             var existingOffice = await _officeRepository.GetAsync(x => x.Id == officeUpdateDto.Id);
             if (existingOffice == null)
@@ -102,7 +86,7 @@ namespace RentACar.Business.Concrete
             }
         }
 
-        private async Task ChechIfOfficeExistsForUpdateAsync(string officeName, int officeId)
+        private async Task CheckIfOfficeExistsForUpdateAsync(string officeName, int officeId)
         {
             bool isExist = await _officeRepository.AnyAsync(x => x.Name == officeName && x.Id != officeId);
             if (isExist)
