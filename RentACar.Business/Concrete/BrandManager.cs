@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using RentACar.Business.Abstract;
-using RentACar.Core.Exceptions;
+using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 using RentACar.Dtos.BrandDtos;
@@ -24,7 +24,17 @@ namespace RentACar.Business.Concrete
         {
             // Gelen verinin sağındaki ve solundaki görünmez boşlukları tıraşla (Trim) ve küçük harfe çevir.
             brandAddDto.Name = brandAddDto.Name.Trim();
-            await CheckIfBrandNameExistAsync(brandAddDto.Name);
+
+            // Asistanı çağır ve bekçinin raporunu kucağına (params) ver:
+            IResult? result = BusinessRules.Run(await CheckIfBrandNameExistAsync(brandAddDto.Name));
+
+            // Asistanın getirdiği sonuca bak:
+            if (result != null)
+            {
+                // Eğer result null değilse, asistan bir ceza makbuzu (ErrorResult) bulmuş demektir.
+                // Hiç veritabanı işlemlerine girmeden direkt bu hatayı vezneye yolla!
+                return result;
+            }
 
             var brand = _mapper.Map<Brand>(brandAddDto);
             await _brandRepository.AddAsync(brand);
@@ -83,7 +93,11 @@ namespace RentACar.Business.Concrete
         public async Task<IResult> UpdateAsync(BrandUpdateDto brandUpdateDto)
         {
             brandUpdateDto.Name = brandUpdateDto.Name.Trim();
-            await CheckIfBrandNameExistsForUpdateAsync(brandUpdateDto.Name, brandUpdateDto.Id);
+            IResult? result = BusinessRules.Run(await CheckIfBrandNameExistsForUpdateAsync(brandUpdateDto.Name, brandUpdateDto.Id));
+            if (result != null)
+            {
+                return result;
+            }
 
             var existingBrand = await _brandRepository.GetAsync(x => x.Id == brandUpdateDto.Id);
             if (existingBrand == null)
@@ -101,23 +115,25 @@ namespace RentACar.Business.Concrete
 
 
         // ILike ile büyük/küçük harf duyarsız (case-insensitive) esnek arama yapılır.
-        private async Task CheckIfBrandNameExistAsync(string name)
+        private async Task<IResult> CheckIfBrandNameExistAsync(string name)
         {
             bool existingBrand = await _brandRepository.AnyAsync(x => Microsoft.EntityFrameworkCore.EF.Functions.ILike(x.Name, name));
 
             if (existingBrand)
             {
-                throw new BusinessException("Bu marka zaten kayıtlı!");
+                return new ErrorResult("Bu marka zaten kayıtlı!");
             }
+            return new SuccessResult();
         }
 
-        private async Task CheckIfBrandNameExistsForUpdateAsync(string name, int brandId)
+        private async Task<IResult> CheckIfBrandNameExistsForUpdateAsync(string name, int brandId)
         {
             bool isExist = await _brandRepository.AnyAsync(x => Microsoft.EntityFrameworkCore.EF.Functions.ILike(x.Name, name) && x.Id != brandId);
             if (isExist)
             {
-                throw new BusinessException("Bu marka zaten sistemde kayıtlı!");
+                return new ErrorResult("Bu marka zaten kayıtlı! Lütfen başka bir marka deneyiniz.");
             }
+            return new SuccessResult();
         }
     }
 }
