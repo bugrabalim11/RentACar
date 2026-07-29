@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
 using RentACar.Core.Exceptions;
+using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 using RentACar.Dtos.CarDtos;
@@ -31,10 +32,18 @@ namespace RentACar.Business.Concrete
         public async Task<IResult> AddAsync(CarAddDto carAddDto)
         {
             // 2. İŞ KURALLARI (Business Rules - Dükkanın mantık kuralları)
-            await CheckIfBrandExistsAsync(carAddDto.BrandId);
-            await CheckIfColorExistsAsync(carAddDto.ColorId);
             carAddDto.Plate = carAddDto.Plate.Replace(" ", "").ToUpper();
-            await CheckIfCarPlateExistsAsync(carAddDto.Plate);
+
+            IResult? result = BusinessRules.Run(
+            await CheckIfBrandExistsAsync(carAddDto.BrandId),
+            await CheckIfColorExistsAsync(carAddDto.ColorId),
+            await CheckIfCarPlateExistsAsync(carAddDto.Plate)
+            );
+
+            if (result != null)
+            {
+                return result;
+            }
 
             // 3. KAYIT (Her şey tamamsa yemeği pişir)
             var car = _mapper.Map<Car>(carAddDto);
@@ -85,11 +94,18 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> UpdateAsync(CarUpdateDto carUpdateDto)
         {
-            await CheckIfBrandExistsAsync(carUpdateDto.BrandId);
-            await CheckIfColorExistsAsync(carUpdateDto.ColorId);
             // Replace -> boşluklaarı kapatır ToUpper-> büyük harf yapar
             carUpdateDto.Plate = carUpdateDto.Plate.Replace(" ", "").ToUpper();
-            await CheckIfCarPlateExitsForUpdateAsync(carUpdateDto.Plate, carUpdateDto.Id);
+
+            IResult? result = BusinessRules.Run(
+            await CheckIfBrandExistsAsync(carUpdateDto.BrandId),
+            await CheckIfColorExistsAsync(carUpdateDto.ColorId),
+            await CheckIfCarPlateExitsForUpdateAsync(carUpdateDto.Plate, carUpdateDto.Id)
+            );
+            if (result != null)
+            {
+                return result;
+            }
 
             // 3. VERİTABANI KONTROLÜ (Güncellenecek araba gerçekten var mı?)
             var existingCar = await _carRepository.GetAsync(x => x.Id == carUpdateDto.Id);
@@ -105,30 +121,32 @@ namespace RentACar.Business.Concrete
         }
 
         // İş Kuralı: Aynı plaka var mı kontrolü
-        private async Task CheckIfCarPlateExistsAsync(string plate)
+        private async Task<IResult> CheckIfCarPlateExistsAsync(string plate)
         {
 
             bool existingPlate = await _carRepository.AnyAsync(x => x.Plate == plate);
             if (existingPlate)
             {
-                throw new BusinessException("Bu plaka zaten sistemde kayıtlı!");
+                return new ErrorResult("Bu plaka zaten sistemde kayıtlı!");
             }
+            return new SuccessResult();
         }
 
         // İş Kuralı: Güncelleme yaparken başka bir arabaya ait aynı plaka var mı kontrolü
-        private async Task CheckIfCarPlateExitsForUpdateAsync(string plate, int currentCarId)
+        private async Task<IResult> CheckIfCarPlateExitsForUpdateAsync(string plate, int currentCarId)
         {
 
             bool isExist = await _carRepository.AnyAsync(x => x.Plate == plate && x.Id != currentCarId);
 
             if (isExist)
             {
-                throw new BusinessException("Bu plaka zaten sistemde kayıtlı.");
+                return new ErrorResult("Bu plaka zaten sistemde kayıtlı.");
             }
+            return new SuccessResult();
         }
 
 
-        private async Task CheckIfBrandExistsAsync(int brandId)
+        private async Task<IResult> CheckIfBrandExistsAsync(int brandId)
         {
             var existingBrand = await _brandService.CheckIfBrandExistsAsync(brandId);
             if (!existingBrand.Success)
@@ -136,17 +154,19 @@ namespace RentACar.Business.Concrete
                 // İş Kuralı Güvenliği (Defensive Programming):
                 // Eğer result.Message sistemden boş (null) gelirse, sistemin NullReferenceException ile çökmesini engellemek için 
                 // '??' (Null-Coalescing / Yedek Paraşüt) operatörü kullanılarak varsayılan bir hata mesajı atanmıştır.
-                throw new BusinessException(existingBrand.Message ?? "Bilinmeyen bir marka hatası oluştu!");
+                return new ErrorResult(existingBrand.Message ?? "Bilinmeyen bir marka hatası oluştu!");
             }
+            return new SuccessResult();
         }
 
-        private async Task CheckIfColorExistsAsync(int colorId)
+        private async Task<IResult> CheckIfColorExistsAsync(int colorId)
         {
             var existingColor = await _colorService.CheckIfColorExistsAsync(colorId);
             if (!existingColor.Success)
             {
-                throw new BusinessException(existingColor.Message ?? "Bilinmeyen bir renk hatası oluştu!");
+                return new ErrorResult(existingColor.Message ?? "Bilinmeyen bir renk hatası oluştu!");
             }
+            return new SuccessResult();
         }
     }
 }
