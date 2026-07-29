@@ -24,7 +24,7 @@ namespace RentACar.Business.Concrete
         public async Task<IResult> AddAsync(CustomerAddDto customerAddDto)
         {
             await CheckIfUserExistsAsync(customerAddDto.UserId);
-            await CheckAllreadyExistCustomer(customerAddDto.UserId);
+            await CheckAlreadyExistCustomer(customerAddDto.UserId);
 
             var customer = _mapper.Map<Customer>(customerAddDto);
             await _customerRepository.AddAsync(customer);
@@ -86,7 +86,7 @@ namespace RentACar.Business.Concrete
             }
         }
 
-        private async Task CheckAllreadyExistCustomer(int UserId)
+        private async Task CheckAlreadyExistCustomer(int UserId)
         {
             bool existingCustomer = await _customerRepository.AnyAsync(x => x.UserId == UserId);
             if (existingCustomer)

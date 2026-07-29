@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using RentACar.Business.Abstract;
 using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Results;
@@ -21,6 +22,7 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> AddAsync(OfficeAddDto officeAddDto)
         {
+            officeAddDto.Name = officeAddDto.Name.Trim();
             await CheckIfOfficeExistsAsync(officeAddDto.Name);
 
             var office = _mapper.Map<Office>(officeAddDto);
@@ -62,7 +64,8 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> UpdateAsync(OfficeUpdateDto officeUpdateDto)
         {
-            await CheckIfOfficeExistsForUpdateAsync(officeUpdateDto.Name,officeUpdateDto.Id);
+            officeUpdateDto.Name = officeUpdateDto.Name.Trim();
+            await CheckIfOfficeExistsForUpdateAsync(officeUpdateDto.Name, officeUpdateDto.Id);
 
             var existingOffice = await _officeRepository.GetAsync(x => x.Id == officeUpdateDto.Id);
             if (existingOffice == null)
@@ -78,7 +81,7 @@ namespace RentACar.Business.Concrete
 
         private async Task CheckIfOfficeExistsAsync(string officeName)
         {
-            bool existingOffice = await _officeRepository.AnyAsync(x => x.Name == officeName);
+            bool existingOffice = await _officeRepository.AnyAsync(x => Microsoft.EntityFrameworkCore.EF.Functions.ILike(x.Name, officeName));
             if (existingOffice)
             {
                 throw new BusinessException("Bu ofis sistemde kayıtlı! Lütfen başka ofis girmeyi deneyin.");
@@ -87,7 +90,7 @@ namespace RentACar.Business.Concrete
 
         private async Task CheckIfOfficeExistsForUpdateAsync(string officeName, int officeId)
         {
-            bool isExist = await _officeRepository.AnyAsync(x => x.Name == officeName && x.Id != officeId);
+            bool isExist = await _officeRepository.AnyAsync(x => Microsoft.EntityFrameworkCore.EF.Functions.ILike(x.Name, officeName) && x.Id != officeId);
             if (isExist)
             {
                 throw new BusinessException("Bu ofis sistemde kayıtlı! Lütfen başka ofis girmeyi deneyin.");

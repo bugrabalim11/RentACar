@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using RentACar.Business.Abstract;
 using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Utilities.Results;
@@ -59,7 +60,7 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> UpdateAsync(UserUpdateDto userUpdateDto)
         {
-             var existingUser = await _userRepository.GetAsync(x => x.Id == userUpdateDto.Id);
+            var existingUser = await _userRepository.GetAsync(x => x.Id == userUpdateDto.Id);
             if (existingUser == null)
             {
                 return new ErrorResult("Güncellenecek kullanıcı bulunamadı.");
@@ -93,6 +94,7 @@ namespace RentACar.Business.Concrete
         /// </summary>
         public async Task<IDataResult<User>> GetByMailAsync(string email)
         {
+            email = email.Trim().ToLower();
             var user = await _userRepository.GetAsync(x => x.Email == email);
             if (user == null)
             {

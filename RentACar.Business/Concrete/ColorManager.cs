@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using RentACar.Business.Abstract;
 using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Results;
@@ -22,7 +23,7 @@ namespace RentACar.Business.Concrete
         public async Task<IResult> AddAsync(ColorAddDto colorAddDto)
         {
             colorAddDto.Name = colorAddDto.Name.Trim();
-            await CheckIfColorNameExistsAsync(colorAddDto.Name.ToLower());
+            await CheckIfColorNameExistsAsync(colorAddDto.Name);
 
             var color = _mapper.Map<Color>(colorAddDto);
             await _colorRepository.AddAsync(color);
@@ -77,7 +78,7 @@ namespace RentACar.Business.Concrete
         public async Task<IResult> UpdateAsync(ColorUpdateDto colorUpdateDto)
         {
             colorUpdateDto.Name = colorUpdateDto.Name.Trim();
-            await CheckIfColorNameExistsForUpdateAsync(colorUpdateDto.Name.ToLower(), colorUpdateDto.Id);
+            await CheckIfColorNameExistsForUpdateAsync(colorUpdateDto.Name, colorUpdateDto.Id);
 
             var existingColor = await _colorRepository.GetAsync(x => x.Id == colorUpdateDto.Id);
             if (existingColor == null)
@@ -93,7 +94,7 @@ namespace RentACar.Business.Concrete
 
         private async Task CheckIfColorNameExistsAsync(string colorName)
         {
-            bool existColorName = await _colorRepository.AnyAsync(x => x.Name.ToLower() == colorName);
+            bool existColorName = await _colorRepository.AnyAsync(x => Microsoft.EntityFrameworkCore.EF.Functions.ILike(x.Name, colorName));
             if (existColorName)
             {
                 throw new BusinessException("Bu renk zaten kayıtlı!");
@@ -102,7 +103,7 @@ namespace RentACar.Business.Concrete
 
         private async Task CheckIfColorNameExistsForUpdateAsync(string colorName, int colorId)
         {
-            bool isExist = await _colorRepository.AnyAsync(x => x.Name.ToLower() == colorName && x.Id != colorId);
+            bool isExist = await _colorRepository.AnyAsync(x => Microsoft.EntityFrameworkCore.EF.Functions.ILike(x.Name, colorName) && x.Id != colorId);
             if (isExist)
             {
                 throw new BusinessException("Bu renk zaten sistemde kayıtlı!");

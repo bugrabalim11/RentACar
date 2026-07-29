@@ -107,7 +107,7 @@ namespace RentACar.Business.Concrete
             {
                 return new ErrorResult("Lütfen geçerli tarih ve araç seçiniz.");
             }
-            return new SuccessResult("Araç başarılı bir şekilde kiralandı.");
+            return new SuccessResult();
         }
 
         private async Task<IResult> CheckIfCarAvailableForUpdate(int rentalId, int carId, DateTime rentDate, DateTime? returnDate)

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using RentACar.Business.Abstract;
 using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Results;
@@ -19,15 +20,11 @@ namespace RentACar.Business.Concrete
             _mapper = mapper;
         }
 
-
-        // 1. DTO içindeki marka adının sadece başındaki ve sonundaki boşlukları temizler (Trim).
-        // 2. Vitrin (Frontend) sunumu için orijinal büyük/küçük harf formatını (Örn: 'BMW') korur.
-        // 3. İş kurallarından (Validation ve Mükerrer Kayıt) geçerse veritabanına kaydeder.
         public async Task<IResult> AddAsync(BrandAddDto brandAddDto)
         {
             // Gelen verinin sağındaki ve solundaki görünmez boşlukları tıraşla (Trim) ve küçük harfe çevir.
             brandAddDto.Name = brandAddDto.Name.Trim();
-            await CheckIfBrandNameExistAsync(brandAddDto.Name.ToLower());
+            await CheckIfBrandNameExistAsync(brandAddDto.Name);
 
             var brand = _mapper.Map<Brand>(brandAddDto);
             await _brandRepository.AddAsync(brand);
@@ -86,7 +83,7 @@ namespace RentACar.Business.Concrete
         public async Task<IResult> UpdateAsync(BrandUpdateDto brandUpdateDto)
         {
             brandUpdateDto.Name = brandUpdateDto.Name.Trim();
-            await CheckIfBrandNameExistsForUpdateAsync(brandUpdateDto.Name.ToLower(), brandUpdateDto.Id);
+            await CheckIfBrandNameExistsForUpdateAsync(brandUpdateDto.Name, brandUpdateDto.Id);
 
             var existingBrand = await _brandRepository.GetAsync(x => x.Id == brandUpdateDto.Id);
             if (existingBrand == null)
@@ -103,12 +100,10 @@ namespace RentACar.Business.Concrete
         }
 
 
-        // İş Kuralı: Marka isminin veritabanında (büyük/küçük harf fark etmeksizin) tekrar edip etmediğini kontrol eder.
-        // Not: Veritabanı büyük/küçük harf duyarlı (Case-Sensitive) olabileceği için, 
-        // karşılaştırma işlemi anlık olarak küçük harfe (ToLower) dönüştürülerek yapılır.
+        // ILike ile büyük/küçük harf duyarsız (case-insensitive) esnek arama yapılır.
         private async Task CheckIfBrandNameExistAsync(string name)
         {
-            bool existingBrand = await _brandRepository.AnyAsync(x => x.Name.ToLower() == name);
+            bool existingBrand = await _brandRepository.AnyAsync(x => Microsoft.EntityFrameworkCore.EF.Functions.ILike(x.Name, name));
 
             if (existingBrand)
             {
@@ -118,7 +113,7 @@ namespace RentACar.Business.Concrete
 
         private async Task CheckIfBrandNameExistsForUpdateAsync(string name, int brandId)
         {
-            bool isExist = await _brandRepository.AnyAsync(x => x.Name.ToLower() == name && x.Id != brandId);
+            bool isExist = await _brandRepository.AnyAsync(x => Microsoft.EntityFrameworkCore.EF.Functions.ILike(x.Name, name) && x.Id != brandId);
             if (isExist)
             {
                 throw new BusinessException("Bu marka zaten sistemde kayıtlı!");
