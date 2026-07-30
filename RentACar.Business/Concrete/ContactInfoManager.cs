@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
-using RentACar.Core.Exceptions;
+using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 using RentACar.Dtos.ContactInfoDtos;
@@ -21,8 +21,11 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> AddAsync(ContactInfoAddDto contactInfoAddDto)
         {
-            // Business Rule
-            await CheckIfContactInfoAlreadyExistsAsync();
+            IResult? result = BusinessRules.Run(await CheckIfContactInfoAlreadyExistsAsync());
+            if (result != null)
+            {
+                return result;
+            }
 
             var contactInfo = _mapper.Map<ContactInfo>(contactInfoAddDto);
             await _contactInfoRepository.AddAsync(contactInfo);
@@ -77,13 +80,14 @@ namespace RentACar.Business.Concrete
 
         // Çırak İşi: x => x.Status == true (Durumu eşit midir doğruya?) Kendim bunu yazmıştım !!!
         // Usta İşi (Clean Code): x => x.Status (Aktif olanlar...)
-        private async Task CheckIfContactInfoAlreadyExistsAsync()
+        private async Task<IResult> CheckIfContactInfoAlreadyExistsAsync()
         {
             bool isExist = await _contactInfoRepository.AnyAsync(x => x.Status);
             if (isExist)
             {
-                throw new BusinessException("Sisteme zaten bir iletişim bilgisi kayıtlı! Lütfen mevcut kaydı güncelleyiniz.");
+                return new ErrorResult("Sisteme zaten bir iletişim bilgisi kayıtlı! Lütfen mevcut kaydı güncelleyiniz.");
             }
+            return new SuccessResult();
         }
     }
 }
