@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using RentACar.Business.Abstract;
 using RentACar.Core.Entities.Concrete;
+using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 using RentACar.Dtos.UserDtos;
@@ -20,6 +20,13 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> AddAsync(UserAddDto userAddDto)
         {
+            userAddDto.Email = userAddDto.Email.Trim().ToLower();
+            IResult? result = BusinessRules.Run(await CheckIfEmailExistsAsync(userAddDto.Email));
+            if (result != null)
+            {
+                return result;
+            }
+
             var user = _mapper.Map<User>(userAddDto);
             user.Status = true;
             await _userRepository.AddAsync(user);
@@ -60,6 +67,13 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> UpdateAsync(UserUpdateDto userUpdateDto)
         {
+            userUpdateDto.Email = userUpdateDto.Email.Trim().ToLower();
+            IResult? result = BusinessRules.Run(await CheckIfEmailExistsForUpdateAsync(userUpdateDto.Email, userUpdateDto.Id));
+            if (result != null)
+            {
+                return result;
+            }
+
             var existingUser = await _userRepository.GetAsync(x => x.Id == userUpdateDto.Id);
             if (existingUser == null)
             {
@@ -123,6 +137,26 @@ namespace RentACar.Business.Concrete
                 return new SuccessResult();
             }
             return new ErrorResult("Bu kullanıcı sistemde bulunamadı!");
+        }
+
+        private async Task<IResult> CheckIfEmailExistsAsync(string email)
+        {
+            bool existingEmail = await _userRepository.AnyAsync(x => x.Email == email);
+            if (existingEmail)
+            {
+                return new ErrorResult("Bu e-posta adresi zaten kayıtlı! Lütfen başka deneyiniz.");
+            }
+            return new SuccessResult();
+        }
+
+        private async Task<IResult> CheckIfEmailExistsForUpdateAsync(string email, int currentUserId)
+        {
+            bool isExist = await _userRepository.AnyAsync(x => x.Email == email && x.Id != currentUserId);
+            if (isExist)
+            {
+                return new ErrorResult("Bu e-posta adresi zaten kayıtlı! Lütfen başka deneyiniz.");
+            }
+            return new SuccessResult();
         }
     }
 }
