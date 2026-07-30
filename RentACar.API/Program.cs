@@ -83,7 +83,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi(); // .NET 10 Endpoint'ini açık
 
     // Scalar Arayüzünü .NET 10 Standartlarında Tetikliyoruz
-    app.MapScalarApiReference();
+    app.MapScalarApiReference(options => options.Theme = ScalarTheme.Moon);
 }
 
 app.UseHttpsRedirection();
