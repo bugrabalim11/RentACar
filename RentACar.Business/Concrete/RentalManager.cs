@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
+using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 using RentACar.Dtos.RentalDtos;
@@ -29,10 +30,10 @@ namespace RentACar.Business.Concrete
                 rentalAddDto.ReturnDate = rentalAddDto.ReturnDate.Value.ToUniversalTime();
             }
 
-            var ruleResult = await CheckIfCarAvailable(rentalAddDto.CarId, rentalAddDto.RentDate, rentalAddDto.ReturnDate);
-            if (!ruleResult.Success)
+            IResult? result = BusinessRules.Run(await CheckIfCarAvailable(rentalAddDto.CarId, rentalAddDto.RentDate, rentalAddDto.ReturnDate));
+            if (result != null)
             {
-                return ruleResult;
+                return result;
             }
 
             var rental = _mapper.Map<Rental>(rentalAddDto);
@@ -80,10 +81,10 @@ namespace RentACar.Business.Concrete
                 rentalUpdateDto.ReturnDate = rentalUpdateDto.ReturnDate.Value.ToUniversalTime();
             }
 
-            var ruleResult = await CheckIfCarAvailableForUpdate(rentalUpdateDto.Id, rentalUpdateDto.CarId, rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate);
-            if (!ruleResult.Success)
+            IResult? result = BusinessRules.Run(await CheckIfCarAvailableForUpdate(rentalUpdateDto.Id, rentalUpdateDto.CarId, rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate));
+            if (result != null)
             {
-                return ruleResult;
+                return result;
             }
 
             var existingRental = await _rentalRepository.GetAsync(x => x.Id == rentalUpdateDto.Id);
