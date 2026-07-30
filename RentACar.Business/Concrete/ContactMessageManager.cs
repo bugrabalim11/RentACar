@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using RentACar.Business.Abstract;
-using RentACar.Core.Exceptions;
+using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 using RentACar.Dtos.ContactMessageDtos;
@@ -22,8 +22,13 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> AddAsync(ContactMessageAddDto contactMessageAddDto)
         {
-            contactMessageAddDto.Email=contactMessageAddDto.Email.Trim().ToLower();
-            await CheckIfUserCanSendMessageAsync(contactMessageAddDto.Email);
+            contactMessageAddDto.Email = contactMessageAddDto.Email.Trim().ToLower();
+
+            IResult? result = BusinessRules.Run(await CheckIfUserCanSendMessageAsync(contactMessageAddDto.Email));
+            if (result != null)
+            {
+                return result;
+            }
 
             var contactMessage = _mapper.Map<ContactMessage>(contactMessageAddDto);
             contactMessage.SendDate = DateTime.UtcNow;
@@ -80,13 +85,14 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<ContactMessageListDto>(contactMessageDto, "Mesaj başarıyla getirildi.");
         }
 
-        private async Task CheckIfUserCanSendMessageAsync(string email)
+        private async Task<IResult> CheckIfUserCanSendMessageAsync(string email)
         {
             bool sendMessage = await _contactMessageRepository.AnyAsync(x => Microsoft.EntityFrameworkCore.EF.Functions.ILike(x.Email, email) && x.SendDate > DateTime.UtcNow.AddMinutes(-5)); // >= de olabilirdi aynı şey
             if (sendMessage)
             {
-                throw new BusinessException("Sistemimizi korumak adına peş peşe mesaj gönderemezsiniz. Lütfen 5 dakika sonra tekrar deneyiniz.");
+                return new ErrorResult("Sistemimizi korumak adına peş peşe mesaj gönderemezsiniz. Lütfen 5 dakika sonra tekrar deneyiniz.");
             }
+            return new SuccessResult();
         }
     }
 }
