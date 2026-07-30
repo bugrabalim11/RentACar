@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using RentACar.Business.Abstract;
-using RentACar.Core.Exceptions;
+using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 using RentACar.Dtos.OfficeDtos;
@@ -23,7 +23,11 @@ namespace RentACar.Business.Concrete
         public async Task<IResult> AddAsync(OfficeAddDto officeAddDto)
         {
             officeAddDto.Name = officeAddDto.Name.Trim();
-            await CheckIfOfficeExistsAsync(officeAddDto.Name);
+            IResult? result = BusinessRules.Run(await CheckIfOfficeExistsAsync(officeAddDto.Name));
+            if (result != null)
+            {
+                return result;
+            }
 
             var office = _mapper.Map<Office>(officeAddDto);
             await _officeRepository.AddAsync(office);
@@ -65,7 +69,11 @@ namespace RentACar.Business.Concrete
         public async Task<IResult> UpdateAsync(OfficeUpdateDto officeUpdateDto)
         {
             officeUpdateDto.Name = officeUpdateDto.Name.Trim();
-            await CheckIfOfficeExistsForUpdateAsync(officeUpdateDto.Name, officeUpdateDto.Id);
+            IResult? result = BusinessRules.Run(await CheckIfOfficeExistsForUpdateAsync(officeUpdateDto.Name, officeUpdateDto.Id));
+            if (result != null)
+            {
+                return result;
+            }
 
             var existingOffice = await _officeRepository.GetAsync(x => x.Id == officeUpdateDto.Id);
             if (existingOffice == null)
@@ -79,22 +87,24 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Ofis başarıyla güncellendi.");
         }
 
-        private async Task CheckIfOfficeExistsAsync(string officeName)
+        private async Task<IResult> CheckIfOfficeExistsAsync(string officeName)
         {
             bool existingOffice = await _officeRepository.AnyAsync(x => Microsoft.EntityFrameworkCore.EF.Functions.ILike(x.Name, officeName));
             if (existingOffice)
             {
-                throw new BusinessException("Bu ofis sistemde kayıtlı! Lütfen başka ofis girmeyi deneyin.");
+                return new ErrorResult("Bu ofis sistemde kayıtlı! Lütfen başka ofis girmeyi deneyin.");
             }
+            return new SuccessResult();
         }
 
-        private async Task CheckIfOfficeExistsForUpdateAsync(string officeName, int officeId)
+        private async Task<IResult> CheckIfOfficeExistsForUpdateAsync(string officeName, int officeId)
         {
             bool isExist = await _officeRepository.AnyAsync(x => Microsoft.EntityFrameworkCore.EF.Functions.ILike(x.Name, officeName) && x.Id != officeId);
             if (isExist)
             {
-                throw new BusinessException("Bu ofis sistemde kayıtlı! Lütfen başka ofis girmeyi deneyin.");
+                return new ErrorResult("Bu ofis sistemde kayıtlı! Lütfen başka ofis girmeyi deneyin.");
             }
+            return new SuccessResult();
         }
     }
 }
