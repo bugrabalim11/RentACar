@@ -22,5 +22,6 @@ namespace RentACar.Business.Abstract
 
         // Customer için kullanıcı kayıtlı mı metodu
         Task<IResult> CheckIfUserExistsAsync(int id);
+        Task<IResult> CheckIfEmailExistsAsync(string email);
     }
 }

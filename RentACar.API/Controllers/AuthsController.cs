@@ -23,7 +23,7 @@ namespace RentACar.API.Controllers
             var userToLogin = await _authService.Login(userForLoginDto);
             if (!userToLogin.Success)
             {
-                return BadRequest(userToLogin.Message);
+                return BadRequest(userToLogin);
             }
 
             // 2. Şef onaylarsa adamın biletini (Token) bas
@@ -34,25 +34,17 @@ namespace RentACar.API.Controllers
                 return Ok(result.Data);
             }
 
-            return BadRequest(result.Data);
+            return BadRequest(result);
         }
 
         [HttpPost("Register")]
         public async Task<IActionResult> Register(UserForRegisterDto userForRegisterDto)
         {
-            // 1. Kapıdaki kontrol: Bu e-posta bizde var mı?
-            var userExist = await _authService.UserExist(userForRegisterDto.Email);
-            if (!userExist.Success)
-            {
-                // "Kullanıcı zaten mevcut" hatası
-                return BadRequest(userExist.Message);
-            }
-
             // 2. Şefe kayıt formunu ve şifreyi gönder (Blender çalışsın)
             var registerResult = await _authService.Register(userForRegisterDto, userForRegisterDto.Password);
             if (!registerResult.Success)
             {
-                return BadRequest(registerResult.Message);
+                return BadRequest(registerResult);
             }
 
             // 3. Kayıt başarılıysa VIP bileti bas ve teslim et
@@ -61,7 +53,7 @@ namespace RentACar.API.Controllers
             {
                 return Ok(result.Data);
             }
-            return BadRequest(result.Data);
+            return BadRequest(result);
         }
     }
 }

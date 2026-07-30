@@ -17,11 +17,6 @@ namespace RentACar.Business.Abstract
         Task<IDataResult<User>> Login(UserForLoginDto userForLoginDto);
 
 
-        // Adam kayıt olmadan önce kapıdan bağırır:
-        // "Bu e-posta içeride var mı?". Fedai listeye bakar, varsa "Kardeşim bu mail zaten kayıtlı" der.
-        Task<IResult> UserExist(string email);
-
-
         // Adam başarıyla giriş yaptıktan veya kayıt olduktan sonra,
         // matbaayı (JwtHelper) çalıştırıp adamın eline o parlak AccessToken'ı (VIP bileti) verir.
         Task<IDataResult<AccessToken>> CreateAccessToken(User user);

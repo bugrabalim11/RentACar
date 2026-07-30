@@ -139,7 +139,7 @@ namespace RentACar.Business.Concrete
             return new ErrorResult("Bu kullanıcı sistemde bulunamadı!");
         }
 
-        private async Task<IResult> CheckIfEmailExistsAsync(string email)
+        public async Task<IResult> CheckIfEmailExistsAsync(string email)
         {
             bool existingEmail = await _userRepository.AnyAsync(x => x.Email == email);
             if (existingEmail)

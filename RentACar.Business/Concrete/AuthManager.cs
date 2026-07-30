@@ -2,6 +2,7 @@
 using RentACar.Business.Abstract;
 using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Entities.DTOs.AuthDtos;
+using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.Core.Utilities.Security.Hashing;
 using RentACar.Core.Utilities.Security.Jwt;
@@ -44,6 +45,12 @@ namespace RentACar.Business.Concrete
                 return new ErrorDataResult<User>("Kullanıcı bulunamadı.");
             }
 
+            IResult? result = BusinessRules.Run(CheckIfUserActive(userToCheck.Data.Status));
+            if (result != null)
+            {
+                return new ErrorDataResult<User>(result.Message ?? "Kullanıcı pasif durumda.");
+            }
+
             // 3. Şifre Doğrulama (Blender makinemizi tersine çalıştırıyoruz)
             if (!HashingHelper.VerifyPasswordHash(userForLoginDto.Password, userToCheck.Data.PasswordHash, userToCheck.Data.PasswordSalt))
             {
@@ -55,6 +62,14 @@ namespace RentACar.Business.Concrete
 
         public async Task<IDataResult<User>> Register(UserForRegisterDto userForRegisterDto, string password)
         {
+            IResult? result = BusinessRules.Run(await _userService.CheckIfEmailExistsAsync(userForRegisterDto.Email));
+            if (result != null)
+            {
+                // Senior Vizyonu: Sana söz verdiğim kutuyu veriyorum (ErrorDataResult),
+                // İçine veri (User) koyamıyorum ama asistanın (result) getirdiği hata mesajını kutunun üstüne yazıyorum!
+                return new ErrorDataResult<User>(result.Message ?? "Bu kullancı kayıtlı! Lütfen başka deneyiniz.");
+            }
+
             // 1. Blender Makinesi: Şifreyi püre yap (out ile kavanozları dolduruyoruz)
             byte[] passwordHash, passwordSalt;
             HashingHelper.CreatePasswordHash(password, out passwordHash, out passwordSalt);
@@ -72,18 +87,12 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<User>(user, "Kayıt işlemi başarıyla tamamlandı.");
         }
 
-        public async Task<IResult> UserExist(string email)
+        private IResult CheckIfUserActive(bool status)
         {
-            // 1. Telsizle içerideki müdüre soruyoruz: "Bu e-posta bizde var mı?"
-            var userToCheck = await _userService.GetByMailAsync(email);
-
-            // 2. Eğer müdür "Evet, böyle biri var" (Success) dönerse, adama HATA fırlatıyoruz!
-            if (userToCheck.Success)
+            if (!status)
             {
-                return new ErrorResult("Kullanıcı zaten mevcut.");
+                return new ErrorResult("Kullanıcı hesabınız pasif durumdadır, giriş yapamazsınız");
             }
-
-            // 3. Adam sistemde yoksa, yol açık, kayıt işlemine devam edebilir.
             return new SuccessResult();
         }
     }
