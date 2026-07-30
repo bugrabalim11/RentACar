@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
-using RentACar.Core.Exceptions;
+using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 using RentACar.Dtos.CustomerDtos;
@@ -23,8 +23,18 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> AddAsync(CustomerAddDto customerAddDto)
         {
-            await CheckIfUserExistsAsync(customerAddDto.UserId);
-            await CheckAlreadyExistCustomer(customerAddDto.UserId);
+            customerAddDto.NationalIdentity = customerAddDto.NationalIdentity.Trim();
+
+            IResult? result = BusinessRules.Run(
+            await CheckIfUserExistsAsync(customerAddDto.UserId),
+            await CheckAlreadyExistCustomer(customerAddDto.UserId),
+            await CheckIfNationalIdentityExists(customerAddDto.NationalIdentity)
+            );
+
+            if (result != null)
+            {
+                return result;
+            }
 
             var customer = _mapper.Map<Customer>(customerAddDto);
             await _customerRepository.AddAsync(customer);
@@ -65,6 +75,14 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> UpdateAsync(CustomerUpdateDto customerUpdateDto)
         {
+            customerUpdateDto.NationalIdentity = customerUpdateDto.NationalIdentity.Trim();
+
+            IResult? result = BusinessRules.Run(await CheckIfNationalIdentityExistsForUpdate(customerUpdateDto.NationalIdentity, customerUpdateDto.Id));
+            if (result != null)
+            {
+                return result;
+            }
+
             var existingCustomer = await _customerRepository.GetAsync(x => x.Id == customerUpdateDto.Id);
             if (existingCustomer == null)
             {
@@ -77,22 +95,45 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Müşteri başarıyla güncellendi.");
         }
 
-        private async Task CheckIfUserExistsAsync(int UserId)
+        private async Task<IResult> CheckIfUserExistsAsync(int UserId)
         {
             var existingUser = await _userService.CheckIfUserExistsAsync(UserId);
             if (!existingUser.Success)
             {
-                throw new BusinessException(existingUser.Message ?? "Bilinmeyen bir kullanıcı hatası oluştu!");
+                return new ErrorResult(existingUser.Message ?? "Bilinmeyen bir kullanıcı hatası oluştu!");
             }
+            return new SuccessResult();
         }
 
-        private async Task CheckAlreadyExistCustomer(int UserId)
+        private async Task<IResult> CheckAlreadyExistCustomer(int UserId)
         {
             bool existingCustomer = await _customerRepository.AnyAsync(x => x.UserId == UserId);
             if (existingCustomer)
             {
-                throw new BusinessException("Bu kullanıcı sistemde müşteri olarak kayıtlı. Lütfen başka kullancı giriniz!");
+                return new ErrorResult("Bu kullanıcı sistemde müşteri olarak kayıtlı. Lütfen başka kullancı giriniz!");
             }
+            return new SuccessResult();
+        }
+
+        private async Task<IResult> CheckIfNationalIdentityExistsForUpdate(string nationalId, int currentCustomerId)
+        {
+            bool existingNationalId = await _customerRepository.AnyAsync(x => x.NationalIdentity == nationalId && x.Id != currentCustomerId);
+            if (existingNationalId)
+            {
+                return new ErrorResult("Bu kimlik numarası zaten kayıtlı!");
+            }
+            return new SuccessResult();
+        }
+
+        private async Task<IResult> CheckIfNationalIdentityExists(string nationalId)
+        {
+            bool existingNationalId = await _customerRepository.AnyAsync(x => x.NationalIdentity == nationalId);
+            if (existingNationalId)
+            {
+                return new ErrorResult("Bu kimlik numarası zaten kayıtlı! Lütfen tekrar deneyiniz.");
+            }
+            return new SuccessResult();
         }
     }
+
 }
