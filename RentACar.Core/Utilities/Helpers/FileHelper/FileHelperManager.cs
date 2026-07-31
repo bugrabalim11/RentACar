@@ -4,6 +4,21 @@ namespace RentACar.Core.Utilities.Helpers.FileHelper
 {
     public class FileHelperManager : IFileHelper
     {
+        public void Delete(string filePath)
+        {
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
+        }
+
+        public string? Update(IFormFile file, string filePath, string root)
+        {
+            Delete(filePath);
+
+            return Upload(file, root);
+        }
+
         public string? Upload(IFormFile file, string root)
         {
             if (file.Length > 0)
