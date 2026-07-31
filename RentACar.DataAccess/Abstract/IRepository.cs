@@ -1,9 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
-using RentACar.Core.Entities;
-using System;
-using System.Collections.Generic;
+﻿using RentACar.Core.Entities;
 using System.Linq.Expressions;
-using System.Text;
 
 namespace RentACar.DataAccess.Abstract
 {
@@ -11,6 +7,7 @@ namespace RentACar.DataAccess.Abstract
     public interface IRepository<T> where T : class, IEntity, new()
     {
         Task<bool> AnyAsync(Expression<Func<T, bool>> filter);
+        Task<int> CountAsync(Expression<Func<T, bool>>? filter = null);
 
         /// <summary>
         /// Veritabanındaki verileri listeler. İsteğe bağlı olarak filtre uygulanabilir.

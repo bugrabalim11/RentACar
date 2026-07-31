@@ -31,6 +31,11 @@ namespace RentACar.DataAccess.Concrete
             return await _context.Set<T>().AnyAsync(filter);
         }
 
+        public async Task<int> CountAsync(Expression<Func<T, bool>>? filter = null)
+        {
+            return filter == null ? await _context.Set<T>().CountAsync():await _context.Set<T>().CountAsync(filter);
+        }
+
         public async Task DeleteAsync(T entity)
         {
             // Silme işlemi önce RAM'de kaydın durumunu 'Silindi' olarak işaretler (O yüzden await yok)

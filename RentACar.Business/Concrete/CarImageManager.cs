@@ -1,4 +1,5 @@
 ﻿using RentACar.Business.Abstract;
+using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Helpers.FileHelper;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
@@ -21,6 +22,11 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> AddAsync(CarImageAddDto carImageAddDto)
         {
+            IResult? result = BusinessRules.Run(await CheckIfCarImageLimitExceededAsync(carImageAddDto.CarId));
+            if (result != null)
+            {
+                return result;
+            }
             string? imagePath = _fileHelper.Upload(carImageAddDto.ImageFile, "wwwroot\\Images");
 
             if (imagePath == null)
@@ -31,7 +37,8 @@ namespace RentACar.Business.Concrete
             CarImage carImage = new CarImage
             {
                 CarId = carImageAddDto.CarId,
-                ImagePath = imagePath
+                ImagePath = imagePath,
+                UploadDate = DateTime.UtcNow            
             };
 
             await _carImageRepository.AddAsync(carImage);
@@ -56,6 +63,16 @@ namespace RentACar.Business.Concrete
         public Task<IResult> UpdateAsync(CarImageUpdateDto carImageUpdateDto)
         {
             throw new NotImplementedException();
+        }
+
+        private async Task<IResult> CheckIfCarImageLimitExceededAsync(int carId)
+        {
+            var result = await _carImageRepository.CountAsync(x => x.CarId == carId);
+            if (result >= 5)
+            {
+                return new ErrorResult("Bir arabanın en fazla 5 resmi olabilir.");
+            }
+            return new SuccessResult();
         }
     }
 }
