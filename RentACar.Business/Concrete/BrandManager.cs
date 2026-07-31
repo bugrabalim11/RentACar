@@ -22,7 +22,7 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> AddAsync(BrandAddDto brandAddDto)
         {
-            // Gelen verinin sağındaki ve solundaki görünmez boşlukları tıraşla (Trim) ve küçük harfe çevir.
+            // Gelen verinin sağındaki ve solundaki görünmez boşlukları tıraşla (Trim) 
             brandAddDto.Name = brandAddDto.Name.Trim();
 
             // Asistanı çağır ve bekçinin raporunu kucağına (params) ver:
