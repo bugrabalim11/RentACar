@@ -48,6 +48,8 @@ namespace RentACar.Business.Extensions
             services.AddScoped<IOperationClaimRepository, OperationClaimRepository>();
             services.AddScoped<IUserOperationClaimService, UserOperationClaimManager>();
             services.AddScoped<IUserOperationClaimRepository, UserOperationClaimRepository>();
+            services.AddScoped<ICarImageService, CarImageManager>();
+            services.AddScoped<ICarImageRepository, CarImageRepository>();
 
             return services;
         }
