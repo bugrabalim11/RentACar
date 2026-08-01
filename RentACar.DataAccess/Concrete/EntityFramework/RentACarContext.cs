@@ -1,9 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RentACar.Core.Entities.Concrete;
 using RentACar.Entities.Concrete;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RentACar.DataAccess.Concrete.EntityFramework
 {
@@ -62,7 +59,6 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
             modelBuilder.Entity<Customer>().HasQueryFilter(c => c.Status == true);
             modelBuilder.Entity<Office>().HasQueryFilter(o => o.Status == true);
             modelBuilder.Entity<Rental>().HasQueryFilter(r => r.Status == true);
-            modelBuilder.Entity<CarImage>().HasQueryFilter(ci => ci.Status == true);
         }
     }
 }

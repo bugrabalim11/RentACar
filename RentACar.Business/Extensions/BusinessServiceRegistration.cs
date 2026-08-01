@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using RentACar.Business.Abstract;
 using RentACar.Business.Concrete;
+using RentACar.Core.Utilities.Helpers.FileHelper;
 using RentACar.Core.Utilities.Security.Jwt;
 using RentACar.DataAccess.Abstract;
 using RentACar.DataAccess.Concrete;
@@ -50,6 +51,7 @@ namespace RentACar.Business.Extensions
             services.AddScoped<IUserOperationClaimRepository, UserOperationClaimRepository>();
             services.AddScoped<ICarImageService, CarImageManager>();
             services.AddScoped<ICarImageRepository, CarImageRepository>();
+            services.AddScoped<IFileHelper, FileHelperManager>();
 
             return services;
         }

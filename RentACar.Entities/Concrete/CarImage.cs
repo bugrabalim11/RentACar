@@ -8,7 +8,6 @@ namespace RentACar.Entities.Concrete
         public int CarId { get; set; }
         public string ImagePath { get; set; } = null!;
         public DateTime UploadDate { get; set; }
-        public bool Status { get; set; }
 
         public Car Car { get; set; } = null!;
     }
