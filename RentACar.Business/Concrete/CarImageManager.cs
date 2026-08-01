@@ -1,4 +1,5 @@
 ﻿using RentACar.Business.Abstract;
+using RentACar.Core.Entities;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Helpers.FileHelper;
 using RentACar.Core.Utilities.Results;
@@ -66,6 +67,56 @@ namespace RentACar.Business.Concrete
         public Task<IDataResult<CarImageDetailDto>> GetByIdAsync(int id)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<IDataResult<List<CarImageDetailDto>>> GetImagesByCarIdAsync(int carId)
+        {
+            var carImages = await _carImageRepository.GetAllAsync(x => x.CarId == carId);
+            if (carImages == null)
+            {
+                return new ErrorDataResult<List<CarImageDetailDto>>("Bu araca ait resimler bulunamadı!");
+            }
+
+            // Dolapta hiç resim YOK MU?
+            if (!carImages.Any())
+            {
+                // Müşteriye sunulacak porselen tabak (DTO Listesi) hazırlıyoruz
+                var defaultDtoList = new List<CarImageDetailDto>
+                {
+                    new CarImageDetailDto
+                    {
+                        CarId = carId,
+                        ImagePath = "wwwroot\\Images\\default.jpg",
+                        UploadDate = DateTime.UtcNow
+                    }
+                };
+
+                // Sahte listeyi kuryeye verip metodu DİREKT burada bitiriyoruz. (Aşağıya inmez)
+                return new SuccessDataResult<List<CarImageDetailDto>>(defaultDtoList, "Bu araca ait resim bulunamadı, varsayılan resim getirildi.");
+            }
+
+            // Kod buraya indiyse dolap doludur! Çiğ etleri DTO'ya çeviriyoruz (Mapping)
+
+            // Boş bir porselen tabak listesi hazırladık
+            var dtoList = new List<CarImageDetailDto>();
+
+            // Dolaptaki her bir çiğ eti alıp...
+            foreach (var image in carImages)
+            {
+                // ...pişirip yeni formata (DTO'ya) sokuyoruz
+                var mappedDto = new CarImageDetailDto
+                {
+                    Id = image.Id,
+                    CarId = image.CarId,
+                    ImagePath = image.ImagePath,
+                    UploadDate = image.UploadDate
+                };
+
+                // Pişen yemeği porselen tabağa (Listeye) ekliyoruz
+                dtoList.Add(mappedDto);
+            }
+
+            return new SuccessDataResult<List<CarImageDetailDto>>(dtoList, "Bu araca ait resimler başarıyla getirildi.");
         }
 
         public async Task<IResult> UpdateAsync(CarImageUpdateDto carImageUpdateDto)
