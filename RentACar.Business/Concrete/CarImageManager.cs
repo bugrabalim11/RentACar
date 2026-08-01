@@ -13,16 +13,21 @@ namespace RentACar.Business.Concrete
     {
         private readonly ICarImageRepository _carImageRepository;
         private readonly IFileHelper _fileHelper;
+        private readonly ICarService _carService;
 
-        public CarImageManager(ICarImageRepository carImageRepository, IFileHelper fileHelper)
+        public CarImageManager(ICarImageRepository carImageRepository, IFileHelper fileHelper, ICarService carService)
         {
             _carImageRepository = carImageRepository;
             _fileHelper = fileHelper;
+            _carService = carService;
         }
 
         public async Task<IResult> AddAsync(CarImageAddDto carImageAddDto)
         {
-            IResult? result = BusinessRules.Run(await CheckIfCarImageLimitExceededAsync(carImageAddDto.CarId));
+            IResult? result = BusinessRules.Run(
+            await CheckIfCarImageLimitExceededAsync(carImageAddDto.CarId),
+            await CheckIfCarExists(carImageAddDto.CarId)
+            );
             if (result != null)
             {
                 return result;
@@ -110,6 +115,12 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> UpdateAsync(CarImageUpdateDto carImageUpdateDto)
         {
+            IResult? result = BusinessRules.Run(await CheckIfCarExists(carImageUpdateDto.CarId));
+            if (result != null)
+            {
+                return result;
+            }
+
             var existingCarImage = await _carImageRepository.GetAsync(x => x.Id == carImageUpdateDto.Id);
             if (existingCarImage == null)
             {
@@ -135,6 +146,16 @@ namespace RentACar.Business.Concrete
             if (result >= 5)
             {
                 return new ErrorResult("Bir arabanın en fazla 5 resmi olabilir.");
+            }
+            return new SuccessResult();
+        }
+
+        private async Task<IResult> CheckIfCarExists(int carId)
+        {
+            var result = await _carService.GetByIdAsync(carId);
+            if (!result.Success)
+            {
+                return new ErrorResult("Araba bulunamadı.");
             }
             return new SuccessResult();
         }
