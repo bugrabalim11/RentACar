@@ -83,6 +83,7 @@ namespace RentACar.Business.Concrete
             // Dolapta hiç resim YOK MU?
             if (!carImages.Any())
             {
+                var carResult = await _carService.GetByIdAsync(carId);
                 // Müşteriye sunulacak porselen tabak (DTO Listesi) hazırlıyoruz
                 var defaultDtoList = new List<CarImageDetailDto>
                 {
@@ -90,7 +91,8 @@ namespace RentACar.Business.Concrete
                     {
                         CarId = carId,
                         ImagePath = "wwwroot\\Images\\default.jpg",
-                        UploadDate = DateTime.UtcNow
+                        UploadDate = DateTime.UtcNow,
+                        CarName = $"{carResult.Data?.BrandName} {carResult.Data?.ModelName}"
                     }
                 };
 

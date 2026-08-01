@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
 using RentACar.Dtos.CarImageDtos;
@@ -16,8 +17,9 @@ namespace RentACar.API.Controllers
             _carImageService = carImageService;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<IActionResult> AddAsync([FromForm]CarImageAddDto carImageAddDto)
+        public async Task<IActionResult> AddAsync([FromForm] CarImageAddDto carImageAddDto)
         {
             var result = await _carImageService.AddAsync(carImageAddDto);
             if (result.Success)
@@ -27,8 +29,9 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut]
-        public async Task<IActionResult> UpdateAsync([FromForm]CarImageUpdateDto carImageUpdateDto)
+        public async Task<IActionResult> UpdateAsync([FromForm] CarImageUpdateDto carImageUpdateDto)
         {
             var result = await _carImageService.UpdateAsync(carImageUpdateDto);
             if (result.Success)
@@ -38,6 +41,7 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
