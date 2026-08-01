@@ -1,5 +1,4 @@
 ﻿using RentACar.Business.Abstract;
-using RentACar.Core.Entities;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Helpers.FileHelper;
 using RentACar.Core.Utilities.Results;
@@ -57,16 +56,6 @@ namespace RentACar.Business.Concrete
             _fileHelper.Delete(result.ImagePath);
             await _carImageRepository.DeleteAsync(result);
             return new SuccessResult("Resim başarıyla silindi.");
-        }
-
-        public Task<IDataResult<List<CarImageDetailDto>>> GetAllAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IDataResult<CarImageDetailDto>> GetByIdAsync(int id)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<IDataResult<List<CarImageDetailDto>>> GetImagesByCarIdAsync(int carId)
