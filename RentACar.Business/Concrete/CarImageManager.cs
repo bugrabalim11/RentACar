@@ -71,7 +71,7 @@ namespace RentACar.Business.Concrete
                 return new ErrorDataResult<List<CarImageDetailDto>>(result.Message ?? "Araç resimlerini getirilirken hata oluştu!");
             }
 
-            var carImages = await _carImageRepository.GetAllAsync(x => x.CarId == carId);
+            var carImages = await _carImageRepository.GetImagesWithCarDetailsAsync(carId);
             if (carImages == null)
             {
                 return new ErrorDataResult<List<CarImageDetailDto>>("Bu araca ait resimler bulunamadı!");
@@ -109,7 +109,8 @@ namespace RentACar.Business.Concrete
                     Id = image.Id,
                     CarId = image.CarId,
                     ImagePath = image.ImagePath,
-                    UploadDate = image.UploadDate
+                    UploadDate = image.UploadDate,
+                    CarName = $"{image.Car?.Brand?.Name}{image.Car?.ModelName}"
                 };
 
                 // Pişen yemeği porselen tabağa (Listeye) ekliyoruz
