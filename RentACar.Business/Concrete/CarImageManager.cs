@@ -65,6 +65,12 @@ namespace RentACar.Business.Concrete
 
         public async Task<IDataResult<List<CarImageDetailDto>>> GetImagesByCarIdAsync(int carId)
         {
+            IResult? result = BusinessRules.Run(await CheckIfCarExists(carId));
+            if (result != null)
+            {
+                return new ErrorDataResult<List<CarImageDetailDto>>(result.Message ?? "Araç resimlerini getirilirken hata oluştu!");
+            }
+
             var carImages = await _carImageRepository.GetAllAsync(x => x.CarId == carId);
             if (carImages == null)
             {
