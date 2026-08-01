@@ -19,7 +19,7 @@ namespace RentACar.API.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Add(RentalAddDto rentalAddDto)
+        public async Task<IActionResult> AddAsync(RentalAddDto rentalAddDto)
         {
             var result = await _rentalService.AddAsync(rentalAddDto);
             if (result.Success)
@@ -31,7 +31,7 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllAsync()
         {
             var result = await _rentalService.GetAllAsync();
             if (result.Success)
@@ -43,7 +43,7 @@ namespace RentACar.API.Controllers
 
         [Authorize]
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await _rentalService.GetByIdAsync(id);
             if (result.Success)
@@ -55,7 +55,7 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpPut]
-        public async Task<IActionResult> Update(RentalUpdateDto rentalUpdateDto)
+        public async Task<IActionResult> UpdateAsync(RentalUpdateDto rentalUpdateDto)
         {
             var result = await _rentalService.UpdateAsync(rentalUpdateDto);
             if (result.Success)
@@ -67,7 +67,7 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
             var result = await _rentalService.DeleteAsync(id);
             if (result.Success)

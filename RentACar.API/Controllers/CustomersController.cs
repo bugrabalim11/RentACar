@@ -20,7 +20,7 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpGet]
-        public async Task<IActionResult> GelAll()
+        public async Task<IActionResult> GelAllAsync()
         {
             var result = await _customerService.GetAllAsync();
             if (result.Success)
@@ -32,7 +32,7 @@ namespace RentACar.API.Controllers
 
         [Authorize]
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await _customerService.GetByIdAsync(id);
             if (result.Success)
@@ -55,7 +55,7 @@ namespace RentACar.API.Controllers
 
         [Authorize]
         [HttpPut]
-        public async Task<IActionResult> Update(CustomerUpdateDto customerUpdateDto)
+        public async Task<IActionResult> UpdateAsync(CustomerUpdateDto customerUpdateDto)
         {
             var result = await _customerService.UpdateAsync(customerUpdateDto);
             if (result.Success)
@@ -67,7 +67,7 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
             var result = await _customerService.DeleteAsync(id);
             if (result.Success)

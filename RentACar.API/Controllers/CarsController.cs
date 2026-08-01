@@ -18,7 +18,7 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpPost]
-        public async Task<IActionResult> Add(CarAddDto carAddDto)
+        public async Task<IActionResult> AddAsync(CarAddDto carAddDto)
         {
             // İşi aşçıya (Business katmanına) devrediyoruz
             var result = await _carService.AddAsync(carAddDto);
@@ -30,7 +30,7 @@ namespace RentACar.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllAsync()
         {
             // Aşçıdan tabakları (DTO listesini) istiyoruz
             var result = await _carService.GetAllAsync();
@@ -42,7 +42,7 @@ namespace RentACar.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await _carService.GetByIdAsync(id);
             if (result.Success)
@@ -54,7 +54,7 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpPut]
-        public async Task<IActionResult> Update(CarUpdateDto carUpdateDto)
+        public async Task<IActionResult> UpdateAsync(CarUpdateDto carUpdateDto)
         {
             var result = await _carService.UpdateAsync(carUpdateDto);
             if (result.Success)
@@ -67,7 +67,7 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
             var result = await _carService.DeleteAsync(id);
             if (result.Success)

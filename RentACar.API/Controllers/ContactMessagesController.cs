@@ -20,7 +20,7 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllAsync()
         {
             var result = await _contactMessageService.GetAllAsync();
             if (result.Success)
@@ -32,7 +32,7 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await _contactMessageService.GetByIdAsync(id);
             if (result.Success)
@@ -43,7 +43,7 @@ namespace RentACar.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(ContactMessageAddDto contactMessageAddDto)
+        public async Task<IActionResult> AddAsync(ContactMessageAddDto contactMessageAddDto)
         {
             var result = await _contactMessageService.AddAsync(contactMessageAddDto);
             if (result.Success)
@@ -55,7 +55,7 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
             var result = await _contactMessageService.DeleteAsync(id);
             if (result.Success)

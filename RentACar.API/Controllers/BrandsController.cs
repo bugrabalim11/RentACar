@@ -17,7 +17,7 @@ namespace RentACar.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllAsync()
         {
             var result = await _brandService.GetAllAsync();
             if (result.Success)
@@ -28,7 +28,7 @@ namespace RentACar.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await _brandService.GetByIdAsync(id);
             if (result.Success)
@@ -41,7 +41,7 @@ namespace RentACar.API.Controllers
         [Authorize(Roles = "admin")]
         // veya [Authorize(Roles = "Admin,Moderator")] şeklinde virgülle çoklu rütbe de verebilirsin.
         [HttpPost]
-        public async Task<IActionResult> Add(BrandAddDto brandAddDto)
+        public async Task<IActionResult> AddAsync(BrandAddDto brandAddDto)
         {
             var result = await _brandService.AddAsync(brandAddDto);
 
@@ -57,7 +57,7 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpPut]
-        public async Task<IActionResult> Update(BrandUpdateDto brandUpdateDto)
+        public async Task<IActionResult> UpdateAsync(BrandUpdateDto brandUpdateDto)
         {
             var result = await _brandService.UpdateAsync(brandUpdateDto);
             if (result.Success)
@@ -69,7 +69,7 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
             var result = await _brandService.DeleteAsync(id);
             if (result.Success)

@@ -17,7 +17,7 @@ namespace RentACar.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllAsync()
         {
             var result = await _contactInfoService.GetAllAsync();
             if (result.Success)
@@ -28,7 +28,7 @@ namespace RentACar.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await _contactInfoService.GetByIdAsync(id);
             if (result.Success)
@@ -40,7 +40,7 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpPost]
-        public async Task<IActionResult> Add(ContactInfoAddDto contactInfoAddDto)
+        public async Task<IActionResult> AddAsync(ContactInfoAddDto contactInfoAddDto)
         {
             var result = await _contactInfoService.AddAsync(contactInfoAddDto);
             if (result.Success)
@@ -52,7 +52,7 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpPut]
-        public async Task<IActionResult> Update(ContactInfoUpdateDto contactInfoUpdateDto)
+        public async Task<IActionResult> UpdateAsync(ContactInfoUpdateDto contactInfoUpdateDto)
         {
             var result = await _contactInfoService.UpdateAsync(contactInfoUpdateDto);
             if (result.Success)
@@ -64,7 +64,7 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
-        public async Task<IActionResult>Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
             var result = await _contactInfoService.DeleteAsync(id);
             if (result.Success)
