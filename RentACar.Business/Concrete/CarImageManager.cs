@@ -1,4 +1,5 @@
-﻿using RentACar.Business.Abstract;
+﻿using AutoMapper;
+using RentACar.Business.Abstract;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Helpers.FileHelper;
 using RentACar.Core.Utilities.Results;
@@ -14,12 +15,14 @@ namespace RentACar.Business.Concrete
         private readonly ICarImageRepository _carImageRepository;
         private readonly IFileHelper _fileHelper;
         private readonly ICarService _carService;
+        private readonly IMapper _mapper;
 
-        public CarImageManager(ICarImageRepository carImageRepository, IFileHelper fileHelper, ICarService carService)
+        public CarImageManager(ICarImageRepository carImageRepository, IFileHelper fileHelper, ICarService carService, IMapper mapper)
         {
             _carImageRepository = carImageRepository;
             _fileHelper = fileHelper;
             _carService = carService;
+            _mapper = mapper;
         }
 
         public async Task<IResult> AddAsync(CarImageAddDto carImageAddDto)
@@ -95,27 +98,8 @@ namespace RentACar.Business.Concrete
                 return new SuccessDataResult<List<CarImageDetailDto>>(defaultDtoList, "Bu araca ait resim bulunamadı, varsayılan resim getirildi.");
             }
 
-            // Kod buraya indiyse dolap doludur! Çiğ etleri DTO'ya çeviriyoruz (Mapping)
-
-            // Boş bir porselen tabak listesi hazırladık
-            var dtoList = new List<CarImageDetailDto>();
-
-            // Dolaptaki her bir çiğ eti alıp...
-            foreach (var image in carImages)
-            {
-                // ...pişirip yeni formata (DTO'ya) sokuyoruz
-                var mappedDto = new CarImageDetailDto
-                {
-                    Id = image.Id,
-                    CarId = image.CarId,
-                    ImagePath = image.ImagePath,
-                    UploadDate = image.UploadDate,
-                    CarName = $"{image.Car?.Brand?.Name}{image.Car?.ModelName}"
-                };
-
-                // Pişen yemeği porselen tabağa (Listeye) ekliyoruz
-                dtoList.Add(mappedDto);
-            }
+            // Robot, çiğ etleri (carImages) alıp, Profile dosyasındaki tarifine göre pişirip DTO tepsisine diziyor.
+            var dtoList = _mapper.Map<List<CarImageDetailDto>>(carImages);
 
             return new SuccessDataResult<List<CarImageDetailDto>>(dtoList, "Bu araca ait resimler başarıyla getirildi.");
         }
