@@ -38,16 +38,24 @@ namespace RentACar.Business.Concrete
             {
                 CarId = carImageAddDto.CarId,
                 ImagePath = imagePath,
-                UploadDate = DateTime.UtcNow            
+                UploadDate = DateTime.UtcNow
             };
 
             await _carImageRepository.AddAsync(carImage);
             return new SuccessResult("Resim başarıyla eklendi.");
         }
 
-        public Task<IResult> DeleteAsync(int id)
+        public async Task<IResult> DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            var result = await _carImageRepository.GetAsync(x => x.Id == id);
+            if (result == null)
+            {
+                return new ErrorResult("Resim bulunamadı.");
+            }
+
+            _fileHelper.Delete(result.ImagePath);
+            await _carImageRepository.DeleteAsync(result);
+            return new SuccessResult("Resim başarıyla silindi.");
         }
 
         public Task<IDataResult<List<CarImageDetailDto>>> GetAllAsync()
