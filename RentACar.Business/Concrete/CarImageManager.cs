@@ -50,7 +50,7 @@ namespace RentACar.Business.Concrete
             var result = await _carImageRepository.GetAsync(x => x.Id == id);
             if (result == null)
             {
-                return new ErrorResult("Resim bulunamadı.");
+                return new ErrorResult("Resim bulunamadı!");
             }
 
             _fileHelper.Delete(result.ImagePath);
@@ -68,9 +68,25 @@ namespace RentACar.Business.Concrete
             throw new NotImplementedException();
         }
 
-        public Task<IResult> UpdateAsync(CarImageUpdateDto carImageUpdateDto)
+        public async Task<IResult> UpdateAsync(CarImageUpdateDto carImageUpdateDto)
         {
-            throw new NotImplementedException();
+            var existingCarImage = await _carImageRepository.GetAsync(x => x.Id == carImageUpdateDto.Id);
+            if (existingCarImage == null)
+            {
+                return new ErrorResult("Resim bulunamadı!");
+            }
+
+            string? newImagePath = _fileHelper.Update(carImageUpdateDto.ImageFile, existingCarImage.ImagePath, "wwwroot\\Images");
+            if (newImagePath == null)
+            {
+                return new ErrorResult("Resim güncellenirken bir hata oluştu veya dosya boş.");
+            }
+
+            existingCarImage.ImagePath = newImagePath;
+            existingCarImage.UploadDate = DateTime.UtcNow;
+
+            await _carImageRepository.UpdateAsync(existingCarImage);
+            return new SuccessResult("Resim başarıyla güncellendi.");
         }
 
         private async Task<IResult> CheckIfCarImageLimitExceededAsync(int carId)
