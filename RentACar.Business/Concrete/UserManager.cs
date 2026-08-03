@@ -28,7 +28,7 @@ namespace RentACar.Business.Concrete
             }
 
             var user = _mapper.Map<User>(userAddDto);
-            user.Status = true;
+            user.IsDeleted = false;
             await _userRepository.AddAsync(user);
             return new SuccessResult("Kullanıcı başarıyla eklendi");
         }
@@ -41,7 +41,8 @@ namespace RentACar.Business.Concrete
                 return new ErrorResult("Silinecek kullanıcı bulunamadı.");
             }
 
-            existingUser.Status = false;
+            existingUser.IsDeleted = true;
+            existingUser.DeletedDate = DateTime.UtcNow;
             await _userRepository.UpdateAsync(existingUser);
             return new SuccessResult("Kullanıcı başarıyla silindi.");
         }
@@ -101,23 +102,6 @@ namespace RentACar.Business.Concrete
         }
 
 
-
-        /// <summary>
-        /// Sistem içi giriş (Login) operasyonlarında (AuthManager), kullanıcının kimliğini
-        /// ve şifre hash'ini doğrulamak amacıyla e-posta adresi üzerinden tarama yapar.
-        /// </summary>
-        public async Task<IDataResult<User>> GetByMailAsync(string email)
-        {
-            email = email.Trim().ToLower();
-            var user = await _userRepository.GetAsync(x => x.Email == email);
-            if (user == null)
-            {
-                return new ErrorDataResult<User>("Bu e-posta adresine sahip kullanıcı bulunamadı.");
-            }
-
-            return new SuccessDataResult<User>(user, "Kullanıcı başarıyla bulundu.");
-        }
-
         public async Task<IResult> AddAsync(User user)
         {
             // Senior Vizyonu: Burada neden Validation (Kapı Memuru) veya AutoMapper yok?
@@ -157,6 +141,16 @@ namespace RentACar.Business.Concrete
                 return new ErrorResult("Bu e-posta adresi zaten kayıtlı! Lütfen başka deneyiniz.");
             }
             return new SuccessResult();
+        }
+
+        public async Task<IDataResult<User>> GetByMailAsync(string email)
+        {
+            var user = await _userRepository.GetByEmailAsync(email);
+            if(user == null)
+            {
+                return new ErrorDataResult<User>("Bu e-posta adresine sahip kullanıcı bulunamadı.");
+            }
+            return new SuccessDataResult<User>(user);
         }
     }
 }

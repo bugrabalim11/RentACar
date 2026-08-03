@@ -45,7 +45,7 @@ namespace RentACar.Business.Concrete
                 return new ErrorDataResult<User>("Kullanıcı bulunamadı.");
             }
 
-            IResult? result = BusinessRules.Run(CheckIfUserActive(userToCheck.Data.Status));
+            IResult? result = BusinessRules.Run(CheckIfUserActive(userToCheck.Data.IsDeleted));
             if (result != null)
             {
                 return new ErrorDataResult<User>(result.Message ?? "Kullanıcı pasif durumda.");
@@ -80,16 +80,16 @@ namespace RentACar.Business.Concrete
             // 3. Mühürleme: Güvenlik bilgilerini manuel olarak nesneye zerk et
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
-            user.Status = true;  // Sisteme ilk kayıt olanı aktif yapıyoruz
+            user.IsDeleted = false;  // Sisteme ilk kayıt olanı aktif yapıyoruz
 
 
             await _userService.AddAsync(user);
             return new SuccessDataResult<User>(user, "Kayıt işlemi başarıyla tamamlandı.");
         }
 
-        private IResult CheckIfUserActive(bool status)
+        private IResult CheckIfUserActive(bool isDeleted)
         {
-            if (!status)
+            if (isDeleted)
             {
                 return new ErrorResult("Kullanıcı hesabınız pasif durumdadır, giriş yapamazsınız");
             }

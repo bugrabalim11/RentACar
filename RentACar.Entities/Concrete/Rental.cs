@@ -1,7 +1,4 @@
 ﻿using RentACar.Core.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RentACar.Entities.Concrete
 {
@@ -14,7 +11,8 @@ namespace RentACar.Entities.Concrete
         public int DropOffOfficeId { get; set; }
         public DateTime RentDate { get; set; }
         public DateTime? ReturnDate { get; set; }
-        public bool Status { get; set; } = true;
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedDate { get; set; }
 
 
 

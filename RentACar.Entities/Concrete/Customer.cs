@@ -11,7 +11,8 @@ namespace RentACar.Entities.Concrete
         public int UserId { get; set; }
         // bu ilişkinin sadece bir sayıdan ibaret olmadığını, gerçekten User tablosuna bağlandığını anlasın
         public User User { get; set; }=null!;
-        public bool Status { get; set; } = true;
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedDate { get; set; }
 
 
         // --- İLİŞKİ (Bire-Çok) ---

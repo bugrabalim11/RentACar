@@ -64,7 +64,8 @@ namespace RentACar.Business.Concrete
                 return new ErrorResult("Silinecek marka bulunamadı.");
             }
 
-            existingBrand.Status = false;
+            existingBrand.IsDeleted = true;
+            existingBrand.DeletedDate = DateTime.UtcNow;
             await _brandRepository.UpdateAsync(existingBrand);
             return new SuccessResult("Marka başarıyla silindi.");
         }

@@ -16,12 +16,13 @@ namespace RentACar.Business.Abstract
         Task<IResult> UpdateAsync(UserUpdateDto userUpdateDto);
         Task<IResult> DeleteAsync(int id);
 
-        // Dikkat: DTO değil, doğrudan varlığın (Entity) kendisini dönüyoruz!
-        Task<IDataResult<User>> GetByMailAsync(string email);
         Task<IDataResult<List<OperationClaim>>> GetClaimsAsync(User user);
 
         // Customer için kullanıcı kayıtlı mı metodu
         Task<IResult> CheckIfUserExistsAsync(int id);
         Task<IResult> CheckIfEmailExistsAsync(string email);
+
+
+        Task<IDataResult<User>> GetByMailAsync(string email);
     }
 }

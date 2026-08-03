@@ -12,6 +12,7 @@ namespace RentACar.Entities.Concrete
         public string Address { get; set; } = null!;
         public string Phone { get; set; } = null!;
         public string Email { get; set; } = null!;
-        public bool Status { get; set; } = true;
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedDate { get; set; }
     }
 }

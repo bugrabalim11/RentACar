@@ -42,7 +42,8 @@ namespace RentACar.Business.Concrete
                 return new ErrorResult("Silinecek ofis bulunamadı.");
             }
 
-            existingOffice.Status = false;
+            existingOffice.IsDeleted = true;
+            existingOffice.DeletedDate = DateTime.UtcNow;
             await _officeRepository.UpdateAsync(existingOffice);
             return new SuccessResult("Ofis başarıyla silindi.");
         }

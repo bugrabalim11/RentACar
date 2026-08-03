@@ -1,9 +1,4 @@
-﻿using RentACar.Core.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace RentACar.Core.Entities.Concrete
+﻿namespace RentACar.Core.Entities.Concrete
 {
     public class User : IEntity
     {
@@ -16,6 +11,7 @@ namespace RentACar.Core.Entities.Concrete
         // Çünkü kriptografi algoritmaları metinlerle değil, baytlarla - 0 ve 1'lerle - çalışır.
         public byte[] PasswordHash { get; set; } = Array.Empty<byte>();
         public byte[] PasswordSalt { get; set; } = Array.Empty<byte>();
-        public bool Status { get; set; } = true;
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedDate { get; set; }
     }
 }

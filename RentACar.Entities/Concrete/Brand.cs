@@ -1,7 +1,4 @@
 ﻿using RentACar.Core.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RentACar.Entities.Concrete
 {
@@ -14,7 +11,8 @@ namespace RentACar.Entities.Concrete
         // veya EF Core nakliyecisi o tabağı birazdan getirecek, sen bana güven ve ceza yazma" demektir.
         public string Name { get; set; } = null!;
 
-        public bool Status { get; set; } = true;
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedDate { get; set; }
 
         // Sen bir markasın ve senin bünyende, senin ID'ni taşıyan bir sürü araba olacak
         public List<Car> Cars { get; set; } = new List<Car>();

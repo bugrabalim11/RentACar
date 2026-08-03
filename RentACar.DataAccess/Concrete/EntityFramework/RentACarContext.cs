@@ -48,17 +48,17 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
             // Entity Framework arka planda otomatik olarak "Status == true" (Aktif olanlar) şartını SQL sorgusuna ekler.
             // Bu sayede "Silinmiş" (Status = false) veriler sistemde asla listelenmez.
 
-            modelBuilder.Entity<User>().HasQueryFilter(u => u.Status == true);
-            modelBuilder.Entity<UserOperationClaim>().HasQueryFilter(uoc => uoc.Status == true);
-            modelBuilder.Entity<OperationClaim>().HasQueryFilter(oc => oc.Status == true);
-            modelBuilder.Entity<Brand>().HasQueryFilter(b => b.Status == true);
+            modelBuilder.Entity<User>().HasQueryFilter(u => u.IsDeleted == false);
+            modelBuilder.Entity<UserOperationClaim>().HasQueryFilter(uoc => uoc.IsDeleted == false);
+            modelBuilder.Entity<OperationClaim>().HasQueryFilter(oc => oc.IsDeleted == false);
+            modelBuilder.Entity<Brand>().HasQueryFilter(b => b.IsDeleted == false);
             modelBuilder.Entity<Car>().HasQueryFilter(c => c.IsDeleted == false);
-            modelBuilder.Entity<Color>().HasQueryFilter(c => c.Status == true);
-            modelBuilder.Entity<ContactInfo>().HasQueryFilter(ci => ci.Status == true);
-            modelBuilder.Entity<ContactMessage>().HasQueryFilter(cm => cm.Status == true);
-            modelBuilder.Entity<Customer>().HasQueryFilter(c => c.Status == true);
-            modelBuilder.Entity<Office>().HasQueryFilter(o => o.Status == true);
-            modelBuilder.Entity<Rental>().HasQueryFilter(r => r.Status == true);
+            modelBuilder.Entity<Color>().HasQueryFilter(c => c.IsDeleted == false);
+            modelBuilder.Entity<ContactInfo>().HasQueryFilter(ci => ci.IsDeleted == false);
+            modelBuilder.Entity<ContactMessage>().HasQueryFilter(cm => cm.IsDeleted == false);
+            modelBuilder.Entity<Customer>().HasQueryFilter(c => c.IsDeleted == false);
+            modelBuilder.Entity<Office>().HasQueryFilter(o => o.IsDeleted == false);
+            modelBuilder.Entity<Rental>().HasQueryFilter(r => r.IsDeleted == false);
         }
     }
 }

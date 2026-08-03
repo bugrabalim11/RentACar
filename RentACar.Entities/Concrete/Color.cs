@@ -1,7 +1,4 @@
 ﻿using RentACar.Core.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RentACar.Entities.Concrete
 {
@@ -9,7 +6,8 @@ namespace RentACar.Entities.Concrete
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;
-        public bool Status { get; set; } = true;
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedDate { get; set; }
 
         // Bir rengin birden fazla arabası olabilir (One-to-Many ilişkisi)
         // Tıpkı Brand tablosunda yaptığımız gibi listemizi hazırlıyoruz:

@@ -1,7 +1,4 @@
 ﻿using RentACar.Core.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RentACar.Entities.Concrete
 {
@@ -14,6 +11,7 @@ namespace RentACar.Entities.Concrete
         public string Message { get; set; } = null!;
         public DateTime SendDate { get; set; }
         public bool IsRead { get; set; }
-        public bool Status { get; set; } = true;
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedDate { get; set; }
     }
 }

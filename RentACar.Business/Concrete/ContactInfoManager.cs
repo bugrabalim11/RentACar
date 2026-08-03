@@ -40,7 +40,8 @@ namespace RentACar.Business.Concrete
                 return new ErrorResult("Silinecek iletişim bilgisi bulunamadı.");
             }
 
-            existingContactInfo.Status = false;
+            existingContactInfo.IsDeleted = true;
+            existingContactInfo.DeletedDate = DateTime.UtcNow;
             await _contactInfoRepository.UpdateAsync(existingContactInfo);
             return new SuccessResult("İletişim bilgisi başarıyla silindi.");
         }
@@ -78,11 +79,10 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("İletişim bilgisi başarıyla güncellendi.");
         }
 
-        // Çırak İşi: x => x.Status == true (Durumu eşit midir doğruya?) Kendim bunu yazmıştım !!!
-        // Usta İşi (Clean Code): x => x.Status (Aktif olanlar...)
+
         private async Task<IResult> CheckIfContactInfoAlreadyExistsAsync()
         {
-            bool isExist = await _contactInfoRepository.AnyAsync(x => x.Status);
+            bool isExist = await _contactInfoRepository.AnyAsync(x => !x.IsDeleted);
             if (isExist)
             {
                 return new ErrorResult("Sisteme zaten bir iletişim bilgisi kayıtlı! Lütfen mevcut kaydı güncelleyiniz.");

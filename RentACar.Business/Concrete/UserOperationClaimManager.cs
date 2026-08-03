@@ -49,7 +49,8 @@ namespace RentACar.Business.Concrete
                 return new ErrorResult("Silinmek istenen yetki ataması bulunamadı.");
             }
 
-            existingUserOperationClaim.Status = false;
+            existingUserOperationClaim.IsDeleted = true;
+            existingUserOperationClaim.DeletedDate = DateTime.UtcNow;
             await _userOperationClaimRepository.UpdateAsync(existingUserOperationClaim);
             return new SuccessResult("Kullanıcının yetkisi başarıyla kaldırıldı.");
         }

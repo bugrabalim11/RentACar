@@ -15,6 +15,11 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
             _context = context;
         }
 
+        public async Task<User?> GetByEmailAsync(string email)
+        {
+            return await _context.Users.IgnoreQueryFilters().SingleOrDefaultAsync(u => u.Email == email);
+        }
+
         // Özel görevimiz: 3 Tabloyu (Claims, UserClaims, User) birbirine dikmek!
         public Task<List<OperationClaim>> GetClaimsAsync(User user)
         {
