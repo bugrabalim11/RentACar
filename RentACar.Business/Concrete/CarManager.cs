@@ -60,7 +60,8 @@ namespace RentACar.Business.Concrete
                 return new ErrorResult("Silincek araç bulunamadı.");
             }
 
-            existingCar.Status = false;
+            existingCar.IsDeleted = true;
+            existingCar.DeletedDate = DateTime.UtcNow;
             await _carRepository.UpdateAsync(existingCar);
             return new SuccessResult("Araç başarıyla silindi.");
         }

@@ -52,7 +52,7 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
             modelBuilder.Entity<UserOperationClaim>().HasQueryFilter(uoc => uoc.Status == true);
             modelBuilder.Entity<OperationClaim>().HasQueryFilter(oc => oc.Status == true);
             modelBuilder.Entity<Brand>().HasQueryFilter(b => b.Status == true);
-            modelBuilder.Entity<Car>().HasQueryFilter(c => c.Status == true);
+            modelBuilder.Entity<Car>().HasQueryFilter(c => c.IsDeleted == false);
             modelBuilder.Entity<Color>().HasQueryFilter(c => c.Status == true);
             modelBuilder.Entity<ContactInfo>().HasQueryFilter(ci => ci.Status == true);
             modelBuilder.Entity<ContactMessage>().HasQueryFilter(cm => cm.Status == true);

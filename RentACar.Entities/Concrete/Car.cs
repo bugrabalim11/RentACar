@@ -31,7 +31,8 @@ namespace RentACar.Entities.Concrete
         public TransmissionType TransmissionType { get; set; }
 
 
-        public bool Status { get; set; } = true;
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedDate { get; set; }
 
 
         // --- İLİŞKİ (Bire-Çok) ---
