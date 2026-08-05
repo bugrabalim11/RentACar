@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RentACar.DataAccess.Concrete.EntityFramework;
@@ -11,9 +12,11 @@ using RentACar.DataAccess.Concrete.EntityFramework;
 namespace RentACar.DataAccess.Migrations
 {
     [DbContext(typeof(RentACarContext))]
-    partial class RentACarContextModelSnapshot : ModelSnapshot
+    [Migration("20260805074122_AddSoftDeleteForCarImages")]
+    partial class AddSoftDeleteForCarImages
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -42,7 +45,7 @@ namespace RentACar.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("OperationClaims", (string)null);
+                    b.ToTable("OperationClaims");
                 });
 
             modelBuilder.Entity("RentACar.Core.Entities.Concrete.User", b =>
@@ -81,7 +84,7 @@ namespace RentACar.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("RentACar.Core.Entities.Concrete.UserOperationClaim", b =>
@@ -106,7 +109,7 @@ namespace RentACar.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserOperationClaims", (string)null);
+                    b.ToTable("UserOperationClaims");
                 });
 
             modelBuilder.Entity("RentACar.Entities.Concrete.Brand", b =>
@@ -129,7 +132,7 @@ namespace RentACar.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Brands", (string)null);
+                    b.ToTable("Brands");
                 });
 
             modelBuilder.Entity("RentACar.Entities.Concrete.Car", b =>
@@ -191,7 +194,7 @@ namespace RentACar.DataAccess.Migrations
 
                     b.HasIndex("ColorId");
 
-                    b.ToTable("Cars", (string)null);
+                    b.ToTable("Cars");
                 });
 
             modelBuilder.Entity("RentACar.Entities.Concrete.CarImage", b =>
@@ -222,7 +225,7 @@ namespace RentACar.DataAccess.Migrations
 
                     b.HasIndex("CarId");
 
-                    b.ToTable("CarImages", (string)null);
+                    b.ToTable("CarImages");
                 });
 
             modelBuilder.Entity("RentACar.Entities.Concrete.Color", b =>
@@ -245,7 +248,7 @@ namespace RentACar.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Colors", (string)null);
+                    b.ToTable("Colors");
                 });
 
             modelBuilder.Entity("RentACar.Entities.Concrete.ContactInfo", b =>
@@ -276,7 +279,7 @@ namespace RentACar.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ContactInfos", (string)null);
+                    b.ToTable("ContactInfos");
                 });
 
             modelBuilder.Entity("RentACar.Entities.Concrete.ContactMessage", b =>
@@ -317,7 +320,7 @@ namespace RentACar.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ContactMessages", (string)null);
+                    b.ToTable("ContactMessages");
                 });
 
             modelBuilder.Entity("RentACar.Entities.Concrete.Customer", b =>
@@ -348,7 +351,7 @@ namespace RentACar.DataAccess.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Customers", (string)null);
+                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("RentACar.Entities.Concrete.Office", b =>
@@ -379,7 +382,7 @@ namespace RentACar.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Offices", (string)null);
+                    b.ToTable("Offices");
                 });
 
             modelBuilder.Entity("RentACar.Entities.Concrete.Rental", b =>
@@ -424,7 +427,7 @@ namespace RentACar.DataAccess.Migrations
 
                     b.HasIndex("PickUpOfficeId");
 
-                    b.ToTable("Rentals", (string)null);
+                    b.ToTable("Rentals");
                 });
 
             modelBuilder.Entity("RentACar.Entities.Concrete.Car", b =>

@@ -45,8 +45,8 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
             // 2. GLOBAL QUERY FILTERS (KÜRESEL SORGULAMA FİLTRELERİ) - SOFT DELETE MİMARİSİ
             // ----------------------------------------------------------------------
             // KURAL: Sistemde herhangi bir listeleme (Get, GetAll vs.) işlemi yapıldığında,
-            // Entity Framework arka planda otomatik olarak "Status == true" (Aktif olanlar) şartını SQL sorgusuna ekler.
-            // Bu sayede "Silinmiş" (Status = false) veriler sistemde asla listelenmez.
+            // Entity Framework arka planda otomatik olarak "IsDeleted == false" (Silinmemiş olanlar) şartını SQL sorgusuna ekler.
+            // Bu sayede "Silinmiş" (IsDeleted = true) veriler sistemde asla listelenmez.
 
             modelBuilder.Entity<User>().HasQueryFilter(u => u.IsDeleted == false);
             modelBuilder.Entity<UserOperationClaim>().HasQueryFilter(uoc => uoc.IsDeleted == false);
@@ -59,6 +59,7 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
             modelBuilder.Entity<Customer>().HasQueryFilter(c => c.IsDeleted == false);
             modelBuilder.Entity<Office>().HasQueryFilter(o => o.IsDeleted == false);
             modelBuilder.Entity<Rental>().HasQueryFilter(r => r.IsDeleted == false);
+            modelBuilder.Entity<CarImage>().HasQueryFilter(ci => ci.IsDeleted == false);
         }
     }
 }

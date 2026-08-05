@@ -61,8 +61,10 @@ namespace RentACar.Business.Concrete
                 return new ErrorResult("Resim bulunamadı!");
             }
 
-            _fileHelper.Delete(result.ImagePath);
-            await _carImageRepository.DeleteAsync(result);
+            result.IsDeleted = true;
+            result.DeletedDate = DateTime.UtcNow;
+            // _fileHelper.Delete(result.ImagePath);
+            await _carImageRepository.UpdateAsync(result);
             return new SuccessResult("Resim başarıyla silindi.");
         }
 
