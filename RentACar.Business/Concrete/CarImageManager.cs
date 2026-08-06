@@ -158,7 +158,7 @@ namespace RentACar.Business.Concrete
         {
             // KURAL: Sadece silinmiş (IsDeleted) olanları VE 
             // çöp kutusunda 30 günden fazla beklemiş olanları (karantina süresi dolanları) getir.
-            var oldImages = await _carImageRepository.GetAllAsync(x => x.IsDeleted && x.DeletedDate < DateTime.UtcNow.AddMinutes(-1));
+            var oldImages = await _carImageRepository.GetAllAsync(x => x.IsDeleted && x.DeletedDate < DateTime.UtcNow.AddDays(-30), ignoreQueryFilters: true);
 
             // GÜVENLİK KAPISI (Bekçiyi boş yere yormamak için)
             // Eğer liste hiç oluşmadıysa (null) VEYA listenin içinde hiç eleman YOKSA (!Any)

@@ -27,9 +27,16 @@ namespace RentACar.API.BackgroundServices
                 {
                     var carImageService = scope.ServiceProvider.GetRequiredService<ICarImageService>();
 
-                    // Bekçiyi uyku moduna alıyoruz. Şimdilik test için 1 dakika (FromMinutes(1)) uyuyor.
-                    // İşler bitince bunu 24 saate (FromHours(24)) çekeceğiz.
-                    await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+                    try
+                    {
+                        await carImageService.DeleteOldImagesAsync();
+                    }
+                    catch (Exception)
+                    {
+                        // boş kalsın
+                    }
+
+                    await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
                 }
             }
         }

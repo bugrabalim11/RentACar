@@ -13,7 +13,9 @@ namespace RentACar.DataAccess.Abstract
         /// Veritabanındaki verileri listeler. İsteğe bağlı olarak filtre uygulanabilir.
         /// </summary>
         /// <param name="filter">Örn: x => x.DailyPrice > 500 gibi LINQ sorguları alır. Null ise tüm tabloyu çeker.</param>
-        Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null);
+        /// <param name="ignoreQueryFilters">True gönderilirse Entity Framework'ün 'Görünmezlik Pelerini' (Global Query Filter) devre dışı kalır. Böylece silinmiş (IsDeleted=true) verileri de görebiliriz.</param>
+        /// <returns></returns>
+        Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, bool ignoreQueryFilters = false);
 
 
         /// <summary>

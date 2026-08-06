@@ -44,14 +44,24 @@ namespace RentACar.DataAccess.Concrete
         }
 
         // Çoklu kayıt (Liste) getirme işlemi
-        public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null)
+        public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, bool ignoreQueryFilters = false)
         {
+            // 1. Önce tabloyu seçiyoruz
+            IQueryable<T> query = _context.Set<T>();
+
+            // 2. Eğer 'pelerini çıkar' şifresi geldiyse, global filtreyi yoksayıyoruz!
+            if (ignoreQueryFilters)
+            {
+                query = query.IgnoreQueryFilters();
+            }
+
+            // 3. Klasik filtreleme ve listeleme (Senin yazdığın mantığın aynısı)
             // Ternary If (üçlü operatör) kullandık:
             // Eğer üst katmandan bir filtre gönderilmediyse (null ise) -> Tüm tabloyu listele (ToListAsync)
             // Eğer filtre gönderildiyse -> Önce Where(filter) ile filtrele, sonra listele (ToListAsync)
             return filter == null
-                ? await _context.Set<T>().ToListAsync()
-                : await _context.Set<T>().Where(filter).ToListAsync();
+                ? await query.ToListAsync()
+                : await query.Where(filter).ToListAsync();
         }
 
         // Tek bir kayıt getirme işlemi
