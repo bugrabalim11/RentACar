@@ -22,15 +22,20 @@ namespace RentACar.DataAccess.Concrete
             await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> AnyAsync(Expression<Func<T, bool>> filter)
+        public async Task<bool> AnyAsync(Expression<Func<T, bool>> filter, bool ignoreQueryFilters = false)
         {
+            IQueryable<T> query= _context.Set<T>();
+            if (ignoreQueryFilters)
+            {
+                query = query.IgnoreQueryFilters();
+            }
             // Sadece şarta uyan kayıt var mı diye bakar, True/False döner.
-            return await _context.Set<T>().AnyAsync(filter);
+            return await query.AnyAsync(filter);
         }
 
         public async Task<int> CountAsync(Expression<Func<T, bool>>? filter = null)
         {
-            return filter == null ? await _context.Set<T>().CountAsync():await _context.Set<T>().CountAsync(filter);
+            return filter == null ? await _context.Set<T>().CountAsync() : await _context.Set<T>().CountAsync(filter);
         }
 
         public async Task DeleteAsync(T entity)
@@ -65,7 +70,7 @@ namespace RentACar.DataAccess.Concrete
         public async Task<T?> GetAsync(Expression<Func<T, bool>> filter, bool ignoreQueryFilters = false)
         {
             IQueryable<T> query = _context.Set<T>();
-            if(ignoreQueryFilters)
+            if (ignoreQueryFilters)
             {
                 query = query.IgnoreQueryFilters();
             }
