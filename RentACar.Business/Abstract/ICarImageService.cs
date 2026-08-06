@@ -10,5 +10,6 @@ namespace RentACar.Business.Abstract
         Task<IResult> UpdateAsync(CarImageUpdateDto carImageUpdateDto);
         Task<IResult> DeleteAsync(int id);
         Task<IDataResult<List<CarImageDetailDto>>> GetImagesByCarIdAsync(int carId);
+        Task<IResult> DeleteOldImagesAsync();
     }
 }

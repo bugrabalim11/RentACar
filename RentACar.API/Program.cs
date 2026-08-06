@@ -3,6 +3,7 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
+using RentACar.API.BackgroundServices;
 using RentACar.API.Extensions;
 using RentACar.API.Filters;
 using RentACar.Business.Extensions;
@@ -17,6 +18,8 @@ builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ValidationFilters>();
 });
+
+builder.Services.AddHostedService<CarImageCleanupService>();
 
 // 1. Adım: FluentValidation'ın otomatik doğrulama (AutoValidation) özelliğini aktif et.
 builder.Services.AddFluentValidationAutoValidation();
