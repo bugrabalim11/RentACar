@@ -20,9 +20,8 @@ namespace RentACar.DataAccess.Abstract
 
         /// <summary>
         /// Filtreye uyan TEK BİR kayıt getirir. (Örn: Id'si 5 olan araba).
-        /// Dikkat: Veri bulunamazsa 'null' dönebileceği için dönüş tipi T? (Nullable) yapılmıştır.
         /// </summary>
-        Task<T?> GetAsync(Expression<Func<T, bool>> filter);
+        Task<T?> GetAsync(Expression<Func<T, bool>> filter, bool ignoreQueryFilters = false);
 
         Task AddAsync(T entity);
         Task UpdateAsync(T entity);
