@@ -135,7 +135,7 @@ namespace RentACar.Business.Concrete
 
         private async Task<IResult> CheckIfEmailExistsForUpdateAsync(string email, int currentUserId)
         {
-            bool isExist = await _userRepository.AnyAsync(x => x.Email == email && x.Id != currentUserId);
+            bool isExist = await _userRepository.AnyAsync(x => x.Email == email && x.Id != currentUserId, ignoreQueryFilters: true);
             if (isExist)
             {
                 return new ErrorResult("Bu e-posta adresi zaten kayıtlı! Lütfen başka deneyiniz.");
@@ -145,7 +145,7 @@ namespace RentACar.Business.Concrete
 
         public async Task<IDataResult<User>> GetByMailAsync(string email)
         {
-            var user = await _userRepository.GetByEmailAsync(email);
+            var user = await _userRepository.GetAsync(u => u.Email == email, ignoreQueryFilters: true);
             if (user == null)
             {
                 return new ErrorDataResult<User>("Bu e-posta adresine sahip kullanıcı bulunamadı.");
