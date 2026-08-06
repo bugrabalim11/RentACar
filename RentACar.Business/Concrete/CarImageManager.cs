@@ -63,7 +63,6 @@ namespace RentACar.Business.Concrete
 
             result.IsDeleted = true;
             result.DeletedDate = DateTime.UtcNow;
-            // _fileHelper.Delete(result.ImagePath);
             await _carImageRepository.UpdateAsync(result);
             return new SuccessResult("Resim başarıyla silindi.");
         }
@@ -151,6 +150,31 @@ namespace RentACar.Business.Concrete
             if (!result.Success)
             {
                 return new ErrorResult("Araba bulunamadı.");
+            }
+            return new SuccessResult();
+        }
+
+        public async Task<IResult> DeleteOldImagesAsync()
+        {
+            // KURAL: Sadece silinmiş (IsDeleted) olanları VE 
+            // çöp kutusunda 30 günden fazla beklemiş olanları (karantina süresi dolanları) getir.
+            var oldImages = await _carImageRepository.GetAllAsync(x => x.IsDeleted && x.DeletedDate < DateTime.UtcNow.AddMinutes(-1));
+
+            // GÜVENLİK KAPISI (Bekçiyi boş yere yormamak için)
+            // Eğer liste hiç oluşmadıysa (null) VEYA listenin içinde hiç eleman YOKSA (!Any)
+            if (oldImages == null || !oldImages.Any())
+            {
+                return new SuccessResult("Silinecek eski resim bulunamadı.");
+            }
+
+            // ADIM: Çöp torbalarını tek tek açıyoruz.
+            foreach (var image in oldImages)
+            {
+                // ÖNCE FİZİKSEL TEMİZLİK: Sunucunun (wwwroot/images) klasöründeki asıl JPG/PNG dosyasını uçuruyoruz.
+                _fileHelper.Delete(image.ImagePath);
+
+                // SONRA VERİTABANI TEMİZLİĞİ: SQL'den o kaydı kalıcı olarak (Hard Delete) siliyoruz.
+                await _carImageRepository.DeleteAsync(image);
             }
             return new SuccessResult();
         }

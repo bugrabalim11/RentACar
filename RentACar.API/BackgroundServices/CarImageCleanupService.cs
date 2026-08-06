@@ -1,4 +1,6 @@
-﻿namespace RentACar.API.BackgroundServices
+﻿using RentACar.Business.Abstract;
+
+namespace RentACar.API.BackgroundServices
 {
     // BackgroundService'den miras alarak bu sınıfı "Ölümsüz bir Gece Bekçisine" çeviriyoruz.
     public class CarImageCleanupService : BackgroundService
@@ -23,7 +25,7 @@
                 // Fabrikayı çalıştırıp 1 gecelik, işi bitince hafızadan silinecek bir vardiya (Scope) yaratıyoruz.
                 using (var scope = _scopeFactory.CreateScope())
                 {
-                    // TODO: Birazdan buraya ICarImageService (Aşçı) çağrılacak ve resimler silinecek.
+                    var carImageService = scope.ServiceProvider.GetRequiredService<ICarImageService>();
 
                     // Bekçiyi uyku moduna alıyoruz. Şimdilik test için 1 dakika (FromMinutes(1)) uyuyor.
                     // İşler bitince bunu 24 saate (FromHours(24)) çekeceğiz.
