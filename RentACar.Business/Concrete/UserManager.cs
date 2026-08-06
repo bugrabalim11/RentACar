@@ -110,7 +110,7 @@ namespace RentACar.Business.Concrete
             // O yüzden direkt ameleyle (Repository) depoya yolluyoruz!
 
             await _userRepository.AddAsync(user);
-            return new SuccessResult("Kullancı güvenli vir şekilde sisteme eklendi.");
+            return new SuccessResult("Kullancı güvenli bir şekilde sisteme eklendi.");
         }
 
         public async Task<IResult> CheckIfUserExistsAsync(int id)
@@ -125,7 +125,7 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> CheckIfEmailExistsAsync(string email)
         {
-            bool existingEmail = await _userRepository.AnyAsync(x => x.Email == email);
+            bool existingEmail = await _userRepository.AnyAsync(x => x.Email == email, ignoreQueryFilters: true);
             if (existingEmail)
             {
                 return new ErrorResult("Bu e-posta adresi zaten kayıtlı! Lütfen başka deneyiniz.");
@@ -135,7 +135,7 @@ namespace RentACar.Business.Concrete
 
         private async Task<IResult> CheckIfEmailExistsForUpdateAsync(string email, int currentUserId)
         {
-            bool isExist = await _userRepository.AnyAsync(x => x.Email == email && x.Id != currentUserId);
+            bool isExist = await _userRepository.AnyAsync(x => x.Email == email && x.Id != currentUserId, ignoreQueryFilters: true);
             if (isExist)
             {
                 return new ErrorResult("Bu e-posta adresi zaten kayıtlı! Lütfen başka deneyiniz.");
@@ -145,8 +145,8 @@ namespace RentACar.Business.Concrete
 
         public async Task<IDataResult<User>> GetByMailAsync(string email)
         {
-            var user = await _userRepository.GetByEmailAsync(email);
-            if(user == null)
+            var user = await _userRepository.GetAsync(u => u.Email == email, ignoreQueryFilters: true);
+            if (user == null)
             {
                 return new ErrorDataResult<User>("Bu e-posta adresine sahip kullanıcı bulunamadı.");
             }

@@ -2,10 +2,7 @@
 using RentACar.Core.Entities;
 using RentACar.DataAccess.Abstract;
 using RentACar.DataAccess.Concrete.EntityFramework;
-using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Text;
 
 namespace RentACar.DataAccess.Concrete
 {
@@ -25,15 +22,20 @@ namespace RentACar.DataAccess.Concrete
             await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> AnyAsync(Expression<Func<T, bool>> filter)
+        public async Task<bool> AnyAsync(Expression<Func<T, bool>> filter, bool ignoreQueryFilters = false)
         {
+            IQueryable<T> query= _context.Set<T>();
+            if (ignoreQueryFilters)
+            {
+                query = query.IgnoreQueryFilters();
+            }
             // Sadece şarta uyan kayıt var mı diye bakar, True/False döner.
-            return await _context.Set<T>().AnyAsync(filter);
+            return await query.AnyAsync(filter);
         }
 
         public async Task<int> CountAsync(Expression<Func<T, bool>>? filter = null)
         {
-            return filter == null ? await _context.Set<T>().CountAsync():await _context.Set<T>().CountAsync(filter);
+            return filter == null ? await _context.Set<T>().CountAsync() : await _context.Set<T>().CountAsync(filter);
         }
 
         public async Task DeleteAsync(T entity)
@@ -65,11 +67,16 @@ namespace RentACar.DataAccess.Concrete
         }
 
         // Tek bir kayıt getirme işlemi
-        public async Task<T?> GetAsync(Expression<Func<T, bool>> filter)
+        public async Task<T?> GetAsync(Expression<Func<T, bool>> filter, bool ignoreQueryFilters = false)
         {
-            // Set<T>() ilgili tabloya gider.
+            IQueryable<T> query = _context.Set<T>();
+            if (ignoreQueryFilters)
+            {
+                query = query.IgnoreQueryFilters();
+            }
+
             // SingleOrDefaultAsync(filter) ise o tablodan gönderdiğimiz şarta uyan TEK BİR kaydı asenkron getirir.
-            return await _context.Set<T>().SingleOrDefaultAsync(filter);
+            return await query.SingleOrDefaultAsync(filter);
         }
 
         public async Task UpdateAsync(T entity)

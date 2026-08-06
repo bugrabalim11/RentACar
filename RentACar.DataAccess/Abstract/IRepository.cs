@@ -6,7 +6,7 @@ namespace RentACar.DataAccess.Abstract
     // KURAL: T tipi kesinlikle bir Sınıf (class) olmalı, IEntity VIP kartını taşımalı ve new'lenebilir olmalı!
     public interface IRepository<T> where T : class, IEntity, new()
     {
-        Task<bool> AnyAsync(Expression<Func<T, bool>> filter);
+        Task<bool> AnyAsync(Expression<Func<T, bool>> filter, bool ignoreQueryFilters = false);
         Task<int> CountAsync(Expression<Func<T, bool>>? filter = null);
 
         /// <summary>
@@ -20,9 +20,8 @@ namespace RentACar.DataAccess.Abstract
 
         /// <summary>
         /// Filtreye uyan TEK BİR kayıt getirir. (Örn: Id'si 5 olan araba).
-        /// Dikkat: Veri bulunamazsa 'null' dönebileceği için dönüş tipi T? (Nullable) yapılmıştır.
         /// </summary>
-        Task<T?> GetAsync(Expression<Func<T, bool>> filter);
+        Task<T?> GetAsync(Expression<Func<T, bool>> filter, bool ignoreQueryFilters = false);
 
         Task AddAsync(T entity);
         Task UpdateAsync(T entity);
