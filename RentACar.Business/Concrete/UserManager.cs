@@ -152,5 +152,15 @@ namespace RentACar.Business.Concrete
             }
             return new SuccessDataResult<User>(user);
         }
+
+        public async Task<IDataResult<User>> GetByIdForAuthAsync(int id)
+        {
+            var user= await _userRepository.GetAsync(u => u.Id == id);
+            if(user == null)
+            {
+                return new ErrorDataResult<User>("Bu ID'ye sahip kullanıcı bulunamadı.");
+            }
+            return new SuccessDataResult<User>(user);
+        }
     }
 }

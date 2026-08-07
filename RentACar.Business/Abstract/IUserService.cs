@@ -24,5 +24,7 @@ namespace RentACar.Business.Abstract
 
 
         Task<IDataResult<User>> GetByMailAsync(string email);
+
+        Task<IDataResult<User>> GetByIdForAuthAsync(int id);
     }
 }
