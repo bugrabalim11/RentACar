@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using RentACar.Business.Abstract;
 using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Entities.DTOs.AuthDtos;
@@ -6,6 +7,7 @@ using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.Core.Utilities.Security.Hashing;
 using RentACar.Core.Utilities.Security.Jwt;
+using RentACar.Dtos.UserDtos;
 
 namespace RentACar.Business.Concrete
 {
@@ -20,6 +22,28 @@ namespace RentACar.Business.Concrete
             _userService = userService;
             _tokenHelper = tokenHelper;
             _mapper = mapper;
+        }
+
+        public async Task<IResult> ChangePassword(int userId, UserChangePasswordDto userChangePasswordDto)
+        {
+            var user = await _userService.GetByIdForAuthAsync(userId);
+            if (!user.Success || user.Data == null)
+            {
+                return new ErrorResult("Kullanıcı bulunamadı.");
+            }
+
+            if (!HashingHelper.VerifyPasswordHash(userChangePasswordDto.OldPassword, user.Data.PasswordHash, user.Data.PasswordSalt))
+            {
+                return new ErrorResult("Eski şifreniz hatalı!");
+            }
+
+            byte[] passwordHash, passwordSalt;
+            HashingHelper.CreatePasswordHash(userChangePasswordDto.NewPassword, out passwordHash, out passwordSalt);
+            user.Data.PasswordHash = passwordHash;
+            user.Data.PasswordSalt = passwordSalt;
+
+            var result = await _userService.UpdateForAuthAsync(user.Data);
+            return new SuccessResult(result.Message ?? "Şifre başarıyla değiştirildi.");
         }
 
         public async Task<IDataResult<AccessToken>> CreateAccessToken(User user)

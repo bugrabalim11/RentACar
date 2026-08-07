@@ -2,6 +2,7 @@
 using RentACar.Core.Entities.DTOs.AuthDtos;
 using RentACar.Core.Utilities.Results;
 using RentACar.Core.Utilities.Security.Jwt;
+using RentACar.Dtos.UserDtos;
 
 namespace RentACar.Business.Abstract
 {
@@ -20,5 +21,7 @@ namespace RentACar.Business.Abstract
         // Adam başarıyla giriş yaptıktan veya kayıt olduktan sonra,
         // matbaayı (JwtHelper) çalıştırıp adamın eline o parlak AccessToken'ı (VIP bileti) verir.
         Task<IDataResult<AccessToken>> CreateAccessToken(User user);
+
+        Task<IResult> ChangePassword(int userId, UserChangePasswordDto userChangePasswordDto);
     }
 }
