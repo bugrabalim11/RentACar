@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
 using RentACar.Core.Entities.DTOs.AuthDtos;
 using RentACar.Dtos.UserDtos;
+using System.Security.Claims;
 
 namespace RentACar.API.Controllers
 {
@@ -63,7 +64,11 @@ namespace RentACar.API.Controllers
         [HttpPost("change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] UserChangePasswordDto userForChangePasswordDto)
         {
-            var result = await _authService.ChangePassword(userForChangePasswordDto);
+            // Adamın cüzdanına (User) bak, 'NameIdentifier' etiketli ilk kartı (FindFirst) bul ve üstündeki değeri (Value) oku.
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int userId = Convert.ToInt32(userIdString);
+
+            var result = await _authService.ChangePassword(userId, userForChangePasswordDto);
             if (result.Success)
             {
                 return Ok(result);

@@ -4,7 +4,6 @@ namespace RentACar.Dtos.UserDtos
 {
     public class UserChangePasswordDto : IDto
     {
-        public int UserId { get; set; }
         public string OldPassword { get; set; } = null!;
         public string NewPassword { get; set; } = null!;
     }

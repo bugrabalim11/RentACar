@@ -24,9 +24,9 @@ namespace RentACar.Business.Concrete
             _mapper = mapper;
         }
 
-        public async Task<IResult> ChangePassword(UserChangePasswordDto userChangePasswordDto)
+        public async Task<IResult> ChangePassword(int userId, UserChangePasswordDto userChangePasswordDto)
         {
-            var user = await _userService.GetByIdForAuthAsync(userChangePasswordDto.UserId);
+            var user = await _userService.GetByIdForAuthAsync(userId);
             if (!user.Success || user.Data == null)
             {
                 return new ErrorResult("Kullanıcı bulunamadı.");

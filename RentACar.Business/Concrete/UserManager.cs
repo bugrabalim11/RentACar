@@ -166,7 +166,7 @@ namespace RentACar.Business.Concrete
         public async Task<IResult> UpdateForAuthAsync(User user)
         {
             await _userRepository.UpdateAsync(user);
-            return new SuccessResult("Kullanıcı bilgileri başarıyla güncellendi.");
+            return new SuccessResult("Şifre başarıyla güncellendi.");
         }
     }
 }

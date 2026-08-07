@@ -7,8 +7,6 @@ namespace RentACar.Business.ValidationRules.UserValidators
     {
         public UserChangePasswordDtoValidator()
         {
-            RuleFor(x => x.UserId).GreaterThan(0).WithMessage("Lütfen geçerli bir kullanıcı seçinizk.");
-
             RuleFor(x => x.OldPassword).NotEmpty().WithMessage("Eski şifre boş olamaz.");
 
             RuleFor(x=>x.NewPassword)

@@ -22,6 +22,6 @@ namespace RentACar.Business.Abstract
         // matbaayı (JwtHelper) çalıştırıp adamın eline o parlak AccessToken'ı (VIP bileti) verir.
         Task<IDataResult<AccessToken>> CreateAccessToken(User user);
 
-        Task<IResult> ChangePassword(UserChangePasswordDto userChangePasswordDto);
+        Task<IResult> ChangePassword(int userId, UserChangePasswordDto userChangePasswordDto);
     }
 }
