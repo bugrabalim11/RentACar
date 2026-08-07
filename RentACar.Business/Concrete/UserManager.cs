@@ -162,5 +162,11 @@ namespace RentACar.Business.Concrete
             }
             return new SuccessDataResult<User>(user);
         }
+
+        public async Task<IResult> UpdateForAuthAsync(User user)
+        {
+            await _userRepository.UpdateAsync(user);
+            return new SuccessResult("Kullanıcı bilgileri başarıyla güncellendi.");
+        }
     }
 }

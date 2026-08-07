@@ -21,10 +21,9 @@ namespace RentACar.Business.Abstract
         // Customer için kullanıcı kayıtlı mı metodu
         Task<IResult> CheckIfUserExistsAsync(int id);
         Task<IResult> CheckIfEmailExistsAsync(string email);
-
-
         Task<IDataResult<User>> GetByMailAsync(string email);
 
         Task<IDataResult<User>> GetByIdForAuthAsync(int id);
+        Task<IResult> UpdateForAuthAsync(User user);
     }
 }
