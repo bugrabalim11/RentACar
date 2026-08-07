@@ -1,9 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using FluentValidation;
+﻿using FluentValidation;
+using RentACar.Core.Exceptions;
 using System.Net;
 using System.Text.Json;
-using RentACar.Business.Extensions;
-using RentACar.Core.Exceptions;
 
 namespace RentACar.API.Middlewares
 {

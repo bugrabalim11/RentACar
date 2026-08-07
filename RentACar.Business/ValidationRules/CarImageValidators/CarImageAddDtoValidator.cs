@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using RentACar.Dtos.CarImageDtos;
 
-namespace RentACar.Business.ValidationRules.CarImageValidayors
+namespace RentACar.Business.ValidationRules.CarImageValidators
 {
     public class CarImageAddDtoValidator : AbstractValidator<CarImageAddDto>
     {
