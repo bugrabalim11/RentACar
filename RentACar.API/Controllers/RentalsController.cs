@@ -56,7 +56,7 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [Authorize]
+        [Authorize(Roles = "admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
