@@ -62,6 +62,18 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<List<RentalListDto>>(rentalsListDtos, "Kiralama işlemleri başarıyla listelendi.");
         }
 
+        public async Task<IDataResult<List<RentalListDto>>> GetAllByUserIdAsync(int userId)
+        {
+            var rentals = await _rentalRepository.GetRentalsByUserIdAsync(userId);
+            if(rentals == null || !rentals.Any())
+            {
+                return new ErrorDataResult<List<RentalListDto>>("Kullanıcıya ait kiralama işlemleri bulunamadı.");
+            }
+
+            var mappedRentals = _mapper.Map<List<RentalListDto>>(rentals);
+            return new SuccessDataResult<List<RentalListDto>>(mappedRentals, "Kullanıcıya ait kiralama işlemleri başarıyla listelendi.");
+        }
+
         public async Task<IDataResult<RentalListDto>> GetByIdAsync(int id)
         {
             var rental = await _rentalRepository.GetRentalWithDetailsByIdAsync(id);

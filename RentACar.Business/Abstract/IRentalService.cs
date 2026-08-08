@@ -1,10 +1,5 @@
 ﻿using RentACar.Core.Utilities.Results;
-using RentACar.Dtos.OfficeDtos;
 using RentACar.Dtos.RentalDtos;
-using RentACar.Entities.Concrete;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RentACar.Business.Abstract
 {
@@ -12,6 +7,7 @@ namespace RentACar.Business.Abstract
     {
         Task<IDataResult<List<RentalListDto>>> GetAllAsync();
         Task<IDataResult<RentalListDto>> GetByIdAsync(int id);
+        Task<IDataResult<List<RentalListDto>>> GetAllByUserIdAsync(int userId);
         Task<IResult> AddAsync(RentalAddDto rentalAddDto);
         Task<IResult> UpdateAsync(RentalUpdateDto rentalUpdateDto);
         Task<IResult> DeleteAsync(int id);
