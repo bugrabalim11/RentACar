@@ -15,6 +15,20 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
             _context = context;
         }
 
+        public async Task<List<Rental>> GetRentalsByUserIdAsync(int userId)
+        {
+            return await _context.Rentals
+              .AsNoTracking()
+              .Include(x => x.Car).ThenInclude(c => c.Brand)
+              .Include(x => x.Customer)
+              .Include(x => x.PickUpOffice)
+              .Include(x => x.DropOffOffice)
+              // "Ey veritabanı, bana o kiralamaları getir ki, o kiralamaya bağlı olan Müşterinin
+              // (Customer) bağlı olduğu Kullanıcı ID'si (UserId), benim sana verdiğim userId'ye eşit olsun.
+              .Where(x => x.Customer.UserId == userId)
+              .ToListAsync();
+        }
+
         public async Task<List<Rental>> GetRentalsWithDetailsAsync()
         {
             return await _context.Rentals
