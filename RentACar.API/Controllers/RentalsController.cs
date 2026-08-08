@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
 using RentACar.Dtos.RentalDtos;
+using System.Security.Claims;
 
 namespace RentACar.API.Controllers
 {
@@ -34,6 +34,21 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> GetAllAsync()
         {
             var result = await _rentalService.GetAllAsync();
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [Authorize]
+        [HttpGet("getmyrentals")]
+        public async Task<IActionResult> GetMyRentalsAsync()
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int userId = Convert.ToInt32(userIdString);
+
+            var result = await _rentalService.GetAllByUserIdAsync(userId);
             if (result.Success)
             {
                 return Ok(result);

@@ -1,9 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Dtos.RentalDtos;
 using RentACar.Entities.Concrete;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RentACar.Business.Profiles
 {
@@ -13,7 +10,11 @@ namespace RentACar.Business.Profiles
         {
             // CreateMap<Kaynak, Hedef>
 
-            CreateMap<Rental, RentalListDto>();
+            CreateMap<Rental, RentalListDto>()
+                // Hedefteki (dest) CustomerFirstName alanına, kaynaktaki (src) Customer.User.FirstName alanını haritala (MapFrom).
+                .ForMember(dest => dest.CustomerFirstName, opt => opt.MapFrom(src => src.Customer.User.FirstName))
+                .ForMember(dest => dest.CustomerLastName, opt => opt.MapFrom(src => src.Customer.User.LastName));
+
             CreateMap<RentalAddDto, Rental>();
             CreateMap<RentalUpdateDto, Rental>();
         }
