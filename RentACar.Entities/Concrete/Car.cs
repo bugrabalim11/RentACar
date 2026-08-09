@@ -1,8 +1,5 @@
 ﻿using RentACar.Core.Entities;
 using RentACar.Entities.Enums;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RentACar.Entities.Concrete
 {

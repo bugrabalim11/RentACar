@@ -14,18 +14,11 @@ namespace RentACar.Business.Concrete
         private readonly ICarRepository _carRepository;
         private readonly IMapper _mapper;  // İşte bizim yetenekli aşçı yamağımız!
 
-        // Başka bir domain'in (Marka) veritabanına (Repository) doğrudan erişmek N-Tier mimarisine aykırıdır.
-        // Bu yüzden o dükkanın yöneticisi (IBrandService) DI üzerinden talep edilerek iletişim köprüsü kurulmuştur.
-        private readonly IBrandService _brandService;
-        private readonly IColorService _colorService;
-
         // 2. Constructor'a (Yapıcı Metot) ekleyerek sisteme "Bana bu görevliyi getir" diyoruz.
-        public CarManager(ICarRepository carRepository, IMapper mapper, IBrandService brandService, IColorService colorService)
+        public CarManager(ICarRepository carRepository, IMapper mapper)
         {
             _carRepository = carRepository;
             _mapper = mapper;
-            _brandService = brandService;
-            _colorService = colorService;
         }
 
         public async Task<IResult> AddAsync(CarAddDto carAddDto)
@@ -33,12 +26,7 @@ namespace RentACar.Business.Concrete
             // 2. İŞ KURALLARI (Business Rules - Dükkanın mantık kuralları)
             carAddDto.Plate = carAddDto.Plate.Replace(" ", "").ToUpper();
 
-            IResult? result = BusinessRules.Run(
-            await CheckIfBrandExistsAsync(carAddDto.BrandId),
-            await CheckIfColorExistsAsync(carAddDto.ColorId),
-            await CheckIfCarPlateExistsAsync(carAddDto.Plate)
-            );
-
+            IResult? result = BusinessRules.Run(await CheckIfCarPlateExistsAsync(carAddDto.Plate));
             if (result != null)
             {
                 return result;
@@ -99,11 +87,7 @@ namespace RentACar.Business.Concrete
             // Replace -> boşluklaarı kapatır ToUpper-> büyük harf yapar
             carUpdateDto.Plate = carUpdateDto.Plate.Replace(" ", "").ToUpper();
 
-            IResult? result = BusinessRules.Run(
-            await CheckIfBrandExistsAsync(carUpdateDto.BrandId),
-            await CheckIfColorExistsAsync(carUpdateDto.ColorId),
-            await CheckIfCarPlateExitsForUpdateAsync(carUpdateDto.Plate, carUpdateDto.Id)
-            );
+            IResult? result = BusinessRules.Run(await CheckIfCarPlateExitsForUpdateAsync(carUpdateDto.Plate, carUpdateDto.Id));
             if (result != null)
             {
                 return result;
@@ -147,28 +131,11 @@ namespace RentACar.Business.Concrete
             return new SuccessResult();
         }
 
-
-        private async Task<IResult> CheckIfBrandExistsAsync(int brandId)
+        public async Task<IDataResult<List<CarListDto>>> GetAllByBrandIdAsync(int brandId)
         {
-            var existingBrand = await _brandService.CheckIfBrandExistsAsync(brandId);
-            if (!existingBrand.Success)
-            {
-                // İş Kuralı Güvenliği (Defensive Programming):
-                // Eğer result.Message sistemden boş (null) gelirse, sistemin NullReferenceException ile çökmesini engellemek için 
-                // '??' (Null-Coalescing / Yedek Paraşüt) operatörü kullanılarak varsayılan bir hata mesajı atanmıştır.
-                return new ErrorResult(existingBrand.Message ?? "Bilinmeyen bir marka hatası oluştu!");
-            }
-            return new SuccessResult();
-        }
-
-        private async Task<IResult> CheckIfColorExistsAsync(int colorId)
-        {
-            var existingColor = await _colorService.CheckIfColorExistsAsync(colorId);
-            if (!existingColor.Success)
-            {
-                return new ErrorResult(existingColor.Message ?? "Bilinmeyen bir renk hatası oluştu!");
-            }
-            return new SuccessResult();
+            var existingCars = await _carRepository.GetAllAsync(x => x.BrandId == brandId);
+            var mappedCars = _mapper.Map<List<CarListDto>>(existingCars);
+            return new SuccessDataResult<List<CarListDto>>(mappedCars);
         }
     }
 }
