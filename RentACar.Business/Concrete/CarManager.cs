@@ -137,5 +137,12 @@ namespace RentACar.Business.Concrete
             var mappedCars = _mapper.Map<List<CarListDto>>(existingCars);
             return new SuccessDataResult<List<CarListDto>>(mappedCars);
         }
+
+        public async Task<IDataResult<List<CarListDto>>> GetCarsByColorIdAsync(int colorId)
+        {
+            var existingCars =await _carRepository.GetAllAsync(x => x.ColorId == colorId);
+            var mappedCars = _mapper.Map<List<CarListDto>>(existingCars);
+            return new SuccessDataResult<List<CarListDto>>(mappedCars);
+        }
     }
 }

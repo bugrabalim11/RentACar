@@ -5,6 +5,7 @@ namespace RentACar.Business.Abstract
 {
     public interface ICarService
     {
+        Task<IDataResult<List<CarListDto>>> GetCarsByColorIdAsync(int colorId);
         Task<IDataResult<List<CarListDto>>> GetAllByBrandIdAsync(int brandId);
 
         // 1. Liste Dönerken (Join'li veriler bu kutuya girecek)
