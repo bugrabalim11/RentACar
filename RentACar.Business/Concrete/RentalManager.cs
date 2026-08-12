@@ -41,6 +41,16 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Araç kiralama başarıyla eklendi.");
         }
 
+        public async Task<IResult> CheckIfAnyRentalExistsByOfficeIdAsync(int officeId)
+        {
+            bool result = await _rentalRepository.AnyAsync(x => x.PickUpOfficeId == officeId || x.DropOffOfficeId == officeId);
+            if (result)
+            {
+                return new ErrorResult("Ofise ait kiralama işlemleri mevcut, bu yüzden silinemez!");
+            }
+            return new SuccessResult();
+        }
+
         public async Task<IResult> DeleteAsync(int id)
         {
             var existingRental = await _rentalRepository.GetAsync(x => x.Id == id);
@@ -65,7 +75,7 @@ namespace RentACar.Business.Concrete
         public async Task<IDataResult<List<RentalListDto>>> GetAllByUserIdAsync(int userId)
         {
             var rentals = await _rentalRepository.GetRentalsByUserIdAsync(userId);
-            if(rentals == null || !rentals.Any())
+            if (rentals == null || !rentals.Any())
             {
                 return new ErrorDataResult<List<RentalListDto>>("Kullanıcıya ait kiralama işlemleri bulunamadı.");
             }
