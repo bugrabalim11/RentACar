@@ -1,10 +1,5 @@
 ﻿using RentACar.Core.Utilities.Results;
-using RentACar.Dtos.CustomerDtos;
 using RentACar.Dtos.OfficeDtos;
-using RentACar.Entities.Concrete;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RentACar.Business.Abstract
 {

@@ -13,11 +13,13 @@ namespace RentACar.Business.Concrete
     {
         private readonly IBrandRepository _brandRepository;
         private readonly IMapper _mapper;
+        private readonly ICarService _carService;
 
-        public BrandManager(IBrandRepository brandRepository, IMapper mapper)
+        public BrandManager(IBrandRepository brandRepository, IMapper mapper, ICarService carService)
         {
             _brandRepository = brandRepository;
             _mapper = mapper;
+            _carService = carService;
         }
 
         public async Task<IResult> AddAsync(BrandAddDto brandAddDto)
@@ -66,6 +68,15 @@ namespace RentACar.Business.Concrete
 
             existingBrand.IsDeleted = true;
             existingBrand.DeletedDate = DateTime.UtcNow;
+
+            var existingCars = await _carService.GetAllByBrandIdAsync(id);
+            foreach (var car in existingCars.Data)
+            {
+                if (car != null)
+                {
+                    await _carService.DeleteAsync(car.Id); // Her bir aracı silmek için DeleteAsync metodunu çağırıyoruz
+                }
+            }
             await _brandRepository.UpdateAsync(existingBrand);
             return new SuccessResult("Marka başarıyla silindi.");
         }

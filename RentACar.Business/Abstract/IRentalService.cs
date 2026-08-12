@@ -8,6 +8,7 @@ namespace RentACar.Business.Abstract
         Task<IDataResult<List<RentalListDto>>> GetAllAsync();
         Task<IDataResult<RentalListDto>> GetByIdAsync(int id);
         Task<IDataResult<List<RentalListDto>>> GetAllByUserIdAsync(int userId);
+        Task<IResult> CheckIfAnyRentalExistsByOfficeIdAsync(int officeId);
         Task<IResult> AddAsync(RentalAddDto rentalAddDto);
         Task<IResult> UpdateAsync(RentalUpdateDto rentalUpdateDto);
         Task<IResult> DeleteAsync(int id);

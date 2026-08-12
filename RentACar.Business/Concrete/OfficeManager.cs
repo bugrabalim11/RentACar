@@ -13,11 +13,13 @@ namespace RentACar.Business.Concrete
     {
         private readonly IOfficeRepository _officeRepository;
         private readonly IMapper _mapper;
+        private readonly IRentalService _rentalService;
 
-        public OfficeManager(IOfficeRepository officeRepository, IMapper mapper)
+        public OfficeManager(IOfficeRepository officeRepository, IMapper mapper, IRentalService rentalService)
         {
             _officeRepository = officeRepository;
             _mapper = mapper;
+            _rentalService = rentalService;
         }
 
         public async Task<IResult> AddAsync(OfficeAddDto officeAddDto)
@@ -40,6 +42,12 @@ namespace RentACar.Business.Concrete
             if (existingOffice == null)
             {
                 return new ErrorResult("Silinecek ofis bulunamadı.");
+            }
+
+            var rentalCheck = await _rentalService.CheckIfAnyRentalExistsByOfficeIdAsync(id);
+            if (!rentalCheck.Success)
+            {
+                return new ErrorResult(rentalCheck.Message ?? "Ofise ait kiralama işlemleri mevcut, bu yüzden silinemez!");
             }
 
             existingOffice.IsDeleted = true;

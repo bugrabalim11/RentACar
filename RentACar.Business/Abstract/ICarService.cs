@@ -1,14 +1,13 @@
 ﻿using RentACar.Core.Utilities.Results;
 using RentACar.Dtos.CarDtos;
-using RentACar.Entities.Concrete;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RentACar.Business.Abstract
 {
     public interface ICarService
     {
+        Task<IDataResult<List<CarListDto>>> GetCarsByColorIdAsync(int colorId);
+        Task<IDataResult<List<CarListDto>>> GetAllByBrandIdAsync(int brandId);
+
         // 1. Liste Dönerken (Join'li veriler bu kutuya girecek)
         Task<IDataResult<List<CarListDto>>> GetAllAsync();
 

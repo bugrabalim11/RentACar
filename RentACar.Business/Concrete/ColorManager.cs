@@ -13,11 +13,13 @@ namespace RentACar.Business.Concrete
     {
         private readonly IColorRepository _colorRepository;
         private readonly IMapper _mapper;
+        private readonly ICarService _carService;
 
-        public ColorManager(IColorRepository colorRepository, IMapper mapper)
+        public ColorManager(IColorRepository colorRepository, IMapper mapper, ICarService carService)
         {
             _colorRepository = colorRepository;
             _mapper = mapper;
+            _carService = carService;
         }
 
         public async Task<IResult> AddAsync(ColorAddDto colorAddDto)
@@ -55,6 +57,11 @@ namespace RentACar.Business.Concrete
                 return new ErrorResult("Silinecek renk bulunamadı.");
             }
 
+            var existingCars = await _carService.GetCarsByColorIdAsync(id);
+            if (existingCars.Data != null && existingCars.Data.Any())
+            {
+                return new ErrorResult("Bu renk sistemdeki araçlar tarafından kullanıldığı için silinemez!");
+            }
             existingColor.IsDeleted = true;
             existingColor.DeletedDate = DateTime.UtcNow;
             await _colorRepository.UpdateAsync(existingColor);
