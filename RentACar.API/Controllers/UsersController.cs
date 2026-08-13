@@ -53,7 +53,7 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpPut]
-        public async Task<IActionResult> UpdateAsync(UserUpdateDto userUpdateDto)
+        public async Task<IActionResult> UpdateAsync(UserUpdateForAdminDto userUpdateDto)
         {
             var result = await _userService.UpdateAsync(userUpdateDto);
             if (result.Success)

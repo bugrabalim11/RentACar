@@ -3,7 +3,7 @@ using RentACar.Dtos.UserDtos;
 
 namespace RentACar.Business.ValidationRules.UserValidators
 {
-    public class UserUpdateDtoValidator : AbstractValidator<UserUpdateDto>
+    public class UserUpdateDtoValidator : AbstractValidator<UserUpdateForAdminDto>
     {
         public UserUpdateDtoValidator()
         {

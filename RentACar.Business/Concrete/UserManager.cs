@@ -66,7 +66,7 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<UserListDto>(userDto, "Kullancı başarıyla getirildi.");
         }
 
-        public async Task<IResult> UpdateAsync(UserUpdateDto userUpdateDto)
+        public async Task<IResult> UpdateAsync(UserUpdateForAdminDto userUpdateDto)
         {
             userUpdateDto.Email = userUpdateDto.Email.Trim().ToLower();
             IResult? result = BusinessRules.Run(await CheckIfEmailExistsForUpdateAsync(userUpdateDto.Email, userUpdateDto.Id));
