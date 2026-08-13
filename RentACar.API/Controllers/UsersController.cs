@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
 using RentACar.Dtos.UserDtos;
+using System.ComponentModel;
+using System.Security.Claims;
 
 namespace RentACar.API.Controllers
 {
@@ -52,10 +54,25 @@ namespace RentACar.API.Controllers
         }
 
         [Authorize(Roles = "admin")]
-        [HttpPut]
-        public async Task<IActionResult> UpdateAsync(UserUpdateForAdminDto userUpdateDto)
+        [HttpPut("update-for-admin")]
+        public async Task<IActionResult> UpdateForAdminAsync(UserUpdateForAdminDto userUpdateForAdminDto)
         {
-            var result = await _userService.UpdateAsync(userUpdateDto);
+            var result = await _userService.UpdateForAdminAsync(userUpdateForAdminDto);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [Authorize]
+        [HttpPut("update-my-profile")]
+        public async Task<IActionResult> UpdateMyProfile(UserProfileUpdateDto userProfileUpdateDto)
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int userId = Convert.ToInt32(userIdString);
+
+            var result = await _userService.UpdateMyProfileAsync(userId, userProfileUpdateDto);
             if (result.Success)
             {
                 return Ok(result);

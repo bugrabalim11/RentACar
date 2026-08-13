@@ -66,23 +66,43 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<UserListDto>(userDto, "Kullancı başarıyla getirildi.");
         }
 
-        public async Task<IResult> UpdateAsync(UserUpdateForAdminDto userUpdateDto)
+        public async Task<IResult> UpdateForAdminAsync(UserUpdateForAdminDto userUpdateForAdminDto)
         {
-            userUpdateDto.Email = userUpdateDto.Email.Trim().ToLower();
-            IResult? result = BusinessRules.Run(await CheckIfEmailExistsForUpdateAsync(userUpdateDto.Email, userUpdateDto.Id));
-            if (result != null)
-            {
-                return result;
-            }
-
-            var existingUser = await _userRepository.GetAsync(x => x.Id == userUpdateDto.Id);
+            userUpdateForAdminDto.Email = userUpdateForAdminDto.Email.Trim().ToLower();
+            var existingUser = await _userRepository.GetAsync(x => x.Id == userUpdateForAdminDto.Id);
             if (existingUser == null)
             {
                 return new ErrorResult("Güncellenecek kullanıcı bulunamadı.");
             }
 
+            IResult? result = BusinessRules.Run(await CheckIfEmailExistsForUpdateAsync(userUpdateForAdminDto.Email, userUpdateForAdminDto.Id));
+            if (result != null)
+            {
+                return result;
+            }
+
             // : Map(Kaynak, Hedef)
-            _mapper.Map(userUpdateDto, existingUser);
+            _mapper.Map(userUpdateForAdminDto, existingUser);
+            await _userRepository.UpdateAsync(existingUser);
+            return new SuccessResult("Kullanıcı başarıyla güncellendi.");
+        }
+
+        public async Task<IResult> UpdateMyProfileAsync(int userId, UserProfileUpdateDto userProfileUpdateDto)
+        {
+            userProfileUpdateDto.Email = userProfileUpdateDto.Email.Trim().ToLower();
+            var existingUser = await _userRepository.GetAsync(x => x.Id == userId);
+            if (existingUser == null)
+            {
+                return new ErrorResult("Güncellenecek kullanıcı bulunamadı!");
+            }
+
+            IResult? result = BusinessRules.Run(await CheckIfEmailExistsForUpdateAsync(userProfileUpdateDto.Email, existingUser.Id));
+            if (result != null)
+            {
+                return result;
+            }
+
+            _mapper.Map(userProfileUpdateDto, existingUser);
             await _userRepository.UpdateAsync(existingUser);
             return new SuccessResult("Kullanıcı başarıyla güncellendi.");
         }
@@ -155,8 +175,8 @@ namespace RentACar.Business.Concrete
 
         public async Task<IDataResult<User>> GetByIdForAuthAsync(int id)
         {
-            var user= await _userRepository.GetAsync(u => u.Id == id);
-            if(user == null)
+            var user = await _userRepository.GetAsync(u => u.Id == id);
+            if (user == null)
             {
                 return new ErrorDataResult<User>("Bu ID'ye sahip kullanıcı bulunamadı.");
             }
