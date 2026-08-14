@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
+using RentACar.Core.Entities.Concrete;
 using RentACar.Dtos.UserDtos;
 using System.Security.Claims;
 
@@ -49,17 +50,6 @@ namespace RentACar.API.Controllers
             int userId = Convert.ToInt32(userIdString);
 
             var result = await _userService.GetMyProfile(userId);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> AddAsync(UserAddDto userAddDto)
-        {
-            var result = await _userService.AddAsync(userAddDto);
             if (result.Success)
             {
                 return Ok(result);

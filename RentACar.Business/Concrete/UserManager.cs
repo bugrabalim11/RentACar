@@ -18,21 +18,6 @@ namespace RentACar.Business.Concrete
             _mapper = mapper;
         }
 
-        public async Task<IResult> AddAsync(UserAddDto userAddDto)
-        {
-            userAddDto.Email = userAddDto.Email.Trim().ToLower();
-            IResult? result = BusinessRules.Run(await CheckIfEmailExistsAsync(userAddDto.Email));
-            if (result != null)
-            {
-                return result;
-            }
-
-            var user = _mapper.Map<User>(userAddDto);
-            user.IsDeleted = false;
-            await _userRepository.AddAsync(user);
-            return new SuccessResult("Kullanıcı başarıyla eklendi");
-        }
-
         public async Task<IResult> DeleteAsync(int id)
         {
             var existingUser = await _userRepository.GetAsync(x => x.Id == id);
