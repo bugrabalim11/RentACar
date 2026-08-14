@@ -43,7 +43,7 @@ namespace RentACar.API.Controllers
         }
 
         [Authorize]
-        [HttpGet("my-profile")]
+        [HttpGet("profile")]
         public async Task<IActionResult> GetMyProfileAsync()
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -58,7 +58,7 @@ namespace RentACar.API.Controllers
         }
 
         [Authorize(Roles = "admin")]
-        [HttpPut("update-for-admin")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateForAdminAsync(UserUpdateForAdminDto userUpdateForAdminDto)
         {
             var result = await _userService.UpdateForAdminAsync(userUpdateForAdminDto);
@@ -70,7 +70,7 @@ namespace RentACar.API.Controllers
         }
 
         [Authorize]
-        [HttpPut("update-my-profile")]
+        [HttpPut("profile")]
         public async Task<IActionResult> UpdateMyProfile(UserProfileUpdateDto userProfileUpdateDto)
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -89,6 +89,21 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> DeleteAsync(int id)
         {
             var result = await _userService.DeleteAsync(id);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [Authorize]
+        [HttpDelete("profile")]
+        public async Task<IActionResult> DeleteMyAccount()
+        {
+            var stringUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int userId = Convert.ToInt32(stringUserId);
+
+            var result = await _userService.DeleteAsync(userId);
             if (result.Success)
             {
                 return Ok(result);
