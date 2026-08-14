@@ -7,6 +7,7 @@ namespace RentACar.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "admin")]
     public class CarImagesController : ControllerBase
     {
         private readonly ICarImageService _carImageService;
@@ -16,7 +17,6 @@ namespace RentACar.API.Controllers
             _carImageService = carImageService;
         }
 
-        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<IActionResult> AddAsync([FromForm] CarImageAddDto carImageAddDto)
         {
@@ -28,8 +28,7 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [Authorize(Roles = "admin")]
-        [HttpPut]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync([FromForm] CarImageUpdateDto carImageUpdateDto)
         {
             var result = await _carImageService.UpdateAsync(carImageUpdateDto);
@@ -40,7 +39,6 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
@@ -52,7 +50,8 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [HttpGet("getbycarid/{carId}")]
+        [AllowAnonymous]
+        [HttpGet("car/{carId}")]
         public async Task<IActionResult> GetImagesByCarIdAsync(int carId)
         {
             var result = await _carImageService.GetImagesByCarIdAsync(carId);
