@@ -66,6 +66,18 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<UserListDto>(userDto, "Kullancı başarıyla getirildi.");
         }
 
+        public async Task<IDataResult<UserListDto>> GetMyProfile(int id)
+        {
+            var user = await _userRepository.GetAsync(x => x.Id == id);
+            if (user == null)
+            {
+                return new ErrorDataResult<UserListDto>("Profil bulunamadı.");
+            }
+
+            var userDto = _mapper.Map<UserListDto>(user);
+            return new SuccessDataResult<UserListDto>(userDto, "Profil başarıyla getirildi.");
+        }
+
         public async Task<IResult> UpdateForAdminAsync(UserUpdateForAdminDto userUpdateForAdminDto)
         {
             userUpdateForAdminDto.Email = userUpdateForAdminDto.Email.Trim().ToLower();

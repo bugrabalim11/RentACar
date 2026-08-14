@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
 using RentACar.Dtos.UserDtos;
-using System.ComponentModel;
 using System.Security.Claims;
 
 namespace RentACar.API.Controllers
@@ -30,11 +29,26 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [Authorize]
+        [Authorize(Roles = "admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await _userService.GetByIdAsync(id);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [Authorize]
+        [HttpGet("my-profile")]
+        public async Task<IActionResult> GetMyProfileAsync()
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int userId = Convert.ToInt32(userIdString);
+
+            var result = await _userService.GetMyProfile(userId);
             if (result.Success)
             {
                 return Ok(result);

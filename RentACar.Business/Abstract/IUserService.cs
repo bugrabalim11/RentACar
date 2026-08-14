@@ -8,6 +8,7 @@ namespace RentACar.Business.Abstract
     {
         Task<IDataResult<List<UserListDto>>> GetAllAsync();
         Task<IDataResult<UserListDto>> GetByIdAsync(int id);
+        Task<IDataResult<UserListDto>> GetMyProfile(int id);
         Task<IResult> AddAsync(UserAddDto userAddDto);
 
         // Güvenlik Şefinin (AuthManager) doğrudan kullanacağı, çıplak Entity kabul eden masa
