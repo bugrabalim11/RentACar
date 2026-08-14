@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
+using RentACar.Core.Entities.Concrete;
 using RentACar.Dtos.UserDtos;
+using System.Security.Claims;
 
 namespace RentACar.API.Controllers
 {
@@ -28,7 +30,7 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [Authorize]
+        [Authorize(Roles = "admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
@@ -40,10 +42,14 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddAsync(UserAddDto userAddDto)
+        [Authorize]
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetMyProfileAsync()
         {
-            var result = await _userService.AddAsync(userAddDto);
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int userId = Convert.ToInt32(userIdString);
+
+            var result = await _userService.GetMyProfile(userId);
             if (result.Success)
             {
                 return Ok(result);
@@ -52,10 +58,25 @@ namespace RentACar.API.Controllers
         }
 
         [Authorize(Roles = "admin")]
-        [HttpPut]
-        public async Task<IActionResult> UpdateAsync(UserUpdateDto userUpdateDto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateForAdminAsync(UserUpdateForAdminDto userUpdateForAdminDto)
         {
-            var result = await _userService.UpdateAsync(userUpdateDto);
+            var result = await _userService.UpdateForAdminAsync(userUpdateForAdminDto);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [Authorize]
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateMyProfile(UserProfileUpdateDto userProfileUpdateDto)
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int userId = Convert.ToInt32(userIdString);
+
+            var result = await _userService.UpdateMyProfileAsync(userId, userProfileUpdateDto);
             if (result.Success)
             {
                 return Ok(result);
@@ -68,6 +89,21 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> DeleteAsync(int id)
         {
             var result = await _userService.DeleteAsync(id);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [Authorize]
+        [HttpDelete("profile")]
+        public async Task<IActionResult> DeleteMyAccount()
+        {
+            var stringUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int userId = Convert.ToInt32(stringUserId);
+
+            var result = await _userService.DeleteAsync(userId);
             if (result.Success)
             {
                 return Ok(result);

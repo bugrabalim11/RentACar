@@ -18,21 +18,6 @@ namespace RentACar.Business.Concrete
             _mapper = mapper;
         }
 
-        public async Task<IResult> AddAsync(UserAddDto userAddDto)
-        {
-            userAddDto.Email = userAddDto.Email.Trim().ToLower();
-            IResult? result = BusinessRules.Run(await CheckIfEmailExistsAsync(userAddDto.Email));
-            if (result != null)
-            {
-                return result;
-            }
-
-            var user = _mapper.Map<User>(userAddDto);
-            user.IsDeleted = false;
-            await _userRepository.AddAsync(user);
-            return new SuccessResult("Kullanıcı başarıyla eklendi");
-        }
-
         public async Task<IResult> DeleteAsync(int id)
         {
             var existingUser = await _userRepository.GetAsync(x => x.Id == id);
@@ -66,23 +51,55 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<UserListDto>(userDto, "Kullancı başarıyla getirildi.");
         }
 
-        public async Task<IResult> UpdateAsync(UserUpdateDto userUpdateDto)
+        public async Task<IDataResult<UserListDto>> GetMyProfile(int id)
         {
-            userUpdateDto.Email = userUpdateDto.Email.Trim().ToLower();
-            IResult? result = BusinessRules.Run(await CheckIfEmailExistsForUpdateAsync(userUpdateDto.Email, userUpdateDto.Id));
-            if (result != null)
+            var user = await _userRepository.GetAsync(x => x.Id == id);
+            if (user == null)
             {
-                return result;
+                return new ErrorDataResult<UserListDto>("Profil bulunamadı.");
             }
 
-            var existingUser = await _userRepository.GetAsync(x => x.Id == userUpdateDto.Id);
+            var userDto = _mapper.Map<UserListDto>(user);
+            return new SuccessDataResult<UserListDto>(userDto, "Profil başarıyla getirildi.");
+        }
+
+        public async Task<IResult> UpdateForAdminAsync(UserUpdateForAdminDto userUpdateForAdminDto)
+        {
+            userUpdateForAdminDto.Email = userUpdateForAdminDto.Email.Trim().ToLower();
+            var existingUser = await _userRepository.GetAsync(x => x.Id == userUpdateForAdminDto.Id);
             if (existingUser == null)
             {
                 return new ErrorResult("Güncellenecek kullanıcı bulunamadı.");
             }
 
+            IResult? result = BusinessRules.Run(await CheckIfEmailExistsForUpdateAsync(userUpdateForAdminDto.Email, userUpdateForAdminDto.Id));
+            if (result != null)
+            {
+                return result;
+            }
+
             // : Map(Kaynak, Hedef)
-            _mapper.Map(userUpdateDto, existingUser);
+            _mapper.Map(userUpdateForAdminDto, existingUser);
+            await _userRepository.UpdateAsync(existingUser);
+            return new SuccessResult("Kullanıcı başarıyla güncellendi.");
+        }
+
+        public async Task<IResult> UpdateMyProfileAsync(int userId, UserProfileUpdateDto userProfileUpdateDto)
+        {
+            userProfileUpdateDto.Email = userProfileUpdateDto.Email.Trim().ToLower();
+            var existingUser = await _userRepository.GetAsync(x => x.Id == userId);
+            if (existingUser == null)
+            {
+                return new ErrorResult("Güncellenecek kullanıcı bulunamadı!");
+            }
+
+            IResult? result = BusinessRules.Run(await CheckIfEmailExistsForUpdateAsync(userProfileUpdateDto.Email, existingUser.Id));
+            if (result != null)
+            {
+                return result;
+            }
+
+            _mapper.Map(userProfileUpdateDto, existingUser);
             await _userRepository.UpdateAsync(existingUser);
             return new SuccessResult("Kullanıcı başarıyla güncellendi.");
         }
@@ -155,8 +172,8 @@ namespace RentACar.Business.Concrete
 
         public async Task<IDataResult<User>> GetByIdForAuthAsync(int id)
         {
-            var user= await _userRepository.GetAsync(u => u.Id == id);
-            if(user == null)
+            var user = await _userRepository.GetAsync(u => u.Id == id);
+            if (user == null)
             {
                 return new ErrorDataResult<User>("Bu ID'ye sahip kullanıcı bulunamadı.");
             }

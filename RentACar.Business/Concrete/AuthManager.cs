@@ -86,6 +86,7 @@ namespace RentACar.Business.Concrete
 
         public async Task<IDataResult<User>> Register(UserForRegisterDto userForRegisterDto, string password)
         {
+            userForRegisterDto.Email = userForRegisterDto.Email.Trim().ToLower();
             IResult? result = BusinessRules.Run(await _userService.CheckIfEmailExistsAsync(userForRegisterDto.Email));
             if (result != null)
             {

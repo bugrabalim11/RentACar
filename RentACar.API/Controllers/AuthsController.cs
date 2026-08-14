@@ -61,7 +61,7 @@ namespace RentACar.API.Controllers
 
         // [ApiController] aslında hepsine [FromBody] ekliyor ama biz Explicit (Açıkça belirtmek) yaptık.
         [Authorize]
-        [HttpPost("change-password")]
+        [HttpPut("change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] UserChangePasswordDto userForChangePasswordDto)
         {
             // Adamın cüzdanına (User) bak, 'NameIdentifier' etiketli ilk kartı (FindFirst) bul ve üstündeki değeri (Value) oku.
