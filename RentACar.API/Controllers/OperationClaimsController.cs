@@ -51,8 +51,13 @@ namespace RentACar.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAsync(OperationClaimUpdateDto operationClaimUpdateDto)
+        public async Task<IActionResult> UpdateAsync(int id, OperationClaimUpdateDto operationClaimUpdateDto)
         {
+            if(operationClaimUpdateDto.Id != id)
+            {
+                return BadRequest("URL'deki ID ile gönderilen yetki ID'si eşleşmiyor!");
+            }
+
             var result = await _operationClaimService.UpdateAsync(operationClaimUpdateDto);
             if (result.Success)
             {

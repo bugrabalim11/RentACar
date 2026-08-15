@@ -44,8 +44,8 @@ namespace RentACar.Business.Concrete
                 return new ErrorResult("Silinecek yetki bulunamadı.");
             }
 
-            IResult? result=BusinessRules.Run(CheckIfOperationClaimNameIsAdmin(existingOperationClaim.Name));
-            if(result != null)
+            IResult? result = BusinessRules.Run(CheckIfOperationClaimNameIsAdmin(existingOperationClaim.Name));
+            if (result != null)
             {
                 return result;
             }
@@ -78,16 +78,19 @@ namespace RentACar.Business.Concrete
         public async Task<IResult> UpdateAsync(OperationClaimUpdateDto operationClaimUpdateDto)
         {
             operationClaimUpdateDto.Name = operationClaimUpdateDto.Name.Trim();
-            IResult? result = BusinessRules.Run(await CheckIfOperationClaimExistsForUpdateAsync(operationClaimUpdateDto.Name, operationClaimUpdateDto.Id));
-            if (result != null)
-            {
-                return result;
-            }
-
             var existingOperationClaim = await _operationClaimRepository.GetAsync(x => x.Id == operationClaimUpdateDto.Id);
             if (existingOperationClaim == null)
             {
                 return new ErrorResult("Güncellenecek yetki bulunamadı.");
+            }
+
+            IResult? result = BusinessRules.Run(
+                await CheckIfOperationClaimExistsForUpdateAsync(operationClaimUpdateDto.Name, operationClaimUpdateDto.Id),
+                CheckIfOperationClaimNameIsAdmin(existingOperationClaim.Name)
+            );
+            if (result != null)
+            {
+                return result;
             }
 
             _mapper.Map(operationClaimUpdateDto, existingOperationClaim);
@@ -122,7 +125,7 @@ namespace RentACar.Business.Concrete
         {
             if (name.ToLower() == "admin")
             {
-                return new ErrorResult("Admin yetkisi sistemden silinemez!");
+                return new ErrorResult("Sistemin temel yetkileri üzerinde değişiklik yapılmasına izin verilmez!");
             }
             return new SuccessResult();
         }
