@@ -15,6 +15,14 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
             _context = context;
         }
 
+        public async Task<Customer?> GetCustomerByUserIdWithDetailsAsync(int userId)
+        {
+            return await _context.Customers
+                .Include(c => c.User)
+                .Include(c=>c.Rentals)
+                .FirstOrDefaultAsync(x => x.UserId == userId);
+        }
+
         public async Task<List<Customer>> GetCustomersWithDetailsAsync()
         {
             return await _context.Customers
@@ -27,7 +35,7 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
         {
             return await _context.Customers
                 .Include(c => c.User)
-                .Include(c=>c.Rentals)
+                .Include(c => c.Rentals)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
     }

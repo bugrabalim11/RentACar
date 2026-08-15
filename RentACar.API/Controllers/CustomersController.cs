@@ -30,11 +30,26 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [Authorize]
+        [Authorize(Roles = "admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await _customerService.GetByIdAsync(id);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [Authorize]
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetMyCustomerProfileAsync()
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int userId = Convert.ToInt32(userIdString);
+
+            var result = await _customerService.GetMyCustomerProfileAsync(userId);
             if (result.Success)
             {
                 return Ok(result);
@@ -55,12 +70,12 @@ namespace RentACar.API.Controllers
 
         [Authorize]
         [HttpPut("profile")]
-        public async Task<IActionResult> UpdateAsync(CustomerUpdateDto customerUpdateDto)
+        public async Task<IActionResult> UpdateAsync(CustomerUpdateMyProfileDto customerUpdateMyProfileDto)
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             int userId = Convert.ToInt32(userIdString);
 
-            var result = await _customerService.UpdateMyProfileAsync(userId, customerUpdateDto);
+            var result = await _customerService.UpdateMyProfileAsync(userId, customerUpdateMyProfileDto);
             if (result.Success)
             {
                 return Ok(result);
