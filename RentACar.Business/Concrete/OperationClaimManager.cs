@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.EntityFrameworkCore;
 using RentACar.Business.Abstract;
 using RentACar.Core.Entities.Concrete;
@@ -40,6 +42,12 @@ namespace RentACar.Business.Concrete
             if (existingOperationClaim == null)
             {
                 return new ErrorResult("Silinecek yetki bulunamadı.");
+            }
+
+            IResult? result=BusinessRules.Run(CheckIfOperationClaimNameIsAdmin(existingOperationClaim.Name));
+            if(result != null)
+            {
+                return result;
             }
 
             existingOperationClaim.IsDeleted = true;
@@ -106,6 +114,15 @@ namespace RentACar.Business.Concrete
             if (isExist)
             {
                 return new ErrorResult("Bu statü sistemde kayıtlı! Lütfen başka statü girmeyi deneyin.");
+            }
+            return new SuccessResult();
+        }
+
+        private IResult CheckIfOperationClaimNameIsAdmin(string name)
+        {
+            if (name.ToLower() == "admin")
+            {
+                return new ErrorResult("Admin yetkisi sistemden silinemez!");
             }
             return new SuccessResult();
         }
