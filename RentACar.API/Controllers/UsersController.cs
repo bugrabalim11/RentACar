@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
-using RentACar.Core.Entities.Concrete;
 using RentACar.Dtos.UserDtos;
 using System.Security.Claims;
 
@@ -59,9 +59,13 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateForAdminAsync(UserUpdateForAdminDto userUpdateForAdminDto)
+        public async Task<IActionResult> UpdateForAdminAsync(int id, UserUpdateForAdminDto userUpdateForAdminDto)
         {
-            var result = await _userService.UpdateForAdminAsync(userUpdateForAdminDto);
+            if (id != userUpdateForAdminDto.Id)
+            {
+                return BadRequest("URL'deki ID ile gönderilen kullanıcı ID'si eşleşmiyor!");
+            }
+                var result = await _userService.UpdateForAdminAsync(userUpdateForAdminDto);
             if (result.Success)
             {
                 return Ok(result);

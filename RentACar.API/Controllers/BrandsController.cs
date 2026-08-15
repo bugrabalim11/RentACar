@@ -57,8 +57,13 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpPut]
-        public async Task<IActionResult> UpdateAsync(BrandUpdateDto brandUpdateDto)
+        public async Task<IActionResult> UpdateAsync(int id, BrandUpdateDto brandUpdateDto)
         {
+            if (id != brandUpdateDto.Id)
+            {
+                return BadRequest("URL'deki ID ile gönderilen marka ID'si eşleşmiyor!");
+            }
+
             var result = await _brandService.UpdateAsync(brandUpdateDto);
             if (result.Success)
             {

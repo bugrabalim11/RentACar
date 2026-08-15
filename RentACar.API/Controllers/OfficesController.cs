@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
 using RentACar.Dtos.OfficeDtos;
@@ -53,8 +52,13 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpPut]
-        public async Task<IActionResult> UpdateAsync(OfficeUpdateDto officeUpdateDto)
+        public async Task<IActionResult> UpdateAsync(int id, OfficeUpdateDto officeUpdateDto)
         {
+            if (id != officeUpdateDto.Id)
+            {
+                return BadRequest("URL'deki ID ile gönderilen ofis ID'si eşleşmiyor!");
+            }
+
             var result = await _officeService.UpdateAsync(officeUpdateDto);
             if (result.Success)
             {
