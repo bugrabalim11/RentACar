@@ -12,7 +12,6 @@ namespace RentACar.Business.ValidationRules.RentalValidators
         {
             RuleFor(x => x.Id).GreaterThan(0).WithMessage("Lütfen geçerli bir kiralama seçiniz.");
             RuleFor(x => x.CarId).GreaterThan(0).WithMessage("Lütfen geçerli bir araç seçiniz.");
-            RuleFor(x => x.CustomerId).GreaterThan(0).WithMessage("Lütfen geçerli bir müşteri seçiniz.");
             RuleFor(x => x.PickUpOfficeId).GreaterThan(0).WithMessage("Lütfen geçerli bir şube seçiniz.");
             RuleFor(x => x.DropOffOfficeId).GreaterThan(0).WithMessage("Lütfen geçerli bir şube seçiniz.");
 

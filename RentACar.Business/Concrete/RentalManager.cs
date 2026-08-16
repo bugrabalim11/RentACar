@@ -39,17 +39,7 @@ namespace RentACar.Business.Concrete
             var rental = _mapper.Map<Rental>(rentalAddDto);
             await _rentalRepository.AddAsync(rental);
             return new SuccessResult("Araç kiralama başarıyla eklendi.");
-        }
-
-        public async Task<IResult> CheckIfAnyRentalExistsByOfficeIdAsync(int officeId)
-        {
-            bool result = await _rentalRepository.AnyAsync(x => x.PickUpOfficeId == officeId || x.DropOffOfficeId == officeId);
-            if (result)
-            {
-                return new ErrorResult("Ofise ait kiralama işlemleri mevcut, bu yüzden silinemez!");
-            }
-            return new SuccessResult();
-        }
+        }  
 
         public async Task<IResult> DeleteAsync(int id)
         {
@@ -98,6 +88,12 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> UpdateAsync(RentalUpdateDto rentalUpdateDto)
         {
+            var existingRental = await _rentalRepository.GetAsync(x => x.Id == rentalUpdateDto.Id);
+            if (existingRental == null)
+            {
+                return new ErrorResult("Güncellenecek araç kiralama bulunamadı.");
+            }
+
             rentalUpdateDto.RentDate = rentalUpdateDto.RentDate.ToUniversalTime();
             if (rentalUpdateDto.ReturnDate.HasValue)
             {
@@ -110,15 +106,19 @@ namespace RentACar.Business.Concrete
                 return result;
             }
 
-            var existingRental = await _rentalRepository.GetAsync(x => x.Id == rentalUpdateDto.Id);
-            if (existingRental == null)
-            {
-                return new ErrorResult("Güncellenecek araç kiralama bulunamadı.");
-            }
-
             _mapper.Map(rentalUpdateDto, existingRental);
             await _rentalRepository.UpdateAsync(existingRental);
             return new SuccessResult("Araç kiralama başarıyla güncellendi.");
+        }
+
+        public async Task<IResult> CheckIfAnyRentalExistsByOfficeIdAsync(int officeId)
+        {
+            bool result = await _rentalRepository.AnyAsync(x => x.PickUpOfficeId == officeId || x.DropOffOfficeId == officeId);
+            if (result)
+            {
+                return new ErrorResult("Ofise ait kiralama işlemleri mevcut, bu yüzden silinemez!");
+            }
+            return new SuccessResult();
         }
 
         // Bu metot sadece bu sınıfın (Manager'ın) içinde kullanılacağı için 'private' yapıyoruz.
