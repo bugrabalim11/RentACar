@@ -12,10 +12,12 @@ namespace RentACar.Business.Concrete
     {
         private readonly IRentalRepository _rentalRepository;
         private readonly IMapper _mapper;
-        public RentalManager(IRentalRepository rentalRepository, IMapper mapper)
+        private readonly ICarService _carService;
+        public RentalManager(IRentalRepository rentalRepository, IMapper mapper, ICarService carService)
         {
             _rentalRepository = rentalRepository;
             _mapper = mapper;
+            _carService = carService;
         }
 
         public async Task<IResult> AddAsync(RentalAddDto rentalAddDto)
@@ -30,7 +32,11 @@ namespace RentACar.Business.Concrete
                 rentalAddDto.ReturnDate = rentalAddDto.ReturnDate.Value.ToUniversalTime();
             }
 
-            IResult? result = BusinessRules.Run(await CheckIfCarAvailable(rentalAddDto.CarId, rentalAddDto.RentDate, rentalAddDto.ReturnDate));
+            IResult? result = BusinessRules.Run
+            (
+            await CheckIfCarAvailable(rentalAddDto.CarId, rentalAddDto.RentDate, rentalAddDto.ReturnDate),
+            await _carService.CheckIfCarExistsAsync(rentalAddDto.CarId)
+            );
             if (result != null)
             {
                 return result;
@@ -39,7 +45,7 @@ namespace RentACar.Business.Concrete
             var rental = _mapper.Map<Rental>(rentalAddDto);
             await _rentalRepository.AddAsync(rental);
             return new SuccessResult("Araç kiralama başarıyla eklendi.");
-        }  
+        }
 
         public async Task<IResult> DeleteAsync(int id)
         {
@@ -100,7 +106,11 @@ namespace RentACar.Business.Concrete
                 rentalUpdateDto.ReturnDate = rentalUpdateDto.ReturnDate.Value.ToUniversalTime();
             }
 
-            IResult? result = BusinessRules.Run(await CheckIfCarAvailableForUpdate(rentalUpdateDto.Id, rentalUpdateDto.CarId, rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate));
+            IResult? result = BusinessRules.Run
+            (
+                await CheckIfCarAvailableForUpdate(rentalUpdateDto.Id, rentalUpdateDto.CarId, rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate),
+                await _carService.CheckIfCarExistsAsync(rentalUpdateDto.CarId)
+            );
             if (result != null)
             {
                 return result;
