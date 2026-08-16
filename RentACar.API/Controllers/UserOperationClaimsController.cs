@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
 using RentACar.Core.Entities.DTOs.UserOperationClaimDtos;
-using System.Security.Claims;
 
 namespace RentACar.API.Controllers
 {

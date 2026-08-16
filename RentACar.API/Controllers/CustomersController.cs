@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
-using RentACar.Core.Entities.Concrete;
 using RentACar.Dtos.CustomerDtos;
 using System.Security.Claims;
 
@@ -47,6 +46,7 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> GetMyCustomerProfileAsync()
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString)) return Unauthorized("Kimlik doğrulama hatası!");
             int userId = Convert.ToInt32(userIdString);
 
             var result = await _customerService.GetMyCustomerProfileAsync(userId);
@@ -73,6 +73,7 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> UpdateAsync(CustomerUpdateMyProfileDto customerUpdateMyProfileDto)
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString)) return Unauthorized("Kimlik doğrulama hatası!");
             int userId = Convert.ToInt32(userIdString);
 
             var result = await _customerService.UpdateMyProfileAsync(userId, customerUpdateMyProfileDto);
@@ -91,7 +92,7 @@ namespace RentACar.API.Controllers
             // URL'deki kapı numarası ile DTO (Kargo paketi) içindeki ID eşleşiyor mu?
             if (id != customerUpdateDto.Id)
             {
-                return BadRequest("URL'deki ID ile gönderilen Müşteri ID'si eşleşmiyor!");
+                return BadRequest("URL'deki ID ile gönderilen müşteri ID'si eşleşmiyor!");
             }
 
             var result = await _customerService.UpdateAsync(customerUpdateDto);

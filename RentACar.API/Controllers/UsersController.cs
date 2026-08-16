@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
 using RentACar.Dtos.UserDtos;
@@ -49,6 +48,7 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> GetMyProfileAsync()
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString)) return Unauthorized("Kimlik doğrulama hatası!");
             int userId = Convert.ToInt32(userIdString);
 
             var result = await _userService.GetMyProfile(userId);
@@ -96,6 +96,7 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> UpdateMyProfile(UserProfileUpdateDto userProfileUpdateDto)
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString)) return Unauthorized("Kimlik doğrulama hatası!");
             int userId = Convert.ToInt32(userIdString);
 
             var result = await _userService.UpdateMyProfileAsync(userId, userProfileUpdateDto);
@@ -122,8 +123,9 @@ namespace RentACar.API.Controllers
         [HttpDelete("profile")]
         public async Task<IActionResult> DeleteMyAccount()
         {
-            var stringUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            int userId = Convert.ToInt32(stringUserId);
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString)) return Unauthorized("Kimlik doğrulama hatası!");
+            int userId = Convert.ToInt32(userIdString);
 
             var result = await _userService.DeleteAsync(userId);
             if (result.Success)

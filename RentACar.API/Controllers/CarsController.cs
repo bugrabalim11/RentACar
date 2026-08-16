@@ -55,8 +55,12 @@ namespace RentACar.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAsync(CarUpdateDto carUpdateDto)
+        public async Task<IActionResult> UpdateAsync(int id, CarUpdateDto carUpdateDto)
         {
+            if (id != carUpdateDto.Id)
+            {
+                return BadRequest("URL'deki ID ile gönderilen araç ID'si eşleşmiyor!");
+            }
             var result = await _carService.UpdateAsync(carUpdateDto);
             if (result.Success)
             {
