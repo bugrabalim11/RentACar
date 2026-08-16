@@ -43,5 +43,29 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
             // 5. Hazırlanan bu temiz A4 kağıtlarını bir dosya haline getirip (Liste) vezneye (Manager'a) gönderiyoruz.
             return await result.ToListAsync();
         }
+
+        public async Task<List<UserOperationClaimDetailDto>> GetMyOperationClaimsAsync(int userId)
+        {
+            var result = from uoc in _context.UserOperationClaims
+
+                         join u in _context.Users
+                         on uoc.UserId equals u.Id
+
+                         join oc in _context.OperationClaims
+                         on uoc.OperationClaimId equals oc.Id
+
+                         where uoc.UserId == userId
+
+                         select new UserOperationClaimDetailDto
+                         {
+                             Id = uoc.Id,  
+                             UserId = uoc.UserId,
+                             UserFullName = u.FirstName + " " + u.LastName,  
+                             OperationClaimId = oc.Id,
+                             ClaimName = oc.Name  
+                         };
+
+            return await result.ToListAsync();
+        }
     }
 }

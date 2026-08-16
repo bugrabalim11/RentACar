@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.EntityFrameworkCore;
 using RentACar.Business.Abstract;
 using RentACar.Core.Entities.Concrete;
@@ -85,8 +83,8 @@ namespace RentACar.Business.Concrete
             }
 
             IResult? result = BusinessRules.Run(
-                await CheckIfOperationClaimExistsForUpdateAsync(operationClaimUpdateDto.Name, operationClaimUpdateDto.Id),
-                CheckIfOperationClaimNameIsAdmin(existingOperationClaim.Name)
+            await CheckIfOperationClaimExistsForUpdateAsync(operationClaimUpdateDto.Name, operationClaimUpdateDto.Id),
+            CheckIfOperationClaimNameIsAdmin(existingOperationClaim.Name)
             );
             if (result != null)
             {

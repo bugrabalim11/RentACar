@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
 using RentACar.Core.Entities.DTOs.UserOperationClaimDtos;
+using System.Security.Claims;
 
 namespace RentACar.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "admin")]
     public class UserOperationClaimsController : ControllerBase
     {
         private readonly IUserOperationClaimService _userOperationClaimService;
@@ -17,7 +18,6 @@ namespace RentACar.API.Controllers
             _userOperationClaimService = userOperationClaimService;
         }
 
-        [Authorize(Roles = "admin")]
         [HttpGet]
         public async Task<IActionResult> GetAllAsync()
         {
@@ -29,7 +29,6 @@ namespace RentACar.API.Controllers
             return BadRequest(results);
         }
 
-        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
@@ -41,7 +40,6 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<IActionResult> AddAsync(UserOperationClaimAddDto userOperationClaimAddDto)
         {
@@ -53,10 +51,11 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [Authorize(Roles = "admin")]
-        [HttpPut]
-        public async Task<IActionResult> UpdateAsync(UserOperationClaimUpdateDto userOperationClaimUpdateDto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateAsync(int id, UserOperationClaimUpdateDto userOperationClaimUpdateDto)
         {
+            if (id != userOperationClaimUpdateDto.Id) return BadRequest("URL'deki ID ile gönderilen Müşteri ID'si eşleşmiyor!");
+
             var result = await _userOperationClaimService.UpdateAsync(userOperationClaimUpdateDto);
             if (result.Success)
             {
@@ -65,7 +64,6 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
@@ -77,8 +75,7 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [Authorize(Roles = "admin")]
-        [HttpGet("Getclaimdetails")]
+        [HttpGet("details")]
         public async Task<IActionResult> GetClaimDetailsAsync()
         {
             var result = await _userOperationClaimService.GetClaimDetailsAsync();

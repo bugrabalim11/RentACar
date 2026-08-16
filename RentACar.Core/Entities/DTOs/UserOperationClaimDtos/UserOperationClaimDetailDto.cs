@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace RentACar.Core.Entities.DTOs.UserOperationClaimDtos
+﻿namespace RentACar.Core.Entities.DTOs.UserOperationClaimDtos
 {
     // Unutma: Bu bir veritabanı tablosu değil (IEntity), bu bir form/tabak (IDto)
     public class UserOperationClaimDetailDto : IDto
