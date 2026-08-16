@@ -54,8 +54,13 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpPut]
-        public async Task<IActionResult> UpdateAsync(ColorUpdateDto colorUpdateDto)
+        public async Task<IActionResult> UpdateAsync(int id, ColorUpdateDto colorUpdateDto)
         {
+            if (id != colorUpdateDto.Id)
+            {
+                return BadRequest("URL'deki ID ile gönderilen renk ID'si eşleşmiyor!");
+            }
+
             var result = await _colorService.UpdateAsync(colorUpdateDto);
             if (result.Success)
             {

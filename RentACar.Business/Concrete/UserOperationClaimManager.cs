@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
+using RentACar.Core.Entities;
 using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Entities.DTOs.UserOperationClaimDtos;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
+using System.Runtime.ConstrainedExecution;
 
 namespace RentACar.Business.Concrete
 {
@@ -74,6 +76,15 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<UserOperationClaimListDto>(userOperationClaimDto, "Yetki ataması başarıyla getirildi.");
         }
 
+        public async Task<IDataResult<List<UserOperationClaimDetailDto>>> GetMyOperationClaimsAsync(int userId)
+        {
+            var myOperationClaims = await _userOperationClaimRepository.GetMyOperationClaimsAsync(userId);
+            // Bir Junior refleksi şudur: "Acaba result == null diye kontrol etmeli miyim?"
+            //Senior Mimar der ki: Hayır! Entity Framework'te ToListAsync() metodu eğer veritabanında
+            //hiçbir kayıt bulamazsa null dönmez; içi boş bir liste (Örn: []) döner. Bu yüzden null kontrolü yapmana gerek yoktur.
+            return new SuccessDataResult<List<UserOperationClaimDetailDto>>(myOperationClaims, "Size ait yetkiler başarıyla getirildi.");
+        }
+
         public async Task<IDataResult<List<UserOperationClaimDetailDto>>> GetClaimDetailsAsync()
         {
             // 1. Telsizle depocuya (Repository) seslen ve özel tabağı (JOIN sorgusunu) iste
@@ -85,20 +96,20 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> UpdateAsync(UserOperationClaimUpdateDto userOperationClaimUpdateDto)
         {
-            IResult? result = BusinessRules.Run(
-            await CheckIfUserHasThisClaimAlreadyForUpdateAsync(userOperationClaimUpdateDto.UserId, userOperationClaimUpdateDto.OperationClaimId, userOperationClaimUpdateDto.Id),
-            await CheckIfOperationClaimExistsAsync(userOperationClaimUpdateDto.OperationClaimId),
-            await CheckIfUserExistsAsync(userOperationClaimUpdateDto.UserId)
-            );
-            if (result != null)
-            {
-                return result;
-            }
-
             var existingUserOperationClaim = await _userOperationClaimRepository.GetAsync(x => x.Id == userOperationClaimUpdateDto.Id);
             if (existingUserOperationClaim == null)
             {
                 return new ErrorResult("Güncellenmek istenen yetki ataması bulunamadı.");
+            }
+
+            IResult? result = BusinessRules.Run(
+            await CheckIfUserHasThisClaimAlreadyForUpdateAsync(existingUserOperationClaim.UserId, userOperationClaimUpdateDto.OperationClaimId, userOperationClaimUpdateDto.Id),
+            await CheckIfOperationClaimExistsAsync(userOperationClaimUpdateDto.OperationClaimId),
+            await CheckIfUserExistsAsync(existingUserOperationClaim.UserId)
+            );
+            if (result != null)
+            {
+                return result;
             }
 
             _mapper.Map(userOperationClaimUpdateDto, existingUserOperationClaim);

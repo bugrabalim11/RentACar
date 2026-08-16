@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
+using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
@@ -74,9 +75,26 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<CustomerDetailDto>(customerDto, "Müşteri başarıyla getirildi.");
         }
 
+        public async Task<IDataResult<CustomerDetailDto>> GetMyCustomerProfileAsync(int userId)
+        {
+            var customer = await _customerRepository.GetCustomerByUserIdWithDetailsAsync(userId);
+            if (customer == null)
+            {
+                return new ErrorDataResult<CustomerDetailDto>("Müşteri bilgileri getirelemedi!");
+            }
+
+            var customerDto = _mapper.Map<CustomerDetailDto>(customer);
+            return new SuccessDataResult<CustomerDetailDto>(customerDto, "Müşteri bilgileri başarıyla getirildi.");
+        }
+
         public async Task<IResult> UpdateAsync(CustomerUpdateDto customerUpdateDto)
         {
             customerUpdateDto.NationalIdentity = customerUpdateDto.NationalIdentity.Trim();
+            var existingCustomer = await _customerRepository.GetAsync(x => x.Id == customerUpdateDto.Id);
+            if (existingCustomer == null)
+            {
+                return new ErrorResult("Güncellenecek müşteri bulunamadı.");
+            }
 
             IResult? result = BusinessRules.Run(await CheckIfNationalIdentityExistsForUpdate(customerUpdateDto.NationalIdentity, customerUpdateDto.Id));
             if (result != null)
@@ -84,14 +102,28 @@ namespace RentACar.Business.Concrete
                 return result;
             }
 
-            var existingCustomer = await _customerRepository.GetAsync(x => x.Id == customerUpdateDto.Id);
+            // Doğru kullanım: Map(Kaynak, Hedef)
+            _mapper.Map(customerUpdateDto, existingCustomer);
+            await _customerRepository.UpdateAsync(existingCustomer);
+            return new SuccessResult("Müşteri başarıyla güncellendi.");
+        }
+
+        public async Task<IResult> UpdateMyProfileAsync(int userId, CustomerUpdateMyProfileDto customerUpdateMyProfileDto)
+        {
+            customerUpdateMyProfileDto.NationalIdentity = customerUpdateMyProfileDto.NationalIdentity.Trim();
+            var existingCustomer = await _customerRepository.GetAsync(x => x.UserId == userId);
             if (existingCustomer == null)
             {
                 return new ErrorResult("Güncellenecek müşteri bulunamadı.");
             }
 
-            // Doğru kullanım: Map(Kaynak, Hedef)
-            _mapper.Map(customerUpdateDto, existingCustomer);
+            IResult? result = BusinessRules.Run(await CheckIfNationalIdentityExistsForUpdate(customerUpdateMyProfileDto.NationalIdentity, existingCustomer.Id));
+            if (result != null)
+            {
+                return result;
+            }
+
+            _mapper.Map(customerUpdateMyProfileDto, existingCustomer);
             await _customerRepository.UpdateAsync(existingCustomer);
             return new SuccessResult("Müşteri başarıyla güncellendi.");
         }

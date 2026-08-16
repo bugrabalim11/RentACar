@@ -7,6 +7,7 @@ namespace RentACar.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "admin")]
     public class OperationClaimsController : ControllerBase
     {
         private readonly IOperationClaimService _operationClaimService;
@@ -16,7 +17,6 @@ namespace RentACar.API.Controllers
             _operationClaimService = operationClaimService;
         }
 
-        [Authorize(Roles = "admin")]
         [HttpGet]
         public async Task<IActionResult> GetAllAsync()
         {
@@ -28,7 +28,6 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [Authorize(Roles = "admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
@@ -40,7 +39,6 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<IActionResult> AddAsync(OperationClaimAddDto operationClaimAddDto)
         {
@@ -52,10 +50,14 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [Authorize(Roles = "admin")]
-        [HttpPut]
-        public async Task<IActionResult> UpdateAsync(OperationClaimUpdateDto operationClaimUpdateDto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateAsync(int id, OperationClaimUpdateDto operationClaimUpdateDto)
         {
+            if(operationClaimUpdateDto.Id != id)
+            {
+                return BadRequest("URL'deki ID ile gönderilen yetki ID'si eşleşmiyor!");
+            }
+
             var result = await _operationClaimService.UpdateAsync(operationClaimUpdateDto);
             if (result.Success)
             {
@@ -64,7 +66,6 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {

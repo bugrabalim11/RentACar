@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
+using RentACar.Core.Entities.Concrete;
 using RentACar.Dtos.CustomerDtos;
-using RentACar.Dtos.RentalDtos;
+using System.Security.Claims;
 
 namespace RentACar.API.Controllers
 {
@@ -30,11 +30,26 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [Authorize]
+        [Authorize(Roles = "admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await _customerService.GetByIdAsync(id);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [Authorize]
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetMyCustomerProfileAsync()
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int userId = Convert.ToInt32(userIdString);
+
+            var result = await _customerService.GetMyCustomerProfileAsync(userId);
             if (result.Success)
             {
                 return Ok(result);
@@ -54,9 +69,31 @@ namespace RentACar.API.Controllers
         //}
 
         [Authorize]
-        [HttpPut]
-        public async Task<IActionResult> UpdateAsync(CustomerUpdateDto customerUpdateDto)
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateAsync(CustomerUpdateMyProfileDto customerUpdateMyProfileDto)
         {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int userId = Convert.ToInt32(userIdString);
+
+            var result = await _customerService.UpdateMyProfileAsync(userId, customerUpdateMyProfileDto);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateForAdmin(int id, CustomerUpdateDto customerUpdateDto)
+        {
+            // Senior Vizyonu: İstek (Request) tutarlılık kontrolü (Controller'ın görevi).
+            // URL'deki kapı numarası ile DTO (Kargo paketi) içindeki ID eşleşiyor mu?
+            if (id != customerUpdateDto.Id)
+            {
+                return BadRequest("URL'deki ID ile gönderilen Müşteri ID'si eşleşmiyor!");
+            }
+
             var result = await _customerService.UpdateAsync(customerUpdateDto);
             if (result.Success)
             {

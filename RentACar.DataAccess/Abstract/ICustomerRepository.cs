@@ -7,5 +7,7 @@ namespace RentACar.DataAccess.Abstract
         Task<List<Customer>> GetCustomersWithDetailsAsync();
 
         Task<Customer?> GetCustomerWithDetailsAsync(int id);
+
+        Task<Customer?> GetCustomerByUserIdWithDetailsAsync(int userId);
     }
 }

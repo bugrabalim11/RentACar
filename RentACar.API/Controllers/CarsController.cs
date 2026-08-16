@@ -7,6 +7,7 @@ namespace RentACar.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "admin")]
     public class CarsController : ControllerBase
     {
         private readonly ICarService _carService;
@@ -16,7 +17,6 @@ namespace RentACar.API.Controllers
             _carService = carService;
         }
 
-        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<IActionResult> AddAsync(CarAddDto carAddDto)
         {
@@ -29,6 +29,7 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetAllAsync()
         {
@@ -41,6 +42,7 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
@@ -52,8 +54,7 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [Authorize(Roles = "admin")]
-        [HttpPut]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync(CarUpdateDto carUpdateDto)
         {
             var result = await _carService.UpdateAsync(carUpdateDto);
@@ -65,7 +66,6 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
