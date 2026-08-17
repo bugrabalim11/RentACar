@@ -35,7 +35,8 @@ namespace RentACar.Business.Concrete
             IResult? result = BusinessRules.Run
             (
             await CheckIfCarAvailable(rentalAddDto.CarId, rentalAddDto.RentDate, rentalAddDto.ReturnDate),
-            await _carService.CheckIfCarExistsAsync(rentalAddDto.CarId)
+            await _carService.CheckIfCarExistsAsync(rentalAddDto.CarId),
+            CheckIfRentDateBeforeToday(rentalAddDto.RentDate)
             );
             if (result != null)
             {
@@ -109,7 +110,8 @@ namespace RentACar.Business.Concrete
             IResult? result = BusinessRules.Run
             (
                 await CheckIfCarAvailableForUpdate(rentalUpdateDto.Id, rentalUpdateDto.CarId, rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate),
-                await _carService.CheckIfCarExistsAsync(rentalUpdateDto.CarId)
+                await _carService.CheckIfCarExistsAsync(rentalUpdateDto.CarId),
+                CheckIfRentDateBeforeToday(rentalUpdateDto.RentDate)
             );
             if (result != null)
             {
@@ -154,6 +156,17 @@ namespace RentACar.Business.Concrete
                 return new ErrorResult("Bu araç, güncellemek istediğiniz tarihler arasında başka bir müşteriye kiralanmıştır.");
             }
             // Alt kural olduğu için sadece "Geçiş İzni" veriyoruz, tebrik mesajına gerek yok.
+            return new SuccessResult();
+        }
+
+        // .Date dediğimizde saati çöpe atar sadece tarihe bakar
+        // Veritabanı sorgusu yapmadığımız için senkron olarak kodladık
+        private IResult CheckIfRentDateBeforeToday(DateTime rentDate)
+        {
+            if (rentDate.Date < DateTime.UtcNow.Date)
+            {
+                return new ErrorResult("Geçmiş bir tarihe kiralama yapılamaz!");
+            }
             return new SuccessResult();
         }
     }
