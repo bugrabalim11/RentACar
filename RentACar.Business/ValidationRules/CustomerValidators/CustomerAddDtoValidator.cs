@@ -7,8 +7,6 @@ namespace RentACar.Business.ValidationRules.CustomerValidators
     {
         public CustomerAddDtoValidator()
         {
-            RuleFor(x => x.UserId).GreaterThan(0).WithMessage("Lütfen geçerli bir kullanıcı seçiniz.");
-
             RuleFor(x => x.NationalIdentity)
                 .NotEmpty().WithMessage("TC kimlik numarası zorunludur.")
                 .Length(11).WithMessage("TC kimlik numarası tam olarak 11 haneli olmak zorundadır.")

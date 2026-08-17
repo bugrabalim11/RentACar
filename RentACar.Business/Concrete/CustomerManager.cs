@@ -21,13 +21,14 @@ namespace RentACar.Business.Concrete
             _userService = userService;
         }
 
-        public async Task<IResult> AddAsync(CustomerAddDto customerAddDto)
+        public async Task<IResult> AddAsync(int userId, CustomerAddDto customerAddDto)
         {
             customerAddDto.NationalIdentity = customerAddDto.NationalIdentity.Trim();
 
             IResult? result = BusinessRules.Run(
-            await CheckIfUserExistsAsync(customerAddDto.UserId),
-            await CheckAlreadyExistCustomer(customerAddDto.UserId),
+            await CheckIfUserAlreadyHasCustomerProfileAsync(userId),
+            await CheckIfUserExistsAsync(userId),
+            await CheckAlreadyExistCustomer(userId),
             await CheckIfNationalIdentityExists(customerAddDto.NationalIdentity)
             );
 
@@ -37,6 +38,7 @@ namespace RentACar.Business.Concrete
             }
 
             var customer = _mapper.Map<Customer>(customerAddDto);
+            customer.UserId = userId;
             await _customerRepository.AddAsync(customer);
             return new SuccessResult("Müşteri başarıyla eklendi.");
         }
@@ -163,6 +165,16 @@ namespace RentACar.Business.Concrete
             if (existingNationalId)
             {
                 return new ErrorResult("Bu kimlik numarası zaten kayıtlı! Lütfen tekrar deneyiniz.");
+            }
+            return new SuccessResult();
+        }
+
+        private async Task<IResult> CheckIfUserAlreadyHasCustomerProfileAsync(int userId)
+        {
+            bool customerIsExist = await _customerRepository.AnyAsync(x => x.UserId == userId);
+            if (customerIsExist)
+            {
+                return new ErrorResult("Sistemde zaten bir müşteri profiliniz bulunmaktadır!");
             }
             return new SuccessResult();
         }

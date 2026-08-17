@@ -57,16 +57,21 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        //[HttpPost]
-        //public async Task<IActionResult> Add(CustomerAddDto customerAddDto)
-        //{
-        //    var result = await _customerService.AddAsync(customerAddDto);
-        //    if (result.Success)
-        //    {
-        //        return Ok(result);
-        //    }
-        //    return BadRequest(result);
-        //}
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> Add(CustomerAddDto customerAddDto)
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString)) return Unauthorized("Kimlik doğrulama hatası!");
+            int userId = Convert.ToInt32(userIdString);
+
+            var result = await _customerService.AddAsync(userId, customerAddDto);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
 
         [Authorize]
         [HttpPut("profile")]
