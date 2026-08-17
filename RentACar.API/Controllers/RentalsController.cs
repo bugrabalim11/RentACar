@@ -50,10 +50,27 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> GetMyRentalsAsync()
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString)) return Unauthorized("Kimlik doğrulama hatası!");
             int userId = Convert.ToInt32(userIdString);
 
             var result = await _rentalService.GetAllByUserIdAsync(userId);
             if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [Authorize]
+        [HttpGet("getmyrental/{rentalId}")]
+        public async Task<IActionResult> GetMyRentalByIdAsync(int rentalId)
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString)) return Unauthorized("Kimlik doğrulama hatası!");
+            int userId = Convert.ToInt32(userIdString);
+
+            var result = await _rentalService.GetMyRentalByIdAsync(rentalId, userId);
+            if(result.Success)
             {
                 return Ok(result);
             }
