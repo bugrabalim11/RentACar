@@ -21,7 +21,11 @@ namespace RentACar.API.Controllers
         [HttpPost]
         public async Task<IActionResult> AddAsync(RentalAddDto rentalAddDto)
         {
-            var result = await _rentalService.AddAsync(rentalAddDto);
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString)) return Unauthorized("Kimlik doğrulama hatası!");
+            int userId = Convert.ToInt32(userIdString);
+
+            var result = await _rentalService.AddAsync(rentalAddDto, userId);
             if (result.Success)
             {
                 return Ok(result);

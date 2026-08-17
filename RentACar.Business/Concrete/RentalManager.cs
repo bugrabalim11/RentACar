@@ -13,14 +13,16 @@ namespace RentACar.Business.Concrete
         private readonly IRentalRepository _rentalRepository;
         private readonly IMapper _mapper;
         private readonly ICarService _carService;
-        public RentalManager(IRentalRepository rentalRepository, IMapper mapper, ICarService carService)
+        private readonly ICustomerService _customerService;
+        public RentalManager(IRentalRepository rentalRepository, IMapper mapper, ICarService carService, ICustomerService customerService)
         {
             _rentalRepository = rentalRepository;
             _mapper = mapper;
             _carService = carService;
+            _customerService = customerService;
         }
 
-        public async Task<IResult> AddAsync(RentalAddDto rentalAddDto)
+        public async Task<IResult> AddAsync(RentalAddDto rentalAddDto, int userId)
         {
             // --- POSTGRESQL ZAMAN DİLİMİ KURALI (UTC) ---
             // PostgreSQL, saat dilimi belirtilmemiş (Kind=Unspecified) tarihleri kabul etmez.
@@ -30,6 +32,12 @@ namespace RentACar.Business.Concrete
             if (rentalAddDto.ReturnDate.HasValue)
             {
                 rentalAddDto.ReturnDate = rentalAddDto.ReturnDate.Value.ToUniversalTime();
+            }
+
+            var customerResult = await _customerService.GetMyCustomerProfileAsync(userId);
+            if (!customerResult.Success)
+            {
+                return new ErrorResult("Kiralama yapabilmek için lütfen ilk önce müşteri profilinizi oluşturun!");
             }
 
             IResult? result = BusinessRules.Run
@@ -44,6 +52,7 @@ namespace RentACar.Business.Concrete
             }
 
             var rental = _mapper.Map<Rental>(rentalAddDto);
+            rental.CustomerId = customerResult.Data.Id;
             await _rentalRepository.AddAsync(rental);
             return new SuccessResult("Araç kiralama başarıyla eklendi.");
         }

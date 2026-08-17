@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
-using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;

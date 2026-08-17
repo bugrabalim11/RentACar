@@ -9,7 +9,7 @@ namespace RentACar.Business.Abstract
         Task<IDataResult<RentalListDto>> GetByIdAsync(int id);
         Task<IDataResult<List<RentalListDto>>> GetAllByUserIdAsync(int userId);
         Task<IResult> CheckIfAnyRentalExistsByOfficeIdAsync(int officeId);
-        Task<IResult> AddAsync(RentalAddDto rentalAddDto);
+        Task<IResult> AddAsync(RentalAddDto rentalAddDto, int userId);
         Task<IResult> UpdateAsync(RentalUpdateDto rentalUpdateDto);
         Task<IResult> DeleteAsync(int id);
     }
