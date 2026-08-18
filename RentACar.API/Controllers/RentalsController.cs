@@ -18,7 +18,7 @@ namespace RentACar.API.Controllers
         }
 
         [Authorize]
-        [HttpPost]
+        [HttpPost("rental")]
         public async Task<IActionResult> AddAsync(RentalAddDto rentalAddDto)
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -30,7 +30,7 @@ namespace RentACar.API.Controllers
             {
                 return Ok(result);
             }
-            return BadRequest(result);
+            return BadRequest(result); 
         }
 
         [Authorize(Roles = "admin")]

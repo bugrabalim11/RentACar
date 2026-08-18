@@ -135,6 +135,7 @@ namespace RentACar.Business.Concrete
 
             IResult? result = BusinessRules.Run
             (
+                CheckIfRentalIsAlreadyCompleted(existingRental.ReturnDate),
                 await CheckIfCarAvailableForUpdate(rentalUpdateDto.Id, rentalUpdateDto.CarId, rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate),
                 await _carService.CheckIfCarExistsAsync(rentalUpdateDto.CarId),
                 CheckIfRentDateBeforeToday(rentalUpdateDto.RentDate)
@@ -163,6 +164,7 @@ namespace RentACar.Business.Concrete
 
             IResult? result = BusinessRules.Run
             (
+                CheckIfRentalIsAlreadyCompleted(existingRental.ReturnDate),
                 CheckIfReturnDateIsAfterRentDate(existingRental.RentDate, rentalUpdateReturnDateDto.ReturnDate),
                 await CheckIfCarAvailableForUpdate(rentalId, existingRental.CarId, existingRental.RentDate, rentalUpdateReturnDateDto.ReturnDate)
             );
@@ -228,6 +230,24 @@ namespace RentACar.Business.Concrete
             if (returnDate.Date < rentDate.Date)
             {
                 return new ErrorResult("Dönüş tarihi, kiralama başlangıç tarihinden önce olamaz!");
+            }
+            return new SuccessResult();
+        }
+
+        private IResult CheckIfRentalIsAlreadyCompleted(DateTime? returnDate)
+        {
+            // Kural 1: Araç henüz teslim edilmemiş (ucu açık kiralama). Güncellemeye izin ver.
+            if (returnDate == null)
+            {
+                return new SuccessResult();
+            }
+
+            // Kural 2: Dönüş tarihi UTC olarak şu andan küçükse, bu dosya arşive kalkmıştır.
+            // Not: returnDate nullable (DateTime?) olduğu için, içindeki salt tarihe ulaşmak zorundayız. 
+            // Yukarıda null kontrolünü geçtiğimiz için burada gönül rahatlığıyla .Value diyerek içindeki tarihi çekebiliyoruz.
+            if (returnDate.Value < DateTime.UtcNow)
+            {
+                return new ErrorResult("Sona ermiş veya geçmişteki bir kiralama kaydını güncelleyemezsiniz!");
             }
             return new SuccessResult();
         }
