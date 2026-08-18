@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
+using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
@@ -20,15 +21,32 @@ namespace RentACar.Business.Concrete
             _mapper = mapper;
             _userService = userService;
         }
+        public async Task<IResult> AddForAdminAsync(CustomerAddByAdminDto customerAddByAdminDto)
+        {
+            customerAddByAdminDto.NationalIdentity = customerAddByAdminDto.NationalIdentity.Trim();
+
+            IResult? result = BusinessRules.Run(
+            await CheckIfUserExistsAsync(customerAddByAdminDto.UserId),
+            await CheckIfUserAlreadyHasCustomerProfileAsync(customerAddByAdminDto.UserId),
+            await CheckIfNationalIdentityExists(customerAddByAdminDto.NationalIdentity)
+            );
+            if (result != null)
+            {
+                return result;
+            }
+
+            var customer = _mapper.Map<Customer>(customerAddByAdminDto);
+            await _customerRepository.AddAsync(customer);
+            return new SuccessResult("Müşteri profili başarıyla oluşturuldu.");
+        }
 
         public async Task<IResult> AddAsync(int userId, CustomerAddDto customerAddDto)
         {
             customerAddDto.NationalIdentity = customerAddDto.NationalIdentity.Trim();
 
             IResult? result = BusinessRules.Run(
-            await CheckIfUserAlreadyHasCustomerProfileAsync(userId),
             await CheckIfUserExistsAsync(userId),
-            await CheckAlreadyExistCustomer(userId),
+            await CheckIfUserAlreadyHasCustomerProfileAsync(userId),
             await CheckIfNationalIdentityExists(customerAddDto.NationalIdentity)
             );
 
@@ -139,16 +157,6 @@ namespace RentACar.Business.Concrete
             return new SuccessResult();
         }
 
-        private async Task<IResult> CheckAlreadyExistCustomer(int UserId)
-        {
-            bool existingCustomer = await _customerRepository.AnyAsync(x => x.UserId == UserId);
-            if (existingCustomer)
-            {
-                return new ErrorResult("Bu kullanıcı sistemde müşteri olarak kayıtlı. Lütfen başka kullancı giriniz!");
-            }
-            return new SuccessResult();
-        }
-
         private async Task<IResult> CheckIfNationalIdentityExistsForUpdate(string nationalId, int currentCustomerId)
         {
             bool existingNationalId = await _customerRepository.AnyAsync(x => x.NationalIdentity == nationalId && x.Id != currentCustomerId);
@@ -174,7 +182,7 @@ namespace RentACar.Business.Concrete
             bool customerIsExist = await _customerRepository.AnyAsync(x => x.UserId == userId);
             if (customerIsExist)
             {
-                return new ErrorResult("Sistemde zaten bir müşteri profiliniz bulunmaktadır!");
+                return new ErrorResult("Bu kullanıcıya ait bir müşteri profili sistemde zaten mevcut!");
             }
             return new SuccessResult();
         }

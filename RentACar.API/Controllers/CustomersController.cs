@@ -57,15 +57,11 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [Authorize]
+        [Authorize(Roles = "admin")]
         [HttpPost]
-        public async Task<IActionResult> Add(CustomerAddDto customerAddDto)
+        public async Task<IActionResult> AddForAdminAsync(CustomerAddByAdminDto customerAddByAdminDto)
         {
-            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdString)) return Unauthorized("Kimlik doğrulama hatası!");
-            int userId = Convert.ToInt32(userIdString);
-
-            var result = await _customerService.AddAsync(userId, customerAddDto);
+            var result = await _customerService.AddForAdminAsync(customerAddByAdminDto);
             if (result.Success)
             {
                 return Ok(result);
@@ -73,51 +69,67 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [Authorize]
-        [HttpPut("profile")]
-        public async Task<IActionResult> UpdateAsync(CustomerUpdateMyProfileDto customerUpdateMyProfileDto)
-        {
-            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdString)) return Unauthorized("Kimlik doğrulama hatası!");
-            int userId = Convert.ToInt32(userIdString);
-
-            var result = await _customerService.UpdateMyProfileAsync(userId, customerUpdateMyProfileDto);
-            if (result.Success)
+            [Authorize]
+            [HttpPost("profile")]
+            public async Task<IActionResult> Add(CustomerAddDto customerAddDto)
             {
-                return Ok(result);
-            }
-            return BadRequest(result);
-        }
+                var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdString)) return Unauthorized("Kimlik doğrulama hatası!");
+                int userId = Convert.ToInt32(userIdString);
 
-        [Authorize(Roles = "admin")]
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateForAdmin(int id, CustomerUpdateDto customerUpdateDto)
-        {
-            // Senior Vizyonu: İstek (Request) tutarlılık kontrolü (Controller'ın görevi).
-            // URL'deki kapı numarası ile DTO (Kargo paketi) içindeki ID eşleşiyor mu?
-            if (id != customerUpdateDto.Id)
-            {
-                return BadRequest("URL'deki ID ile gönderilen müşteri ID'si eşleşmiyor!");
+                var result = await _customerService.AddAsync(userId, customerAddDto);
+                if (result.Success)
+                {
+                    return Ok(result);
+                }
+                return BadRequest(result);
             }
 
-            var result = await _customerService.UpdateAsync(customerUpdateDto);
-            if (result.Success)
+            [Authorize]
+            [HttpPut("profile")]
+            public async Task<IActionResult> UpdateAsync(CustomerUpdateMyProfileDto customerUpdateMyProfileDto)
             {
-                return Ok(result);
-            }
-            return BadRequest(result);
-        }
+                var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdString)) return Unauthorized("Kimlik doğrulama hatası!");
+                int userId = Convert.ToInt32(userIdString);
 
-        [Authorize(Roles = "admin")]
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(int id)
-        {
-            var result = await _customerService.DeleteAsync(id);
-            if (result.Success)
-            {
-                return Ok(result);
+                var result = await _customerService.UpdateMyProfileAsync(userId, customerUpdateMyProfileDto);
+                if (result.Success)
+                {
+                    return Ok(result);
+                }
+                return BadRequest(result);
             }
-            return BadRequest(result);
+
+            [Authorize(Roles = "admin")]
+            [HttpPut("{id}")]
+            public async Task<IActionResult> UpdateForAdmin(int id, CustomerUpdateDto customerUpdateDto)
+            {
+                // Senior Vizyonu: İstek (Request) tutarlılık kontrolü (Controller'ın görevi).
+                // URL'deki kapı numarası ile DTO (Kargo paketi) içindeki ID eşleşiyor mu?
+                if (id != customerUpdateDto.Id)
+                {
+                    return BadRequest("URL'deki ID ile gönderilen müşteri ID'si eşleşmiyor!");
+                }
+
+                var result = await _customerService.UpdateAsync(customerUpdateDto);
+                if (result.Success)
+                {
+                    return Ok(result);
+                }
+                return BadRequest(result);
+            }
+
+            [Authorize(Roles = "admin")]
+            [HttpDelete("{id}")]
+            public async Task<IActionResult> DeleteAsync(int id)
+            {
+                var result = await _customerService.DeleteAsync(id);
+                if (result.Success)
+                {
+                    return Ok(result);
+                }
+                return BadRequest(result);
+            }
         }
     }
-}
