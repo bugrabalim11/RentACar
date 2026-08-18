@@ -11,6 +11,7 @@ namespace RentACar.Business.Abstract
         Task<IDataResult<RentalListDto>> GetMyRentalByIdAsync(int rentalId, int userId);
         Task<IResult> CheckIfAnyRentalExistsByOfficeIdAsync(int officeId);
         Task<IResult> AddAsync(RentalAddDto rentalAddDto, int userId);
+        Task<IResult> AddByAdminAsync(RentalAddByAdminDto rentalAddByAdminDto);
         Task<IResult> UpdateAsync(RentalUpdateDto rentalUpdateDto);
         Task<IResult> UpdateMyRentalAsync(int userId, int rentalId, RentalUpdateReturnDateDto rentalUpdateReturnDateDto);
         Task<IResult> DeleteAsync(int id);

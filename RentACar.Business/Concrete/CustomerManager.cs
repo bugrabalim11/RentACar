@@ -178,6 +178,16 @@ namespace RentACar.Business.Concrete
             }
             return new SuccessResult();
         }
+
+        public async Task<IResult> CheckIfCustomerExistsByIdAsync(int customerId)
+        {
+            bool customerIsExist = await _customerRepository.AnyAsync(x => x.Id == customerId);
+            if (!customerIsExist)
+            {
+                return new ErrorResult("Sistemde böyle bir müşteri yok devam etmek için lütfen oluşturun!");
+            }
+            return new SuccessResult();
+        }
     }
 
 }

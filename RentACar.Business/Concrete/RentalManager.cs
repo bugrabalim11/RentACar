@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
+using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
@@ -24,24 +25,27 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> AddAsync(RentalAddDto rentalAddDto, int userId)
         {
-            // --- POSTGRESQL ZAMAN DİLİMİ KURALI (UTC) ---
-            // PostgreSQL, saat dilimi belirtilmemiş (Kind=Unspecified) tarihleri kabul etmez.
-            // Frontend veya Swagger'dan gelen saf tarihleri veritabanı deposuna göndermeden önce,
-            // Gümrük kurallarına uymak adına Evrensel Saate (UTC) dönüştürerek standartlaştırıyoruz.
-            rentalAddDto.RentDate = rentalAddDto.RentDate.ToUniversalTime();
+            // 1. RentDate (Başlangıç tarihi) zaten boş olamaz (Nullable değil). Ona direkt etiketi bas:
+            rentalAddDto.RentDate = DateTime.SpecifyKind(rentalAddDto.RentDate, DateTimeKind.Utc);
+            // 2. ReturnDate (Bitiş tarihi) bir kutu (Nullable). Kutuyu salla:
             if (rentalAddDto.ReturnDate.HasValue)
             {
-                rentalAddDto.ReturnDate = rentalAddDto.ReturnDate.Value.ToUniversalTime();
+                // Kutu doluysa: Kutunun içindeki SAATİ (.Value) al, ona UTC etiketini bas 
+                // ve kutunun içine yeni UTC'li haliyle geri koy!
+                rentalAddDto.ReturnDate = DateTime.SpecifyKind(rentalAddDto.ReturnDate.Value, DateTimeKind.Utc);
             }
 
+            // 1. ADIM: VATANDAŞI (User) MÜŞTERİYE (Customer) ÇEVİRME
+            // Token'dan sadece UserId (Vatandaş Kimliği) geliyor. Ancak kiralama tablosu (Rental)
+            // işlemleri CustomerId (Müşteri Dosyası) üzerinden yapar.
+            // Bu yüzden UserId ile veritabanına gidip adamın Müşteri Profilini (Dosyasını) buluyoruz.
             var customerResult = await _customerService.GetMyCustomerProfileAsync(userId);
             if (!customerResult.Success)
             {
                 return new ErrorResult("Kiralama yapabilmek için lütfen ilk önce müşteri profilinizi oluşturun!");
             }
 
-            IResult? result = BusinessRules.Run
-            (
+            IResult? result = BusinessRules.Run(
             await CheckIfCarAvailable(rentalAddDto.CarId, rentalAddDto.RentDate, rentalAddDto.ReturnDate),
             await _carService.CheckIfCarExistsAsync(rentalAddDto.CarId),
             CheckIfRentDateBeforeToday(rentalAddDto.RentDate)
@@ -52,9 +56,33 @@ namespace RentACar.Business.Concrete
             }
 
             var rental = _mapper.Map<Rental>(rentalAddDto);
+            // 2. ADIM: DOSYA NUMARASINI ZIMBALAMA
+            // Arşiv memurunun bize getirdiği dosyanın içindeki Müşteri Numarasını (Data.Id),
+            // yeni kiralama faturamızın (rental) üzerine kalıcı olarak zımbalıyoruz.
             rental.CustomerId = customerResult.Data.Id;
             await _rentalRepository.AddAsync(rental);
-            return new SuccessResult("Araç kiralama başarıyla eklendi.");
+            return new SuccessResult("Araç kiralama başarıyla oluşturuldu.");
+        }
+
+        public async Task<IResult> AddByAdminAsync(RentalAddByAdminDto rentalAddByAdminDto)
+        {
+            rentalAddByAdminDto.ReturnDate = DateTime.SpecifyKind(rentalAddByAdminDto.ReturnDate, DateTimeKind.Utc);
+            rentalAddByAdminDto.RentDate = DateTime.SpecifyKind(rentalAddByAdminDto.RentDate, DateTimeKind.Utc);
+
+            IResult? result = BusinessRules.Run(
+            await _customerService.CheckIfCustomerExistsByIdAsync(rentalAddByAdminDto.CustomerId),
+            await CheckIfCarAvailable(rentalAddByAdminDto.CarId, rentalAddByAdminDto.RentDate, rentalAddByAdminDto.ReturnDate),
+            await _carService.CheckIfCarExistsAsync(rentalAddByAdminDto.CarId),
+            CheckIfRentDateBeforeToday(rentalAddByAdminDto.RentDate)
+            );
+            if (result != null)
+            {
+                return result;
+            }
+
+            var rental = _mapper.Map<Rental>(rentalAddByAdminDto);
+            await _rentalRepository.AddAsync(rental);
+            return new SuccessResult("Araç kiralama başarıyla oluşturuldu.");
         }
 
         public async Task<IResult> DeleteAsync(int id)

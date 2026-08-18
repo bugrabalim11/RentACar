@@ -16,6 +16,7 @@ namespace RentACar.Business.Profiles
                 .ForMember(dest => dest.CustomerLastName, opt => opt.MapFrom(src => src.Customer.User.LastName));
 
             CreateMap<RentalAddDto, Rental>();
+            CreateMap<RentalAddByAdminDto, Rental>();
             CreateMap<RentalUpdateDto, Rental>();
         }
     }

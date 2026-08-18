@@ -17,6 +17,18 @@ namespace RentACar.API.Controllers
             _rentalService = rentalService;
         }
 
+        [Authorize(Roles = "admin")]
+        [HttpPost]
+        public async Task<IActionResult> AddByAdminAsync(RentalAddByAdminDto rentalAddByAdminDto)
+        {
+            var result = await _rentalService.AddByAdminAsync(rentalAddByAdminDto);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
         [Authorize]
         [HttpPost("rental")]
         public async Task<IActionResult> AddAsync(RentalAddDto rentalAddDto)
@@ -30,7 +42,7 @@ namespace RentACar.API.Controllers
             {
                 return Ok(result);
             }
-            return BadRequest(result); 
+            return BadRequest(result);
         }
 
         [Authorize(Roles = "admin")]
@@ -95,7 +107,7 @@ namespace RentACar.API.Controllers
         {
             if (id != rentalUpdateDto.Id)
             {
-                return BadRequest("URL'deki ID ile gönderilen müşteri ID'si eşleşmiyor!");
+                return BadRequest("URL'deki ID ile gönderilen kiralama ID'si eşleşmiyor!");
             }
 
             var result = await _rentalService.UpdateAsync(rentalUpdateDto);
@@ -108,7 +120,7 @@ namespace RentACar.API.Controllers
 
         [Authorize]
         [HttpPut("rental/{rentalId}")]
-        public async Task<IActionResult> UpdateMyRental(int rentalId, RentalUpdateReturnDateDto rentalUpdateReturnDateDto)
+        public async Task<IActionResult> UpdateMyRentalAsync(int rentalId, RentalUpdateReturnDateDto rentalUpdateReturnDateDto)
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdString)) return Unauthorized("Kimlik doğrulama hatası!");
