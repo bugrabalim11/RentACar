@@ -149,6 +149,33 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Araç kiralama başarıyla güncellendi.");
         }
 
+        public async Task<IResult> UpdateMyRentalAsync(int userId, int rentalId, RentalUpdateReturnDateDto rentalUpdateReturnDateDto)
+        {
+            rentalUpdateReturnDateDto.ReturnDate = DateTime.SpecifyKind(rentalUpdateReturnDateDto.ReturnDate, DateTimeKind.Utc);
+
+            var existingRental = await _rentalRepository.GetRentalWithDetailsByIdAsync(rentalId);
+            if (existingRental == null) return new ErrorResult("Kiralama bulunamadı!");
+
+            if (existingRental.Customer.UserId != userId)
+            {
+                return new ErrorResult("Bu kiralamayı güncellemeye yetkiniz yok!");
+            }
+
+            IResult? result = BusinessRules.Run
+            (
+                CheckIfReturnDateIsAfterRentDate(existingRental.RentDate, rentalUpdateReturnDateDto.ReturnDate),
+                await CheckIfCarAvailableForUpdate(rentalId, existingRental.CarId, existingRental.RentDate, rentalUpdateReturnDateDto.ReturnDate)
+            );
+            if (result != null)
+            {
+                return result;
+            }
+
+            existingRental.ReturnDate = rentalUpdateReturnDateDto.ReturnDate;
+            await _rentalRepository.UpdateAsync(existingRental);
+            return new SuccessResult("Araç teslim tarihiniz başarıyla güncellendi.");
+        }
+
         public async Task<IResult> CheckIfAnyRentalExistsByOfficeIdAsync(int officeId)
         {
             bool result = await _rentalRepository.AnyAsync(x => x.PickUpOfficeId == officeId || x.DropOffOfficeId == officeId);
@@ -192,6 +219,15 @@ namespace RentACar.Business.Concrete
             if (rentDate.Date < DateTime.UtcNow.Date)
             {
                 return new ErrorResult("Geçmiş bir tarihe kiralama yapılamaz!");
+            }
+            return new SuccessResult();
+        }
+
+        private IResult CheckIfReturnDateIsAfterRentDate(DateTime rentDate, DateTime returnDate)
+        {
+            if (returnDate.Date < rentDate.Date)
+            {
+                return new ErrorResult("Dönüş tarihi, kiralama başlangıç tarihinden önce olamaz!");
             }
             return new SuccessResult();
         }

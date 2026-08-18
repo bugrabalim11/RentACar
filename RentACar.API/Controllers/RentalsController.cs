@@ -46,7 +46,7 @@ namespace RentACar.API.Controllers
         }
 
         [Authorize]
-        [HttpGet("getmyrentals")]
+        [HttpGet("rentals")]
         public async Task<IActionResult> GetMyRentalsAsync()
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -62,7 +62,7 @@ namespace RentACar.API.Controllers
         }
 
         [Authorize]
-        [HttpGet("getmyrental/{rentalId}")]
+        [HttpGet("rental/{rentalId}")]
         public async Task<IActionResult> GetMyRentalByIdAsync(int rentalId)
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -70,7 +70,7 @@ namespace RentACar.API.Controllers
             int userId = Convert.ToInt32(userIdString);
 
             var result = await _rentalService.GetMyRentalByIdAsync(rentalId, userId);
-            if(result.Success)
+            if (result.Success)
             {
                 return Ok(result);
             }
@@ -90,10 +90,31 @@ namespace RentACar.API.Controllers
         }
 
         [Authorize(Roles = "admin")]
-        [HttpPut]
-        public async Task<IActionResult> UpdateAsync(RentalUpdateDto rentalUpdateDto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateAsync(int id, RentalUpdateDto rentalUpdateDto)
         {
+            if (id != rentalUpdateDto.Id)
+            {
+                return BadRequest("URL'deki ID ile gönderilen müşteri ID'si eşleşmiyor!");
+            }
+
             var result = await _rentalService.UpdateAsync(rentalUpdateDto);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [Authorize]
+        [HttpPut("rental/{rentalId}")]
+        public async Task<IActionResult> UpdateMyRental(int rentalId, RentalUpdateReturnDateDto rentalUpdateReturnDateDto)
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString)) return Unauthorized("Kimlik doğrulama hatası!");
+            int userId = Convert.ToInt32(userIdString);
+
+            var result = await _rentalService.UpdateMyRentalAsync(userId, rentalId, rentalUpdateReturnDateDto);
             if (result.Success)
             {
                 return Ok(result);
