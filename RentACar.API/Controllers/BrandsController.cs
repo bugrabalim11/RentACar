@@ -61,7 +61,7 @@ namespace RentACar.API.Controllers
         {
             if (id != brandUpdateDto.Id)
             {
-                return BadRequest("URL'deki ID ile gönderilen marka ID'si eşleşmiyor!");
+                return BadRequest("Güvenlik İhlali: URL'deki ID ile gönderilen marka ID'si eşleşmiyor!");
             }
 
             var result = await _brandService.UpdateAsync(brandUpdateDto);

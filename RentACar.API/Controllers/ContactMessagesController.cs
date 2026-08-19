@@ -1,14 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
-using RentACar.Core.Utilities.Results;
 using RentACar.Dtos.ContactMessageDtos;
 
 namespace RentACar.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "admin")]
     public class ContactMessagesController : ControllerBase
     {
         private readonly IContactMessageService _contactMessageService;
@@ -18,7 +17,6 @@ namespace RentACar.API.Controllers
             _contactMessageService = contactMessageService;
         }
 
-        [Authorize(Roles = "admin")]
         [HttpGet]
         public async Task<IActionResult> GetAllAsync()
         {
@@ -30,7 +28,6 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [Authorize(Roles = "admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
@@ -42,6 +39,7 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> AddAsync(ContactMessageAddDto contactMessageAddDto)
         {
@@ -53,7 +51,6 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
@@ -65,7 +62,6 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [Authorize(Roles = "admin")]
         [HttpPatch("ChangeIsReadStatus/{id}")]
         public async Task<IActionResult> ChangeIsReadStatusAsync(int id)
         {

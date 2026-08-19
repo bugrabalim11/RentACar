@@ -1,8 +1,5 @@
 ﻿using FluentValidation;
 using RentACar.Dtos.ContactMessageDtos;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RentACar.Business.ValidationRules.ContactMessageValidators
 {

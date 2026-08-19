@@ -12,43 +12,78 @@ namespace RentACar.Business.Concrete
     {
         private readonly IRentalRepository _rentalRepository;
         private readonly IMapper _mapper;
-        public RentalManager(IRentalRepository rentalRepository, IMapper mapper)
+        private readonly ICarService _carService;
+        private readonly ICustomerService _customerService;
+        public RentalManager(IRentalRepository rentalRepository, IMapper mapper, ICarService carService, ICustomerService customerService)
         {
             _rentalRepository = rentalRepository;
             _mapper = mapper;
+            _carService = carService;
+            _customerService = customerService;
         }
 
-        public async Task<IResult> AddAsync(RentalAddDto rentalAddDto)
+        public async Task<IResult> AddAsync(RentalAddDto rentalAddDto, int userId)
         {
-            // --- POSTGRESQL ZAMAN DİLİMİ KURALI (UTC) ---
-            // PostgreSQL, saat dilimi belirtilmemiş (Kind=Unspecified) tarihleri kabul etmez.
-            // Frontend veya Swagger'dan gelen saf tarihleri veritabanı deposuna göndermeden önce,
-            // Gümrük kurallarına uymak adına Evrensel Saate (UTC) dönüştürerek standartlaştırıyoruz.
-            rentalAddDto.RentDate = rentalAddDto.RentDate.ToUniversalTime();
+            // 1. RentDate (Başlangıç tarihi) zaten boş olamaz (Nullable değil). Ona direkt etiketi bas:
+            rentalAddDto.RentDate = DateTime.SpecifyKind(rentalAddDto.RentDate, DateTimeKind.Utc);
+            // 2. ReturnDate (Bitiş tarihi) bir kutu (Nullable). Kutuyu salla:
             if (rentalAddDto.ReturnDate.HasValue)
             {
-                rentalAddDto.ReturnDate = rentalAddDto.ReturnDate.Value.ToUniversalTime();
+                // Kutu doluysa: Kutunun içindeki SAATİ (.Value) al, ona UTC etiketini bas 
+                // ve kutunun içine yeni UTC'li haliyle geri koy!
+                rentalAddDto.ReturnDate = DateTime.SpecifyKind(rentalAddDto.ReturnDate.Value, DateTimeKind.Utc);
             }
 
-            IResult? result = BusinessRules.Run(await CheckIfCarAvailable(rentalAddDto.CarId, rentalAddDto.RentDate, rentalAddDto.ReturnDate));
+            // 1. ADIM: VATANDAŞI (User) MÜŞTERİYE (Customer) ÇEVİRME
+            // Token'dan sadece UserId (Vatandaş Kimliği) geliyor. Ancak kiralama tablosu (Rental)
+            // işlemleri CustomerId (Müşteri Dosyası) üzerinden yapar.
+            // Bu yüzden UserId ile veritabanına gidip adamın Müşteri Profilini (Dosyasını) buluyoruz.
+            var customerResult = await _customerService.GetMyCustomerProfileAsync(userId);
+            if (!customerResult.Success)
+            {
+                return new ErrorResult("Kiralama yapabilmek için lütfen ilk önce müşteri profilinizi oluşturun!");
+            }
+
+            IResult? result = BusinessRules.Run(
+            CheckIfRentDateBeforeToday(rentalAddDto.RentDate),
+            await _carService.CheckIfCarExistsAsync(rentalAddDto.CarId),
+            await CheckIfCustomerDrivingExperienceIsSufficient(rentalAddDto.CarId, customerResult.Data.Id),
+            await CheckIfCarAvailable(rentalAddDto.CarId, rentalAddDto.RentDate, rentalAddDto.ReturnDate)
+            );
             if (result != null)
             {
                 return result;
             }
 
             var rental = _mapper.Map<Rental>(rentalAddDto);
+            // 2. ADIM: DOSYA NUMARASINI ZIMBALAMA
+            // Arşiv memurunun bize getirdiği dosyanın içindeki Müşteri Numarasını (Data.Id),
+            // yeni kiralama faturamızın (rental) üzerine kalıcı olarak zımbalıyoruz.
+            rental.CustomerId = customerResult.Data.Id;
             await _rentalRepository.AddAsync(rental);
-            return new SuccessResult("Araç kiralama başarıyla eklendi.");
+            return new SuccessResult("Araç kiralama başarıyla oluşturuldu.");
         }
 
-        public async Task<IResult> CheckIfAnyRentalExistsByOfficeIdAsync(int officeId)
+        public async Task<IResult> AddByAdminAsync(RentalAddByAdminDto rentalAddByAdminDto)
         {
-            bool result = await _rentalRepository.AnyAsync(x => x.PickUpOfficeId == officeId || x.DropOffOfficeId == officeId);
-            if (result)
+            rentalAddByAdminDto.ReturnDate = DateTime.SpecifyKind(rentalAddByAdminDto.ReturnDate, DateTimeKind.Utc);
+            rentalAddByAdminDto.RentDate = DateTime.SpecifyKind(rentalAddByAdminDto.RentDate, DateTimeKind.Utc);
+
+            IResult? result = BusinessRules.Run(
+            CheckIfRentDateBeforeToday(rentalAddByAdminDto.RentDate),
+            await _customerService.CheckIfCustomerExistsByIdAsync(rentalAddByAdminDto.CustomerId),
+            await _carService.CheckIfCarExistsAsync(rentalAddByAdminDto.CarId),
+            await CheckIfCustomerDrivingExperienceIsSufficient(rentalAddByAdminDto.CarId, rentalAddByAdminDto.CustomerId),
+            await CheckIfCarAvailable(rentalAddByAdminDto.CarId, rentalAddByAdminDto.RentDate, rentalAddByAdminDto.ReturnDate)
+            );
+            if (result != null)
             {
-                return new ErrorResult("Ofise ait kiralama işlemleri mevcut, bu yüzden silinemez!");
+                return result;
             }
-            return new SuccessResult();
+
+            var rental = _mapper.Map<Rental>(rentalAddByAdminDto);
+            await _rentalRepository.AddAsync(rental);
+            return new SuccessResult("Araç kiralama başarıyla oluşturuldu.");
         }
 
         public async Task<IResult> DeleteAsync(int id)
@@ -84,6 +119,23 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<List<RentalListDto>>(mappedRentals, "Kullanıcıya ait kiralama işlemleri başarıyla listelendi.");
         }
 
+        public async Task<IDataResult<RentalListDto>> GetMyRentalByIdAsync(int rentalId, int userId)
+        {
+            var rental = await _rentalRepository.GetRentalWithDetailsByIdAsync(rentalId);
+            if (rental == null)
+            {
+                return new ErrorDataResult<RentalListDto>("Aradağınız kiralama bulunamadı!");
+            }
+
+            if (rental.Customer.UserId != userId)
+            {
+                return new ErrorDataResult<RentalListDto>("Güvenlik İhlali: Bu kiralama kaydını (faturayı) görüntüleme yetkiniz yok!");
+            }
+
+            var mappedRental = _mapper.Map<RentalListDto>(rental);
+            return new SuccessDataResult<RentalListDto>(mappedRental, "Kiralama detaylarınız başarıyla getirildi.");
+        }
+
         public async Task<IDataResult<RentalListDto>> GetByIdAsync(int id)
         {
             var rental = await _rentalRepository.GetRentalWithDetailsByIdAsync(id);
@@ -98,27 +150,71 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> UpdateAsync(RentalUpdateDto rentalUpdateDto)
         {
-            rentalUpdateDto.RentDate = rentalUpdateDto.RentDate.ToUniversalTime();
-            if (rentalUpdateDto.ReturnDate.HasValue)
-            {
-                rentalUpdateDto.ReturnDate = rentalUpdateDto.ReturnDate.Value.ToUniversalTime();
-            }
-
-            IResult? result = BusinessRules.Run(await CheckIfCarAvailableForUpdate(rentalUpdateDto.Id, rentalUpdateDto.CarId, rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate));
-            if (result != null)
-            {
-                return result;
-            }
-
             var existingRental = await _rentalRepository.GetAsync(x => x.Id == rentalUpdateDto.Id);
             if (existingRental == null)
             {
                 return new ErrorResult("Güncellenecek araç kiralama bulunamadı.");
             }
 
+            rentalUpdateDto.RentDate = rentalUpdateDto.RentDate.ToUniversalTime();
+            if (rentalUpdateDto.ReturnDate.HasValue)
+            {
+                rentalUpdateDto.ReturnDate = rentalUpdateDto.ReturnDate.Value.ToUniversalTime();
+            }
+
+            IResult? result = BusinessRules.Run(
+            CheckIfRentalIsAlreadyCompleted(existingRental.ReturnDate),
+            CheckIfRentDateBeforeToday(rentalUpdateDto.RentDate),
+            await _carService.CheckIfCarExistsAsync(rentalUpdateDto.CarId),
+            await CheckIfCustomerDrivingExperienceIsSufficient(rentalUpdateDto.CarId, existingRental.CustomerId),
+            await CheckIfCarAvailableForUpdate(rentalUpdateDto.Id, rentalUpdateDto.CarId, rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate)
+            );
+            if (result != null)
+            {
+                return result;
+            }
+
             _mapper.Map(rentalUpdateDto, existingRental);
             await _rentalRepository.UpdateAsync(existingRental);
             return new SuccessResult("Araç kiralama başarıyla güncellendi.");
+        }
+
+        public async Task<IResult> UpdateMyRentalAsync(int userId, int rentalId, RentalUpdateReturnDateDto rentalUpdateReturnDateDto)
+        {
+            rentalUpdateReturnDateDto.ReturnDate = DateTime.SpecifyKind(rentalUpdateReturnDateDto.ReturnDate, DateTimeKind.Utc);
+
+            var existingRental = await _rentalRepository.GetRentalWithDetailsByIdAsync(rentalId);
+            if (existingRental == null) return new ErrorResult("Kiralama bulunamadı!");
+
+            if (existingRental.Customer.UserId != userId)
+            {
+                return new ErrorResult("Bu kiralamayı güncellemeye yetkiniz yok!");
+            }
+
+            IResult? result = BusinessRules.Run
+            (
+                CheckIfRentalIsAlreadyCompleted(existingRental.ReturnDate),
+                CheckIfReturnDateIsAfterRentDate(existingRental.RentDate, rentalUpdateReturnDateDto.ReturnDate),
+                await CheckIfCarAvailableForUpdate(rentalId, existingRental.CarId, existingRental.RentDate, rentalUpdateReturnDateDto.ReturnDate)
+            );
+            if (result != null)
+            {
+                return result;
+            }
+
+            existingRental.ReturnDate = rentalUpdateReturnDateDto.ReturnDate;
+            await _rentalRepository.UpdateAsync(existingRental);
+            return new SuccessResult("Araç teslim tarihiniz başarıyla güncellendi.");
+        }
+
+        public async Task<IResult> CheckIfAnyRentalExistsByOfficeIdAsync(int officeId)
+        {
+            bool result = await _rentalRepository.AnyAsync(x => x.PickUpOfficeId == officeId || x.DropOffOfficeId == officeId);
+            if (result)
+            {
+                return new ErrorResult("Ofise ait kiralama işlemleri mevcut, bu yüzden silinemez!");
+            }
+            return new SuccessResult();
         }
 
         // Bu metot sadece bu sınıfın (Manager'ın) içinde kullanılacağı için 'private' yapıyoruz.
@@ -144,6 +240,65 @@ namespace RentACar.Business.Concrete
                 return new ErrorResult("Bu araç, güncellemek istediğiniz tarihler arasında başka bir müşteriye kiralanmıştır.");
             }
             // Alt kural olduğu için sadece "Geçiş İzni" veriyoruz, tebrik mesajına gerek yok.
+            return new SuccessResult();
+        }
+
+        // .Date dediğimizde saati çöpe atar sadece tarihe bakar
+        // Veritabanı sorgusu yapmadığımız için senkron olarak kodladık
+        private IResult CheckIfRentDateBeforeToday(DateTime rentDate)
+        {
+            if (rentDate.Date < DateTime.UtcNow.Date)
+            {
+                return new ErrorResult("Geçmiş bir tarihe kiralama yapılamaz!");
+            }
+            return new SuccessResult();
+        }
+
+        private IResult CheckIfReturnDateIsAfterRentDate(DateTime rentDate, DateTime returnDate)
+        {
+            if (returnDate.Date < rentDate.Date)
+            {
+                return new ErrorResult("Dönüş tarihi, kiralama başlangıç tarihinden önce olamaz!");
+            }
+            return new SuccessResult();
+        }
+
+        private IResult CheckIfRentalIsAlreadyCompleted(DateTime? returnDate)
+        {
+            // Kural 1: Araç henüz teslim edilmemiş (ucu açık kiralama). Güncellemeye izin ver.
+            if (returnDate == null)
+            {
+                return new SuccessResult();
+            }
+
+            // Kural 2: Dönüş tarihi UTC olarak şu andan küçükse, bu dosya arşive kalkmıştır.
+            // Not: returnDate nullable (DateTime?) olduğu için, içindeki salt tarihe ulaşmak zorundayız. 
+            // Yukarıda null kontrolünü geçtiğimiz için burada gönül rahatlığıyla .Value diyerek içindeki tarihi çekebiliyoruz.
+            if (returnDate.Value < DateTime.UtcNow)
+            {
+                return new ErrorResult("Sona ermiş veya geçmişteki bir kiralama kaydını güncelleyemezsiniz!");
+            }
+            return new SuccessResult();
+        }
+
+        private async Task<IResult> CheckIfCustomerDrivingExperienceIsSufficient(int carId, int customerId)
+        {
+            var carResult = await _carService.GetByIdAsync(carId);
+            if (!carResult.Success)
+            {
+                return new ErrorResult("Araç bilgileri bulunamadı!");
+            }
+            var customerResult = await _customerService.GetByIdAsync(customerId);
+            if (!customerResult.Success)
+            {
+                return new ErrorResult("Müşteri bilgileri bulunamadı!");
+            }
+
+            int customerExperience = DateTime.UtcNow.Year - customerResult.Data.DrivingLicenseYear;
+            if (customerExperience < carResult.Data.MinDrivingExperience)
+            {
+                return new ErrorResult("Bu aracı kiralayabilmek için ehliyet süreniz yetersizdir!");
+            }
             return new SuccessResult();
         }
     }

@@ -29,8 +29,13 @@ namespace RentACar.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAsync([FromForm] CarImageUpdateDto carImageUpdateDto)
+        public async Task<IActionResult> UpdateAsync(int id, [FromForm] CarImageUpdateDto carImageUpdateDto)
         {
+            if (id != carImageUpdateDto.Id)
+            {
+                return BadRequest("Güvenlik İhlali: URL'deki ID ile gönderilen resim ID'si eşleşmiyor!");
+            }
+
             var result = await _carImageService.UpdateAsync(carImageUpdateDto);
             if (result.Success)
             {

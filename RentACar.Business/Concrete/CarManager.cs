@@ -140,9 +140,19 @@ namespace RentACar.Business.Concrete
 
         public async Task<IDataResult<List<CarListDto>>> GetCarsByColorIdAsync(int colorId)
         {
-            var existingCars =await _carRepository.GetAllAsync(x => x.ColorId == colorId);
+            var existingCars = await _carRepository.GetAllAsync(x => x.ColorId == colorId);
             var mappedCars = _mapper.Map<List<CarListDto>>(existingCars);
             return new SuccessDataResult<List<CarListDto>>(mappedCars);
+        }
+
+        public async Task<IResult> CheckIfCarExistsAsync(int carId)
+        {
+            bool isExist = await _carRepository.AnyAsync(x => x.Id == carId);
+            if (!isExist)
+            {
+                return new ErrorResult("Böyle bir araç sistemde bulunamadı!");
+            }
+            return new SuccessResult();
         }
     }
 }

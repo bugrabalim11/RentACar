@@ -53,7 +53,10 @@ namespace RentACar.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync(int id, UserOperationClaimUpdateDto userOperationClaimUpdateDto)
         {
-            if (id != userOperationClaimUpdateDto.Id) return BadRequest("URL'deki ID ile gönderilen Müşteri ID'si eşleşmiyor!");
+            if (id != userOperationClaimUpdateDto.Id)
+            {
+                return BadRequest("Güvenlik İhlali: URL'deki ID ile gönderilen Müşteri ID'si eşleşmiyor!");
+            }
 
             var result = await _userOperationClaimService.UpdateAsync(userOperationClaimUpdateDto);
             if (result.Success)

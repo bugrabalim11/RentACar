@@ -8,9 +8,11 @@ namespace RentACar.Business.Abstract
         Task<IDataResult<List<CustomerListDto>>> GetAllAsync();
         Task<IDataResult<CustomerDetailDto>> GetByIdAsync(int id);
         Task<IDataResult<CustomerDetailDto>> GetMyCustomerProfileAsync(int userId);
-        Task<IResult> AddAsync(CustomerAddDto customerAddDto);
+        Task<IResult> AddAsync(int userId, CustomerAddDto customerAddDto);
+        Task<IResult> AddForAdminAsync(CustomerAddByAdminDto customerAddByAdminDto);
         Task<IResult> UpdateAsync(CustomerUpdateDto customerUpdateDto);
         Task<IResult> UpdateMyProfileAsync(int userId, CustomerUpdateMyProfileDto customerUpdateMyProfileDto);
         Task<IResult> DeleteAsync(int id);
+        Task<IResult> CheckIfCustomerExistsByIdAsync(int customerId);
     }
 }

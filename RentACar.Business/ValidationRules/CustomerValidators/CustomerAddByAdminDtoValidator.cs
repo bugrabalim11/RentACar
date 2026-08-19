@@ -3,10 +3,12 @@ using RentACar.Dtos.CustomerDtos;
 
 namespace RentACar.Business.ValidationRules.CustomerValidators
 {
-    public class CustomerAddDtoValidator : AbstractValidator<CustomerAddDto>
+    public class CustomerAddByAdminDtoValidator : AbstractValidator<CustomerAddByAdminDto>
     {
-        public CustomerAddDtoValidator()
+        public CustomerAddByAdminDtoValidator()
         {
+            RuleFor(x => x.UserId).GreaterThan(0).WithMessage("Lütfen geçerli bir kullanıcı ID'si giriniz.");
+
             RuleFor(x => x.NationalIdentity)
                 .NotEmpty().WithMessage("TC kimlik numarası zorunludur.")
                 .Length(11).WithMessage("TC kimlik numarası tam olarak 11 haneli olmak zorundadır.")

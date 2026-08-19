@@ -25,12 +25,10 @@ namespace RentACar.Business.ValidationRules.CarValidators
                 .NotEmpty().WithMessage("Araç plakası boş bırakılamaz.")
                 .MaximumLength(10).WithMessage("Araç plakası en fazla 10 karakter olmalıdır.");
 
-            RuleFor(x => x.LuggageCapacity)
-                .NotEmpty().WithMessage("Bagaj kapasitesi boş geçilemez.");
+            RuleFor(x => x.LuggageCapacity).NotEmpty().WithMessage("Bagaj kapasitesi boş geçilemez.");
 
             // YENİ HALİ:
-            RuleFor(x => x.TransmissionType)
-                .IsInEnum().WithMessage("Lütfen geçerli bir vites tipi seçiniz (1: Manuel, 2: Otomatik, 3: Yarı Otomatik).");
+            RuleFor(x => x.TransmissionType).IsInEnum().WithMessage("Lütfen geçerli bir vites tipi seçiniz (1: Manuel, 2: Otomatik, 3: Yarı Otomatik).");
 
 
             RuleFor(x => x.DailyPrice)
@@ -52,6 +50,8 @@ namespace RentACar.Business.ValidationRules.CarValidators
             RuleFor(x => x.MinDriverAge)
                 .NotEmpty().WithMessage("Minimum sürücü yaşı alanı boş bırakılamaz.")
                 .GreaterThan(18).WithMessage("Minimum sürücü yaşı 18'den büyük olmalıdır.");
+
+            RuleFor(x => x.MinDrivingExperience).GreaterThanOrEqualTo(0).WithMessage("Minimum sürücü deneyemi negatif bir değer olamaz.");
         }
     }
 }

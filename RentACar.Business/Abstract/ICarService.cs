@@ -18,5 +18,6 @@ namespace RentACar.Business.Abstract
         Task<IResult> AddAsync(CarAddDto carAddDto);
         Task<IResult> UpdateAsync(CarUpdateDto carUpdateDto);
         Task<IResult> DeleteAsync(int id);
+        Task<IResult> CheckIfCarExistsAsync(int carId);
     }
 }
