@@ -7,6 +7,7 @@ namespace RentACar.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "admin")]
     public class ContactInfosController : ControllerBase
     {
         private readonly IContactInfoService _contactInfoService;
@@ -16,6 +17,7 @@ namespace RentACar.API.Controllers
             _contactInfoService = contactInfoService;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetAllAsync()
         {
@@ -27,6 +29,7 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
@@ -38,7 +41,6 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<IActionResult> AddAsync(ContactInfoAddDto contactInfoAddDto)
         {
@@ -50,10 +52,14 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [Authorize(Roles = "admin")]
-        [HttpPut]
-        public async Task<IActionResult> UpdateAsync(ContactInfoUpdateDto contactInfoUpdateDto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateAsync(int id, ContactInfoUpdateDto contactInfoUpdateDto)
         {
+            if (id != contactInfoUpdateDto.Id)
+            {
+                return BadRequest("Güvenlik İhlali: Zarf ve Mektup ID'leri uyuşmuyor!");
+            }
+
             var result = await _contactInfoService.UpdateAsync(contactInfoUpdateDto);
             if (result.Success)
             {
@@ -62,7 +68,6 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
