@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
-using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
@@ -46,9 +45,10 @@ namespace RentACar.Business.Concrete
             }
 
             IResult? result = BusinessRules.Run(
-            await CheckIfCarAvailable(rentalAddDto.CarId, rentalAddDto.RentDate, rentalAddDto.ReturnDate),
+            CheckIfRentDateBeforeToday(rentalAddDto.RentDate),
             await _carService.CheckIfCarExistsAsync(rentalAddDto.CarId),
-            CheckIfRentDateBeforeToday(rentalAddDto.RentDate)
+            await CheckIfCustomerDrivingExperienceIsSufficient(rentalAddDto.CarId, customerResult.Data.Id),
+            await CheckIfCarAvailable(rentalAddDto.CarId, rentalAddDto.RentDate, rentalAddDto.ReturnDate)
             );
             if (result != null)
             {
@@ -70,10 +70,11 @@ namespace RentACar.Business.Concrete
             rentalAddByAdminDto.RentDate = DateTime.SpecifyKind(rentalAddByAdminDto.RentDate, DateTimeKind.Utc);
 
             IResult? result = BusinessRules.Run(
+            CheckIfRentDateBeforeToday(rentalAddByAdminDto.RentDate),
             await _customerService.CheckIfCustomerExistsByIdAsync(rentalAddByAdminDto.CustomerId),
-            await CheckIfCarAvailable(rentalAddByAdminDto.CarId, rentalAddByAdminDto.RentDate, rentalAddByAdminDto.ReturnDate),
             await _carService.CheckIfCarExistsAsync(rentalAddByAdminDto.CarId),
-            CheckIfRentDateBeforeToday(rentalAddByAdminDto.RentDate)
+            await CheckIfCustomerDrivingExperienceIsSufficient(rentalAddByAdminDto.CarId, rentalAddByAdminDto.CustomerId),
+            await CheckIfCarAvailable(rentalAddByAdminDto.CarId, rentalAddByAdminDto.RentDate, rentalAddByAdminDto.ReturnDate)
             );
             if (result != null)
             {
@@ -161,12 +162,12 @@ namespace RentACar.Business.Concrete
                 rentalUpdateDto.ReturnDate = rentalUpdateDto.ReturnDate.Value.ToUniversalTime();
             }
 
-            IResult? result = BusinessRules.Run
-            (
-                CheckIfRentalIsAlreadyCompleted(existingRental.ReturnDate),
-                await CheckIfCarAvailableForUpdate(rentalUpdateDto.Id, rentalUpdateDto.CarId, rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate),
-                await _carService.CheckIfCarExistsAsync(rentalUpdateDto.CarId),
-                CheckIfRentDateBeforeToday(rentalUpdateDto.RentDate)
+            IResult? result = BusinessRules.Run(
+            CheckIfRentalIsAlreadyCompleted(existingRental.ReturnDate),
+            CheckIfRentDateBeforeToday(rentalUpdateDto.RentDate),
+            await _carService.CheckIfCarExistsAsync(rentalUpdateDto.CarId),
+            await CheckIfCustomerDrivingExperienceIsSufficient(rentalUpdateDto.CarId, existingRental.CustomerId),
+            await CheckIfCarAvailableForUpdate(rentalUpdateDto.Id, rentalUpdateDto.CarId, rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate)
             );
             if (result != null)
             {
@@ -276,6 +277,27 @@ namespace RentACar.Business.Concrete
             if (returnDate.Value < DateTime.UtcNow)
             {
                 return new ErrorResult("Sona ermiş veya geçmişteki bir kiralama kaydını güncelleyemezsiniz!");
+            }
+            return new SuccessResult();
+        }
+
+        private async Task<IResult> CheckIfCustomerDrivingExperienceIsSufficient(int carId, int customerId)
+        {
+            var carResult = await _carService.GetByIdAsync(carId);
+            if (!carResult.Success)
+            {
+                return new ErrorResult("Araç bilgileri bulunamadı!");
+            }
+            var customerResult = await _customerService.GetByIdAsync(customerId);
+            if (!customerResult.Success)
+            {
+                return new ErrorResult("Müşteri bilgileri bulunamadı!");
+            }
+
+            int customerExperience = DateTime.UtcNow.Year - customerResult.Data.DrivingLicenseYear;
+            if (customerExperience < carResult.Data.MinDrivingExperience)
+            {
+                return new ErrorResult("Bu aracı kiralayabilmek için ehliyet süreniz yetersizdir!");
             }
             return new SuccessResult();
         }
