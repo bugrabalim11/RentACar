@@ -5,9 +5,11 @@ namespace RentACar.Entities.Concrete
 {
     public class Car : IEntity
     {
-        // Temel Özellikler
         public int Id { get; set; }
         public int BrandId { get; set; }
+
+        // Senin içinde tuttuğun o BrandId numarası öylesine bir sayı değil, fiziksel bir markayı temsil ediyor.
+        public Brand Brand { get; set; } = null!;
 
         // Yabancı Anahtar (Foreign Key)
         public int ColorId { get; set; }
@@ -20,12 +22,12 @@ namespace RentACar.Entities.Concrete
         public decimal DailyPrice { get; set; }
         public bool IsAvailable { get; set; }
 
-        // Arayüzden (UI) Gelen Yeni Özellikler
         public int DoorCount { get; set; }
         public int SeatCount { get; set; }
         public int MinDriverAge { get; set; }
         public string LuggageCapacity { get; set; } = null!;
         public TransmissionType TransmissionType { get; set; }
+        public int MinDrivingExperience { get; set; }
 
 
         public bool IsDeleted { get; set; } = false;
@@ -36,8 +38,5 @@ namespace RentACar.Entities.Concrete
         // Bir arabanın birden çok kiralama kaydı olabilir
         public List<Rental> Rentals { get; set; } = new List<Rental>();
         public List<CarImage> CarImages { get; set; } = new List<CarImage>();
-
-        // Senin içinde tuttuğun o BrandId numarası öylesine bir sayı değil, fiziksel bir markayı temsil ediyor.
-        public Brand Brand { get; set; } = null!;
     }
 }

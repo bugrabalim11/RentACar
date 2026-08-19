@@ -17,6 +17,7 @@ namespace RentACar.Dtos.CarDtos
         public int SeatCount { get; set; }
         public int MinDriverAge { get; set; }
         public string LuggageCapacity { get; set; } = null!;
+        public int MinDrivingExperience { get; set; }
         public TransmissionType TransmissionType { get; set; }
     }
 }
