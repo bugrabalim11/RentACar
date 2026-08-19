@@ -55,7 +55,7 @@ namespace RentACar.API.Controllers
         {
             if(operationClaimUpdateDto.Id != id)
             {
-                return BadRequest("URL'deki ID ile gönderilen yetki ID'si eşleşmiyor!");
+                return BadRequest("Güvenlik İhlali: URL'deki ID ile gönderilen yetki ID'si eşleşmiyor!");
             }
 
             var result = await _operationClaimService.UpdateAsync(operationClaimUpdateDto);

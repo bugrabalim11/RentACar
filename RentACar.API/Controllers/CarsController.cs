@@ -59,7 +59,7 @@ namespace RentACar.API.Controllers
         {
             if (id != carUpdateDto.Id)
             {
-                return BadRequest("URL'deki ID ile gönderilen araç ID'si eşleşmiyor!");
+                return BadRequest("Güvenlik İhlali: URL'deki ID ile gönderilen araç ID'si eşleşmiyor!");
             }
             var result = await _carService.UpdateAsync(carUpdateDto);
             if (result.Success)

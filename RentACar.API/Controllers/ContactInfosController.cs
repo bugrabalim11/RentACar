@@ -51,13 +51,13 @@ namespace RentACar.API.Controllers
             }
             return BadRequest(result);
         }
-
+        
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync(int id, ContactInfoUpdateDto contactInfoUpdateDto)
         {
             if (id != contactInfoUpdateDto.Id)
             {
-                return BadRequest("Güvenlik İhlali: Zarf ve Mektup ID'leri uyuşmuyor!");
+                return BadRequest("Güvenlik İhlali: URL'deki ID ile gönderilen marka ID'si eşleşmiyor!");
             }
 
             var result = await _contactInfoService.UpdateAsync(contactInfoUpdateDto);

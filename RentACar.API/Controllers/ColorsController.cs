@@ -58,7 +58,7 @@ namespace RentACar.API.Controllers
         {
             if (id != colorUpdateDto.Id)
             {
-                return BadRequest("URL'deki ID ile gönderilen renk ID'si eşleşmiyor!");
+                return BadRequest("Güvenlik İhlali: URL'deki ID ile gönderilen renk ID'si eşleşmiyor!");
             }
 
             var result = await _colorService.UpdateAsync(colorUpdateDto);

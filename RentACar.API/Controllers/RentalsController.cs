@@ -107,7 +107,7 @@ namespace RentACar.API.Controllers
         {
             if (id != rentalUpdateDto.Id)
             {
-                return BadRequest("URL'deki ID ile gönderilen kiralama ID'si eşleşmiyor!");
+                return BadRequest("Güvenlik İhlali: URL'deki ID ile gönderilen kiralama ID'si eşleşmiyor!");
             }
 
             var result = await _rentalService.UpdateAsync(rentalUpdateDto);

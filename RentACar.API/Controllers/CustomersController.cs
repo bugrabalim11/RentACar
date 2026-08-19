@@ -109,7 +109,7 @@ namespace RentACar.API.Controllers
                 // URL'deki kapı numarası ile DTO (Kargo paketi) içindeki ID eşleşiyor mu?
                 if (id != customerUpdateDto.Id)
                 {
-                    return BadRequest("URL'deki ID ile gönderilen müşteri ID'si eşleşmiyor!");
+                    return BadRequest("Güvenlik İhlali: URL'deki ID ile gönderilen müşteri ID'si eşleşmiyor!");
                 }
 
                 var result = await _customerService.UpdateAsync(customerUpdateDto);
