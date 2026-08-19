@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using RentACar.Business.Abstract;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
@@ -88,7 +87,7 @@ namespace RentACar.Business.Concrete
 
         private async Task<IResult> CheckIfUserCanSendMessageAsync(string email)
         {
-            bool sendMessage = await _contactMessageRepository.AnyAsync(x => Microsoft.EntityFrameworkCore.EF.Functions.ILike(x.Email, email) && x.SendDate > DateTime.UtcNow.AddMinutes(-5)); // >= de olabilirdi aynı şey
+            bool sendMessage = await _contactMessageRepository.AnyAsync(x => x.Email.ToLower() == email && x.SendDate > DateTime.UtcNow.AddMinutes(-5)); // >= de olabilirdi aynı şey
             if (sendMessage)
             {
                 return new ErrorResult("Sistemimizi korumak adına peş peşe mesaj gönderemezsiniz. Lütfen 5 dakika sonra tekrar deneyiniz.");
