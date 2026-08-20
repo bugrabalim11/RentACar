@@ -14,12 +14,14 @@ namespace RentACar.Business.Concrete
         private readonly IMapper _mapper;
         private readonly ICarService _carService;
         private readonly ICustomerService _customerService;
-        public RentalManager(IRentalRepository rentalRepository, IMapper mapper, ICarService carService, ICustomerService customerService)
+        private readonly IPaymentService _paymentService;
+        public RentalManager(IRentalRepository rentalRepository, IMapper mapper, ICarService carService, ICustomerService customerService, IPaymentService paymentService)
         {
             _rentalRepository = rentalRepository;
             _mapper = mapper;
             _carService = carService;
             _customerService = customerService;
+            _paymentService = paymentService;
         }
 
         public async Task<IResult> AddAsync(RentalAddDto rentalAddDto, int userId)
@@ -60,14 +62,35 @@ namespace RentACar.Business.Concrete
             // Arşiv memurunun bize getirdiği dosyanın içindeki Müşteri Numarasını (Data.Id),
             // yeni kiralama faturamızın (rental) üzerine kalıcı olarak zımbalıyoruz.
             rental.CustomerId = customerResult.Data.Id;
+
+            var car = await _carService.GetByIdAsync(rental.CarId);
+            int totalDays = 1;
+            if (rental.ReturnDate.HasValue)
+            {
+                var timeSpan = rental.ReturnDate.Value - rental.RentDate;
+                totalDays = timeSpan.Days;
+
+                // Aynı gün getirirse 0 çıkmasın diye senin o harika kalkanını buraya da koyalım:
+                if (totalDays == 0) totalDays = 1;
+            }
+            decimal totalAmount = totalDays * car.Data.DailyPrice;
+            var paymentResult = await _paymentService.PayAsync(rentalAddDto.CreditCardInformation, totalAmount);
+            if (!paymentResult.Success)
+            {
+                return new ErrorResult(paymentResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
+            }
+
             await _rentalRepository.AddAsync(rental);
             return new SuccessResult("Araç kiralama başarıyla oluşturuldu.");
         }
 
         public async Task<IResult> AddByAdminAsync(RentalAddByAdminDto rentalAddByAdminDto)
         {
-            rentalAddByAdminDto.ReturnDate = DateTime.SpecifyKind(rentalAddByAdminDto.ReturnDate, DateTimeKind.Utc);
             rentalAddByAdminDto.RentDate = DateTime.SpecifyKind(rentalAddByAdminDto.RentDate, DateTimeKind.Utc);
+            if (rentalAddByAdminDto.ReturnDate.HasValue)
+            {
+                rentalAddByAdminDto.ReturnDate = DateTime.SpecifyKind(rentalAddByAdminDto.ReturnDate.Value, DateTimeKind.Utc);
+            }
 
             IResult? result = BusinessRules.Run(
             CheckIfRentDateBeforeToday(rentalAddByAdminDto.RentDate),
@@ -82,6 +105,22 @@ namespace RentACar.Business.Concrete
             }
 
             var rental = _mapper.Map<Rental>(rentalAddByAdminDto);
+
+            var car = await _carService.GetByIdAsync(rental.CarId);
+            int totalDays = 1;
+            if (rental.ReturnDate.HasValue)
+            {
+                var timeSpan = rental.ReturnDate.Value - rental.RentDate;
+                totalDays = timeSpan.Days;
+                if (totalDays == 0) totalDays = 1;
+            }
+            decimal totalAmount = totalDays * car.Data.DailyPrice;
+            var paymentResult = await _paymentService.PayAsync(rentalAddByAdminDto.CreditCardInformation, totalAmount);
+            if (!paymentResult.Success)
+            {
+                return new ErrorResult(paymentResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
+            }
+
             await _rentalRepository.AddAsync(rental);
             return new SuccessResult("Araç kiralama başarıyla oluşturuldu.");
         }
