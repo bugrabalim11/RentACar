@@ -119,33 +119,33 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<List<RentalListDto>>(mappedRentals, "Kullanıcıya ait kiralama işlemleri başarıyla listelendi.");
         }
 
-        public async Task<IDataResult<RentalListDto>> GetMyRentalByIdAsync(int rentalId, int userId)
+        public async Task<IDataResult<RentalDetailDto>> GetMyRentalByIdAsync(int rentalId, int userId)
         {
             var rental = await _rentalRepository.GetRentalWithDetailsByIdAsync(rentalId);
             if (rental == null)
             {
-                return new ErrorDataResult<RentalListDto>("Aradağınız kiralama bulunamadı!");
+                return new ErrorDataResult<RentalDetailDto>("Aradağınız kiralama bulunamadı!");
             }
 
             if (rental.Customer.UserId != userId)
             {
-                return new ErrorDataResult<RentalListDto>("Güvenlik İhlali: Bu kiralama kaydını (faturayı) görüntüleme yetkiniz yok!");
+                return new ErrorDataResult<RentalDetailDto>("Güvenlik İhlali: Bu kiralama kaydını (faturayı) görüntüleme yetkiniz yok!");
             }
 
-            var mappedRental = _mapper.Map<RentalListDto>(rental);
-            return new SuccessDataResult<RentalListDto>(mappedRental, "Kiralama detaylarınız başarıyla getirildi.");
+            var mappedRental = _mapper.Map<RentalDetailDto>(rental);
+            return new SuccessDataResult<RentalDetailDto>(mappedRental, "Kiralama detaylarınız başarıyla getirildi.");
         }
 
-        public async Task<IDataResult<RentalListDto>> GetByIdAsync(int id)
+        public async Task<IDataResult<RentalDetailDto>> GetByIdAsync(int id)
         {
             var rental = await _rentalRepository.GetRentalWithDetailsByIdAsync(id);
             if (rental == null)
             {
-                return new ErrorDataResult<RentalListDto>("Aranan araç kiralama bulunamadı.");
+                return new ErrorDataResult<RentalDetailDto>("Aranan araç kiralama bulunamadı.");
             }
 
-            var rentalListDto = _mapper.Map<RentalListDto>(rental);
-            return new SuccessDataResult<RentalListDto>(rentalListDto, "Araç kiralama detayı getirildi.");
+            var rentalDetailDto = _mapper.Map<RentalDetailDto>(rental);
+            return new SuccessDataResult<RentalDetailDto>(rentalDetailDto, "Araç kiralama detayı getirildi.");
         }
 
         public async Task<IResult> UpdateAsync(RentalUpdateDto rentalUpdateDto)
