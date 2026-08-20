@@ -12,8 +12,10 @@ namespace RentACar.Business.Profiles
 
             CreateMap<Rental, RentalListDto>()
                 // Hedefteki (dest) CustomerFirstName alanına, kaynaktaki (src) Customer.User.FirstName alanını haritala (MapFrom).
-                .ForMember(dest => dest.CustomerFirstName, opt => opt.MapFrom(src => src.Customer.User.FirstName))
-                .ForMember(dest => dest.CustomerLastName, opt => opt.MapFrom(src => src.Customer.User.LastName));
+                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.Customer.User.FirstName))
+                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.Customer.User.LastName))
+                .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Car.Brand.Name))
+                .ForMember(dest => dest.ModelName, opt => opt.MapFrom(src => src.Car.ModelName));
 
             CreateMap<RentalAddDto, Rental>();
             CreateMap<RentalAddByAdminDto, Rental>();
