@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using RentACar.Business.ValidationRules.CreditCardInformationValidators;
 using RentACar.Dtos.RentalDtos;
 
 namespace RentACar.Business.ValidationRules.RentalValidators
@@ -20,6 +21,8 @@ namespace RentACar.Business.ValidationRules.RentalValidators
             RuleFor(x => x.ReturnDate)
                 .GreaterThan(x => x.RentDate)
                 .WithMessage("İade tarihi, kiralama tarihinden önce olamaz!");
+
+            RuleFor(x => x.CreditCardInformation).SetValidator(new CreditCardInformationValidator());
         }
     }
 }
