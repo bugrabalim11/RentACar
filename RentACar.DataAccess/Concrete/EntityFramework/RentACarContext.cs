@@ -23,6 +23,7 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
         public DbSet<UserOperationClaim> UserOperationClaims { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<CarImage> CarImages { get; set; }
+        public DbSet<CarMaintenance> CarMaintenances { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -60,6 +61,7 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
             modelBuilder.Entity<Office>().HasQueryFilter(o => o.IsDeleted == false);
             modelBuilder.Entity<Rental>().HasQueryFilter(r => r.IsDeleted == false);
             modelBuilder.Entity<CarImage>().HasQueryFilter(ci => ci.IsDeleted == false);
+            modelBuilder.Entity<CarMaintenance>().HasQueryFilter(cm => cm.IsDeleted == false);
         }
     }
 }
