@@ -10,7 +10,8 @@ namespace RentACar.Business.Profiles
         {
             CreateMap<CarMaintenanceAddDto, CarMaintenance>();
             CreateMap<CarMaintenanceUpdateDto, CarMaintenance>();
-            CreateMap<CarMaintenance, CarMaintenanceListDto>();
+            CreateMap<CarMaintenance, CarMaintenanceListDto>()
+                .ForMember(dest => dest.CarBrandModel, opt => opt.MapFrom(src => $"{src.Car.Brand.Name} {src.Car.ModelName}"));
         }
     }
 }
