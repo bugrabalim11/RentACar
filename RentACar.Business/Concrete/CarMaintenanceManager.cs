@@ -94,7 +94,7 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Tamir kaydı başarıyla güncellendi.");
         }
 
-        private async Task<IResult> CheckIfCarIsAlreadyInMaintenance(int carId)
+        public async Task<IResult> CheckIfCarIsAlreadyInMaintenance(int carId)
         {
             bool result = await _carMaintenanceRepository.AnyAsync(x => x.CarId == carId && x.CheckOutTime == null);
             if (result)
