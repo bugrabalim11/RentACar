@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RentACar.DataAccess.Concrete.EntityFramework;
@@ -11,9 +12,11 @@ using RentACar.DataAccess.Concrete.EntityFramework;
 namespace RentACar.DataAccess.Migrations
 {
     [DbContext(typeof(RentACarContext))]
-    partial class RentACarContextModelSnapshot : ModelSnapshot
+    [Migration("20260822142031_AddAuditPropertiesToCarMaintenance")]
+    partial class AddAuditPropertiesToCarMaintenance
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -239,10 +242,10 @@ namespace RentACar.DataAccess.Migrations
                     b.Property<int>("CarId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("CheckInTime")
+                    b.Property<DateTime?>("CeheckOutTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime?>("CheckOutTime")
+                    b.Property<DateTime>("CheckInTime")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("DeletedDate")
