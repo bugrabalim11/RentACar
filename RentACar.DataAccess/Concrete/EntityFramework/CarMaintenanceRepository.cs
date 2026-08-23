@@ -12,6 +12,14 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
             _context = context;
         }
 
+        public async Task<CarMaintenance?> GetCarMaintenanceByIdWithDetailsAsync(int id)
+        {
+            return await _context.CarMaintenances
+                .AsNoTracking()
+                .Include(c => c.Car).ThenInclude(c => c.Brand)
+                .FirstOrDefaultAsync(c => c.Id == id);
+        }
+
         public async Task<List<CarMaintenance>> GetCarMaintenanceWithDetailsAsync()
         {
             return await _context.CarMaintenances
