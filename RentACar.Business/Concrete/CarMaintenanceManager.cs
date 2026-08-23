@@ -43,14 +43,25 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Aracın tamir tarihleri başarıyla sisteme kaydedildi.");
         }
 
-        public Task<IResult> DeleteAsync(int id)
+        public async Task<IResult> DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            var existingMaintenance = await _carMaintenanceRepository.GetAsync(x => x.Id == id);
+            if (existingMaintenance == null)
+            {
+                return new ErrorResult("Silinecek tamir bulunamadı!");
+            }
+
+            existingMaintenance.IsDeleted = true;
+            existingMaintenance.DeletedDate = DateTime.UtcNow;
+            await _carMaintenanceRepository.UpdateAsync(existingMaintenance);
+            return new SuccessResult("Tamir başaryla silindi.");
         }
 
-        public Task<IDataResult<List<CarMaintenanceListDto>>> GetAllAsync()
+        public async Task<IDataResult<List<CarMaintenanceListDto>>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            var maintenances = await _carMaintenanceRepository.GetCarMaintenanceWithDetailsAsync();
+            var maintenanceDtos = _mapper.Map<List<CarMaintenanceListDto>>(maintenances);
+            return new SuccessDataResult<List<CarMaintenanceListDto>>(maintenanceDtos, "Tamirler başarıyla listelendi.");
         }
 
         public Task<IDataResult<CarMaintenanceListDto>> GetByIdAsync(int id)
