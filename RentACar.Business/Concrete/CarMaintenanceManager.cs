@@ -64,9 +64,16 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<List<CarMaintenanceListDto>>(maintenanceDtos, "Tamirler başarıyla listelendi.");
         }
 
-        public Task<IDataResult<CarMaintenanceListDto>> GetByIdAsync(int id)
+        public async Task<IDataResult<CarMaintenanceListDto>> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            var maintenance = await _carMaintenanceRepository.GetCarMaintenanceByIdWithDetailsAsync(id);
+            if (maintenance == null)
+            {
+                return new ErrorDataResult<CarMaintenanceListDto>("Aranan tamir bulunamadı!");
+            }
+
+            var maintenanceDto = _mapper.Map<CarMaintenanceListDto>(maintenance);
+            return new SuccessDataResult<CarMaintenanceListDto>(maintenanceDto, "Tamir başarıyla geitirildi.");
         }
 
         public Task<IResult> UpdateAsync(CarMaintenanceUpdateDto carMaintenanceUpdateDto)
