@@ -15,7 +15,7 @@ namespace RentACar.Business.ValidationRules.CarMaintenanceValidators
                 .MaximumLength(500).WithMessage("Açıklma en fazla 500 karakter olmalıdır.");
 
             RuleFor(x => x.CheckInTime)
-               .NotEmpty()
+               .NotEmpty().WithMessage("Giriş tarihi boş geçilemez.")
                .GreaterThanOrEqualTo(DateTime.Today.AddDays(-2))
                .WithMessage("Giriş tarihi, bugünden 2 gün öncesine büyük veya eşit olmalıdır. Yani en fazla 2 gün gecikmeli giriş yapılabilir.");
 

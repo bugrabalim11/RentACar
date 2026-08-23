@@ -23,9 +23,16 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> AddAsync(CarMaintenanceAddDto carMaintenanceAddDto)
         {
+            // Veeritabanından tarih karşılaştırıyoruz o yüzden buraya taşıdık
+            carMaintenanceAddDto.CheckInTime = DateTime.SpecifyKind(carMaintenanceAddDto.CheckInTime, DateTimeKind.Utc);
+            if (carMaintenanceAddDto.CheckOutTime.HasValue)
+            {
+                carMaintenanceAddDto.CheckOutTime = DateTime.SpecifyKind(carMaintenanceAddDto.CheckOutTime.Value, DateTimeKind.Utc);
+            }
+
             IResult? result = BusinessRules.Run(
             await CheckIfCarExists(carMaintenanceAddDto.CarId),
-            await CheckIfCarIsAlreadyInMaintenance(carMaintenanceAddDto.CarId)
+            await CheckIfCarAvailableForMaintenance(carMaintenanceAddDto.CarId, carMaintenanceAddDto.CheckInTime, carMaintenanceAddDto.CheckOutTime)
             );
             if (result != null)
             {
@@ -33,12 +40,6 @@ namespace RentACar.Business.Concrete
             }
 
             var maintenance = _mapper.Map<CarMaintenance>(carMaintenanceAddDto);
-            // Saatleri ŞİMDİ Entity üzerinde UTC'ye çevir!
-            carMaintenanceAddDto.CheckInTime = DateTime.SpecifyKind(carMaintenanceAddDto.CheckInTime, DateTimeKind.Utc);
-            if (carMaintenanceAddDto.CheckOutTime.HasValue)
-            {
-                carMaintenanceAddDto.CheckOutTime = DateTime.SpecifyKind(carMaintenanceAddDto.CheckOutTime.Value, DateTimeKind.Utc);
-            }
             await _carMaintenanceRepository.AddAsync(maintenance);
             return new SuccessResult("Aracın tamir tarihleri başarıyla sisteme kaydedildi.");
         }
@@ -78,28 +79,30 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> UpdateAsync(CarMaintenanceUpdateDto carMaintenanceUpdateDto)
         {
+            carMaintenanceUpdateDto.CheckInTime = DateTime.SpecifyKind(carMaintenanceUpdateDto.CheckInTime, DateTimeKind.Utc);
+            if (carMaintenanceUpdateDto.CheckOutTime.HasValue)
+            {
+                carMaintenanceUpdateDto.CheckOutTime = DateTime.SpecifyKind(carMaintenanceUpdateDto.CheckOutTime.Value, DateTimeKind.Utc);
+            }
+
             var existingMaintenance = await _carMaintenanceRepository.GetAsync(x => x.Id == carMaintenanceUpdateDto.Id);
-            if(existingMaintenance == null)
+            if (existingMaintenance == null)
             {
                 return new ErrorResult("Güncellenecek tamir kaydı bulunamadı!");
             }
 
             _mapper.Map(carMaintenanceUpdateDto, existingMaintenance);
-            existingMaintenance.CheckInTime = DateTime.SpecifyKind(existingMaintenance.CheckInTime, DateTimeKind.Utc);
-            if (existingMaintenance.CheckOutTime.HasValue)
-            {
-                existingMaintenance.CheckOutTime = DateTime.SpecifyKind(existingMaintenance.CheckOutTime.Value, DateTimeKind.Utc);
-            }
             await _carMaintenanceRepository.UpdateAsync(existingMaintenance);
             return new SuccessResult("Tamir kaydı başarıyla güncellendi.");
         }
 
-        public async Task<IResult> CheckIfCarIsAlreadyInMaintenance(int carId)
+        public async Task<IResult> CheckIfCarAvailableForMaintenance(int carId, DateTime checkInTime, DateTime? checkOutTime)
         {
-            bool result = await _carMaintenanceRepository.AnyAsync(x => x.CarId == carId && x.CheckOutTime == null);
-            if (result)
+            bool isExist = await _carMaintenanceRepository
+                .AnyAsync(x => x.CarId == carId && (x.CheckOutTime == null || checkInTime <= x.CheckOutTime) && (checkOutTime == null || checkOutTime >= x.CheckInTime));
+            if (isExist)
             {
-                return new ErrorResult("Bu araç şu an zaten bakımda!");
+                return new ErrorResult("Bu araç, seçilen tarihler arasında zaten sanayidedir!");
             }
             return new SuccessResult();
         }
