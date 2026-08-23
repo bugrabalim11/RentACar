@@ -48,20 +48,20 @@ namespace RentACar.Business.Concrete
             var existingMaintenance = await _carMaintenanceRepository.GetAsync(x => x.Id == id);
             if (existingMaintenance == null)
             {
-                return new ErrorResult("Silinecek tamir bulunamadı!");
+                return new ErrorResult("Silinecek tamir kaydı bulunamadı!");
             }
 
             existingMaintenance.IsDeleted = true;
             existingMaintenance.DeletedDate = DateTime.UtcNow;
             await _carMaintenanceRepository.UpdateAsync(existingMaintenance);
-            return new SuccessResult("Tamir başaryla silindi.");
+            return new SuccessResult("Tamir kaydı başaryla silindi.");
         }
 
         public async Task<IDataResult<List<CarMaintenanceListDto>>> GetAllAsync()
         {
             var maintenances = await _carMaintenanceRepository.GetCarMaintenanceWithDetailsAsync();
             var maintenanceDtos = _mapper.Map<List<CarMaintenanceListDto>>(maintenances);
-            return new SuccessDataResult<List<CarMaintenanceListDto>>(maintenanceDtos, "Tamirler başarıyla listelendi.");
+            return new SuccessDataResult<List<CarMaintenanceListDto>>(maintenanceDtos, "Tamir kayıtları başarıyla listelendi.");
         }
 
         public async Task<IDataResult<CarMaintenanceListDto>> GetByIdAsync(int id)
@@ -69,16 +69,29 @@ namespace RentACar.Business.Concrete
             var maintenance = await _carMaintenanceRepository.GetCarMaintenanceByIdWithDetailsAsync(id);
             if (maintenance == null)
             {
-                return new ErrorDataResult<CarMaintenanceListDto>("Aranan tamir bulunamadı!");
+                return new ErrorDataResult<CarMaintenanceListDto>("Aranan tamir kaydı bulunamadı!");
             }
 
             var maintenanceDto = _mapper.Map<CarMaintenanceListDto>(maintenance);
-            return new SuccessDataResult<CarMaintenanceListDto>(maintenanceDto, "Tamir başarıyla geitirildi.");
+            return new SuccessDataResult<CarMaintenanceListDto>(maintenanceDto, "Tamir kaydı başarıyla geitirildi.");
         }
 
-        public Task<IResult> UpdateAsync(CarMaintenanceUpdateDto carMaintenanceUpdateDto)
+        public async Task<IResult> UpdateAsync(CarMaintenanceUpdateDto carMaintenanceUpdateDto)
         {
-            throw new NotImplementedException();
+            var existingMaintenance = await _carMaintenanceRepository.GetAsync(x => x.Id == carMaintenanceUpdateDto.Id);
+            if(existingMaintenance == null)
+            {
+                return new ErrorResult("Güncellenecek tamir kaydı bulunamadı!");
+            }
+
+            _mapper.Map(carMaintenanceUpdateDto, existingMaintenance);
+            existingMaintenance.CheckInTime = DateTime.SpecifyKind(existingMaintenance.CheckInTime, DateTimeKind.Utc);
+            if (existingMaintenance.CheckOutTime.HasValue)
+            {
+                existingMaintenance.CheckOutTime = DateTime.SpecifyKind(existingMaintenance.CheckOutTime.Value, DateTimeKind.Utc);
+            }
+            await _carMaintenanceRepository.UpdateAsync(existingMaintenance);
+            return new SuccessResult("Tamir kaydı başarıyla güncellendi.");
         }
 
         private async Task<IResult> CheckIfCarIsAlreadyInMaintenance(int carId)

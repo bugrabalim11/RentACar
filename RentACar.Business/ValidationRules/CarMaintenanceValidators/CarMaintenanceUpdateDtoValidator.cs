@@ -8,7 +8,6 @@ namespace RentACar.Business.ValidationRules.CarMaintenanceValidators
         public CarMaintenanceUpdateDtoValidator()
         {
             RuleFor(x => x.Id).GreaterThan(0).WithMessage("Lütfen geçerli bir tamir seçiniz.");
-            RuleFor(x => x.CarId).GreaterThan(0).WithMessage("Lütfen geçerli bir araç seçiniz.");
 
             RuleFor(x => x.Description)
                .NotEmpty().WithMessage("Açıklama boş geçilemez.")
