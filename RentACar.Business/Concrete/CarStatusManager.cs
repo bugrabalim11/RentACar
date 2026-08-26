@@ -25,7 +25,7 @@ namespace RentACar.Business.Concrete
             bool isMaintenance = await _carMaintenanceRepository.AnyAsync(x => x.CarId == carId && (x.CheckOutTime == null || startDate <= x.CheckOutTime) && (endDate == null || endDate >= x.CheckInTime));
             if (isMaintenance)
             {
-                return new ErrorResult("Bu araç seçilen tarihlerde meşguldür!");
+                return new ErrorResult("Bu araç seçilen tarihlerde tamridedir!");
             }
             return new SuccessResult();
         }
@@ -35,7 +35,7 @@ namespace RentACar.Business.Concrete
             bool isRented = await _rentalRepository.AnyAsync(x => x.CarId == carId && (x.ReturnDate == null || startDate <= x.ReturnDate) && (endDate == null || endDate >= x.RentDate));
             if (isRented)
             {
-                return new ErrorResult("Bu araç seçilen tarihlerde meşguldür!");
+                return new ErrorResult("Bu araç seçilen tarihlerde kiradadır!");
             }
             return new SuccessResult();
         }
