@@ -28,6 +28,7 @@ namespace RentACar.Entities.Concrete
         public string LuggageCapacity { get; set; } = null!;
         public TransmissionType TransmissionType { get; set; }
         public int MinDrivingExperience { get; set; }
+        public int MinFindexScore { get; set; }
 
 
         public bool IsDeleted { get; set; } = false;
