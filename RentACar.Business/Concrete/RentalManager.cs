@@ -55,6 +55,7 @@ namespace RentACar.Business.Concrete
             await _carService.CheckIfCarExistsAsync(rentalAddDto.CarId),
             await _carStatusService.CheckIfCarIsInMaintenanceAsync(rentalAddDto.CarId, rentalAddDto.RentDate, rentalAddDto.ReturnDate),
             await CheckIfCustomerDrivingExperienceIsSufficient(rentalAddDto.CarId, customerResult.Data.Id),
+            await CheckIfCustomerFindexScoreIsSufficient(rentalAddDto.CarId, customerResult.Data.Id),
             await CheckIfCarAvailable(rentalAddDto.CarId, rentalAddDto.RentDate, rentalAddDto.ReturnDate)
             );
             if (result != null)
@@ -103,6 +104,7 @@ namespace RentACar.Business.Concrete
             await _carService.CheckIfCarExistsAsync(rentalAddByAdminDto.CarId),
             await _carStatusService.CheckIfCarIsInMaintenanceAsync(rentalAddByAdminDto.CarId, rentalAddByAdminDto.RentDate, rentalAddByAdminDto.ReturnDate),
             await CheckIfCustomerDrivingExperienceIsSufficient(rentalAddByAdminDto.CarId, rentalAddByAdminDto.CustomerId),
+            await CheckIfCustomerFindexScoreIsSufficient(rentalAddByAdminDto.CarId, rentalAddByAdminDto.CustomerId),
             await CheckIfCarAvailable(rentalAddByAdminDto.CarId, rentalAddByAdminDto.RentDate, rentalAddByAdminDto.ReturnDate)
             );
             if (result != null)
@@ -213,6 +215,7 @@ namespace RentACar.Business.Concrete
             await _carService.CheckIfCarExistsAsync(rentalUpdateDto.CarId),
             await _carStatusService.CheckIfCarIsInMaintenanceAsync(rentalUpdateDto.CarId, rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate),
             await CheckIfCustomerDrivingExperienceIsSufficient(rentalUpdateDto.CarId, existingRental.CustomerId),
+            await CheckIfCustomerFindexScoreIsSufficient(rentalUpdateDto.CarId, existingRental.CustomerId),
             await CheckIfCarAvailableForUpdate(rentalUpdateDto.Id, rentalUpdateDto.CarId, rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate)
             );
             if (result != null)
