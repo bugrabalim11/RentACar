@@ -16,7 +16,8 @@ namespace RentACar.Business.Concrete
         private readonly ICustomerService _customerService;
         private readonly IPaymentService _paymentService;
         private readonly ICarStatusService _carStatusService;
-        public RentalManager(IRentalRepository rentalRepository, IMapper mapper, ICarService carService, ICustomerService customerService, IPaymentService paymentService, ICarStatusService carStatusService)
+        private readonly IFindexScoreService _findexScoreService;
+        public RentalManager(IRentalRepository rentalRepository, IMapper mapper, ICarService carService, ICustomerService customerService, IPaymentService paymentService, ICarStatusService carStatusService, IFindexScoreService findexScoreService)
         {
             _rentalRepository = rentalRepository;
             _mapper = mapper;
@@ -24,6 +25,7 @@ namespace RentACar.Business.Concrete
             _customerService = customerService;
             _paymentService = paymentService;
             _carStatusService = carStatusService;
+            _findexScoreService = findexScoreService;
         }
 
         public async Task<IResult> AddAsync(RentalAddDto rentalAddDto, int userId)
@@ -342,6 +344,28 @@ namespace RentACar.Business.Concrete
             if (customerExperience < carResult.Data.MinDrivingExperience)
             {
                 return new ErrorResult("Bu aracı kiralayabilmek için ehliyet süreniz yetersizdir!");
+            }
+            return new SuccessResult();
+        }
+
+        private async Task<IResult> CheckIfCustomerFindexScoreIsSufficient(int carId, int customerId)
+        {
+            var carResult = await _carService.GetByIdAsync(carId);
+            if (!carResult.Success)
+            {
+                return new ErrorResult("Araç bulunamadı!");
+            }
+
+            var customerResult = await _customerService.GetByIdAsync(customerId);
+            if (!customerResult.Success)
+            {
+                return new ErrorResult("Müşteri bulunamadı!");
+            }
+
+            int findexResult = _findexScoreService.GetScoreByCustomerId(customerId);
+            if (findexResult < carResult.Data.MinFindexScore)
+            {
+                return new ErrorResult("Bu aracı kiralamaya findex puanınız yetmiyor!");
             }
             return new SuccessResult();
         }
