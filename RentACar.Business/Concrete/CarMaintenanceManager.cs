@@ -13,12 +13,14 @@ namespace RentACar.Business.Concrete
         private readonly ICarMaintenanceRepository _carMaintenanceRepository;
         private readonly IMapper _mapper;
         private readonly ICarService _carService;
+        private readonly ICarStatusService _carStatusService;
 
-        public CarMaintenanceManager(ICarMaintenanceRepository carMaintenanceRepository, IMapper mapper, ICarService carService)
+        public CarMaintenanceManager(ICarMaintenanceRepository carMaintenanceRepository, IMapper mapper, ICarService carService, ICarStatusService carStatusService)
         {
             _carMaintenanceRepository = carMaintenanceRepository;
             _mapper = mapper;
             _carService = carService;
+            _carStatusService = carStatusService;
         }
 
         public async Task<IResult> AddAsync(CarMaintenanceAddDto carMaintenanceAddDto)
@@ -32,6 +34,7 @@ namespace RentACar.Business.Concrete
 
             IResult? result = BusinessRules.Run(
             await CheckIfCarExists(carMaintenanceAddDto.CarId),
+            await _carStatusService.CheckIfCarIsRentedAsync(carMaintenanceAddDto.CarId, carMaintenanceAddDto.CheckInTime, carMaintenanceAddDto.CheckOutTime),
             await CheckIfCarAvailableForMaintenance(carMaintenanceAddDto.CarId, carMaintenanceAddDto.CheckInTime, carMaintenanceAddDto.CheckOutTime)
             );
             if (result != null)
@@ -91,6 +94,15 @@ namespace RentACar.Business.Concrete
                 return new ErrorResult("Güncellenecek tamir kaydı bulunamadı!");
             }
 
+            IResult? result = BusinessRules.Run(
+                await _carStatusService.CheckIfCarIsRentedAsync(existingMaintenance.CarId, carMaintenanceUpdateDto.CheckInTime, carMaintenanceUpdateDto.CheckOutTime),
+                await CheckIfCarAvailableForMaintenanceForUpdate(carMaintenanceUpdateDto.Id, existingMaintenance.CarId, carMaintenanceUpdateDto.CheckInTime, carMaintenanceUpdateDto.CheckOutTime)
+            );
+            if (result != null)
+            {
+                return result;
+            }
+
             _mapper.Map(carMaintenanceUpdateDto, existingMaintenance);
             await _carMaintenanceRepository.UpdateAsync(existingMaintenance);
             return new SuccessResult("Tamir kaydı başarıyla güncellendi.");
@@ -103,6 +115,16 @@ namespace RentACar.Business.Concrete
             if (isExist)
             {
                 return new ErrorResult("Bu araç, seçilen tarihler arasında zaten sanayidedir!");
+            }
+            return new SuccessResult();
+        }
+
+        private async Task<IResult> CheckIfCarAvailableForMaintenanceForUpdate(int maintenanceId, int carId, DateTime checkInTime, DateTime? checkOutTime)
+        {
+            bool isExist = await _carMaintenanceRepository.AnyAsync(x => x.CarId == carId && (x.Id != maintenanceId) && (x.CheckOutTime == null || checkInTime <= x.CheckOutTime) && (checkOutTime == null || checkOutTime >= x.CheckInTime));
+            if (isExist)
+            {
+                return new ErrorResult("Bu araç, güncellenmek istenen tarihler arasında zaten sanayidedir!");
             }
             return new SuccessResult();
         }

@@ -15,15 +15,15 @@ namespace RentACar.Business.Concrete
         private readonly ICarService _carService;
         private readonly ICustomerService _customerService;
         private readonly IPaymentService _paymentService;
-        private readonly ICarMaintenanceService _carMaintenanceService;
-        public RentalManager(IRentalRepository rentalRepository, IMapper mapper, ICarService carService, ICustomerService customerService, IPaymentService paymentService, ICarMaintenanceService carMaintenanceService)
+        private readonly ICarStatusService _carStatusService;
+        public RentalManager(IRentalRepository rentalRepository, IMapper mapper, ICarService carService, ICustomerService customerService, IPaymentService paymentService, ICarStatusService carStatusService)
         {
             _rentalRepository = rentalRepository;
             _mapper = mapper;
             _carService = carService;
             _customerService = customerService;
             _paymentService = paymentService;
-            _carMaintenanceService = carMaintenanceService;
+            _carStatusService = carStatusService;
         }
 
         public async Task<IResult> AddAsync(RentalAddDto rentalAddDto, int userId)
@@ -51,7 +51,7 @@ namespace RentACar.Business.Concrete
             IResult? result = BusinessRules.Run(
             CheckIfRentDateBeforeToday(rentalAddDto.RentDate),
             await _carService.CheckIfCarExistsAsync(rentalAddDto.CarId),
-            await _carMaintenanceService.CheckIfCarAvailableForMaintenance(rentalAddDto.CarId, rentalAddDto.RentDate, rentalAddDto.ReturnDate),
+            await _carStatusService.CheckIfCarIsInMaintenanceAsync(rentalAddDto.CarId, rentalAddDto.RentDate, rentalAddDto.ReturnDate),
             await CheckIfCustomerDrivingExperienceIsSufficient(rentalAddDto.CarId, customerResult.Data.Id),
             await CheckIfCarAvailable(rentalAddDto.CarId, rentalAddDto.RentDate, rentalAddDto.ReturnDate)
             );
@@ -99,7 +99,7 @@ namespace RentACar.Business.Concrete
             CheckIfRentDateBeforeToday(rentalAddByAdminDto.RentDate),
             await _customerService.CheckIfCustomerExistsByIdAsync(rentalAddByAdminDto.CustomerId),
             await _carService.CheckIfCarExistsAsync(rentalAddByAdminDto.CarId),
-            await _carMaintenanceService.CheckIfCarAvailableForMaintenance(rentalAddByAdminDto.CarId, rentalAddByAdminDto.RentDate, rentalAddByAdminDto.ReturnDate),
+            await _carStatusService.CheckIfCarIsInMaintenanceAsync(rentalAddByAdminDto.CarId, rentalAddByAdminDto.RentDate, rentalAddByAdminDto.ReturnDate),
             await CheckIfCustomerDrivingExperienceIsSufficient(rentalAddByAdminDto.CarId, rentalAddByAdminDto.CustomerId),
             await CheckIfCarAvailable(rentalAddByAdminDto.CarId, rentalAddByAdminDto.RentDate, rentalAddByAdminDto.ReturnDate)
             );
@@ -209,7 +209,7 @@ namespace RentACar.Business.Concrete
             CheckIfRentalIsAlreadyCompleted(existingRental.ReturnDate),
             CheckIfRentDateBeforeToday(rentalUpdateDto.RentDate),
             await _carService.CheckIfCarExistsAsync(rentalUpdateDto.CarId),
-            await _carMaintenanceService.CheckIfCarAvailableForMaintenance(rentalUpdateDto.CarId, rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate),
+            await _carStatusService.CheckIfCarIsInMaintenanceAsync(rentalUpdateDto.CarId, rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate),
             await CheckIfCustomerDrivingExperienceIsSufficient(rentalUpdateDto.CarId, existingRental.CustomerId),
             await CheckIfCarAvailableForUpdate(rentalUpdateDto.Id, rentalUpdateDto.CarId, rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate)
             );
