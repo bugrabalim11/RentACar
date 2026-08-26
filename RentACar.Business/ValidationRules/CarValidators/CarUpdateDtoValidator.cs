@@ -53,6 +53,8 @@ namespace RentACar.Business.ValidationRules.CarValidators
                 .GreaterThan(18).WithMessage("Minimum sürücü yaşı 18'den büyük olmalıdır.");
 
             RuleFor(x => x.MinDrivingExperience).GreaterThanOrEqualTo(0).WithMessage("Minimum sürücü deneyemi negatif bir değer olamaz.");
+
+            RuleFor(x => x.MinFindexScore).InclusiveBetween(0, 1900).WithMessage("Findex puanı 0 ile 1900 arasında olamalıdır.");
         }
     }
 }

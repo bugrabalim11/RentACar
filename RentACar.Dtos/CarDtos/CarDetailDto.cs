@@ -22,5 +22,6 @@ namespace RentACar.Dtos.CarDtos
         public string TransmissionType { get; set; } = null!;
         public int MinDriverAge { get; set; }
         public int MinDrivingExperience { get; set; }
+        public int MinFindexScore { get; set; }
     }
 }
