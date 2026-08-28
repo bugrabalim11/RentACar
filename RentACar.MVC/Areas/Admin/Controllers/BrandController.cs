@@ -21,8 +21,13 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
-                var values = JsonConvert.DeserializeObject<List<ResultBrandDto>>(jsonData);
-                return View(values);
+                var responseBox = JsonConvert.DeserializeObject<BrandResponseDto>(jsonData);
+                if (responseBox != null)
+                {
+                    // API'nin gönderdiği dış kutunun içindeki asıl marka listesini (Tepsiyi) masaya servis ediyoruz.
+                    // Yani başaralı mesajlarını falan değil direkt veriyi
+                    return View(responseBox.Data);
+                }
             }
             // API çağrısı başarısız olursa, sayfa patlamasın diye boş dönüyoruz.
             return View();
