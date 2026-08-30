@@ -3,6 +3,8 @@
     ViewData["Title"] = "Yeni Marka Ekle";
 }
 
+@model RentACar.MVC.Areas.Admin.Models.BrandDtos.CreateBrandDto
+
 <div class="container-xxl flex-grow-1 container-p-y">
     <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -15,10 +17,17 @@
             <!-- asp-action="CreateBrand": Veriler Controller'daki CreateBrand isimli (HttpPost olan) metoda gidecek -->
             <form method="post" asp-action="Create">
 
+                <!-- 1. GENEL İLAN PANOSU (Mutfaktan gelen hatalar için) -->
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
                 <div class="mb-3">
                     <label class="form-label">Marka Adı</label>
-                    <!-- name="Name": Arka plandaki DTO'nun içindeki 'Name' property'si ile aynı olmalı! -->
-                    <input type="text" class="form-control" name="Name" placeholder="Örn: BMW, Audi..." required />
+
+                    <!-- 2. SİHİRLİ INPUT (asp-for ile C#'a bağlandı, native 'required' silindi) -->
+                    <input type="text" class="form-control" asp-for="Name" placeholder="Örn: BMW, Audi..." />
+                    
+                    <!-- 3. KİŞİSEL TABELA (Sadece 'Name' alanı için DTO'daki mesajı buraya basar) -->
+                    <span asp-validation-for="Name" class="text-danger"></span>
                 </div>
 
                 <button type="submit" class="btn btn-primary">Kaydet</button>

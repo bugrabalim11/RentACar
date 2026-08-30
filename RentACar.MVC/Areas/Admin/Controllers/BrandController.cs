@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RentACar.MVC.Areas.Admin.Models.BrandDtos;
+using RentACar.MVC.Areas.Admin.Models.ErrorResponseDtos;
 using System.Text;
 
 namespace RentACar.MVC.Areas.Admin.Controllers
@@ -59,7 +60,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             // 1. GÜVENLİK KALKANI: Müşteri formu boş mu gönderdi? Kuralları (Örn: Required) ihlal etti mi?
             // Eğer form hatalıysa hiç API'ye gitme, müşteriye boş formu geri ver.
-            if (!ModelState.IsValid) {  return View(); }
+            if (!ModelState.IsValid) { return View(); }
 
             // 2. KURYE ÇAĞIR: API mutfağına gidecek garsonumuzu (HttpClient) hazırlıyoruz.
             var client = _httpClientFactory.CreateClient();
@@ -81,8 +82,19 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 return RedirectToAction("Index");
             }
 
-            // 7. B PLANI (HATA YAKALAMA): API "Hayır eklemiyorum, bu marka zaten var" derse ne olacak?
-            // TODO: API'den gelen hata JSON'unu okuyup ekranda SweetAlert veya Span ile göstereceğiz!
+            // 1. ZARFI AÇ VE OKU (ReadAsStringAsync): Mutfaktan gelen kızgın notu (JSON) metin olarak okuyoruz.
+            var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
+
+            // 2. ÇEVİRMEN (Deserialize): Okuduğumuz JSON notunu, az önce yaptığımız Çevik Kuryeye (ErrorResponseDto) dönüştürüyoruz.
+            var errorData = JsonConvert.DeserializeObject<ErrorResponseDto>(errorJsonData);
+            if (errorData != null)
+            {
+                // 3. MÜŞTERİYE NOT YAPIŞTIR (ModelState.AddModelError):
+                // Kurye boş sipariş fişini müşteriye geri vermeden önce, formun üzerine kırmızı bir not yapıştırıyor!
+                ModelState.AddModelError(string.Empty, errorData.Message);
+            }
+
+            // Sonra da bu kırmızı not yapıştırılmış formu müşterinin yüzüne tekrar gösteriyoruz.
             return View();
         }
     }
