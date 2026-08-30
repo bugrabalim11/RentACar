@@ -38,7 +38,7 @@ namespace RentACar.API.Controllers
             return NotFound(result);
         }
 
-        [Authorize(Roles = "admin")]
+        // TODO : [Authorize(Roles = "admin")] TEST BİTİNCE KALDIR
         // veya [Authorize(Roles = "Admin,Moderator")] şeklinde virgülle çoklu rütbe de verebilirsin.
         [HttpPost]
         public async Task<IActionResult> AddAsync(BrandAddDto brandAddDto)
