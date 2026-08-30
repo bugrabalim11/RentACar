@@ -112,11 +112,15 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 // Kutuyu açıp içindeki JSON'u okuyoruz
                 var jsonData = await responseMessasge.Content.ReadAsStringAsync();
 
-                // ÇEVİRMEN (Deserialize): JSON'u bizim yeni çantaya (UpdateBrandDto) koyuyoruz.
-                var values = JsonConvert.DeserializeObject<UpdateBrandDto>(jsonData);
+                // 1. Önce koca koliyi (Matruşkanın tamamını) çözüyoruz
+                var response = JsonConvert.DeserializeObject<GetByIdBrandResponseDto>(jsonData);
 
-                // Bu dolu çantayı View'a (Arayüze) gönderiyoruz ki form ekranda dolu gelsin!
-                return View(values);
+                // 2. Form (View) bizden koca koliyi değil, sadece içindeki arabayı (Id ve Name) bekliyor!
+                // Bu yüzden View'a sadece response içindeki Data'yı gönderiyoruz.
+                if (response != null && response.Data != null)
+                {
+                    return View(response.Data);
+                }
             }
 
             // Eğer o Id'de bir marka yoksa listeye geri yolla

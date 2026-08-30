@@ -38,8 +38,6 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Araç başarıyla eklendi.");
         }
 
-        // TODO: İleride Hangfire/Quartz kurularak, silinen arabaların fiziki resimlerini
-        // 30 gün sonra temizleyen bir Background Job yazılacak.
         public async Task<IResult> DeleteAsync(int id)
         {
             var existingCar = await _carRepository.GetAsync(x => x.Id == id);
