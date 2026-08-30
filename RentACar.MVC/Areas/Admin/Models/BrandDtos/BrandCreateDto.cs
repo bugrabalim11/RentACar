@@ -2,7 +2,7 @@
 
 namespace RentACar.MVC.Areas.Admin.Models.BrandDtos
 {
-    public class CreateBrandDto
+    public class BrandCreateDto
     {
         [Required(ErrorMessage = "Lütfen marka adını boş bırakmayınız!")]
         [MinLength(2, ErrorMessage = "Araç markası en az 2 karakter olmalıdır!")]

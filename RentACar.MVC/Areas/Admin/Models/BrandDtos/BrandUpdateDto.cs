@@ -2,7 +2,7 @@
 
 namespace RentACar.MVC.Areas.Admin.Models.BrandDtos
 {
-    public class UpdateBrandDto
+    public class BrandUpdateDto
     {
         public int Id { get; set; }
 

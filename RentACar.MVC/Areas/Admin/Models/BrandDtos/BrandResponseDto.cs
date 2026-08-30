@@ -4,6 +4,6 @@
     {
         public bool Success { get; set; }
         public string Message { get; set; } = null!;
-        public List<ResultBrandDto> Data { get; set; } = null!;
+        public List<BrandResultDto> Data { get; set; } = null!;
     }
 }

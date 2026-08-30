@@ -8,6 +8,6 @@
 
         // Matruşkanın içindeki asıl değer! 
         // Tipini UpdateBrandDto veriyoruz ki, formumuzun beklediği o 'Id' ve 'Name' yapısıyla tam eşleşsin.
-        public UpdateBrandDto Data { get; set; } = null!;
+        public BrandUpdateDto Data { get; set; } = null!;
     }
 }

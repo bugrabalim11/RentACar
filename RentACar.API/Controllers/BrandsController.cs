@@ -55,7 +55,7 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
-        // TODO: [Authorize(Roles = "admin")] İŞİN BİTİNCE KALDIR
+        [Authorize(Roles = "admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync(int id, BrandUpdateDto brandUpdateDto)
         {

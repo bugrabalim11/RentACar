@@ -56,17 +56,18 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CreateBrandDto createBrandDto)
+        public async Task<IActionResult> Create(BrandCreateDto brandCreateDto)
         {
             // 1. GÜVENLİK KALKANI: Müşteri formu boş mu gönderdi? Kuralları (Örn: Required) ihlal etti mi?
-            // Eğer form hatalıysa hiç API'ye gitme, müşteriye boş formu geri ver.
-            if (!ModelState.IsValid) { return View(); }
+            // Eğer form hatalıysa hiç API'ye gitme, müşteriye formu geri ver.
+            // Sadece şu kısmı yanlış yazmışsın, düzelt" diyerek üzerindeki eski verilerle birlikte müşteriye geri verir.
+            if (!ModelState.IsValid) { return View(brandCreateDto); }
 
             // 2. KURYE ÇAĞIR: API mutfağına gidecek garsonumuzu (HttpClient) hazırlıyoruz.
             var client = _httpClientFactory.CreateClient();
 
             // 3. ÇEVİRMEN (SERIALIZE): C# dilindeki nesnemizi, mutfağın anladığı evrensel dile (JSON) çeviriyoruz.
-            var jsonData = JsonConvert.SerializeObject(createBrandDto);
+            var jsonData = JsonConvert.SerializeObject(brandCreateDto);
 
             // 4. ZARF VE PUL (StringContent): Çıplak JSON yollanmaz! Onu zarfa koyup dilinin (UTF-8)
             // ve türünün (application/json) ne olduğunu gümrük memuruna (HTTP Protokolüne) bildiriyoruz.
@@ -94,8 +95,8 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 ModelState.AddModelError(string.Empty, errorData.Message);
             }
 
-            // Sonra da bu kırmızı not yapıştırılmış formu müşterinin yüzüne tekrar gösteriyoruz.
-            return View();
+            // brandCreateDto dödürdük ki hata varsa hepsini tekrar yazmasın 
+            return View(brandCreateDto);
         }
 
         [HttpGet]
@@ -125,6 +126,30 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 
             // Eğer o Id'de bir marka yoksa listeye geri yolla
             return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Update(BrandUpdateDto brandUpdateDto)
+        {
+            if (!ModelState.IsValid) { return View(brandUpdateDto); } 
+
+            var client = _httpClientFactory.CreateClient();
+
+            var jsonData = JsonConvert.SerializeObject(brandUpdateDto);
+            var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
+            var responseMessage = await client.PutAsync($"https://localhost:7085/api/Brands/{brandUpdateDto.Id}", stringContent);
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                return RedirectToAction("Index");
+            }
+
+            var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
+            var errorData = JsonConvert.DeserializeObject<ErrorResponseDto>(errorJsonData);
+            if (errorData != null)
+            {
+                ModelState.AddModelError(string.Empty, errorData.Message);
+            }
+            return View(brandUpdateDto);
         }
     }
 }
