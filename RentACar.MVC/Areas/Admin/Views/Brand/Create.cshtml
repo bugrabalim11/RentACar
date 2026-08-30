@@ -1,0 +1,29 @@
+﻿@{
+    // Sayfanın sekme adı
+    ViewData["Title"] = "Yeni Marka Ekle";
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Yeni Marka Ekle</h5>
+        </div>
+        <div class="card-body">
+
+            <!-- FORM BAŞLIYOR -->
+            <!-- method="post": Bu form doldurulup gönderildiğinde kurye POST isteğiyle yola çıkacak -->
+            <!-- asp-action="CreateBrand": Veriler Controller'daki CreateBrand isimli (HttpPost olan) metoda gidecek -->
+            <form method="post" asp-action="Create">
+
+                <div class="mb-3">
+                    <label class="form-label">Marka Adı</label>
+                    <!-- name="Name": Arka plandaki DTO'nun içindeki 'Name' property'si ile aynı olmalı! -->
+                    <input type="text" class="form-control" name="Name" placeholder="Örn: BMW, Audi..." required />
+                </div>
+
+                <button type="submit" class="btn btn-primary">Kaydet</button>
+            </form>
+
+        </div>
+    </div>
+</div>

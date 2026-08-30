@@ -45,5 +45,12 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             }
             return Json(new { success = false, message = "API tarafında silme işlemi başarısız oldu!" });
         }
+
+        [HttpGet]
+        public IActionResult Create()
+        {
+            // Burada API'ye gitmiyoruz! Sadece boş sipariş fişini (View) masaya bırakıyoruz.
+            return View();
+        }
     }
 }
