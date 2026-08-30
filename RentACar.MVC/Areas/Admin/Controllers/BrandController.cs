@@ -97,5 +97,30 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             // Sonra da bu kırmızı not yapıştırılmış formu müşterinin yüzüne tekrar gösteriyoruz.
             return View();
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Update(int id)
+        {
+            var client = _httpClientFactory.CreateClient();
+
+            // 1. Kurye mutfağa (API'nin GetById kapısına) gidiyor:
+            var responseMessasge = await client.GetAsync($"https://localhost:7085/api/Brands/{id}");
+
+            // 2. Mutfaktan tabak geldiyse:
+            if (responseMessasge.IsSuccessStatusCode)
+            {
+                // Kutuyu açıp içindeki JSON'u okuyoruz
+                var jsonData = await responseMessasge.Content.ReadAsStringAsync();
+
+                // ÇEVİRMEN (Deserialize): JSON'u bizim yeni çantaya (UpdateBrandDto) koyuyoruz.
+                var values = JsonConvert.DeserializeObject<UpdateBrandDto>(jsonData);
+
+                // Bu dolu çantayı View'a (Arayüze) gönderiyoruz ki form ekranda dolu gelsin!
+                return View(values);
+            }
+
+            // Eğer o Id'de bir marka yoksa listeye geri yolla
+            return RedirectToAction("Index");
+        }
     }
 }
