@@ -62,8 +62,9 @@
     // Eğer kullanıcı Evet butonuna basarsa burası çalışır
     if(result.isConfirmed){
     // 1. Kuryeye adresi ve istek tipini veriyoruz.
-    // (Controller'da [HttpPost] dediğimiz için burada da POST diyoruz)
-    fetch('/Admin/Color/Delete/'+id,{
+    // Eski Hali: fetch('/Admin/Color/Delete/' + id, { ...
+    // Yeni Hali: C#'ın Akıllı GPS'ini (Url.Action) JS'in içine gömüyoruz!
+    fetch('@Url.Action("Delete", "Color", new { area = "Admin" })'+'/'+id,{
     method:'POST'
     })
     // 2. C# Controller'ından dönen cevabı (Json) paketinden çıkartıyoruz.
