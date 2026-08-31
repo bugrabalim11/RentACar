@@ -84,5 +84,52 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 
             return View(colorCreateDto);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Update(int id)
+        {
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+
+            var responseMessage = await client.GetAsync($"api/Colors/{id}");
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var jsonData = await responseMessage.Content.ReadAsStringAsync();
+                var response = JsonConvert.DeserializeObject<GetByIdColorResponseDto>(jsonData);
+                if (response != null && response.Data != null)
+                {
+                    return View(response.Data);
+                }
+            }
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Update(ColorUpdateDto colorUpdateDto)
+        {
+            if (!ModelState.IsValid) { return View(colorUpdateDto); }
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+
+            var jsonData = JsonConvert.SerializeObject(colorUpdateDto);
+            var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
+            var responseMessage = await client.PutAsync($"api/Colors/{colorUpdateDto.Id}", stringContent);
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                return RedirectToAction("Index");
+            }
+
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                ModelState.AddModelError(string.Empty, "Bu işlem için yetkiniz yok. Lütfen giriş yapın!");
+                return View(colorUpdateDto);
+            }
+
+            var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
+            var errorData = JsonConvert.DeserializeObject<ErrorResponseDto>(errorJsonData);
+            if (errorData != null)
+            {
+                ModelState.AddModelError(string.Empty, errorData.Message);
+            }
+            return View(colorUpdateDto);
+        }
     }
 }

@@ -1,0 +1,25 @@
+﻿@{
+    ViewData["Title"] = "Renk Güncelle";
+}
+
+@model RentACar.MVC.Areas.Admin.Models.ColorDtos.ColorUpdateDto
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Renk Güncelle</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" asp-action="Update">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <input type="hidden" asp-for="Id" />
+                <div class="mb-3">
+                    <label class="form-label">Renk Adı</label>
+                    <input type="text" class="form-control" asp-for="Name" placeholder="Örn: Kırmızı, Beyaz..." />                  
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-primary">Güncelle</button>
+            </form>
+        </div>
+    </div>
+</div>
