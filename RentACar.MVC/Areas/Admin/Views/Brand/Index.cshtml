@@ -79,8 +79,9 @@
     // veya direkt sayfayı yenileyerek tablonun güncel halini gösterebilirsin.
     window.location.reload();
     }else{
-    // Başarısızsa kullanıcıya bilgi ver
-    Swal.fire('Hata!', 'Silme işlemi başarısız oldu.', 'error');
+    // Eskiden burada sabit olarak 'Silme işlemi başarısız oldu' yazıyordu.
+    // Şimdi C#'tan (kuryeden) gelen o dinamik mesajı (data.message) ekrana basıyoruz!
+    Swal.fire('Hata!', data.message, 'error');
     }
     });
     }

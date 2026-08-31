@@ -2,7 +2,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddHttpClient();
+builder.Services.AddHttpClient("RentACarApi", client =>
+{
+    // Ayar defterindeki o BaseUrl adresini okuyup kuryenin çantasına sabitliyoruz
+    client.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!);
+});
 
 var app = builder.Build();
 

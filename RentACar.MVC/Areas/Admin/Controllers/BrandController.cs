@@ -17,9 +17,9 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var client = _httpClientFactory.CreateClient();
+            var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.GetAsync("https://localhost:7085/api/Brands");
+            var responseMessage = await client.GetAsync("api/Brands");
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
@@ -38,13 +38,18 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var client = _httpClientFactory.CreateClient();
+            var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.DeleteAsync($"https://localhost:7085/api/Brands/{id}");
+            var responseMessage = await client.DeleteAsync($"api/Brands/{id}");
             if (responseMessage.IsSuccessStatusCode)
             {
                 return Json(new { success = true });
             }
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                return Json(new { success = false, message = "Bu işlem için yetkiniz yok. Lütfen giriş yapın!" });
+            }
+
             return Json(new { success = false, message = "API tarafında silme işlemi başarısız oldu!" });
         }
 
@@ -64,7 +69,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             if (!ModelState.IsValid) { return View(brandCreateDto); }
 
             // 2. KURYE ÇAĞIR: API mutfağına gidecek garsonumuzu (HttpClient) hazırlıyoruz.
-            var client = _httpClientFactory.CreateClient();
+            var client = _httpClientFactory.CreateClient("RentACarApi");
 
             // 3. ÇEVİRMEN (SERIALIZE): C# dilindeki nesnemizi, mutfağın anladığı evrensel dile (JSON) çeviriyoruz.
             var jsonData = JsonConvert.SerializeObject(brandCreateDto);
@@ -74,7 +79,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
             // 5. YOLA ÇIKIŞ: Kurye, elindeki zarfla API'nin kapısına POST (Veri Ekleme) isteği atıyor.
-            var responseMessage = await client.PostAsync("https://localhost:7085/api/Brands", stringContent);
+            var responseMessage = await client.PostAsync("api/Brands", stringContent);
 
             // 6. MUTLU SON KONTROLÜ: API "Tamamdır, başarıyla ekledim" dedi mi?
             if (responseMessage.IsSuccessStatusCode)
@@ -102,10 +107,10 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Update(int id)
         {
-            var client = _httpClientFactory.CreateClient();
+            var client = _httpClientFactory.CreateClient("RentACarApi");
 
             // 1. Kurye mutfağa (API'nin GetById kapısına) gidiyor:
-            var responseMessasge = await client.GetAsync($"https://localhost:7085/api/Brands/{id}");
+            var responseMessasge = await client.GetAsync($"api/Brands/{id}");
 
             // 2. Mutfaktan tabak geldiyse:
             if (responseMessasge.IsSuccessStatusCode)
@@ -133,16 +138,22 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid) { return View(brandUpdateDto); } 
 
-            var client = _httpClientFactory.CreateClient();
+            var client = _httpClientFactory.CreateClient("RentACarApi");
 
             var jsonData = JsonConvert.SerializeObject(brandUpdateDto);
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            var responseMessage = await client.PutAsync($"https://localhost:7085/api/Brands/{brandUpdateDto.Id}", stringContent);
+            var responseMessage = await client.PutAsync($"api/Brands/{brandUpdateDto.Id}", stringContent);
             if (responseMessage.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");
             }
 
+            // Eğer mutfak bizi direkt kapıdan kovduysa (Giriş yapmamışsak)
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                ModelState.AddModelError(string.Empty, "Bu işlem için yetkiniz yok. Lütfen giriş yapın!");
+                return View(brandUpdateDto);
+            }
             var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
             var errorData = JsonConvert.DeserializeObject<ErrorResponseDto>(errorJsonData);
             if (errorData != null)
