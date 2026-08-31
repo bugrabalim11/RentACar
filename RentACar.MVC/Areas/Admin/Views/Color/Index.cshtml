@@ -1,0 +1,86 @@
+﻿@using RentACar.MVC.Areas.Admin.Models.ColorDtos
+
+@model List<ColorResultDto>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Renk Listesi</h5>
+        <a asp-action="Create" class="btn btn-primary">Yeni Renk Ekle</a>
+    </div>
+
+    <div class="card-body">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>
+                        #
+                    </th>
+                    <th>
+                        Name
+                    </th>
+                    <th>
+                        Actions
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @item.Id
+                        </td>
+                        <td>
+                            @item.Name
+                        </td>
+                        <td>
+                            <a asp-action="Update" asp-route-id="@item.Id" class="btn btn-warning me-2">Güncelle</a>
+                            <button onclick="deleteColor(@item.Id)" class="btn btn-danger">Sil</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    function deleteColor(id){
+    // Güvenlik görevlisini çağırıyoruz
+    Swal.fire({
+    title:'Emin misin?',
+    text:'Bu rengi kalıcı olarak sileceksin!',
+    icon:'warning',
+    showCancelButton:true,
+    confirmButtonColor:'#3085d6',
+    cancelButtonColor:'#d33',
+    confirmButtonText:'Evet, Sil!',
+    cancelButtonText:'İptal'
+    }).then((result)=>{
+    // Eğer kullanıcı Evet butonuna basarsa burası çalışır
+    if(result.isConfirmed){
+    // 1. Kuryeye adresi ve istek tipini veriyoruz.
+    // (Controller'da [HttpPost] dediğimiz için burada da POST diyoruz)
+    fetch('/Admin/Color/Delete/'+id,{
+    method:'POST'
+    })
+    // 2. C# Controller'ından dönen cevabı (Json) paketinden çıkartıyoruz.
+    .then(response=>response.json())
+    // 3. Çıkan veriyi (data) kontrol edip UI tarafında aksiyon alıyoruz.
+    .then(data=>{
+    if(data.success){
+    // İşlem başarılıysa SweetAlert ile ufak bir 'Silindi' mesajı çıkarabilir
+    // veya direkt sayfayı yenileyerek tablonun güncel halini gösterebilirsin.
+    window.location.reload();
+    }else{
+    // Eskiden burada sabit olarak 'Silme işlemi başarısız oldu' yazıyordu.
+    // Şimdi C#'tan (kuryeden) gelen o dinamik mesajı (data.message) ekrana basıyoruz!
+    Swal.fire('Hata!', data.message, 'error');
+    }
+    });
+    }
+    });
+    }
+</script>
