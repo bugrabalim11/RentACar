@@ -88,6 +88,11 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 return RedirectToAction("Index");
             }
 
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                ModelState.AddModelError(string.Empty, "Bu işlem için yetkiniz yok. Lütfen giriş yapın!");
+                return View(brandCreateDto);
+            }
             // 1. ZARFI AÇ VE OKU (ReadAsStringAsync): Mutfaktan gelen kızgın notu (JSON) metin olarak okuyoruz.
             var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
 
