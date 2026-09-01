@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace RentACar.MVC.Areas.Admin.Models.OfficeDto
+namespace RentACar.MVC.Areas.Admin.Models.OfficeDtos
 {
     public class OfficeCreateDto
     {
