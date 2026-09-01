@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using RentACar.MVC.Areas.Admin.Models.ErrorResponseDtos;
 using RentACar.MVC.Areas.Admin.Models.OfficeDtos;
 using System.Text;
+using System.Text.Unicode;
 
 namespace RentACar.MVC.Areas.Admin.Controllers
 {
@@ -81,6 +82,50 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 ModelState.AddModelError(string.Empty, errorData.Message);
             }
             return View(officeCreateDto);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Update(int id)
+        {
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+            var resposneMessage = await client.GetAsync($"api/Offices/{id}");
+            if (resposneMessage.IsSuccessStatusCode)
+            {
+                var jsonData = await resposneMessage.Content.ReadAsStringAsync();
+                var response = JsonConvert.DeserializeObject<GetByIdOfficeResponseDto>(jsonData);
+                if (response != null && response.Data != null)
+                {
+                    return View(response.Data);
+                }
+            }
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Update(OfficeUpdateDto officeUpdateDto)
+        {
+            if (!ModelState.IsValid) { return View(officeUpdateDto); }
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+
+            var jsonData = JsonConvert.SerializeObject(officeUpdateDto);
+            var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
+            var responseMessage = await client.PutAsync($"api/Offices/{officeUpdateDto.Id}", stringContent);
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                return RedirectToAction("Index");
+            }
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                ModelState.AddModelError(string.Empty, "Bu işlem için yetkiniz yok. Lütfen giriş yapın!");
+                return View(officeUpdateDto);
+            }
+            var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
+            var errorData = JsonConvert.DeserializeObject<ErrorResponseDto>(errorJsonData);
+            if (errorData != null)
+            {
+                ModelState.AddModelError(string.Empty, errorData.Message);
+            }
+            return View(officeUpdateDto);
         }
     }
 }
