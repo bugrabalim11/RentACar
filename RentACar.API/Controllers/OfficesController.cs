@@ -51,7 +51,7 @@ namespace RentACar.API.Controllers
         }
 
         [Authorize(Roles = "admin")]
-        [HttpPut]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync(int id, OfficeUpdateDto officeUpdateDto)
         {
             if (id != officeUpdateDto.Id)
