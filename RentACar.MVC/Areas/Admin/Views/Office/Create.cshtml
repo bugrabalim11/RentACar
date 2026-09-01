@@ -1,0 +1,34 @@
+﻿@{
+    ViewData["Title"] = "Yeni Ofis Ekle";
+}
+
+@model RentACar.MVC.Areas.Admin.Models.OfficeDtos.OfficeCreateDto
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Yeni Ofis Ekle</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <div class="mb-3">
+                    <label class="form-label">Ofis Adı</label>
+                    <input type="text" class="form-control" asp-for="Name" placeholder="Örn: Erenler..." />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Ofis Şehri</label>
+                    <input type="text" class="form-control" asp-for="City" placeholder="Örn: İstanbul, Ankara..." />
+                    <span asp-validation-for="City" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">İletişim Numarası</label>
+                    <input type="text" class="form-control" asp-for="ContactNumber" placeholder="Örn: 05551234567" />
+                    <span asp-validation-for="ContactNumber" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-primary">Kaydet</button>
+            </form>
+        </div>
+    </div>
+</div>
