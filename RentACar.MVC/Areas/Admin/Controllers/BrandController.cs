@@ -31,8 +31,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                     return View(responseBox.Data);
                 }
             }
-            // API çağrısı başarısız olursa, sayfa patlamasın diye boş dönüyoruz.
-            return View();
+            return View(new List<BrandResultDto>());
         }
 
         [HttpPost]

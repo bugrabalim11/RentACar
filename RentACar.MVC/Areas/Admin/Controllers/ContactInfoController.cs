@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using RentACar.MVC.Areas.Admin.Models.ContactInfoDtos;
 using RentACar.MVC.Areas.Admin.Models.ErrorResponseDtos;
-using RentACar.MVC.Areas.Admin.Models.OfficeDtos;
 using System.Text;
 
 namespace RentACar.MVC.Areas.Admin.Controllers
@@ -31,7 +30,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                     return View(responseBox.Data);
                 }
             }
-            return View();
+            return View(new List<ContactInfoResultDto>());
         }
 
         [HttpPost]

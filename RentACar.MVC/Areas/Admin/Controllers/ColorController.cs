@@ -30,7 +30,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                     return View(responseBox.Data);
                 }
             }
-            return View();
+            return View(new List<ColorResultDto>());
         }
 
         [HttpPost]
