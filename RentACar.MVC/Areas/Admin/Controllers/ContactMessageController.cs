@@ -51,11 +51,17 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         public async Task<IActionResult> Details(int id)
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
+
+            // Gölge Kurye: Mektubu getirmeden hemen önce veritabanında sessizce "Okundu" (IsRead = true) olarak işaretle.
+            await client.PatchAsync($"api/ContactMessages/MarkAsRead/{id}", null);
+
+            // Asıl Kurye: Okundu durumu güncellenmiş güncel mektubu vitrine (UI) taşımak için getir.
             var responseMessage = await client.GetAsync($"api/ContactMessages/{id}");
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
                 var response = JsonConvert.DeserializeObject<GetByIdContactMessageResponseDto>(jsonData);
+                // Koli geldi mi ve aşçıbaşı içine tabağı (Data) koydu mu kontrolü (Defensive Programming)
                 if (response != null && response.Data != null)
                 {
                     return View(response.Data);
