@@ -85,6 +85,22 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<ContactMessageListDto>(contactMessageDto, "Mesaj başarıyla getirildi.");
         }
 
+        public async Task<IResult> MarkAsReadAsync(int id)
+        {
+            var contactMessage = await _contactMessageRepository.GetAsync(x => x.Id == id);
+            if (contactMessage == null)
+            {
+                return new ErrorResult("Mesaj bulunamadı.");
+            }
+
+            if (!contactMessage.IsRead)
+            {
+                contactMessage.IsRead = true;
+                await _contactMessageRepository.UpdateAsync(contactMessage);
+            }
+            return new SuccessResult();
+        }
+
         private async Task<IResult> CheckIfUserCanSendMessageAsync(string email)
         {
             bool sendMessage = await _contactMessageRepository.AnyAsync(x => x.Email.ToLower() == email && x.SendDate > DateTime.UtcNow.AddMinutes(-5)); // >= de olabilirdi aynı şey

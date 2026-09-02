@@ -72,5 +72,16 @@ namespace RentACar.API.Controllers
             }
             return BadRequest(result);
         }
+
+        [HttpPatch("MarkAsRead/{id}")]
+        public async Task<IActionResult> MarkAsReadAsync(int id)
+        {
+            var result = await _contactMessageService.MarkAsReadAsync(id);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
     }
 }
