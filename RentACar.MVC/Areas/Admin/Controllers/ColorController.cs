@@ -25,7 +25,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
                 var responseBox = JsonConvert.DeserializeObject<ColorResponseDto>(jsonData);
-                if (responseBox != null)
+                if (responseBox != null && responseBox.Data != null)
                 {
                     return View(responseBox.Data);
                 }

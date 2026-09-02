@@ -24,7 +24,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
                 var responseBox = JsonConvert.DeserializeObject<BrandResponseDto>(jsonData);
-                if (responseBox != null)
+                if (responseBox != null && responseBox.Data != null)
                 {
                     // API'nin gönderdiği dış kutunun içindeki asıl marka listesini (Tepsiyi) masaya servis ediyoruz.
                     // Yani başaralı mesajlarını falan değil direkt veriyi
@@ -141,7 +141,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Update(BrandUpdateDto brandUpdateDto)
         {
-            if (!ModelState.IsValid) { return View(brandUpdateDto); } 
+            if (!ModelState.IsValid) { return View(brandUpdateDto); }
 
             var client = _httpClientFactory.CreateClient("RentACarApi");
 

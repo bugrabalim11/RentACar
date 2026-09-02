@@ -1,0 +1,115 @@
+﻿@using RentACar.MVC.Areas.Admin.Models.ContactMessageDtos
+
+@model List<ContactMessageResultDto>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Mesaj Listesi</h5>
+    </div>
+
+    <div class="card-body">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>
+                        #
+                    </th>
+                    <th>
+                        Name
+                    </th>
+                    <th>
+                        Email
+                    </th>
+                    <th>
+                        Subject
+                    </th>
+                    <th>
+                        Message
+                    </th>
+                    <th>
+                        SendDate
+                    </th>
+                    <th>
+                        IsRead
+                    </th>
+                    <th>
+                        Actions
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @item.Id
+                        </td>
+                        <td>
+                            @item.Name
+                        </td>
+                        <td>
+                            @item.Email
+                        </td>
+                        <td>
+                            @item.Subject
+                        </td>
+                        <td>
+                            @item.Message
+                        </td>
+                        <td>
+                            @item.SendDate
+                        </td>
+                        <td>
+                            @if (item.IsRead)
+                            {
+                                <span class="badge bg-success">Okundu</span>
+                            }
+                            else
+                            {
+
+                                <span class="badge bg-danger">Okunmadı</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Detay</a>
+                            <button onclick="deleteContactMessage(@item.Id)" class="btn btn-danger btn-sm">Sil</button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    function deleteContactMessage(id){
+    Swal.fire({
+    title:'Emin misin?',
+    text:'Bu mesajı kalıcı olarak sileceksin!',
+    icon:'warning',
+    showCancelButton:true,
+    confirmButtonColor:'#3085d6',
+    cancelButtonColor:'#d33',
+    confirmButtonText:'Evet, Sil!',
+    cancelButtonText:'İptal'
+    }).then((result)=>{
+    if(result.isConfirmed){
+    fetch('@Url.Action("Delete", "ContactMessage", new { area = "Admin" })'+'/'+id,{
+    method:'POST'
+    })
+    .then(response=>response.json())
+    .then(data=>{
+    if(data.success){
+    window.location.reload();
+    }else{
+    Swal.fire('Hata!', data.message, 'error');
+    }
+    });
+    }
+    });
+    }
+</script>
