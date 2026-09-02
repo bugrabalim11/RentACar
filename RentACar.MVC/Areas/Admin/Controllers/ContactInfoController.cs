@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using RentACar.MVC.Areas.Admin.Models.ContactInfoDtos;
 using RentACar.MVC.Areas.Admin.Models.ErrorResponseDtos;
+using RentACar.MVC.Areas.Admin.Models.OfficeDtos;
 using System.Text;
 
 namespace RentACar.MVC.Areas.Admin.Controllers
@@ -81,6 +82,50 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 ModelState.AddModelError(string.Empty, errorData.Message);
             }
             return View(contactInfoCreateDto);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Update(int id)
+        {
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+            var responseMessage = await client.GetAsync($"api/ContactInfos/{id}");
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var jsonData = await responseMessage.Content.ReadAsStringAsync();
+                var response = JsonConvert.DeserializeObject<GetByIdContactInfoResponseDto>(jsonData);
+                if (response != null && response.Data != null)
+                {
+                    return View(response.Data);
+                }
+            }
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Update(ContactInfoUpdateDto contactInfoUpdateDto)
+        {
+            if (!ModelState.IsValid) { return View(contactInfoUpdateDto); }
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+
+            var jsonData = JsonConvert.SerializeObject(contactInfoUpdateDto);
+            var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
+            var responseMessage = await client.PutAsync($"api/ContactInfos/{contactInfoUpdateDto.Id}", stringContent);
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                return RedirectToAction("Index");
+            }
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                ModelState.AddModelError(string.Empty, "Bu işlem için yetkiniz yok. Lütfen giriş yapın!");
+                return View(contactInfoUpdateDto);
+            }
+            var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
+            var errorData = JsonConvert.DeserializeObject<ErrorResponseDto>(errorJsonData);
+            if (errorData != null)
+            {
+                ModelState.AddModelError(string.Empty, errorData.Message);
+            }
+            return View(contactInfoUpdateDto);
         }
     }
 }
