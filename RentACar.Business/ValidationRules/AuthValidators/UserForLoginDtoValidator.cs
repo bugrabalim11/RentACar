@@ -7,7 +7,9 @@ namespace RentACar.Business.ValidationRules.AuthValidators
     {
         public UserForLoginDtoValidator()
         {
-            RuleFor(x => x.Email).NotEmpty().WithMessage("Lütfen e-posta adresinizi giriniz.");
+            RuleFor(x => x.Email)
+                .NotEmpty().WithMessage("Lütfen e-posta adresinizi giriniz.")
+                .EmailAddress().WithMessage("Lütfen geçerli bir e-posta adresi giriniz.");
 
             RuleFor(x => x.Password).NotEmpty().WithMessage("Lütfen şifrenizi giriniz.");
         }
