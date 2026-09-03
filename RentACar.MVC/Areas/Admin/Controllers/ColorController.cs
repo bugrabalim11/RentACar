@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RentACar.MVC.Areas.Admin.Models.ColorDtos;
 using RentACar.MVC.Areas.Admin.Models.ErrorResponseDtos;
@@ -7,6 +8,7 @@ using System.Text;
 namespace RentACar.MVC.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "admin")]
     public class ColorController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;

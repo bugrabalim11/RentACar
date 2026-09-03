@@ -1,11 +1,9 @@
-﻿using RentACar.Core.Entities.Concrete;
-using Microsoft.Extensions.Configuration; // IConfiguration için bu kütüphaneyi (ampul ile) eklemelisin.
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Security.Claims;
+﻿using Microsoft.Extensions.Configuration; // IConfiguration için bu kütüphaneyi (ampul ile) eklemelisin.
 using Microsoft.IdentityModel.Tokens;
+using RentACar.Core.Entities.Concrete;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace RentACar.Core.Utilities.Security.Jwt
 {
