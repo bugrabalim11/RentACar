@@ -1,13 +1,15 @@
-﻿using RentACar.Core.Entities;
-using RentACar.Entities.Enums;
+﻿using RentACar.MVC.Models.Enums;
 
-namespace RentACar.Dtos.CarDtos
+namespace RentACar.MVC.Areas.Admin.Models.CarDtos
 {
-    public class CarUpdateDto : IDto
+    public class CarDetailDto
     {
-        public int Id { get; set; } 
-        public int BrandId { get; set; }
-        public int ColorId { get; set; }
+        public int Id { get; set; }
+
+        // Müşteri ID görmek istemez, ismi görmek ister!
+        public string BrandName { get; set; } = null!;
+        public string ColorName { get; set; } = null!;
+
         public string ModelName { get; set; } = null!;
         public int Kilometer { get; set; }
         public string Plate { get; set; } = null!;

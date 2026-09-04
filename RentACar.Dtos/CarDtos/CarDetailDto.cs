@@ -1,4 +1,5 @@
 ﻿using RentACar.Core.Entities;
+using RentACar.Entities.Enums;
 
 namespace RentACar.Dtos.CarDtos
 {
@@ -18,7 +19,7 @@ namespace RentACar.Dtos.CarDtos
         public bool IsAvailable { get; set; }
         public int DoorCount { get; set; }
         public int SeatCount { get; set; }
-        public string LuggageCapacity { get; set; } = null!;
+        public LuggageCapacity LuggageCapacity { get; set; }
         public string TransmissionType { get; set; } = null!;
         public int MinDriverAge { get; set; }
         public int MinDrivingExperience { get; set; }

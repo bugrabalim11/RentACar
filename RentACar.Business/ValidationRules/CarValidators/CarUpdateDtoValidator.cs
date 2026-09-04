@@ -1,8 +1,5 @@
 ﻿using FluentValidation;
 using RentACar.Dtos.CarDtos;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RentACar.Business.ValidationRules.CarValidators
 {
@@ -27,8 +24,7 @@ namespace RentACar.Business.ValidationRules.CarValidators
                 .NotEmpty().WithMessage("Araç plakası boş bırakılamaz.")
                 .MaximumLength(10).WithMessage("Araç plakası en fazla 10 karakter olmalıdır.");
 
-            RuleFor(x => x.LuggageCapacity).NotEmpty().WithMessage("Bagaj kapasitesi boş geçilemez.");
-
+            RuleFor(x => x.LuggageCapacity).IsInEnum().WithMessage("Lütfen geçerli bir bagaj boyutu seçiniz (1: Small, 2: Medium, 3: Large).");
             RuleFor(x => x.TransmissionType).IsInEnum().WithMessage("Lütfen geçerli bir vites tipi seçiniz (1: Manuel, 2: Otomatik, 3: Yarı Otomatik).");
 
 

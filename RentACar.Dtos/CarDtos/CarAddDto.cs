@@ -1,6 +1,7 @@
 ﻿
 using RentACar.Core.Entities;
 using RentACar.Entities.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace RentACar.Dtos.CarDtos
 {
@@ -16,7 +17,7 @@ namespace RentACar.Dtos.CarDtos
         public int DoorCount { get; set; }
         public int SeatCount { get; set; }
         public int MinDriverAge { get; set; }
-        public string LuggageCapacity { get; set; } = null!;
+        public LuggageCapacity LuggageCapacity { get; set; }
         public int MinDrivingExperience { get; set; }
         public int MinFindexScore { get; set; }
         public TransmissionType TransmissionType { get; set; }
