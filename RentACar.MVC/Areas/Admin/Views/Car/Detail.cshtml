@@ -1,0 +1,72 @@
+﻿@model RentACar.MVC.Areas.Admin.Models.CarDtos.CarDetailDto
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Detaylar</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+        <div class="col-md-6">
+        <div class="mb-3">
+            <label class="form-label fw-bold">Marka</label>
+            <p class="form-control bg-light">@Model.BrandName</p>
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Renk</label>
+            <p class="form-control bg-light">@Model.ColorName</p>
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Model</label>
+            <p class="form-control bg-light">@Model.ModelName</p>
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Kilometre</label>
+            <p class="form-control bg-light">@Model.Kilometer</p>
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Plaka</label>
+            <p class="form-control bg-light">@Model.Plate</p>
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Günlük Fiyat</label>
+            <p class="form-control bg-light">@Model.DailyPrice</p>
+        </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Durum</label>
+                <p class="form-control bg-light">@Model.IsAvailable</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="form-label fw-bold">Kapı Sayısı</label>
+                <p class="form-control bg-light">@Model.DoorCount</p>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Koltuk Sayısı</label>
+                <p class="form-control bg-light">@Model.SeatCount</p>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Bagaj Kapasitesi</label>
+                <p class="form-control bg-light">@Model.LuggageCapacity</p>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Vites Tipi</label>
+                <p class="form-control bg-light">@Model.TransmissionType</p>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Minimum Sürücü Yaşı</label>
+                <p class="form-control bg-light">@Model.MinDriverAge</p>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Minimum Sürücü Deneyimi</label>
+                <p class="form-control bg-light">@Model.MinDrivingExperience</p>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Minimum Findex Puanı</label>
+                <p class="form-control bg-light">@Model.MinFindexScore </p>
+            </div>
+        </div>
+        <a asp-action="Index" class="btn btn-secondary">Araç Listesine Dön</a>
+        </div>
+    </div>
+</div>

@@ -18,9 +18,39 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+
+            var responseMessage = await client.GetAsync("api/Cars");
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var jsonData = await responseMessage.Content.ReadAsStringAsync();
+                var responseBox = JsonConvert.DeserializeObject<CarResponseDto>(jsonData);
+                if (responseBox != null && responseBox.Data != null)
+                {
+                    return View(responseBox.Data);
+                }
+            }
+            return View(new List<CarResultDto>());
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Detail(int id)
+        {
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+
+            var responseMessage = await client.GetAsync($"api/Cars/{id}");
+            if(responseMessage.IsSuccessStatusCode)
+            {
+                var jsonData = await responseMessage.Content.ReadAsStringAsync();
+                var responseBox = JsonConvert.DeserializeObject<CarDetailResponseDto>(jsonData);
+                if (responseBox != null && responseBox.Data != null)
+                {
+                    return View(responseBox.Data);
+                }
+            }
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
