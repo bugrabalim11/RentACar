@@ -44,7 +44,7 @@ namespace RentACar.Business.ValidationRules.CarValidators
 
             RuleFor(x => x.MinDriverAge)
                 .NotEmpty().WithMessage("Minimum sürücü yaşı alanı boş bırakılamaz.")
-                .GreaterThan(18).WithMessage("Minimum sürücü yaşı 18'den büyük olmalıdır.");
+                .GreaterThanOrEqualTo(18).WithMessage("Minimum sürücü yaşı 18'den küçük olamaz.");
 
             RuleFor(x => x.MinDrivingExperience).GreaterThanOrEqualTo(0).WithMessage("Minimum sürücü deneyemi negatif bir değer olamaz.");
 

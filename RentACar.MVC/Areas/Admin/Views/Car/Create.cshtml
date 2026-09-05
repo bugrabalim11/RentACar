@@ -102,6 +102,12 @@
                             </select>
                             <span asp-validation-for="CarCreate.TransmissionType" class="text-danger"></span>
                         </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Kilometre</label>
+                            <input asp-for="CarCreate.Kilometer" class="form-control" placeholder="Örn: 5000..." />
+                            <span asp-validation-for="CarCreate.Kilometer" class="text-danger"></span>
+                        </div>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary mt-4">Kaydet</button>
