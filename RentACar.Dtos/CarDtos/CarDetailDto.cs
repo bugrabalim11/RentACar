@@ -1,5 +1,6 @@
 ﻿using RentACar.Core.Entities;
 using RentACar.Entities.Enums;
+using System.Runtime.Intrinsics.X86;
 
 namespace RentACar.Dtos.CarDtos
 {
@@ -7,7 +8,11 @@ namespace RentACar.Dtos.CarDtos
     {
         public int Id { get; set; }
 
-        // Müşteri ID görmek istemez, ismi görmek ister!
+        // AMA MANKİNE ID İSTER MVC'DEKİ DROPDOWN İÇİN RENGİN HANGİ ID YE AİT OLDUĞUNU BİLMEK İÇİN GEREKLİDİR. 
+        public int BrandId { get; set; }
+        public int ColorId { get; set; }
+
+        // Müşteri ID görmek istemez, ismi görmek ister! 
         public string BrandName { get; set; } = null!;
         public string ColorName { get; set; } = null!;
 

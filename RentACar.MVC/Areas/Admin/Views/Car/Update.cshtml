@@ -1,0 +1,119 @@
+﻿@{
+    ViewData["Title"] = "Araç Güncelle";
+}
+
+@model RentACar.MVC.Areas.Admin.Models.CarDtos.CarUpdateViewModel
+@using RentACar.MVC.Models.Enums
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Araç Güncelle</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" asp-action="Update">
+                <input type="hidden" asp-for="CarUpdate.Id" />
+                <div class="row">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Marka Adı</label>
+                            <select asp-for="CarUpdate.BrandId" class="form-control" asp-items="@(new SelectList(Model.Brands, "Id", "Name"))">
+                                <option value="">Lütfen Marka Seçiniz...</option>
+                            </select>
+                            <span asp-validation-for="CarUpdate.BrandId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Model Adı</label>
+                            <input asp-for="CarUpdate.ModelName" class="form-control" placeholder="Örn: Leon, Civic..." />
+                            <span asp-validation-for="CarUpdate.ModelName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Günlük Fiyat</label>
+                            <input asp-for="CarUpdate.DailyPrice" class="form-control" placeholder="Örn: 100..." />
+                            <span asp-validation-for="CarUpdate.DailyPrice" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Kapı Sayısı</label>
+                            <input asp-for="CarUpdate.DoorCount" class="form-control" placeholder="Örn: 4..." />
+                            <span asp-validation-for="CarUpdate.DoorCount" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Minimum Sürücü Yaşı</label>
+                            <input asp-for="CarUpdate.MinDriverAge" class="form-control" placeholder="Örn: 18..." />
+                            <span asp-validation-for="CarUpdate.MinDriverAge" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Bagaj Kapasitesi</label>
+                            <select asp-for="CarUpdate.LuggageCapacity" class="form-control" asp-items="Html.GetEnumSelectList<LuggageCapacity>()">
+                                <option value="">Lütfen Bagaj Kapasitesi Seçiniz...</option>
+                            </select>
+                            <span asp-validation-for="CarUpdate.LuggageCapacity" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check form-switch mt-4">
+                                <input class="form-check-input" type="checkbox" role="switch" asp-for="CarUpdate.IsAvailable" />
+                                <label class="form-check-label">Araç Müsait Mi?</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Renk Adı</label>
+                            <select asp-for="CarUpdate.ColorId" class="form-control" asp-items="@(new SelectList(Model.Colors, "Id", "Name"))">
+                                <option value="">Lütfen Renk Seçiniz...</option>
+                            </select>
+                            <span asp-validation-for="CarUpdate.ColorId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Plaka</label>
+                            <input asp-for="CarUpdate.Plate" class="form-control" placeholder="Örn: 11ABC11..." />
+                            <span asp-validation-for="CarUpdate.Plate" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Koltuk Sayısı</label>
+                            <input asp-for="CarUpdate.SeatCount" class="form-control" placeholder="Örn: 4..." />
+                            <span asp-validation-for="CarUpdate.SeatCount" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Minimum Sürücü Deneyimi</label>
+                            <input asp-for="CarUpdate.MinDrivingExperience" class="form-control" placeholder="Örn: 1..." />
+                            <span asp-validation-for="CarUpdate.MinDrivingExperience" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Minimum Findex Puanı</label>
+                            <input asp-for="CarUpdate.MinFindexScore" class="form-control" placeholder="Örn: 100..." />
+                            <span asp-validation-for="CarUpdate.MinFindexScore" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Vites Tipi</label>
+                            <select asp-for="CarUpdate.TransmissionType" class="form-control" asp-items="Html.GetEnumSelectList<TransmissionType>()">
+                                <option value="">Lütfen Vites Türü Seçiniz...</option>
+                            </select>
+                            <span asp-validation-for="CarUpdate.TransmissionType" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Kilometre</label>
+                            <input asp-for="CarUpdate.Kilometer" class="form-control" placeholder="Örn: 5000..." />
+                            <span asp-validation-for="CarUpdate.Kilometer" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary mt-4">Kaydet</button>
+            </form>
+
+        </div>
+    </div>
+</div>

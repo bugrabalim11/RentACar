@@ -136,7 +136,30 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             return View(carCreateViewModel);
         }
 
-        private async Task PopulateDropdowns(CarCreateViewModel model)
+        [HttpGet]
+        public async Task<IActionResult> Update(int id)
+        {
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+
+            var responseMessage = await client.GetAsync($"api/Cars/{id}");
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var jsonData = await responseMessage.Content.ReadAsStringAsync();
+                var responseBox = JsonConvert.DeserializeObject<GetByIdCarResponseDto>(jsonData);
+                if (responseBox != null && responseBox.Data != null)
+                {
+                    var viewModel = new CarUpdateViewModel
+                    {
+                        CarUpdate = responseBox.Data
+                    };
+                    await PopulateDropdowns(viewModel);
+                    return View(viewModel);
+                }
+            }
+            return RedirectToAction("Index");
+        }
+
+        private async Task PopulateDropdowns(CarCreateViewModel carCreateViewModel)
         {
             // SENİOR NOTU (YARDIMCI METOT):
             // Bu metodun TEK BİR GÖREVİ vardır: Parametre olarak gelen tepsinin (model) içine
@@ -157,8 +180,28 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 {
                     // DİKKAT: 'new ViewModel()' DEMİYORUZ! Kullanıcının doldurduğu mevcut 'viewModel' içine 
                     // sadece eksik olan listeleri monte ediyoruz ki adamın yazdığı veriler silinmesin!
-                    model.Brands = brandsResponseBox.Data;
-                    model.Colors = colorsResponseBox.Data;
+                    carCreateViewModel.Brands = brandsResponseBox.Data;
+                    carCreateViewModel.Colors = colorsResponseBox.Data;
+                }
+            }
+        }
+
+        private async Task PopulateDropdowns(CarUpdateViewModel carUpdateViewModel)
+        {
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+            var brandsResponseMessage = await client.GetAsync("api/Brands");
+            var colorsResponseMessage = await client.GetAsync("api/Colors");
+            if (brandsResponseMessage.IsSuccessStatusCode && colorsResponseMessage.IsSuccessStatusCode)
+            {
+                var brandsJsonData = await brandsResponseMessage.Content.ReadAsStringAsync();
+                var colorsJsonData = await colorsResponseMessage.Content.ReadAsStringAsync();
+
+                var brandsResponseBox = JsonConvert.DeserializeObject<BrandResponseDto>(brandsJsonData);
+                var colorsResponseBox = JsonConvert.DeserializeObject<ColorResponseDto>(colorsJsonData);
+                if (brandsResponseBox != null && brandsResponseBox.Data != null && colorsResponseBox != null && colorsResponseBox.Data != null)
+                {
+                    carUpdateViewModel.Brands = brandsResponseBox.Data;
+                    carUpdateViewModel.Colors = colorsResponseBox.Data;
                 }
             }
         }
