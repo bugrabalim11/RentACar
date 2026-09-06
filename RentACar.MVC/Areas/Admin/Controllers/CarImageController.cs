@@ -35,6 +35,19 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             }
             return View(new List<CarImageResultDto>());
         }
+
+        [HttpGet]
+        public IActionResult Create(int carId)
+        {
+            // SENIOR NOTU: Müşterinin masasına (View) eli boş gitmiyoruz.
+            // HTML'deki 'asp-for' etiketlerinin patlamaması için masaya boş bir sipariş fişi (DTO) bırakıyoruz.
+            // Aynı zamanda fişin üzerine gizlice hangi arabaya (CarId) ait olduğunu damgalıyoruz ki POST işleminde kaybolmasın.
+            CarImageCreateDto carImageCreateDto = new CarImageCreateDto
+            {
+                CarId = carId,
+            };
+            return View(carImageCreateDto);
+        }
     }
 }
 

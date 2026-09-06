@@ -1,0 +1,26 @@
+﻿@{
+    ViewData["Title"] = "Yeni Araç Resmi Ekle";
+}
+
+@model RentACar.MVC.Areas.Admin.Models.CarImageDtos.CarImageCreateDto
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Yeni Araç Resmi Ekle</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" asp-action="Create" enctype="multipart/form-data">
+                <input type="hidden" asp-for="CarId" />
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <div class="mb-3">
+                    <label class="form-label">Araç Resmi Seçiniz</label>
+                    <input type="file" class="form-control" asp-for="ImageFile" />
+                    <span asp-validation-for="ImageFile" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-primary">Kaydet</button>
+            </form>
+        </div>
+    </div>
+</div>
+
