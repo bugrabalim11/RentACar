@@ -90,6 +90,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+//Artık mutfak, wwwroot içindeki dosyaları internete servis etmeye hazır
+app.UseStaticFiles();
 // Kendi yazdığımız hata yakalayıcı kalkanı boru hattının en başına takıyoruz
 app.UseMiddleware<RentACar.API.Middlewares.ExceptionMiddleware>();
 

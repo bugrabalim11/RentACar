@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RentACar.MVC.Areas.Admin.Models.CarImageDtos;
 
 namespace RentACar.MVC.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    //[Authorize(Roles = "admin")]
+    [Authorize(Roles = "admin")]
     public class CarImageController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;
@@ -46,6 +47,47 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             {
                 CarId = carId,
             };
+            return View(carImageCreateDto);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(CarImageCreateDto carImageCreateDto)
+        {
+            // 1. GARSONUN ÖN KONTROLÜ: Eğer DTO'daki [Required] kuralları ihlal edildiyse (resim seçilmediyse),
+            // kuryeyi (HttpClient) hiç yola çıkarmadan masadaki formu (View) hatalarıyla geri döndür.
+            if (!ModelState.IsValid)
+            {
+                return View(carImageCreateDto);
+            }
+
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+
+            // SENIOR NOTU: using kelimesi, bu devasa kargo kolisi (MultipartFormDataContent) API'ye 
+            // ulaştığı an bekleme yapmadan RAM'den silinmesini (Garbage Collector) sağlar.
+            using var content = new MultipartFormDataContent();
+
+            // Arabanın ID'sini koliye bir kağıt (StringContent) olarak ekliyoruz.
+            content.Add(new StringContent(carImageCreateDto.CarId.ToString()), "CarId");
+
+            // Resmi parça parça akış (Stream) olarak koliye ekliyoruz.
+            var streamContent = new StreamContent(carImageCreateDto.ImageFile.OpenReadStream());
+            // SENIOR NOTU: Kuryenin (HttpClient) taşıdığı fiziksel koliye dijital bir etiket (MIME type) basıyoruz.
+            // Eğer bunu yazmazsak, C# koliye varsayılan olarak "Bilinmeyen Dijital Yük" (application/octet-stream) etiketi basar.
+            // Mutfak (API) kargoyu açıp bu etiketi gördüğünde, FluentValidation kurallarımız "Bu bir resim değil!" diyerek paketi reddeder.
+            // Bu yüzden HTML'den gelen orijinal etiketini (örn: image/jpeg) koliye aynen kopyalıyoruz.
+            streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(carImageCreateDto.ImageFile.ContentType);
+            content.Add(streamContent, "ImageFile", carImageCreateDto.ImageFile.FileName);
+
+            var responseMessage = await client.PostAsync("api/CarImages", content);
+
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                // Başarılıysa müşteriyi albüm odasına yolla
+                return RedirectToAction("Index", new { carId = carImageCreateDto.CarId });
+            }
+
+            // API'den hata dönerse (örn: 5MB sınırı aşıldıysa) aynı sayfada kal
+            var errorMessage = await responseMessage.Content.ReadAsStringAsync();
             return View(carImageCreateDto);
         }
     }

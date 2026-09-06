@@ -16,9 +16,6 @@
                         #
                     </th>
                     <th>
-                        CarName
-                    </th>
-                    <th>
                         ImagePath
                     </th>
                     <th>
@@ -37,10 +34,7 @@
                             @item.Id
                         </td>
                         <td>
-                            @item.CarName
-                        </td>
-                        <td>
-                            <img src="@item.ImagePath" width="100" class="rounded" />
+                            <img src="https://localhost:7085/@item.ImagePath" width="100" class="rounded" />
                         </td>
                         <td>
                             @item.UploadDate.ToShortDateString()

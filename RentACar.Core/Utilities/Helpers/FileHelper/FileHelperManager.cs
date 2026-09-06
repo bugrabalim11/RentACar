@@ -44,7 +44,10 @@ namespace RentACar.Core.Utilities.Helpers.FileHelper
                     file.CopyTo(fileStream);
                 }
 
-                return imagePath;
+                // SENIOR NOTU: Sunucu (Windows) dosya yollarında ters slash (\) kullanır, ancak İnternet dünyası (URL) düz slash (/) kullanır.
+                // Ayrıca veritabanının 'wwwroot' gibi fiziksel sunucu klasörlerini bilmesine gerek yoktur.
+                // Bu yüzden veriyi mühürlemeden önce hem 'wwwroot\' kelimesini kesip atıyoruz, hem de web uyumlu olması için slash yönlerini değiştiriyoruz.
+                return imagePath.Replace("wwwroot\\", "").Replace("\\", "/");
             }
             return null;
         }
