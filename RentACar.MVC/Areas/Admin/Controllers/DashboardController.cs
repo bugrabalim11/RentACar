@@ -7,6 +7,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
     [Authorize(Roles = "admin")]
     public class DashboardController : Controller
     {
+        [HttpGet]
         public IActionResult Index()
         {
             return View();

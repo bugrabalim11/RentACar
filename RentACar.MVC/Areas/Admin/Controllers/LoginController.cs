@@ -17,6 +17,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
+        [HttpGet]
         public IActionResult Index()
         {
             return View();

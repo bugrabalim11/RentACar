@@ -16,6 +16,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
