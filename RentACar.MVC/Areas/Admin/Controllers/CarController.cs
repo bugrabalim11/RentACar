@@ -5,6 +5,7 @@ using RentACar.MVC.Areas.Admin.Models.BrandDtos;
 using RentACar.MVC.Areas.Admin.Models.CarDtos;
 using RentACar.MVC.Areas.Admin.Models.ColorDtos;
 using RentACar.MVC.Areas.Admin.Models.ErrorResponseDtos;
+using RentACar.MVC.Models.Interfaces;
 using RentACar.MVC.Models.Responses;
 using System.Text;
 
@@ -181,7 +182,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             return View(carUpdateViewModel);
         }
 
-        private async Task PopulateDropdowns(CarCreateViewModel carCreateViewModel)
+        private async Task PopulateDropdowns(ICarDropdownViewModel carDropdownViewModel)
         {
             // SENİOR NOTU (YARDIMCI METOT):
             // Bu metodun TEK BİR GÖREVİ vardır: Parametre olarak gelen tepsinin (model) içine
@@ -202,28 +203,8 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 {
                     // DİKKAT: 'new ViewModel()' DEMİYORUZ! Kullanıcının doldurduğu mevcut 'viewModel' içine 
                     // sadece eksik olan listeleri monte ediyoruz ki adamın yazdığı veriler silinmesin!
-                    carCreateViewModel.Brands = brandsResponseBox.Data;
-                    carCreateViewModel.Colors = colorsResponseBox.Data;
-                }
-            }
-        }
-
-        private async Task PopulateDropdowns(CarUpdateViewModel carUpdateViewModel)
-        {
-            var client = _httpClientFactory.CreateClient("RentACarApi");
-            var brandsResponseMessage = await client.GetAsync("api/Brands");
-            var colorsResponseMessage = await client.GetAsync("api/Colors");
-            if (brandsResponseMessage.IsSuccessStatusCode && colorsResponseMessage.IsSuccessStatusCode)
-            {
-                var brandsJsonData = await brandsResponseMessage.Content.ReadAsStringAsync();
-                var colorsJsonData = await colorsResponseMessage.Content.ReadAsStringAsync();
-
-                var brandsResponseBox = JsonConvert.DeserializeObject<ResponseModel<List<BrandResultDto>>>(brandsJsonData);
-                var colorsResponseBox = JsonConvert.DeserializeObject<ResponseModel<List<ColorResultDto>>>(colorsJsonData);
-                if (brandsResponseBox != null && brandsResponseBox.Data != null && colorsResponseBox != null && colorsResponseBox.Data != null)
-                {
-                    carUpdateViewModel.Brands = brandsResponseBox.Data;
-                    carUpdateViewModel.Colors = colorsResponseBox.Data;
+                    carDropdownViewModel.Brands =brandsResponseBox.Data;
+                    carDropdownViewModel.Colors = colorsResponseBox.Data;
                 }
             }
         }
