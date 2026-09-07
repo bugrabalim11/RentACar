@@ -25,7 +25,8 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> AddAsync(CarMaintenanceAddDto carMaintenanceAddDto)
         {
-            // Veeritabanından tarih karşılaştırıyoruz o yüzden buraya taşıdık
+            // Veritabanından tarih karşılaştırıyoruz o yüzden buraya taşıdık
+            // Garsonun getirdiği bu tarih Evrensel (UTC) bir tarihtir, haberin olsun" etiketini (mührünü) basar.
             carMaintenanceAddDto.CheckInTime = DateTime.SpecifyKind(carMaintenanceAddDto.CheckInTime, DateTimeKind.Utc);
             if (carMaintenanceAddDto.CheckOutTime.HasValue)
             {
