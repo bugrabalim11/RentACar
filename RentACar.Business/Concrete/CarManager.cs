@@ -21,7 +21,7 @@ namespace RentACar.Business.Concrete
             _mapper = mapper;
         }
 
-        public async Task<IResult> AddAsync(CarAddDto carAddDto)
+        public async Task<IResult> AddAsync(CarCreateDto carAddDto)
         {
             // 2. İŞ KURALLARI (Business Rules - Dükkanın mantık kuralları)
             carAddDto.Plate = carAddDto.Plate.Replace(" ", "").ToUpper();
@@ -52,16 +52,16 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Araç başarıyla silindi.");
         }
 
-        public async Task<IDataResult<List<CarListDto>>> GetAllAsync()
+        public async Task<IDataResult<List<CarResultDto>>> GetAllAsync()
         {
             // İşte senin DataAccess'te yazdığın o özel Join'li metodu çağırıyoruz!
             var cars = await _carRepository.GetCarsWithDetailsAsync();
 
             // Arabalar, markaları ve renkleriyle beraber geldi. Şimdi onları şık tabaklara (DTO) koyalım.
-            var carListDtos = _mapper.Map<List<CarListDto>>(cars);
+            var carListDtos = _mapper.Map<List<CarResultDto>>(cars);
 
             // Kargo kutusuna koy ve yolla!
-            return new SuccessDataResult<List<CarListDto>>(carListDtos, "Arabalar başarıyla listelendi.");
+            return new SuccessDataResult<List<CarResultDto>>(carListDtos, "Arabalar başarıyla listelendi.");
         }
 
 
@@ -75,7 +75,7 @@ namespace RentACar.Business.Concrete
                 return new ErrorDataResult<CarDetailDto>("Aranan araç detayı bulunamadı.");
             }
 
-            // Bulduysa CarListDto'ya çevirir, bulamadıysa (null ise) güvenli bir şekilde null döner
+            // Bulduysa CarResultDto'ya çevirir, bulamadıysa (null ise) güvenli bir şekilde null döner
             var carDetailDto = _mapper.Map<CarDetailDto>(car);
             return new SuccessDataResult<CarDetailDto>(carDetailDto, "Araba detayı getirildi.");
         }
@@ -129,18 +129,18 @@ namespace RentACar.Business.Concrete
             return new SuccessResult();
         }
 
-        public async Task<IDataResult<List<CarListDto>>> GetAllByBrandIdAsync(int brandId)
+        public async Task<IDataResult<List<CarResultDto>>> GetAllByBrandIdAsync(int brandId)
         {
             var existingCars = await _carRepository.GetAllAsync(x => x.BrandId == brandId);
-            var mappedCars = _mapper.Map<List<CarListDto>>(existingCars);
-            return new SuccessDataResult<List<CarListDto>>(mappedCars);
+            var mappedCars = _mapper.Map<List<CarResultDto>>(existingCars);
+            return new SuccessDataResult<List<CarResultDto>>(mappedCars);
         }
 
-        public async Task<IDataResult<List<CarListDto>>> GetCarsByColorIdAsync(int colorId)
+        public async Task<IDataResult<List<CarResultDto>>> GetCarsByColorIdAsync(int colorId)
         {
             var existingCars = await _carRepository.GetAllAsync(x => x.ColorId == colorId);
-            var mappedCars = _mapper.Map<List<CarListDto>>(existingCars);
-            return new SuccessDataResult<List<CarListDto>>(mappedCars);
+            var mappedCars = _mapper.Map<List<CarResultDto>>(existingCars);
+            return new SuccessDataResult<List<CarResultDto>>(mappedCars);
         }
 
         public async Task<IResult> CheckIfCarExistsAsync(int carId)

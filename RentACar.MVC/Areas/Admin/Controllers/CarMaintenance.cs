@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RentACar.MVC.Areas.Admin.Models.CarMaintenanceDtos;
+using RentACar.MVC.Models.Responses;
 
 namespace RentACar.MVC.Areas.Admin.Controllers
 {
@@ -23,7 +24,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
-                var responseBox = JsonConvert.DeserializeObject<CarMaintenanceResponseDto>(jsonData);
+                var responseBox = JsonConvert.DeserializeObject<ResponseModel<List<CarMaintenanceResultDto>>>(jsonData);
                 if (responseBox != null && responseBox.Data != null)
                 {
                     return View(responseBox.Data);

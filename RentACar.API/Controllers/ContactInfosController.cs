@@ -42,7 +42,7 @@ namespace RentACar.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddAsync(ContactInfoAddDto contactInfoAddDto)
+        public async Task<IActionResult> AddAsync(ContactInfoCreateDto contactInfoAddDto)
         {
             var result = await _contactInfoService.AddAsync(contactInfoAddDto);
             if (result.Success)

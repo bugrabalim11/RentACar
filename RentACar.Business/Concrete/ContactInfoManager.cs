@@ -19,7 +19,7 @@ namespace RentACar.Business.Concrete
             _mapper = mapper;
         }
 
-        public async Task<IResult> AddAsync(ContactInfoAddDto contactInfoAddDto)
+        public async Task<IResult> AddAsync(ContactInfoCreateDto contactInfoAddDto)
         {
             IResult? result = BusinessRules.Run(await CheckIfContactInfoAlreadyExistsAsync());
             if (result != null)
@@ -46,23 +46,23 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("İletişim bilgisi başarıyla silindi.");
         }
 
-        public async Task<IDataResult<List<ContactInfoListDto>>> GetAllAsync()
+        public async Task<IDataResult<List<ContactInfoResultDto>>> GetAllAsync()
         {
             var contactInfos = await _contactInfoRepository.GetAllAsync();
-            var contactInfoDtos = _mapper.Map<List<ContactInfoListDto>>(contactInfos);
-            return new SuccessDataResult<List<ContactInfoListDto>>(contactInfoDtos, "İletişim bilgileri başarıyla listelendi.");
+            var contactInfoDtos = _mapper.Map<List<ContactInfoResultDto>>(contactInfos);
+            return new SuccessDataResult<List<ContactInfoResultDto>>(contactInfoDtos, "İletişim bilgileri başarıyla listelendi.");
         }
 
-        public async Task<IDataResult<ContactInfoListDto>> GetByIdAsync(int id)
+        public async Task<IDataResult<ContactInfoResultDto>> GetByIdAsync(int id)
         {
             var contactInfo = await _contactInfoRepository.GetAsync(x => x.Id == id);
             if (contactInfo == null)
             {
-                return new ErrorDataResult<ContactInfoListDto>("İletişim bilgisi bulunamadı.");
+                return new ErrorDataResult<ContactInfoResultDto>("İletişim bilgisi bulunamadı.");
             }
 
-            var contactInfoDto = _mapper.Map<ContactInfoListDto>(contactInfo);
-            return new SuccessDataResult<ContactInfoListDto>(contactInfoDto, "İletişim bilgisi başarıyla getirildi.");
+            var contactInfoDto = _mapper.Map<ContactInfoResultDto>(contactInfo);
+            return new SuccessDataResult<ContactInfoResultDto>(contactInfoDto, "İletişim bilgisi başarıyla getirildi.");
         }
 
         public async Task<IResult> UpdateAsync(ContactInfoUpdateDto contactInfoUpdateDto)

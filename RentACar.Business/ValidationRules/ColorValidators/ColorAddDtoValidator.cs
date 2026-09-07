@@ -6,7 +6,7 @@ using System.Text;
 
 namespace RentACar.Business.ValidationRules.ColorValidators
 {
-    public class ColorAddDtoValidator : AbstractValidator<ColorAddDto>
+    public class ColorAddDtoValidator : AbstractValidator<ColorCreateDto>
     {
         public ColorAddDtoValidator()
         {

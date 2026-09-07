@@ -32,35 +32,35 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Kullanıcı başarıyla silindi.");
         }
 
-        public async Task<IDataResult<List<UserListDto>>> GetAllAsync()
+        public async Task<IDataResult<List<UserResultDto>>> GetAllAsync()
         {
             var users = await _userRepository.GetAllAsync();
-            var userDtos = _mapper.Map<List<UserListDto>>(users);
-            return new SuccessDataResult<List<UserListDto>>(userDtos, "Kullanıcılar başarıyla listelendi.");
+            var userDtos = _mapper.Map<List<UserResultDto>>(users);
+            return new SuccessDataResult<List<UserResultDto>>(userDtos, "Kullanıcılar başarıyla listelendi.");
         }
 
-        public async Task<IDataResult<UserListDto>> GetByIdAsync(int id)
+        public async Task<IDataResult<UserResultDto>> GetByIdAsync(int id)
         {
             var user = await _userRepository.GetAsync(x => x.Id == id);
             if (user == null)
             {
-                return new ErrorDataResult<UserListDto>("Kullanıcı bulunamadı.");
+                return new ErrorDataResult<UserResultDto>("Kullanıcı bulunamadı.");
             }
 
-            var userDto = _mapper.Map<UserListDto>(user);
-            return new SuccessDataResult<UserListDto>(userDto, "Kullancı başarıyla getirildi.");
+            var userDto = _mapper.Map<UserResultDto>(user);
+            return new SuccessDataResult<UserResultDto>(userDto, "Kullancı başarıyla getirildi.");
         }
 
-        public async Task<IDataResult<UserListDto>> GetMyProfile(int id)
+        public async Task<IDataResult<UserResultDto>> GetMyProfile(int id)
         {
             var user = await _userRepository.GetAsync(x => x.Id == id);
             if (user == null)
             {
-                return new ErrorDataResult<UserListDto>("Profil bulunamadı.");
+                return new ErrorDataResult<UserResultDto>("Profil bulunamadı.");
             }
 
-            var userDto = _mapper.Map<UserListDto>(user);
-            return new SuccessDataResult<UserListDto>(userDto, "Profil başarıyla getirildi.");
+            var userDto = _mapper.Map<UserResultDto>(user);
+            return new SuccessDataResult<UserResultDto>(userDto, "Profil başarıyla getirildi.");
         }
 
         public async Task<IResult> UpdateForAdminAsync(UserUpdateForAdminDto userUpdateForAdminDto)

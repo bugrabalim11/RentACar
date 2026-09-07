@@ -42,7 +42,7 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpPost]
-        public async Task<IActionResult> AddAsync(ColorAddDto colorAddDto)
+        public async Task<IActionResult> AddAsync(ColorCreateDto colorAddDto)
         {
             var result = await _colorService.AddAsync(colorAddDto);
             if (result.Success)

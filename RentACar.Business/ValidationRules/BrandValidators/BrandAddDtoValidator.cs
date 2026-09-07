@@ -3,7 +3,7 @@ using RentACar.Dtos.BrandDtos;
 
 namespace RentACar.Business.ValidationRules.BrandValidators
 {
-    public class BrandAddDtoValidator : AbstractValidator<BrandAddDto>
+    public class BrandAddDtoValidator : AbstractValidator<BrandCreateDto>
     {
         public BrandAddDtoValidator()
         {

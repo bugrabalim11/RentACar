@@ -8,12 +8,12 @@ namespace RentACar.Business.Profiles
     {
         public CustomerProfile()
         {
-            CreateMap<CustomerAddDto, Customer>();
-            CreateMap<CustomerAddByAdminDto, Customer>();
+            CreateMap<CustomerCreateDto, Customer>();
+            CreateMap<CustomerCreateByAdminDto, Customer>();
             CreateMap<CustomerUpdateDto, Customer>();
             CreateMap<CustomerUpdateMyProfileDto, Customer>();
 
-            CreateMap<Customer, CustomerListDto>()
+            CreateMap<Customer, CustomerResultDto>()
                 // DİKKAT: API sözleşmesini (DTO) veritabanı hiyerarşisine bağımlı kılmamak
                 // adına AutoMapper'ın Flattening (Düzleştirme) özelliği bilerek kullanılmamıştır.
                 // User tablosundaki isimler, DTO'ya manuel olarak (Explicit Mapping) haritalanmıştır.

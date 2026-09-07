@@ -3,7 +3,7 @@ using RentACar.Dtos.CreditCardInformationDtos;
 
 namespace RentACar.Dtos.RentalDtos
 {
-    public class RentalAddDto : IDto
+    public class RentalCreateDto : IDto
     {
         public int CarId { get; set; }
         public int PickUpOfficeId { get; set; }

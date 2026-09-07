@@ -4,7 +4,7 @@ using RentACar.Dtos.CarImageDtos;
 
 namespace RentACar.Business.ValidationRules.CarImageValidators
 {
-    public class CarImageAddDtoValidator : AbstractValidator<CarImageAddDto>
+    public class CarImageAddDtoValidator : AbstractValidator<CarImageCreateDto>
     {
         public CarImageAddDtoValidator()
         {

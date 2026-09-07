@@ -6,7 +6,7 @@ using System.Text;
 
 namespace RentACar.Business.ValidationRules.ContactInfoValidators
 {
-    public class ContactInfoAddValidator : AbstractValidator<ContactInfoAddDto>
+    public class ContactInfoAddValidator : AbstractValidator<ContactInfoCreateDto>
     {
         public ContactInfoAddValidator()
         {

@@ -41,7 +41,7 @@ namespace RentACar.API.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> AddAsync(ContactMessageAddDto contactMessageAddDto)
+        public async Task<IActionResult> AddAsync(ContactMessageCreateDto contactMessageAddDto)
         {
             var result = await _contactMessageService.AddAsync(contactMessageAddDto);
             if (result.Success)

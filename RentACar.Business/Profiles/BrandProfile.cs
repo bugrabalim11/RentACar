@@ -11,9 +11,9 @@ namespace RentACar.Business.Profiles
     {
         public BrandProfile()
         {
-            CreateMap<BrandAddDto, Brand>();
+            CreateMap<BrandCreateDto, Brand>();
             CreateMap<BrandUpdateDto, Brand>();
-            CreateMap<Brand, BrandListDto>();
+            CreateMap<Brand, BrandResultDto>();
         }
     }
 }

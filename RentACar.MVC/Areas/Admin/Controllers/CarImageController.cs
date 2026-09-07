@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RentACar.MVC.Areas.Admin.Models.CarImageDtos;
+using RentACar.MVC.Models.Responses;
 
 namespace RentACar.MVC.Areas.Admin.Controllers
 {
@@ -28,7 +29,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
-                var responseBox = JsonConvert.DeserializeObject<CarImageResponseDto>(jsonData);
+                var responseBox = JsonConvert.DeserializeObject<ResponseModel<List<CarImageResultDto>>>(jsonData);
                 if (responseBox != null && responseBox.Data != null)
                 {
                     return View(responseBox.Data);

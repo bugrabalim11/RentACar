@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RentACar.MVC.Areas.Admin.Models.ColorDtos;
 using RentACar.MVC.Areas.Admin.Models.ErrorResponseDtos;
+using RentACar.MVC.Models.Responses;
 using System.Text;
 
 namespace RentACar.MVC.Areas.Admin.Controllers
@@ -27,7 +28,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
-                var responseBox = JsonConvert.DeserializeObject<ColorResponseDto>(jsonData);
+                var responseBox = JsonConvert.DeserializeObject<ResponseModel<List<ColorResultDto>>>(jsonData);
                 if (responseBox != null && responseBox.Data != null)
                 {
                     return View(responseBox.Data);
@@ -97,7 +98,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
-                var response = JsonConvert.DeserializeObject<GetByIdColorResponseDto>(jsonData);
+                var response = JsonConvert.DeserializeObject<ResponseModel<ColorResultDto>>(jsonData);
                 if (response != null && response.Data != null)
                 {
                     return View(response.Data);

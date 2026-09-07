@@ -19,7 +19,7 @@ namespace RentACar.Business.Concrete
             _mapper = mapper;
         }
 
-        public async Task<IResult> AddAsync(ContactMessageAddDto contactMessageAddDto)
+        public async Task<IResult> AddAsync(ContactMessageCreateDto contactMessageAddDto)
         {
             contactMessageAddDto.Email = contactMessageAddDto.Email.Trim().ToLower();
 
@@ -66,23 +66,23 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Mesaj başarıyla silindi.");
         }
 
-        public async Task<IDataResult<List<ContactMessageListDto>>> GetAllAsync()
+        public async Task<IDataResult<List<ContactMessageResultDto>>> GetAllAsync()
         {
             var contactMessages = await _contactMessageRepository.GetAllAsync();
-            var contactMessageDtos = _mapper.Map<List<ContactMessageListDto>>(contactMessages);
-            return new SuccessDataResult<List<ContactMessageListDto>>(contactMessageDtos, "Mesajlar başarıyla listelendi.");
+            var contactMessageDtos = _mapper.Map<List<ContactMessageResultDto>>(contactMessages);
+            return new SuccessDataResult<List<ContactMessageResultDto>>(contactMessageDtos, "Mesajlar başarıyla listelendi.");
         }
 
-        public async Task<IDataResult<ContactMessageListDto>> GetByIdAsync(int id)
+        public async Task<IDataResult<ContactMessageResultDto>> GetByIdAsync(int id)
         {
             var contactMessage = await _contactMessageRepository.GetAsync(x => x.Id == id);
             if (contactMessage == null)
             {
-                return new ErrorDataResult<ContactMessageListDto>("Mesaj bulunamadı.");
+                return new ErrorDataResult<ContactMessageResultDto>("Mesaj bulunamadı.");
             }
 
-            var contactMessageDto = _mapper.Map<ContactMessageListDto>(contactMessage);
-            return new SuccessDataResult<ContactMessageListDto>(contactMessageDto, "Mesaj başarıyla getirildi.");
+            var contactMessageDto = _mapper.Map<ContactMessageResultDto>(contactMessage);
+            return new SuccessDataResult<ContactMessageResultDto>(contactMessageDto, "Mesaj başarıyla getirildi.");
         }
 
         public async Task<IResult> MarkAsReadAsync(int id)

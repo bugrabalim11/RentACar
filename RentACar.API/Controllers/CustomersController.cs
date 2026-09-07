@@ -59,7 +59,7 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpPost]
-        public async Task<IActionResult> AddForAdminAsync(CustomerAddByAdminDto customerAddByAdminDto)
+        public async Task<IActionResult> AddForAdminAsync(CustomerCreateByAdminDto customerAddByAdminDto)
         {
             var result = await _customerService.AddForAdminAsync(customerAddByAdminDto);
             if (result.Success)
@@ -71,7 +71,7 @@ namespace RentACar.API.Controllers
 
             [Authorize]
             [HttpPost("profile")]
-            public async Task<IActionResult> Add(CustomerAddDto customerAddDto)
+            public async Task<IActionResult> Add(CustomerCreateDto customerAddDto)
             {
                 var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userIdString)) return Unauthorized("Kimlik doğrulama hatası!");

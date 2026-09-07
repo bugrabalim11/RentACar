@@ -40,7 +40,7 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpPost]
-        public async Task<IActionResult> AddAsync(OfficeAddDto officeAddDto)
+        public async Task<IActionResult> AddAsync(OfficeCreateDto officeAddDto)
         {
             var result = await _officeService.AddAsync(officeAddDto);
             if (result.Success)

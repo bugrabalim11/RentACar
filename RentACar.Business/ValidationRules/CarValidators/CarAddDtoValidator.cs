@@ -4,9 +4,9 @@ using RentACar.Dtos.CarDtos;
 namespace RentACar.Business.ValidationRules.CarValidators
 {
     // Sınıfımızın FluentValidation'ın AbstractValidator'ından miras alması gerekiyor
-    // İçine de hangi DTO'yu denetleyeceğini (CarAddDto) yazıyoruz.
+    // İçine de hangi DTO'yu denetleyeceğini (CarCreateDto) yazıyoruz.
     // Bool değerlere kural yazmadık çünkü FluentValidation'da bool değerler için genellikle kural yazmaya gerek yoktur.
-    public class CarAddDtoValidator : AbstractValidator<CarAddDto>
+    public class CarAddDtoValidator : AbstractValidator<CarCreateDto>
     {
         public CarAddDtoValidator()
         {

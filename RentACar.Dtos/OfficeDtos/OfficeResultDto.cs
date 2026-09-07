@@ -2,7 +2,7 @@
 
 namespace RentACar.Dtos.OfficeDtos
 {
-    public class OfficeListDto : IDto
+    public class OfficeResultDto : IDto
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;

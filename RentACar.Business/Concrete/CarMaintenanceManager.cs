@@ -23,7 +23,7 @@ namespace RentACar.Business.Concrete
             _carStatusService = carStatusService;
         }
 
-        public async Task<IResult> AddAsync(CarMaintenanceAddDto carMaintenanceAddDto)
+        public async Task<IResult> AddAsync(CarMaintenanceCreateDto carMaintenanceAddDto)
         {
             // Veritabanından tarih karşılaştırıyoruz o yüzden buraya taşıdık
             // Garsonun getirdiği bu tarih Evrensel (UTC) bir tarihtir, haberin olsun" etiketini (mührünü) basar.
@@ -62,23 +62,23 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Tamir kaydı başaryla silindi.");
         }
 
-        public async Task<IDataResult<List<CarMaintenanceListDto>>> GetAllAsync()
+        public async Task<IDataResult<List<CarMaintenanceResultDto>>> GetAllAsync()
         {
             var maintenances = await _carMaintenanceRepository.GetCarMaintenanceWithDetailsAsync();
-            var maintenanceDtos = _mapper.Map<List<CarMaintenanceListDto>>(maintenances);
-            return new SuccessDataResult<List<CarMaintenanceListDto>>(maintenanceDtos, "Tamir kayıtları başarıyla listelendi.");
+            var maintenanceDtos = _mapper.Map<List<CarMaintenanceResultDto>>(maintenances);
+            return new SuccessDataResult<List<CarMaintenanceResultDto>>(maintenanceDtos, "Tamir kayıtları başarıyla listelendi.");
         }
 
-        public async Task<IDataResult<CarMaintenanceListDto>> GetByIdAsync(int id)
+        public async Task<IDataResult<CarMaintenanceResultDto>> GetByIdAsync(int id)
         {
             var maintenance = await _carMaintenanceRepository.GetCarMaintenanceByIdWithDetailsAsync(id);
             if (maintenance == null)
             {
-                return new ErrorDataResult<CarMaintenanceListDto>("Aranan tamir kaydı bulunamadı!");
+                return new ErrorDataResult<CarMaintenanceResultDto>("Aranan tamir kaydı bulunamadı!");
             }
 
-            var maintenanceDto = _mapper.Map<CarMaintenanceListDto>(maintenance);
-            return new SuccessDataResult<CarMaintenanceListDto>(maintenanceDto, "Tamir kaydı başarıyla geitirildi.");
+            var maintenanceDto = _mapper.Map<CarMaintenanceResultDto>(maintenance);
+            return new SuccessDataResult<CarMaintenanceResultDto>(maintenanceDto, "Tamir kaydı başarıyla geitirildi.");
         }
 
         public async Task<IResult> UpdateAsync(CarMaintenanceUpdateDto carMaintenanceUpdateDto)

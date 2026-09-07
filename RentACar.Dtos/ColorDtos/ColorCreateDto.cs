@@ -2,7 +2,7 @@
 
 namespace RentACar.Dtos.ColorDtos
 {
-    public class ColorAddDto : IDto
+    public class ColorCreateDto : IDto
     {
         public string Name { get; set; } = null!;
     }

@@ -12,11 +12,11 @@ namespace RentACar.Business.Profiles
         public OfficeProfile()
         {
             // Veritabanına yazılacaklar (DTO -> Entity)
-            CreateMap<OfficeAddDto, Office>();
+            CreateMap<OfficeCreateDto, Office>();
             CreateMap<OfficeUpdateDto, Office>();
 
             // Vitrine gönderilecekler (Entity -> DTO) Tek Yönlü!
-            CreateMap<Office, OfficeListDto>();
+            CreateMap<Office, OfficeResultDto>();
         }
     }
 }

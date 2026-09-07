@@ -9,9 +9,9 @@ namespace RentACar.Business.Abstract
 {
     public interface IColorService
     {
-        Task<IDataResult<List<ColorListDto>>> GetAllAsync();
-        Task<IDataResult<ColorListDto>> GetByIdAsync(int id);
-        Task<IResult> AddAsync(ColorAddDto colorAddDto);
+        Task<IDataResult<List<ColorResultDto>>> GetAllAsync();
+        Task<IDataResult<ColorResultDto>> GetByIdAsync(int id);
+        Task<IResult> AddAsync(ColorCreateDto colorAddDto);
         Task<IResult> UpdateAsync(ColorUpdateDto colorUpdateDto);
         Task<IResult> DeleteAsync(int id);
 

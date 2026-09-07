@@ -2,7 +2,7 @@
 
 namespace RentACar.Dtos.CarDtos
 {
-    public class CarListDto : IDto
+    public class CarResultDto : IDto
     {
         public int Id { get; set; } 
         public string BrandName { get; set; } = null!;

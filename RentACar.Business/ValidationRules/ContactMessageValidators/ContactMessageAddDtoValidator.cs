@@ -3,7 +3,7 @@ using RentACar.Dtos.ContactMessageDtos;
 
 namespace RentACar.Business.ValidationRules.ContactMessageValidators
 {
-    public class ContactMessageAddDtoValidator : AbstractValidator<ContactMessageAddDto>
+    public class ContactMessageAddDtoValidator : AbstractValidator<ContactMessageCreateDto>
     {
         public ContactMessageAddDtoValidator()
         {

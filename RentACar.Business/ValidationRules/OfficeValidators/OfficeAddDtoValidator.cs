@@ -3,7 +3,7 @@ using RentACar.Dtos.OfficeDtos;
 
 namespace RentACar.Business.ValidationRules.OfficeValidators
 {
-    public class OfficeAddDtoValidator : AbstractValidator<OfficeAddDto>
+    public class OfficeAddDtoValidator : AbstractValidator<OfficeCreateDto>
     {
         public OfficeAddDtoValidator()
         {

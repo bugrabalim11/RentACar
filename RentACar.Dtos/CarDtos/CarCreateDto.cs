@@ -1,11 +1,10 @@
 ﻿
 using RentACar.Core.Entities;
 using RentACar.Entities.Enums;
-using System.ComponentModel.DataAnnotations;
 
 namespace RentACar.Dtos.CarDtos
 {
-    public class CarAddDto : IDto
+    public class CarCreateDto : IDto
     {
         public int BrandId { get; set; }
         public int ColorId { get; set; }

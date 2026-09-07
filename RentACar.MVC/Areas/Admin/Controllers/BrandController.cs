@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RentACar.MVC.Areas.Admin.Models.BrandDtos;
 using RentACar.MVC.Areas.Admin.Models.ErrorResponseDtos;
+using RentACar.MVC.Models.Responses;
 using System.Text;
 
 namespace RentACar.MVC.Areas.Admin.Controllers
@@ -26,7 +27,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
-                var responseBox = JsonConvert.DeserializeObject<BrandResponseDto>(jsonData);
+                var responseBox = JsonConvert.DeserializeObject<ResponseModel<List<BrandResultDto>>>(jsonData);
                 if (responseBox != null && responseBox.Data != null)
                 {
                     // API'nin gönderdiği dış kutunun içindeki asıl marka listesini (Tepsiyi) masaya servis ediyoruz.
@@ -126,7 +127,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 var jsonData = await responseMessasge.Content.ReadAsStringAsync();
 
                 // 1. Önce koca koliyi (Matruşkanın tamamını) çözüyoruz
-                var response = JsonConvert.DeserializeObject<GetByIdBrandResponseDto>(jsonData);
+                var response = JsonConvert.DeserializeObject<ResponseModel<BrandResultDto>>(jsonData);
 
                 // 2. Form (View) bizden koca koliyi değil, sadece içindeki arabayı (Id ve Name) bekliyor!
                 // Bu yüzden View'a sadece response içindeki Data'yı gönderiyoruz.

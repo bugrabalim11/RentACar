@@ -28,7 +28,7 @@ namespace RentACar.Business.Concrete
             _findexScoreService = findexScoreService;
         }
 
-        public async Task<IResult> AddAsync(RentalAddDto rentalAddDto, int userId)
+        public async Task<IResult> AddAsync(RentalCreateDto rentalAddDto, int userId)
         {
             // 1. RentDate (Başlangıç tarihi) zaten boş olamaz (Nullable değil). Ona direkt etiketi bas:
             rentalAddDto.RentDate = DateTime.SpecifyKind(rentalAddDto.RentDate, DateTimeKind.Utc);
@@ -90,7 +90,7 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Araç kiralama başarıyla oluşturuldu.");
         }
 
-        public async Task<IResult> AddByAdminAsync(RentalAddByAdminDto rentalAddByAdminDto)
+        public async Task<IResult> AddByAdminAsync(RentalCreateByAdminDto rentalAddByAdminDto)
         {
             rentalAddByAdminDto.RentDate = DateTime.SpecifyKind(rentalAddByAdminDto.RentDate, DateTimeKind.Utc);
             if (rentalAddByAdminDto.ReturnDate.HasValue)
@@ -147,23 +147,23 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Araç kiralama başarıyla silindi.");
         }
 
-        public async Task<IDataResult<List<RentalListDto>>> GetAllAsync()
+        public async Task<IDataResult<List<RentalResultDto>>> GetAllAsync()
         {
             var rentals = await _rentalRepository.GetRentalsWithDetailsAsync();
-            var rentalsListDtos = _mapper.Map<List<RentalListDto>>(rentals);
-            return new SuccessDataResult<List<RentalListDto>>(rentalsListDtos, "Kiralama işlemleri başarıyla listelendi.");
+            var rentalsListDtos = _mapper.Map<List<RentalResultDto>>(rentals);
+            return new SuccessDataResult<List<RentalResultDto>>(rentalsListDtos, "Kiralama işlemleri başarıyla listelendi.");
         }
 
-        public async Task<IDataResult<List<RentalListDto>>> GetAllByUserIdAsync(int userId)
+        public async Task<IDataResult<List<RentalResultDto>>> GetAllByUserIdAsync(int userId)
         {
             var rentals = await _rentalRepository.GetRentalsByUserIdAsync(userId);
             if (rentals == null || !rentals.Any())
             {
-                return new ErrorDataResult<List<RentalListDto>>("Kullanıcıya ait kiralama işlemleri bulunamadı.");
+                return new ErrorDataResult<List<RentalResultDto>>("Kullanıcıya ait kiralama işlemleri bulunamadı.");
             }
 
-            var mappedRentals = _mapper.Map<List<RentalListDto>>(rentals);
-            return new SuccessDataResult<List<RentalListDto>>(mappedRentals, "Kullanıcıya ait kiralama işlemleri başarıyla listelendi.");
+            var mappedRentals = _mapper.Map<List<RentalResultDto>>(rentals);
+            return new SuccessDataResult<List<RentalResultDto>>(mappedRentals, "Kullanıcıya ait kiralama işlemleri başarıyla listelendi.");
         }
 
         public async Task<IDataResult<RentalDetailDto>> GetMyRentalByIdAsync(int rentalId, int userId)

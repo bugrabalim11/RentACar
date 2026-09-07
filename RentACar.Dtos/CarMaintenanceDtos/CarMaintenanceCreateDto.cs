@@ -2,7 +2,7 @@
 
 namespace RentACar.Dtos.CarMaintenanceDtos
 {
-    public class CarMaintenanceAddDto : IDto
+    public class CarMaintenanceCreateDto : IDto
     {
         public int CarId { get; set; }
         public string Description { get; set; } = null!;

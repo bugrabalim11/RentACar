@@ -4,7 +4,7 @@ using RentACar.Dtos.RentalDtos;
 
 namespace RentACar.Business.ValidationRules.RentalValidators
 {
-    public class RentalAddByAdminDtoValidator : AbstractValidator<RentalAddByAdminDto>
+    public class RentalAddByAdminDtoValidator : AbstractValidator<RentalCreateByAdminDto>
     {
         public RentalAddByAdminDtoValidator()
         {

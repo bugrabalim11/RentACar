@@ -18,7 +18,7 @@ namespace RentACar.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddAsync([FromForm] CarImageAddDto carImageAddDto)
+        public async Task<IActionResult> AddAsync([FromForm] CarImageCreateDto carImageAddDto)
         {
             var result = await _carImageService.AddAsync(carImageAddDto);
             if (result.Success)

@@ -2,7 +2,7 @@
 
 namespace RentACar.Dtos.ContactMessageDtos
 {
-    public class ContactMessageListDto : IDto
+    public class ContactMessageResultDto : IDto
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;

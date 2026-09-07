@@ -3,7 +3,7 @@ using RentACar.Dtos.CarMaintenanceDtos;
 
 namespace RentACar.Business.ValidationRules.CarMaintenanceValidators
 {
-    public class CarMaintenanceAddDtoValidator : AbstractValidator<CarMaintenanceAddDto>
+    public class CarMaintenanceAddDtoValidator : AbstractValidator<CarMaintenanceCreateDto>
     {
         public CarMaintenanceAddDtoValidator()
         {

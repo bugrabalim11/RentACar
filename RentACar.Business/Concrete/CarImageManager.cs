@@ -25,7 +25,7 @@ namespace RentACar.Business.Concrete
             _mapper = mapper;
         }
 
-        public async Task<IResult> AddAsync(CarImageAddDto carImageAddDto)
+        public async Task<IResult> AddAsync(CarImageCreateDto carImageAddDto)
         {
             IResult? result = BusinessRules.Run(
             await CheckIfCarImageLimitExceededAsync(carImageAddDto.CarId),

@@ -10,9 +10,9 @@ namespace RentACar.Business.Abstract
 {
     public interface IContactInfoService
     {
-        Task<IDataResult<List<ContactInfoListDto>>> GetAllAsync();
-        Task<IDataResult<ContactInfoListDto>> GetByIdAsync(int id);
-        Task<IResult> AddAsync(ContactInfoAddDto contactInfoAddDto);
+        Task<IDataResult<List<ContactInfoResultDto>>> GetAllAsync();
+        Task<IDataResult<ContactInfoResultDto>> GetByIdAsync(int id);
+        Task<IResult> AddAsync(ContactInfoCreateDto contactInfoAddDto);
         Task<IResult> UpdateAsync(ContactInfoUpdateDto contactInfoUpdateDto);
         Task<IResult> DeleteAsync(int id);
     }

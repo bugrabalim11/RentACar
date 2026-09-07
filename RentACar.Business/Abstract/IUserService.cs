@@ -6,9 +6,9 @@ namespace RentACar.Business.Abstract
 {
     public interface IUserService
     {
-        Task<IDataResult<List<UserListDto>>> GetAllAsync();
-        Task<IDataResult<UserListDto>> GetByIdAsync(int id);
-        Task<IDataResult<UserListDto>> GetMyProfile(int id);
+        Task<IDataResult<List<UserResultDto>>> GetAllAsync();
+        Task<IDataResult<UserResultDto>> GetByIdAsync(int id);
+        Task<IDataResult<UserResultDto>> GetMyProfile(int id);
 
         // Güvenlik Şefinin (AuthManager) doğrudan kullanacağı, çıplak Entity kabul eden masa
         Task<IResult> AddAsync(User user);

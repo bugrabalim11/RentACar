@@ -2,7 +2,7 @@
 
 namespace RentACar.Dtos.RentalDtos
 {
-    public class RentalListDto : IDto
+    public class RentalResultDto : IDto
     {
         public int Id { get; set; }
         public string ModelName { get; set; } = null!;

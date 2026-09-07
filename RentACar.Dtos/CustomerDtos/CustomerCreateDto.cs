@@ -2,7 +2,7 @@
 
 namespace RentACar.Dtos.CustomerDtos
 {
-    public class CustomerAddDto : IDto
+    public class CustomerCreateDto : IDto
     {
         public string NationalIdentity { get; set; } = null!;
         public int DrivingLicenseYear { get; set; }

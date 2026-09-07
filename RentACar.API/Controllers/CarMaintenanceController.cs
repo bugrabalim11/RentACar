@@ -18,7 +18,7 @@ namespace RentACar.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddAsync(CarMaintenanceAddDto carMaintenanceAddDto)
+        public async Task<IActionResult> AddAsync(CarMaintenanceCreateDto carMaintenanceAddDto)
         {
             var result = await _carMaintenanceService.AddAsync(carMaintenanceAddDto);
             if (result.Success)

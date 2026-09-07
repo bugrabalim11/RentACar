@@ -9,7 +9,7 @@ namespace RentACar.Business.Profiles
         public RentalProfile()
         {
             // CreateMap<Kaynak, Hedef>
-            CreateMap<Rental, RentalListDto>()
+            CreateMap<Rental, RentalResultDto>()
                 // Hedefteki (dest) CustomerFirstName alanına, kaynaktaki (src) Customer.User.FirstName alanını haritala (MapFrom).
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.Customer.User.FirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.Customer.User.LastName))
@@ -26,8 +26,8 @@ namespace RentACar.Business.Profiles
                 .ForMember(dest => dest.DailyPrice, opt => opt.MapFrom(src => src.Car.DailyPrice))
                 .ForMember(dest => dest.PickUpOfficeName, opt => opt.MapFrom(src => src.PickUpOffice.Name))
                 .ForMember(dest => dest.DropOffOfficeName, opt => opt.MapFrom(src => src.DropOffOffice.Name));
-            CreateMap<RentalAddDto, Rental>();
-            CreateMap<RentalAddByAdminDto, Rental>();
+            CreateMap<RentalCreateDto, Rental>();
+            CreateMap<RentalCreateByAdminDto, Rental>();
             CreateMap<RentalUpdateDto, Rental>();
         }
     }

@@ -5,6 +5,7 @@ using RentACar.MVC.Areas.Admin.Models.BrandDtos;
 using RentACar.MVC.Areas.Admin.Models.CarDtos;
 using RentACar.MVC.Areas.Admin.Models.ColorDtos;
 using RentACar.MVC.Areas.Admin.Models.ErrorResponseDtos;
+using RentACar.MVC.Models.Responses;
 using System.Text;
 
 namespace RentACar.MVC.Areas.Admin.Controllers
@@ -29,7 +30,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
-                var responseBox = JsonConvert.DeserializeObject<CarResponseDto>(jsonData);
+                var responseBox = JsonConvert.DeserializeObject<ResponseModel<List<CarResultDto>>>(jsonData);
                 if (responseBox != null && responseBox.Data != null)
                 {
                     return View(responseBox.Data);
@@ -63,7 +64,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
-                var responseBox = JsonConvert.DeserializeObject<CarDetailResponseDto>(jsonData);
+                var responseBox = JsonConvert.DeserializeObject<ResponseModel<List<CarDetailDto>>>(jsonData);
                 if (responseBox != null && responseBox.Data != null)
                 {
                     return View(responseBox.Data);
@@ -131,7 +132,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
-                var responseBox = JsonConvert.DeserializeObject<GetByIdCarResponseDto>(jsonData);
+                var responseBox = JsonConvert.DeserializeObject<ResponseModel<CarUpdateDto>>(jsonData);
                 if (responseBox != null && responseBox.Data != null)
                 {
                     var viewModel = new CarUpdateViewModel
@@ -195,8 +196,8 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 var brandsJsonData = await brandsResponseMessage.Content.ReadAsStringAsync();
                 var colorsJsonData = await colorsResponseMessage.Content.ReadAsStringAsync();
 
-                var brandsResponseBox = JsonConvert.DeserializeObject<BrandResponseDto>(brandsJsonData);
-                var colorsResponseBox = JsonConvert.DeserializeObject<ColorResponseDto>(colorsJsonData);
+                var brandsResponseBox = JsonConvert.DeserializeObject<ResponseModel<List<BrandResultDto>>>(brandsJsonData);
+                var colorsResponseBox = JsonConvert.DeserializeObject<ResponseModel<List<ColorResultDto>>>(colorsJsonData);
                 if (brandsResponseBox != null && brandsResponseBox.Data != null && colorsResponseBox != null && colorsResponseBox.Data != null)
                 {
                     // DİKKAT: 'new ViewModel()' DEMİYORUZ! Kullanıcının doldurduğu mevcut 'viewModel' içine 
@@ -217,8 +218,8 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 var brandsJsonData = await brandsResponseMessage.Content.ReadAsStringAsync();
                 var colorsJsonData = await colorsResponseMessage.Content.ReadAsStringAsync();
 
-                var brandsResponseBox = JsonConvert.DeserializeObject<BrandResponseDto>(brandsJsonData);
-                var colorsResponseBox = JsonConvert.DeserializeObject<ColorResponseDto>(colorsJsonData);
+                var brandsResponseBox = JsonConvert.DeserializeObject<ResponseModel<List<BrandResultDto>>>(brandsJsonData);
+                var colorsResponseBox = JsonConvert.DeserializeObject<ResponseModel<List<ColorResultDto>>>(colorsJsonData);
                 if (brandsResponseBox != null && brandsResponseBox.Data != null && colorsResponseBox != null && colorsResponseBox.Data != null)
                 {
                     carUpdateViewModel.Brands = brandsResponseBox.Data;
