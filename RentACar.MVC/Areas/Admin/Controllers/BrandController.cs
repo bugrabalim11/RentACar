@@ -129,11 +129,19 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 // 1. Önce koca koliyi (Matruşkanın tamamını) çözüyoruz
                 var response = JsonConvert.DeserializeObject<ResponseModel<BrandResultDto>>(jsonData);
 
-                // 2. Form (View) bizden koca koliyi değil, sadece içindeki arabayı (Id ve Name) bekliyor!
-                // Bu yüzden View'a sadece response içindeki Data'yı gönderiyoruz.
+                // SENIOR NOTU: Manuel Mapping(Üniforma Değişimi)
+                // Mutfaktan (API) gelen 'BrandResultDto' (Okuma Üniforması), 
+                // Garsonun (View) kapıda beklediği 'BrandUpdateDto' (Güncelleme Üniforması) ile farklı tiplerdir.
+                // C# katı tip güvenliği (Type Safety) gereği bunları direkt eşleştirmez.
+                // Bu yüzden mutfaktan gelen verileri alıp, View'un beklediği yeni tepsiye kendi ellerimizle diziyoruz.
                 if (response != null && response.Data != null)
                 {
-                    return View(response.Data);
+                    var viewModel = new BrandUpdateDto
+                    {
+                        Id = response.Data.Id, // Parametreden gelen değil, Mutfağın onayladığı asıl ID
+                        Name = response.Data.Name
+                    };
+                    return View(viewModel);
                 }
             }
 

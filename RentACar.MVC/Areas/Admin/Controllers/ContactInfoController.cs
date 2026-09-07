@@ -98,7 +98,14 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 var response = JsonConvert.DeserializeObject<ResponseModel<ContactInfoResultDto>>(jsonData);
                 if (response != null && response.Data != null)
                 {
-                    return View(response.Data);
+                    var viewModel = new ContactInfoUpdateDto
+                    {
+                        Id = response.Data.Id,
+                        Address = response.Data.Address,
+                        Email = response.Data.Email,
+                        Phone = response.Data.Phone
+                    };
+                    return View(viewModel);
                 }
             }
             return RedirectToAction("Index");

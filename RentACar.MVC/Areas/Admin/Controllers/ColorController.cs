@@ -101,7 +101,12 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 var response = JsonConvert.DeserializeObject<ResponseModel<ColorResultDto>>(jsonData);
                 if (response != null && response.Data != null)
                 {
-                    return View(response.Data);
+                    var viewModel = new ColorUpdateDto
+                    {
+                        Id = response.Data.Id,
+                        Name = response.Data.Name,
+                    };
+                    return View(viewModel);
                 }
             }
             return RedirectToAction("Index");

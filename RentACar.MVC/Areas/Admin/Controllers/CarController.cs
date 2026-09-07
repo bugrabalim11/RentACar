@@ -64,7 +64,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
-                var responseBox = JsonConvert.DeserializeObject<ResponseModel<List<CarDetailDto>>>(jsonData);
+                var responseBox = JsonConvert.DeserializeObject<ResponseModel<CarDetailDto>>(jsonData);
                 if (responseBox != null && responseBox.Data != null)
                 {
                     return View(responseBox.Data);
