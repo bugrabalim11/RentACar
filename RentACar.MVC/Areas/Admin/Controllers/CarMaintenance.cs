@@ -101,6 +101,63 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             await PopulateDropdowns(carMaintenanceCreateViewModel);
             return View(carMaintenanceCreateViewModel);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Update(int id)
+        {
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+
+            var responseMessage = await client.GetAsync($"api/CarMaintenances/{id}");
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var jsonData = await responseMessage.Content.ReadAsStringAsync();
+                var responseBox = JsonConvert.DeserializeObject<ResponseModel<CarMaintenanceResultDto>>(jsonData);
+                if (responseBox != null && responseBox.Data != null)
+                {
+                    var viewModel = new CarMaintenanceUpdateDto
+                    {
+                        Id = responseBox.Data.Id,
+                        Description = responseBox.Data.Description,
+                        CheckInTime = responseBox.Data.CheckInTime,
+                        CheckOutTime = responseBox.Data.CheckOutTime
+                    };
+                    return View(viewModel);
+                }
+            }
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Update(CarMaintenanceUpdateDto carMaintenanceUpdateDto)
+        {
+            if (!ModelState.IsValid) { return View(carMaintenanceUpdateDto); }
+
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+
+            var jsonData = JsonConvert.SerializeObject(carMaintenanceUpdateDto);
+            var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
+            var responseMessage = await client.PutAsync($"api/CarMaintenances/{carMaintenanceUpdateDto.Id}", stringContent);
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                return RedirectToAction("Index");
+            }
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                ModelState.AddModelError(string.Empty, "Bu işlem için yetkiniz yok. Lütfen giriş yapın!");
+                return View(carMaintenanceUpdateDto);
+            }
+
+            var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
+            var errorData = JsonConvert.DeserializeObject<List<string>>(errorJsonData);
+            if (errorData != null)
+            {
+                foreach (var message in errorData)
+                {
+                    ModelState.AddModelError(string.Empty, message);
+                }
+            }
+            return View(carMaintenanceUpdateDto);
+        }
         private async Task PopulateDropdowns(ICarMaintenanceDropdownViewModel carMaintenanceDropdownViewModel)
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");

@@ -160,19 +160,19 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 
             var jsonData = JsonConvert.SerializeObject(carUpdateViewModel.CarUpdate);
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            var reponseMessage = await client.PutAsync($"api/Cars/{carUpdateViewModel.CarUpdate.Id}", stringContent);
-            if (reponseMessage.IsSuccessStatusCode)
+            var responseMessage = await client.PutAsync($"api/Cars/{carUpdateViewModel.CarUpdate.Id}", stringContent);
+            if (responseMessage.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");
             }
-            if (reponseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
                 ModelState.AddModelError(string.Empty, "Bu işlem için yetkiniz yok. Lütfen giriş yapın!");
                 await PopulateDropdowns(carUpdateViewModel);
                 return View(carUpdateViewModel);
             }
 
-            var errorJsonData = await reponseMessage.Content.ReadAsStringAsync();
+            var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
             var errorData = JsonConvert.DeserializeObject<ErrorResponseDto>(errorJsonData);
             if (errorData != null)
             {
