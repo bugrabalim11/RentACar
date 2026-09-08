@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using RentACar.MVC.Areas.Admin.Models.CarDtos;
 using RentACar.MVC.Areas.Admin.Models.CarMaintenanceDtos;
-using RentACar.MVC.Areas.Admin.Models.ErrorResponseDtos;
 using RentACar.MVC.Models.Interfaces;
 using RentACar.MVC.Models.Responses;
 using System.Text;
@@ -35,6 +34,22 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 }
             }
             return View(new List<CarMaintenanceResultDto>());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+            var responseMessage = await client.DeleteAsync($"api/CarMaintenances/{id}");
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                return Json(new { success = true });
+            }
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                return Json(new { success = false, message = "Bu işlem için yetkiniz yok. Lütfen giriş yapın!" });
+            }
+            return Json(new { success = false, message = "Api tarafından silme işlemi başarısız oldu!" });
         }
 
         [HttpGet]
