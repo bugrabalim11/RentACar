@@ -7,7 +7,7 @@ namespace RentACar.MVC.Areas.Admin.Models.CarMaintenanceDtos
         [Required(ErrorMessage = "Lütfen geçerli bir araç seçiniz!")]
         public int CarId { get; set; }
 
-        [Required(ErrorMessage = "Lütfen açıklamayı dolddurunuz!")]
+        [Required(ErrorMessage = "Lütfen açıklamayı doldurunuz!")]
         [MaxLength(500, ErrorMessage = "Açıklma en fazla 500 karakter olmalıdır!")]
         [MinLength(10, ErrorMessage = "Açıklma en az 10 karakter olmalıdır!")]
         public string Description { get; set; } = null!;

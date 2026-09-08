@@ -93,10 +93,10 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 return View(carCreateViewModel);
             }
 
-            var newClient = _httpClientFactory.CreateClient("RentACarApi");
+            var client = _httpClientFactory.CreateClient("RentACarApi");
             var jsonData = JsonConvert.SerializeObject(carCreateViewModel.CarCreate);
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            var responseMessage = await newClient.PostAsync("api/Cars", stringContent);
+            var responseMessage = await client.PostAsync("api/Cars", stringContent);
             if (responseMessage.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");
