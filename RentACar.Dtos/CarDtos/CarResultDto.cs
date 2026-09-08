@@ -9,5 +9,6 @@ namespace RentACar.Dtos.CarDtos
         public string ModelName { get; set; } = null!;
         public int Kilometer { get; set; }
         public decimal DailyPrice { get; set; }
+        public string Plate { get; set; } = null!;
     }
 }
