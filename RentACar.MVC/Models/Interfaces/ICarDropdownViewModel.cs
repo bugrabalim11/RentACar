@@ -5,7 +5,7 @@ namespace RentACar.MVC.Models.Interfaces
 {
     public interface ICarDropdownViewModel
     {
-        public List<BrandResultDto> Brands { get; set; }
-        public List<ColorResultDto> Colors { get; set; }
+        List<BrandResultDto> Brands { get; set; }
+        List<ColorResultDto> Colors { get; set; }
     }
 }

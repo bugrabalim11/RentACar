@@ -1,0 +1,57 @@
+﻿@using RentACar.MVC.Areas.Admin.Models.CarMaintenanceDtos
+@using RentACar.MVC.Models.Enums
+@model CarMaintenanceCreateViewModel
+
+@{
+    ViewData["Title"] = "Yeni Araç Bakımı Ekle";
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Yeni Araç Bakımı Ekle</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" asp-action="Create">
+                <div class="row">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Araç</label>
+                            <select asp-for="CarMaintenanceCreate.CarId" class="form-control">
+                                <option value="">Lütfen Araç Seçiniz...</option>
+                                @foreach (var item in Model.Cars)
+                                {
+                                    <option value="@item.Id">
+                                        @item.BrandName @item.ModelName
+                                    </option>
+                                }
+                            </select>
+                            <span asp-validation-for="CarMaintenanceCreate.CarId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Açıklama</label>
+                            <input asp-for="CarMaintenanceCreate.Description" class="form-control" placeholder="Örn: 10.000 bakımı..." />
+                            <span asp-validation-for="CarMaintenanceCreate.Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Giriş Tarihi</label>
+                            <input asp-for="CarMaintenanceCreate.CheckInTime" class="form-control" type="datetime-local" />
+                            <span asp-validation-for="CarMaintenanceCreate.CheckInTime" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Çıkış Tarihi</label>
+                            <input asp-for="CarMaintenanceCreate.CheckOutTime" class="form-control" type="datetime-local" />
+                            <span asp-validation-for="CarMaintenanceCreate.CheckOutTime" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary mt-4">Kaydet</button>
+            </form>
+
+        </div>
+    </div>
+</div>
