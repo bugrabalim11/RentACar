@@ -55,7 +55,6 @@ builder.Services.AddTransient<AuthTokenHandler>();
 builder.Services.AddHttpClient("RentACarApi", client =>
 {
     // Ayar defterindeki o BaseUrl adresini okuyup kuryenin çantasına sabitliyoruz
-    // Ayar defterindeki o BaseUrl adresini okuyup kuryenin çantasına sabitliyoruz
     client.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!);
 })
 .AddHttpMessageHandler<AuthTokenHandler>(); // <-- BUM! Kurye artık çıkarken memura uğrayacak.
