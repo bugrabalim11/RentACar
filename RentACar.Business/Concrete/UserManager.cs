@@ -39,6 +39,13 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<List<UserResultDto>>(userDtos, "Kullanıcılar başarıyla listelendi.");
         }
 
+        public async Task<IDataResult<List<UserResultForAdminDto>>> GetAllForAdminAsync()
+        {
+            var users = await _userRepository.GetAllAsync(ignoreQueryFilters: true);
+            var userDtos = _mapper.Map<List<UserResultForAdminDto>>(users);
+            return new SuccessDataResult<List<UserResultForAdminDto>>(userDtos, "Kullanıcılar başarıyla listelendi.");
+        }
+
         public async Task<IDataResult<UserResultDto>> GetByIdAsync(int id)
         {
             var user = await _userRepository.GetAsync(x => x.Id == id);

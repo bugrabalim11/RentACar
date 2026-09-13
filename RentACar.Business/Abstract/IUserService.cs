@@ -7,6 +7,7 @@ namespace RentACar.Business.Abstract
     public interface IUserService
     {
         Task<IDataResult<List<UserResultDto>>> GetAllAsync();
+        Task<IDataResult<List<UserResultForAdminDto>>> GetAllForAdminAsync();
         Task<IDataResult<UserResultDto>> GetByIdAsync(int id);
         Task<IDataResult<UserResultDto>> GetMyProfile(int id);
 

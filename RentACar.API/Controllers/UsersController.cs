@@ -32,6 +32,18 @@ namespace RentACar.API.Controllers
         }
 
         [Authorize(Roles = "admin")]
+        [HttpGet("getallforadmin")]
+        public async Task<IActionResult> GetAllForAdminAsync()
+        {
+            var result = await _userService.GetAllForAdminAsync();
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [Authorize(Roles = "admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
