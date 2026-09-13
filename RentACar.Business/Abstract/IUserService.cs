@@ -1,6 +1,6 @@
 ﻿using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Utilities.Results;
-using RentACar.Dtos.UserDtos;
+using RentACar.Core.Entities.DTOs.UserDtos;
 
 namespace RentACar.Business.Abstract
 {

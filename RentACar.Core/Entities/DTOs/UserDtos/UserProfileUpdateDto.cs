@@ -1,6 +1,4 @@
-﻿using RentACar.Core.Entities;
-
-namespace RentACar.Dtos.UserDtos
+﻿namespace RentACar.Core.Entities.DTOs.UserDtos
 {
     public class UserProfileUpdateDto : IDto
     {

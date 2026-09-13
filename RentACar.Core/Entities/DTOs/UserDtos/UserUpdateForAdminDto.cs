@@ -1,8 +1,6 @@
-﻿using RentACar.Core.Entities;
-
-namespace RentACar.Dtos.UserDtos
+﻿namespace RentACar.Core.Entities.DTOs.UserDtos
 {
-    public class UserResultDto : IDto
+    public class UserUpdateForAdminDto : IDto
     {
         public int Id { get; set; }
         public string FirstName { get; set; } = null!;

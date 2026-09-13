@@ -2,7 +2,7 @@
 using RentACar.Core.Entities.DTOs.AuthDtos;
 using RentACar.Core.Utilities.Results;
 using RentACar.Core.Utilities.Security.Jwt;
-using RentACar.Dtos.UserDtos;
+using RentACar.Core.Entities.DTOs.UserDtos;
 
 namespace RentACar.Business.Abstract
 {

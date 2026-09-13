@@ -1,12 +1,12 @@
-﻿using RentACar.Core.Entities;
-
-namespace RentACar.Dtos.UserDtos
+﻿namespace RentACar.Core.Entities.DTOs.UserDtos
 {
-    public class UserUpdateForAdminDto : IDto
+    public class UserResultForAdminDto : IDto
     {
         public int Id { get; set; }
         public string FirstName { get; set; } = null!;
         public string LastName { get; set; } = null!;
         public string Email { get; set; } = null!;
+        public bool IsDeleted { get; set; }
+        public DateTime? DeletedDate { get; set; }
     }
 }
