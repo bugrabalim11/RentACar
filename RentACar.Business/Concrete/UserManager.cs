@@ -32,6 +32,19 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Kullanıcı başarıyla silindi.");
         }
 
+        public async Task<IResult> RestoreAsync(int id)
+        {
+            var deletedUser = await _userRepository.GetAsync(x => x.Id == id && x.IsDeleted == true, ignoreQueryFilters: true);
+            if (deletedUser == null)
+            {
+                return new ErrorResult("Geri Getirilecek kullanıcı bulunamadı.");
+            }
+            deletedUser.IsDeleted = false;
+            deletedUser.DeletedDate = null;
+            await _userRepository.UpdateAsync(deletedUser);
+            return new SuccessResult("Kullanıcı başarıyla geri getirildi.");
+        }
+
         public async Task<IDataResult<List<UserResultDto>>> GetAllAsync()
         {
             var users = await _userRepository.GetAllAsync();

@@ -131,6 +131,18 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
+        [Authorize(Roles = "admin")]
+        [HttpPatch("restore/{id}")]
+        public async Task<IActionResult> RestoreAsync(int id)
+        {
+            var result = await _userService.RestoreAsync(id);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
         [Authorize]
         [HttpDelete("profile")]
         public async Task<IActionResult> DeleteMyAccount()

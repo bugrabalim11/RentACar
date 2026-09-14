@@ -17,6 +17,7 @@ namespace RentACar.Business.Abstract
         Task<IResult> UpdateForAdminAsync(UserUpdateForAdminDto userUpdateForAdminDto);
         Task<IResult> UpdateMyProfileAsync(int userId, UserProfileUpdateDto userProfileUpdateDto);
         Task<IResult> DeleteAsync(int id);
+        Task<IResult> RestoreAsync(int id);
 
         Task<IDataResult<List<OperationClaim>>> GetClaimsAsync(User user);
 
