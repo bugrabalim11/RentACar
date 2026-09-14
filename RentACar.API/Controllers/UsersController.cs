@@ -103,6 +103,18 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
+        [Authorize(Roles = "admin")]
+        [HttpPost("createforadmin")]
+        public async Task<IActionResult> CreateForAdminAsync(UserCreateForAdminDto userCreateForAdminDto)
+        {
+            var result = await _userService.CreateForAdminAsync(userCreateForAdminDto);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
         [Authorize]
         [HttpPut("profile")]
         public async Task<IActionResult> UpdateMyProfile(UserProfileUpdateDto userProfileUpdateDto)

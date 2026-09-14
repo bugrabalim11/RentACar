@@ -15,6 +15,7 @@ namespace RentACar.Business.Profiles
             CreateMap<User, UserResultForAdminDto>();
 
             CreateMap<UserForRegisterDto, User>();
+            CreateMap<UserCreateForAdminDto, User>();
         }
     }
 }

@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
 using RentACar.Core.Entities.Concrete;
+using RentACar.Core.Entities.DTOs.UserDtos;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
+using RentACar.Core.Utilities.Security.Hashing;
 using RentACar.DataAccess.Abstract;
-using RentACar.Core.Entities.DTOs.UserDtos;
 
 namespace RentACar.Business.Concrete
 {
@@ -12,10 +13,12 @@ namespace RentACar.Business.Concrete
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
-        public UserManager(IUserRepository userRepository, IMapper mapper)
+        private readonly IUserOperationClaimRepository _userOperationClaimRepository;
+        public UserManager(IUserRepository userRepository, IMapper mapper, IUserOperationClaimRepository userOperationClaimRepository)
         {
             _userRepository = userRepository;
             _mapper = mapper;
+            _userOperationClaimRepository = userOperationClaimRepository;
         }
 
         public async Task<IResult> DeleteAsync(int id)
@@ -81,6 +84,43 @@ namespace RentACar.Business.Concrete
 
             var userDto = _mapper.Map<UserResultDto>(user);
             return new SuccessDataResult<UserResultDto>(userDto, "Profil başarıyla getirildi.");
+        }
+
+        public async Task<IResult> CreateForAdminAsync(UserCreateForAdminDto userCreateForAdminDto)
+        {
+            // 1. İş Kuralı Kontrolü: Bu e-posta daha önce alınmış mı diye güvenlik kurallarımıza soruyoruz.
+            userCreateForAdminDto.Email = userCreateForAdminDto.Email.Trim().ToLower();
+            IResult? result = BusinessRules.Run(await CheckIfEmailExistsAsync(userCreateForAdminDto.Email));
+            if (result != null)
+            {
+                return result;
+            }
+
+            // 2. Güvenlik (Hashing): Gelen çıplak şifreyi blenderdan geçirip (Hash ve Salt) şifreli hale getiriyoruz.
+            byte[] passwordHash, passwordSalt;
+            HashingHelper.CreatePasswordHash(userCreateForAdminDto.Password, out passwordHash, out passwordSalt);
+
+            // 3. Çevirmen (AutoMapper): Dışarıdan gelen bavulu (DTO), veritabanının anladığı gerçek Entity nesnesine dönüştürüyoruz.
+            var user = _mapper.Map<User>(userCreateForAdminDto);
+
+            // 4. Mühürleme: Şifre güvenlik verilerini ve varsayılan aktiflik durumunu nesneye manuel zerk ediyoruz.
+            user.PasswordHash = passwordHash;
+            user.PasswordSalt = passwordSalt;
+            user.IsDeleted = false;
+
+            // 5. Kimlik Basımı: Kullanıcıyı depoya kaydediyoruz. Bu işlem bittiğinde EF Core, kullanıcıya otomatik bir Id atamış (user.Id) olacak.
+            await _userRepository.AddAsync(user);
+
+            // 6. Yetki Kartı (Rol) Ataması: Yeni oluşan kimlik numarasıyla (user.Id),
+            // Admin'in vitrinden seçtiği rol numarasını eşleştirip yetki tablosuna kaydediyoruz.
+            UserOperationClaim userOperationClaim = new UserOperationClaim
+            {
+                UserId = user.Id,
+                OperationClaimId = userCreateForAdminDto.OperationClaimId
+            };
+
+            await _userOperationClaimRepository.AddAsync(userOperationClaim);
+            return new SuccessResult("Kullanıcı başarıyla eklendi ve rol ataması yapıldı.");
         }
 
         public async Task<IResult> UpdateForAdminAsync(UserUpdateForAdminDto userUpdateForAdminDto)
