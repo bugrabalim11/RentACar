@@ -25,8 +25,8 @@ builder.Services.AddHostedService<CarImageCleanupService>();
 builder.Services.AddFluentValidationAutoValidation();
 
 // 2. Adım: Validator kurallarımızın (RuleFor...) nerede olduğunu sisteme göster.
-// (OfficeAddDtoValidator veya herhangi bir Validator sınıfını referans verebilirsin, sistem o projedeki hepsini bulur)
-builder.Services.AddValidatorsFromAssemblyContaining<OfficeAddDtoValidator>();
+// (OfficeCreateDtoValidator veya herhangi bir Validator sınıfını referans verebilirsin, sistem o projedeki hepsini bulur)
+builder.Services.AddValidatorsFromAssemblyContaining<OfficeCreateDtoValidator>();
 
 // Business katmanındaki gizli çantamızı buraya tek satırla çağırıyoruz
 builder.Services.AddBusinessServices();

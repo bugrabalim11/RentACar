@@ -1,6 +1,6 @@
 ﻿namespace RentACar.Core.Entities.DTOs.UserOperationClaimDtos
 {
-    public class UserOperationClaimAddDto
+    public class UserOperationClaimCreateDto
     {
         public int UserId { get; set; }
         public int OperationClaimId { get; set; }

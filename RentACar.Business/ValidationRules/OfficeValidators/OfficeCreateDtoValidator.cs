@@ -3,9 +3,9 @@ using RentACar.Dtos.OfficeDtos;
 
 namespace RentACar.Business.ValidationRules.OfficeValidators
 {
-    public class OfficeAddDtoValidator : AbstractValidator<OfficeCreateDto>
+    public class OfficeCreateDtoValidator : AbstractValidator<OfficeCreateDto>
     {
-        public OfficeAddDtoValidator()
+        public OfficeCreateDtoValidator()
         {
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("Ofis ismi boş geçilemez.")

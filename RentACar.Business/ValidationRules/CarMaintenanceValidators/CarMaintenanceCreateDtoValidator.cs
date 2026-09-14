@@ -3,9 +3,9 @@ using RentACar.Dtos.CarMaintenanceDtos;
 
 namespace RentACar.Business.ValidationRules.CarMaintenanceValidators
 {
-    public class CarMaintenanceAddDtoValidator : AbstractValidator<CarMaintenanceCreateDto>
+    public class CarMaintenanceCreateDtoValidator : AbstractValidator<CarMaintenanceCreateDto>
     {
-        public CarMaintenanceAddDtoValidator()
+        public CarMaintenanceCreateDtoValidator()
         {
             RuleFor(x => x.CarId).GreaterThan(0).WithMessage("Lütfen geçerli bir araç numarası giriniz.");
 

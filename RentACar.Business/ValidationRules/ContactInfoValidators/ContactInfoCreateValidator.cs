@@ -1,14 +1,11 @@
 ﻿using FluentValidation;
 using RentACar.Dtos.ContactInfoDtos;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RentACar.Business.ValidationRules.ContactInfoValidators
 {
-    public class ContactInfoAddValidator : AbstractValidator<ContactInfoCreateDto>
+    public class ContactInfoCreateValidator : AbstractValidator<ContactInfoCreateDto>
     {
-        public ContactInfoAddValidator()
+        public ContactInfoCreateValidator()
         {
             RuleFor(x => x.Address)
                 .NotEmpty().WithMessage("Adres bilgisi boş geçilemez.")

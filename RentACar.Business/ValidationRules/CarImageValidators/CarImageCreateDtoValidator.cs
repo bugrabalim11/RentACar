@@ -4,9 +4,9 @@ using RentACar.Dtos.CarImageDtos;
 
 namespace RentACar.Business.ValidationRules.CarImageValidators
 {
-    public class CarImageAddDtoValidator : AbstractValidator<CarImageCreateDto>
+    public class CarImageCreateDtoValidator : AbstractValidator<CarImageCreateDto>
     {
-        public CarImageAddDtoValidator()
+        public CarImageCreateDtoValidator()
         {
             RuleFor(x => x.CarId).GreaterThan(0).WithMessage("Lütfen geçerli bir araç seçiniz.");
             RuleFor(x => x.ImageFile)

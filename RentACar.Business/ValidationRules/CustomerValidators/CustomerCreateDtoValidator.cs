@@ -3,9 +3,9 @@ using RentACar.Dtos.CustomerDtos;
 
 namespace RentACar.Business.ValidationRules.CustomerValidators
 {
-    public class CustomerAddDtoValidator : AbstractValidator<CustomerCreateDto>
+    public class CustomerCreateDtoValidator : AbstractValidator<CustomerCreateDto>
     {
-        public CustomerAddDtoValidator()
+        public CustomerCreateDtoValidator()
         {
             RuleFor(x => x.NationalIdentity)
                 .NotEmpty().WithMessage("TC kimlik numarası zorunludur.")

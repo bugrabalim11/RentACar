@@ -3,9 +3,9 @@ using RentACar.Dtos.CustomerDtos;
 
 namespace RentACar.Business.ValidationRules.CustomerValidators
 {
-    public class CustomerAddByAdminDtoValidator : AbstractValidator<CustomerCreateByAdminDto>
+    public class CustomerCreateByAdminDtoValidator : AbstractValidator<CustomerCreateByAdminDto>
     {
-        public CustomerAddByAdminDtoValidator()
+        public CustomerCreateByAdminDtoValidator()
         {
             RuleFor(x => x.UserId).GreaterThan(0).WithMessage("Lütfen geçerli bir kullanıcı ID'si giriniz.");
 

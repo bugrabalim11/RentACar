@@ -4,9 +4,9 @@ using RentACar.Dtos.RentalDtos;
 
 namespace RentACar.Business.ValidationRules.RentalValidators
 {
-    public class RentalAddDtoValidator : AbstractValidator<RentalCreateDto>
+    public class RentalCreateDtoValidator : AbstractValidator<RentalCreateDto>
     {
-        public RentalAddDtoValidator()
+        public RentalCreateDtoValidator()
         {
             RuleFor(x => x.CarId).GreaterThan(0).WithMessage("Lütfen geçerli bir araç seçiniz.");
             RuleFor(x => x.PickUpOfficeId).GreaterThan(0).WithMessage("Lütfen geçerli bir şube seçiniz.");

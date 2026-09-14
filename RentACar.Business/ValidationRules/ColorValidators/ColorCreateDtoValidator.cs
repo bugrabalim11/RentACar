@@ -1,14 +1,11 @@
 ﻿using FluentValidation;
 using RentACar.Dtos.ColorDtos;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RentACar.Business.ValidationRules.ColorValidators
 {
-    public class ColorAddDtoValidator : AbstractValidator<ColorCreateDto>
+    public class ColorCreateDtoValidator : AbstractValidator<ColorCreateDto>
     {
-        public ColorAddDtoValidator()
+        public ColorCreateDtoValidator()
         {
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("Renk ismi boş bırakılamaz.")

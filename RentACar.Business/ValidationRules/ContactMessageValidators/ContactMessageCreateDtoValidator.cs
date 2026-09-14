@@ -3,9 +3,9 @@ using RentACar.Dtos.ContactMessageDtos;
 
 namespace RentACar.Business.ValidationRules.ContactMessageValidators
 {
-    public class ContactMessageAddDtoValidator : AbstractValidator<ContactMessageCreateDto>
+    public class ContactMessageCreateDtoValidator : AbstractValidator<ContactMessageCreateDto>
     {
-        public ContactMessageAddDtoValidator()
+        public ContactMessageCreateDtoValidator()
         {
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("İsim boş geçilemez.")

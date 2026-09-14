@@ -6,9 +6,9 @@ namespace RentACar.Business.ValidationRules.CarValidators
     // Sınıfımızın FluentValidation'ın AbstractValidator'ından miras alması gerekiyor
     // İçine de hangi DTO'yu denetleyeceğini (CarCreateDto) yazıyoruz.
     // Bool değerlere kural yazmadık çünkü FluentValidation'da bool değerler için genellikle kural yazmaya gerek yoktur.
-    public class CarAddDtoValidator : AbstractValidator<CarCreateDto>
+    public class CarCreateDtoValidator : AbstractValidator<CarCreateDto>
     {
-        public CarAddDtoValidator()
+        public CarCreateDtoValidator()
         {
             RuleFor(x => x.BrandId).GreaterThan(0).WithMessage("Lütfen geçerli bir marka seçiniz.");
             RuleFor(x => x.ColorId).GreaterThan(0).WithMessage("Lütfen geçerli bir renk seçiniz.");

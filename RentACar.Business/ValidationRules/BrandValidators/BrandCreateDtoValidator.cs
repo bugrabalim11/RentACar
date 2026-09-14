@@ -3,9 +3,9 @@ using RentACar.Dtos.BrandDtos;
 
 namespace RentACar.Business.ValidationRules.BrandValidators
 {
-    public class BrandAddDtoValidator : AbstractValidator<BrandCreateDto>
+    public class BrandCreateDtoValidator : AbstractValidator<BrandCreateDto>
     {
-        public BrandAddDtoValidator()
+        public BrandCreateDtoValidator()
         {
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("Araç markası boş bırakılamaz.")

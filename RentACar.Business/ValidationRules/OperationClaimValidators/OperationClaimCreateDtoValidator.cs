@@ -3,9 +3,9 @@ using RentACar.Core.Entities.DTOs.OperationClaimDtos;
 
 namespace RentACar.Business.ValidationRules.OperationClaimValidators
 {
-    public class OperationClaimAddDtoValidator : AbstractValidator<OperationClaimAddDto>
+    public class OperationClaimCreateDtoValidator : AbstractValidator<OperationClaimCreateDto>
     {
-        public OperationClaimAddDtoValidator()
+        public OperationClaimCreateDtoValidator()
         {
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("Statü boş geçilemez.")
