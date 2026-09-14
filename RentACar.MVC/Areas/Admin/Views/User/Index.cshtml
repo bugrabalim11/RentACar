@@ -15,7 +15,7 @@
                         #
                     </th>
                     <th>
-                        İsim
+                        Isim
                     </th>
                     <th>
                         Soyisim
@@ -69,12 +69,12 @@
                                 <a asp-action="Update" asp-route-id="@item.Id" class="btn btn-warning me-2">Güncelle</a>
                                 @if (item.IsDeleted)
                                 {
-                                    <a class="badge bg-success">Geri Getir</a>
+                                    <button onclick="restoreUser(@item.Id)" class="btn btn-success" style="width:110px;">Geri Getir</button>
                                 }
                                 else
                                 {
-                                    <button onclick="deleteUser(@item.Id)" class="btn btn-danger">Sil</button>
-                                }                             
+                                    <button onclick="deleteUser(@item.Id)" class="btn btn-danger" style="width:110px;">Sil</button>
+                                }
                             </div>
                         </td>
                     </tr>
@@ -101,6 +101,35 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 fetch('@Url.Action("Delete", "User", new { area = "Admin" })' + '/' + id, {
+                    method: 'POST'
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.reload();
+                        } else {
+                            Swal.fire('Hata!', data.message, 'error');
+                        }
+                    });
+            }
+        });
+    }
+</script>
+<script>
+    function restoreUser(id) {
+        // Güvenlik görevlisini çağırıyoruz
+        Swal.fire({
+            title: 'Emin misin?',
+            text: 'Bu kullanıcı sisteme geri gönderilecek!',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Evet, Geri Döndür!',
+            cancelButtonText: 'İptal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('@Url.Action("Restore", "User", new { area = "Admin" })' + '/' + id, {
                     method: 'POST'
                 })
                     .then(response => response.json())
