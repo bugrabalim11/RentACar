@@ -9,7 +9,7 @@ namespace RentACar.Business.Profiles
     {
         public UserProfile()
         {
-            CreateMap<UserUpdateForAdminDto, User>();
+            CreateMap<UserUpdateForAdminDto, User>().ReverseMap();
             CreateMap<UserProfileUpdateDto, User>();
             CreateMap<User, UserResultDto>();
             CreateMap<User, UserResultForAdminDto>();

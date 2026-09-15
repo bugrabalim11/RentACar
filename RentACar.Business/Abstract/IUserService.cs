@@ -14,6 +14,7 @@ namespace RentACar.Business.Abstract
         // Güvenlik Şefinin (AuthManager) doğrudan kullanacağı, çıplak Entity kabul eden masa
         Task<IResult> AddAsync(User user);
 
+        Task<IDataResult<UserUpdateForAdminDto>> GetByIdForUpdateAsync(int id);
         Task<IResult> UpdateForAdminAsync(UserUpdateForAdminDto userUpdateForAdminDto);
         Task<IResult> CreateForAdminAsync(UserCreateForAdminDto userCreateForAdminDto);
         Task<IResult> UpdateMyProfileAsync(int userId, UserProfileUpdateDto userProfileUpdateDto);

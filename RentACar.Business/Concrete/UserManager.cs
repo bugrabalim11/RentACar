@@ -74,6 +74,25 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<UserResultDto>(userDto, "Kullancı başarıyla getirildi.");
         }
 
+        public async Task<IDataResult<UserUpdateForAdminDto>> GetByIdForUpdateAsync(int id)
+        {
+            var user = await _userRepository.GetAsync(x => x.Id == id);
+            if (user == null)
+            {
+                return new ErrorDataResult<UserUpdateForAdminDto>("Kullanıcı bulunamadı.");
+            }
+
+            var operationClaim = await _userOperationClaimRepository.GetAsync(x => x.UserId == user.Id);
+
+            var userDto = _mapper.Map<UserUpdateForAdminDto>(user);
+
+            // Şüpheli paket etiketini (if) kaldırdık, doğrudan atamayı çaktık!
+            // KONTROL EDİLECEK ŞART? EVET İSE BURASI ÇALIŞIR: HAYIR İSE BURASI ÇALIŞIR
+            userDto.OperationClaimId = (operationClaim != null) ? operationClaim.OperationClaimId : 0;
+
+            return new SuccessDataResult<UserUpdateForAdminDto>(userDto, "Kullancı başarıyla getirildi.");
+        }
+
         public async Task<IDataResult<UserResultDto>> GetMyProfile(int id)
         {
             var user = await _userRepository.GetAsync(x => x.Id == id);

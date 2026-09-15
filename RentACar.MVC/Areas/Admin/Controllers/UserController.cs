@@ -122,6 +122,29 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             return View(userCreateForAdminViewModel);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Update(int id)
+        {
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+
+            var responseMessage = await client.GetAsync($"api/Users/getbyidforupdate/{id}");
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var jsonData = await responseMessage.Content.ReadAsStringAsync();
+                var responseBox = JsonConvert.DeserializeObject<ResponseModel<UserUpdateForAdminDto>>(jsonData);
+                if (responseBox != null && responseBox.Data != null)
+                {
+                    var viewModel = new UserUpdateForAdminViewModel
+                    {
+                        UserUpdate = responseBox.Data
+                    };
+                    await PopulateDropdown(viewModel);
+                    return View(viewModel);
+                }
+            }
+            return RedirectToAction("Index");
+        }
+
         private async Task PopulateDropdown(IUserDropdownViewModel userDropdownViewModel)
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");

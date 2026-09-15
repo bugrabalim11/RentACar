@@ -55,6 +55,18 @@ namespace RentACar.API.Controllers
             return BadRequest(result);
         }
 
+        [Authorize(Roles = "admin")]
+        [HttpGet("getbyidforupdate/{id}")]
+        public async Task<IActionResult> GetByIdForUpdate(int id)
+        {
+            var result = await _userService.GetByIdForUpdateAsync(id);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
         [Authorize]
         [HttpGet("profile")]
         public async Task<IActionResult> GetMyProfileAsync()
