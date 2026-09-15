@@ -56,7 +56,8 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            return View();
+            var viewModel = new ContactInfoCreateDto();
+            return View(viewModel);
         }
 
         [HttpPost]

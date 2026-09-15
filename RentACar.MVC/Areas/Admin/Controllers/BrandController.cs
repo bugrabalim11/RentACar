@@ -59,8 +59,9 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult Create()
         {
+            var viewModel = new BrandCreateDto();
             // Burada API'ye gitmiyoruz! Sadece boş sipariş fişini (View) masaya bırakıyoruz.
-            return View();
+            return View(viewModel);
         }
 
         [HttpPost]

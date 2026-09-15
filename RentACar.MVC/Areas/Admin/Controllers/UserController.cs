@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using RentACar.MVC.Areas.Admin.Models.OperationClaimDtos;
 using RentACar.MVC.Areas.Admin.Models.UserDtos;
+using RentACar.MVC.Models.Interfaces;
 using RentACar.MVC.Models.Responses;
 
 namespace RentACar.MVC.Areas.Admin.Controllers
@@ -67,6 +69,33 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 return Json(new { success = false, message = "Bu işlem için yetkiniz yok. Lütfen giriş yapın!" });
             }
             return Json(new { success = false, message = "Api tarafından geri getirme işlemi başarısız oldu!" });
+        }
+
+        public async Task<IActionResult> Create()
+        {
+            var viewModel = new UserCreateForAdminViewModel();
+            // SENİOR NOTU: Tepsinin (ViewModel) içine boş bir UserCreateForAdminDto (Sipariş Fişi) koyuyoruz.
+            // Eğer bunu yapmazsak, View (HTML) tarafı '@Model.UserCreate.FirstName' gibi değerleri okumaya çalıştığında 
+            // "Masa var ama üstünde kağıt yok!" diyerek Null Reference Exception (CS0120) hatası fırlatabilir.
+            // Bu hamle, bellekte (RAM) o boş kağıda fiziksel bir yer ayırır. İşimi şansa bırakmıyoruz!
+            viewModel.UserCreate = new UserCreateForAdminDto();
+            await PopulateDropdown(viewModel);
+            return View(viewModel);
+        }
+
+        private async Task PopulateDropdown(IUserDropdownViewModel userDropdownViewModel)
+        {
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+            var responseMessage = await client.GetAsync("api/OperationClaims");
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var jsonData = await responseMessage.Content.ReadAsStringAsync();
+                var responseBox = JsonConvert.DeserializeObject<ResponseModel<List<OperationClaimResultDto>>>(jsonData);
+                if (responseBox != null && responseBox.Data != null)
+                {
+                    userDropdownViewModel.Roles = responseBox.Data;
+                }
+            }
         }
     }
 }

@@ -78,6 +78,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         public async Task<IActionResult> Create()
         {
             var viewModel = new CarCreateViewModel();
+            viewModel.CarCreate = new CarCreateDto();
             await PopulateDropdowns(viewModel); // Komi API'ye gider, listeleri tepsiye dizer
             return View(viewModel); // Sen de dolu tepsiyi müşteriye (View'a) sunarsın
         }
