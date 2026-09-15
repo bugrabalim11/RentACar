@@ -101,7 +101,6 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             if (responseMessage.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");
-
             }
 
             if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)

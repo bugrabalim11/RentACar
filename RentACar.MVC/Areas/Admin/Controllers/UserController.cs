@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using RentACar.MVC.Areas.Admin.Models.ErrorResponseDtos;
 using RentACar.MVC.Areas.Admin.Models.OperationClaimDtos;
 using RentACar.MVC.Areas.Admin.Models.UserDtos;
 using RentACar.MVC.Models.Interfaces;
 using RentACar.MVC.Models.Responses;
+using System.Text;
 
 namespace RentACar.MVC.Areas.Admin.Controllers
 {
@@ -71,6 +73,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             return Json(new { success = false, message = "Api tarafından geri getirme işlemi başarısız oldu!" });
         }
 
+        [HttpGet]
         public async Task<IActionResult> Create()
         {
             var viewModel = new UserCreateForAdminViewModel();
@@ -81,6 +84,42 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             viewModel.UserCreate = new UserCreateForAdminDto();
             await PopulateDropdown(viewModel);
             return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(UserCreateForAdminViewModel userCreateForAdminViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                await PopulateDropdown(userCreateForAdminViewModel);
+                return View(userCreateForAdminViewModel);
+            }
+
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+
+            var jsonData = JsonConvert.SerializeObject(userCreateForAdminViewModel.UserCreate);
+            var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
+            var responseMessage = await client.PostAsync("api/Users/createforadmin", stringContent);
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                return RedirectToAction("Index");
+            }
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                ModelState.AddModelError(string.Empty, "Bu işlem için yetkiniz yok. Lütfen giriş yapın!");
+                await PopulateDropdown(userCreateForAdminViewModel);
+                return View(userCreateForAdminViewModel);
+            }
+
+            var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
+            var errorData = JsonConvert.DeserializeObject<ErrorResponseDto>(errorJsonData);
+            if (errorData != null)
+            {
+                ModelState.AddModelError(string.Empty, errorData.Message);
+            }
+
+            await PopulateDropdown(userCreateForAdminViewModel);
+            return View(userCreateForAdminViewModel);
         }
 
         private async Task PopulateDropdown(IUserDropdownViewModel userDropdownViewModel)
