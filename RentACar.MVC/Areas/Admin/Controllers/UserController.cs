@@ -145,6 +145,41 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             return RedirectToAction("Index");
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Update(UserUpdateForAdminViewModel userUpdateForAdminViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                await PopulateDropdown(userUpdateForAdminViewModel);
+                return View(userUpdateForAdminViewModel);
+            }
+
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+
+            var jsonData = JsonConvert.SerializeObject(userUpdateForAdminViewModel.UserUpdate);
+            var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
+            var responseMessage = await client.PutAsync($"api/Users/updateforadmin/{userUpdateForAdminViewModel.UserUpdate.Id}", stringContent);
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                return RedirectToAction("Index");
+            }
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                ModelState.AddModelError(string.Empty, "Bu işlem için yetkiniz yok. Lütfen giriş yapın!");
+                await PopulateDropdown(userUpdateForAdminViewModel);
+                return View(userUpdateForAdminViewModel);
+            }
+
+            var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
+            var errorData = JsonConvert.DeserializeObject<ErrorResponseDto>(errorJsonData);
+            if (errorData != null)
+            {
+                ModelState.AddModelError(string.Empty, errorData.Message);
+            }
+            await PopulateDropdown(userUpdateForAdminViewModel);
+            return View(userUpdateForAdminViewModel);
+        }
+
         private async Task PopulateDropdown(IUserDropdownViewModel userDropdownViewModel)
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");

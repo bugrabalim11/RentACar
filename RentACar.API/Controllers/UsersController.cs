@@ -100,7 +100,7 @@ namespace RentACar.API.Controllers
         }
 
         [Authorize(Roles = "admin")]
-        [HttpPut("{id}")]
+        [HttpPut("updateforadmin/{id}")]
         public async Task<IActionResult> UpdateForAdminAsync(int id, UserUpdateForAdminDto userUpdateForAdminDto)
         {
             if (id != userUpdateForAdminDto.Id)
