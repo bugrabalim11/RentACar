@@ -160,6 +160,23 @@ namespace RentACar.Business.Concrete
             // : Map(Kaynak, Hedef)
             _mapper.Map(userUpdateForAdminDto, existingUser);
             await _userRepository.UpdateAsync(existingUser);
+
+            var operationClaim = await _userOperationClaimRepository.GetAsync(x => x.UserId == existingUser.Id);
+            if (operationClaim != null)
+            {
+                operationClaim.OperationClaimId = userUpdateForAdminDto.OperationClaimId;
+                await _userOperationClaimRepository.UpdateAsync(operationClaim);
+            }
+            else
+            {
+                UserOperationClaim userOperationClaim = new UserOperationClaim
+                {
+                    UserId = existingUser.Id,
+                    OperationClaimId = userUpdateForAdminDto.OperationClaimId
+                };
+                await _userOperationClaimRepository.AddAsync(userOperationClaim);
+            }
+
             return new SuccessResult("Kullanıcı başarıyla güncellendi.");
         }
 
