@@ -71,5 +71,59 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 
             return View(operationClaimCreateDto);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Update(int id)
+        {
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+
+            var responseMessage = await client.GetAsync($"api/OperationClaims/{id}");
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var jsonData = await responseMessage.Content.ReadAsStringAsync();
+                var responseBox = JsonConvert.DeserializeObject<ResponseModel<OperationClaimResultDto>>(jsonData);
+                if (responseBox != null && responseBox.Data != null)
+                {
+                    var viewModel = new OperationClaimUpdateDto
+                    {
+                        Id = responseBox.Data.Id,
+                        Name = responseBox.Data.Name
+                    };
+                    return View(viewModel);
+                }
+            }
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Update(OperationClaimUpdateDto operationClaimUpdateDto)
+        {
+            if (!ModelState.IsValid) { return View(operationClaimUpdateDto); }
+
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+
+            var jsonData = JsonConvert.SerializeObject(operationClaimUpdateDto);
+            var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
+            var responseMessage = await client.PutAsync($"api/OperationClaims/{operationClaimUpdateDto.Id}", stringContent);
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                return RedirectToAction("Index");
+            }
+
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                ModelState.AddModelError(string.Empty, "Bu işlem için yetkiniz yok. Lütfen giriş yapın!");
+                return View(operationClaimUpdateDto);
+            }
+
+            var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
+            var errorData = JsonConvert.DeserializeObject<ErrorResponseDto>(errorJsonData);
+            if(errorData != null)
+            {
+                ModelState.AddModelError(string.Empty, errorData.Message);
+            }
+
+            return View(operationClaimUpdateDto);
+        }
     }
 }
