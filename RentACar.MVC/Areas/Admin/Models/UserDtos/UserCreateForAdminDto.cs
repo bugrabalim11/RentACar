@@ -12,11 +12,11 @@ namespace RentACar.MVC.Areas.Admin.Models.UserDtos
         public string Password { get; set; } = null!;
 
         [Required(ErrorMessage = "Lütfen kullanıcı adını boş geçemeyiniz!")]
-        [StringLength(50, MinimumLength = 2, ErrorMessage = "Kullanıcı adı en az 2, en fazla 50 karakter olamalıdır")]
+        [StringLength(50, MinimumLength = 2, ErrorMessage = "Kullanıcı adı en az 2, en fazla 50 karakter olamalıdır!")]
         public string FirstName { get; set; } = null!;
 
         [Required(ErrorMessage = "Lütfen kullanıcı soyadını boş geçemeyiniz!")]
-        [StringLength(50, MinimumLength = 2, ErrorMessage = "Kullanıcı soyadı en az 2, en fazla 50 karakter olamalıdır")]
+        [StringLength(50, MinimumLength = 2, ErrorMessage = "Kullanıcı soyadı en az 2, en fazla 50 karakter olamalıdır!")]
         public string LastName { get; set; } = null!;
 
         [Required(ErrorMessage = "Lütfen geçerli bir yetki seçiniz!")]
