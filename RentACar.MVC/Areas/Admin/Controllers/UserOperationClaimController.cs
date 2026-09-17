@@ -124,6 +124,43 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             return RedirectToAction("Index");
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Update(UserOperationClaimUpdateViewModel userOperationClaimUpdateViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                await PopulateDropdowns(userOperationClaimUpdateViewModel);
+                return View(userOperationClaimUpdateViewModel);
+            }
+
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+
+            var jsonData = JsonConvert.SerializeObject(userOperationClaimUpdateViewModel.UserOperationClaimUpdate);
+            var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
+            var responseMessage = await client.PutAsync($"api/UserOperationClaims/{userOperationClaimUpdateViewModel.UserOperationClaimUpdate.Id}", stringContent);
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                return RedirectToAction("Index");
+            }
+
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                ModelState.AddModelError(string.Empty, "Bu işlem için yetkiniz yok. Lütfen giriş yapın!");
+                await PopulateDropdowns(userOperationClaimUpdateViewModel);
+                return View(userOperationClaimUpdateViewModel);
+            }
+
+            var errorjsonData = await responseMessage.Content.ReadAsStringAsync();
+            var errorData = JsonConvert.DeserializeObject<ErrorResponseDto>(errorjsonData);
+            if(errorData != null)
+            {
+                ModelState.AddModelError(string.Empty, errorData.Message);
+            }
+
+            await PopulateDropdowns(userOperationClaimUpdateViewModel);
+            return View(userOperationClaimUpdateViewModel);
+        }
+
         private async Task PopulateDropdowns(IUserOperationClaimDropdownsViewModel userOperationClaimDropdownsViewModel)
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
