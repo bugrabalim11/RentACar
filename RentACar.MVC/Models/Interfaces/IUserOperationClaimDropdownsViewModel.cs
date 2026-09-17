@@ -5,7 +5,7 @@ namespace RentACar.MVC.Models.Interfaces
 {
     public interface IUserOperationClaimDropdownsViewModel
     {
-        List<UserResultForAdminDto> Users {  get; set; }
+        List<UserResultDto> Users {  get; set; }
         List<OperationClaimResultDto> Roles {  get; set; }
     }
 }
