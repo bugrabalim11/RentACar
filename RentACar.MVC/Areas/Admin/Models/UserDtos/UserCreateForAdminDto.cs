@@ -19,8 +19,6 @@ namespace RentACar.MVC.Areas.Admin.Models.UserDtos
         [StringLength(50, MinimumLength = 2, ErrorMessage = "Kullanıcı soyadı en az 2, en fazla 50 karakter olamalıdır!")]
         public string LastName { get; set; } = null!;
 
-        [Required(ErrorMessage = "Lütfen geçerli bir yetki seçiniz!")]
-        [Range(1, int.MaxValue, ErrorMessage = "Lütfen bir yetki seçiniz!")]
-        public int OperationClaimId { get; set; }
+        public int? OperationClaimId { get; set; }
     }
 }

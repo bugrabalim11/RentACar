@@ -18,8 +18,6 @@ namespace RentACar.MVC.Areas.Admin.Models.UserDtos
         [EmailAddress(ErrorMessage = "Lütfen geçerli bir e-posta adresi giriniz!")]
         public string Email { get; set; } = null!;
 
-        [Required(ErrorMessage = "Lütfen geçerli bir yetki seçiniz!")]
-        [Range(1, int.MaxValue, ErrorMessage = "Lütfen bir yetki seçiniz!")]
-        public int OperationClaimId { get; set; }
+        public int? OperationClaimId { get; set; }
     }
 }

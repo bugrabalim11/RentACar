@@ -8,7 +8,6 @@ namespace RentACar.Business.ValidationRules.UserValidators
         public UserUpdateForAdminDtoValidator()
         {
             RuleFor(x => x.Id).GreaterThan(0).WithMessage("Lütfen gecçerli bir yetki seçiniz.");
-            RuleFor(x => x.OperationClaimId).GreaterThan(0).WithMessage("Lütfen gecçerli bir yetki seçiniz.");
 
             RuleFor(x => x.FirstName)
                 .NotEmpty().WithMessage("Kullanıcı adı boş geçilemez.")

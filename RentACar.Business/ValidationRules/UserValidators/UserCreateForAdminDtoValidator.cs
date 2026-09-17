@@ -7,8 +7,6 @@ namespace RentACar.Business.ValidationRules.UserValidators
     {
         public UserCreateForAdminDtoValidator()
         {
-            RuleFor(x => x.OperationClaimId).GreaterThan(0).WithMessage("Lütfen gecçerli bir yetki seçiniz.");
-
             RuleFor(x => x.FirstName)
                 .NotEmpty().WithMessage("Kullanıcı adı boş geçilemez.")
                 .MinimumLength(2).WithMessage("Kullanıcı adı en az 2 karakter olmalıdır.")

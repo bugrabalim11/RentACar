@@ -130,20 +130,26 @@ namespace RentACar.Business.Concrete
             // 5. Kimlik Basımı: Kullanıcıyı depoya kaydediyoruz. Bu işlem bittiğinde EF Core, kullanıcıya otomatik bir Id atamış (user.Id) olacak.
             await _userRepository.AddAsync(user);
 
-            // 6. Yetki Kartı (Rol) Ataması: Yeni oluşan kimlik numarasıyla (user.Id),
-            // Admin'in vitrinden seçtiği rol numarasını eşleştirip yetki tablosuna kaydediyoruz.
-            UserOperationClaim userOperationClaim = new UserOperationClaim
+            // Admin kayıt yaparken rütbeyi doldurdu mu?
+            if (userCreateForAdminDto.OperationClaimId.HasValue)
             {
-                UserId = user.Id,
-                OperationClaimId = userCreateForAdminDto.OperationClaimId
-            };
+                // 6. Yetki Kartı (Rol) Ataması: Yeni oluşan kimlik numarasıyla (user.Id),
+                // Admin'in vitrinden seçtiği rol numarasını eşleştirip yetki tablosuna kaydediyoruz.
+                UserOperationClaim userOperationClaim = new UserOperationClaim
+                {
+                    UserId = user.Id,
+                    OperationClaimId = userCreateForAdminDto.OperationClaimId
+                };
+                await _userOperationClaimRepository.AddAsync(userOperationClaim);
+                return new SuccessResult("Kullanıcı başarıyla eklendi ve rütbe ataması yapıldı.");
+            }
 
-            await _userOperationClaimRepository.AddAsync(userOperationClaim);
-            return new SuccessResult("Kullanıcı başarıyla eklendi ve rol ataması yapıldı.");
+            return new SuccessResult("Kullanıcı başarıyla eklendi.");
         }
 
         public async Task<IResult> UpdateForAdminAsync(UserUpdateForAdminDto userUpdateForAdminDto)
         {
+            // 1. Kimlik Kontrolü: Güncellenmek istenen adam gerçekten veritabanında (depoda) var mı?
             userUpdateForAdminDto.Email = userUpdateForAdminDto.Email.Trim().ToLower();
             var existingUser = await _userRepository.GetAsync(x => x.Id == userUpdateForAdminDto.Id);
             if (existingUser == null)
@@ -151,32 +157,39 @@ namespace RentACar.Business.Concrete
                 return new ErrorResult("Güncellenecek kullanıcı bulunamadı.");
             }
 
+            // 2. Güvenlik Duvarı: Adam e-postasını değiştiriyorsa, bu yeni e-posta sistemde başkası tarafından kullanılıyor mu?
             IResult? result = BusinessRules.Run(await CheckIfEmailExistsForUpdateAsync(userUpdateForAdminDto.Email, userUpdateForAdminDto.Id));
             if (result != null)
             {
                 return result;
             }
 
+            // 3. Kimlik Kartını Güncelleme: Dışarıdan gelen formdaki (DTO) yeni bilgileri, veritabanından çektiğimiz gerçek nesnenin üzerine yazıyoruz.
             // : Map(Kaynak, Hedef)
             _mapper.Map(userUpdateForAdminDto, existingUser);
             await _userRepository.UpdateAsync(existingUser);
 
+            // 4. Yetki Kartı (Rütbe) Operasyonu: Adamın mevcut bir rütbe kartı var mı diye arıyoruz.
             var operationClaim = await _userOperationClaimRepository.GetAsync(x => x.UserId == existingUser.Id);
             if (operationClaim != null)
             {
+                // Durum A: Adamın zaten bir yetki kartı var. Formdan gelen yeni rütbe (veya rütbesizlik/null) ile kartı güncelliyoruz.
                 operationClaim.OperationClaimId = userUpdateForAdminDto.OperationClaimId;
                 await _userOperationClaimRepository.UpdateAsync(operationClaim);
             }
             else
             {
-                UserOperationClaim userOperationClaim = new UserOperationClaim
+                if (userUpdateForAdminDto.OperationClaimId.HasValue)
                 {
-                    UserId = existingUser.Id,
-                    OperationClaimId = userUpdateForAdminDto.OperationClaimId
-                };
-                await _userOperationClaimRepository.AddAsync(userOperationClaim);
+                    // Durum B: Adamın önceden kartı YOKTU. Eğer Admin formdan yeni bir rütbe seçmişse, adama sıfırdan bir yetki kartı basıyoruz.
+                    UserOperationClaim userOperationClaim = new UserOperationClaim
+                    {
+                        UserId = existingUser.Id,
+                        OperationClaimId = userUpdateForAdminDto.OperationClaimId
+                    };
+                    await _userOperationClaimRepository.AddAsync(userOperationClaim);
+                }
             }
-
             return new SuccessResult("Kullanıcı başarıyla güncellendi.");
         }
 
