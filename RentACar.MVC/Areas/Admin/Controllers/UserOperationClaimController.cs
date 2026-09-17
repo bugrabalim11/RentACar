@@ -101,6 +101,29 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             return View(userOperationClaimCreateViewModel);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Update(int id)
+        {
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+
+            var responseMessage = await client.GetAsync($"api/UserOperationClaims/{id}");
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var jsonData = await responseMessage.Content.ReadAsStringAsync();
+                var responseBox = JsonConvert.DeserializeObject<ResponseModel<UserOperationClaimUpdateDto>>(jsonData);
+                if (responseBox != null && responseBox.Data != null)
+                {
+                    var viewModel = new UserOperationClaimUpdateViewModel
+                    {
+                        UserOperationClaimUpdate = responseBox.Data
+                    };
+                    await PopulateDropdowns(viewModel);
+                    return View(viewModel);
+                }
+            }
+            return RedirectToAction("Index");
+        }
+
         private async Task PopulateDropdowns(IUserOperationClaimDropdownsViewModel userOperationClaimDropdownsViewModel)
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
