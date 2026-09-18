@@ -2,6 +2,7 @@
 
 namespace RentACar.MVC.Areas.Admin.Models.CarMaintenanceDtos
 {
+    // TODO burda viewmodel kullnamamşışım buna bir bak 
     public class CarMaintenanceUpdateDto
     {
         [Required(ErrorMessage = "Lütfen geçerli bir araç bakımı seçiniz!")]

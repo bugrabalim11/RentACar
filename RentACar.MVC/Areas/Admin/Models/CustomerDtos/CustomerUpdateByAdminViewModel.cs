@@ -4,10 +4,10 @@ using RentACar.MVC.Models.Interfaces;
 
 namespace RentACar.MVC.Areas.Admin.Models.CustomerDtos
 {
-    public class CustomerCreateByAdminViewModel : ICustomerDropdownViewModel
+    public class CustomerUpdateByAdminViewModel : ICustomerDropdownViewModel
     {
         [ValidateNever]
         public List<UserResultDto> Users { get; set; } = new List<UserResultDto>();
-        public CustomerCreateByAdminDto CustomerCreateByAdmin { get; set; } = new CustomerCreateByAdminDto();
+        public CustomerUpdateByAdminDto CustomerUpdateByAdmin { get; set; } = new CustomerUpdateByAdminDto();
     }
 }

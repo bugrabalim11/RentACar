@@ -3,9 +3,9 @@ using RentACar.Dtos.CustomerDtos;
 
 namespace RentACar.Business.ValidationRules.CustomerValidators
 {
-    public class CustomerUpdateDtoValidator : AbstractValidator<CustomerUpdateByAdminDto>
+    public class CustomerUpdateByAdminDtoValidator : AbstractValidator<CustomerUpdateByAdminDto>
     {
-        public CustomerUpdateDtoValidator()
+        public CustomerUpdateByAdminDtoValidator()
         {
             RuleFor(x => x.Id).GreaterThan(0).WithMessage("Lütfen güncellenecek geçerli bir müşteri seçiniz.");
 
