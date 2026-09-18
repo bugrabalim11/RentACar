@@ -8,6 +8,6 @@
         public string Email { get; set; } = null!;
 
         // CSHTML de sadece okuma için ekledik
-        public string FullName => $"{FirstName} {LastName}";
+        public string UserDisplayInfo => $"{FirstName} {LastName} - {Email}";
     }
 }

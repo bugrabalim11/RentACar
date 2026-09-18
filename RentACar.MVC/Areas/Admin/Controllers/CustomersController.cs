@@ -2,11 +2,16 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RentACar.MVC.Areas.Admin.Models.CustomerDtos;
+using RentACar.MVC.Areas.Admin.Models.ErrorResponseDtos;
+using RentACar.MVC.Areas.Admin.Models.UserDtos;
+using RentACar.MVC.Models.Interfaces;
 using RentACar.MVC.Models.Responses;
+using System.Text;
 
 namespace RentACar.MVC.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "admin")]
     public class CustomersController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;
@@ -16,7 +21,6 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
-        [Authorize(Roles = "admin")]
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -35,7 +39,6 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             return View(new List<CustomerResultDto>());
         }
 
-        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
@@ -50,6 +53,67 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 return Json(new { success = false, message = "Bu işlem için yetkiniz yok. Lütfen giriş yapın!" });
             }
             return Json(new { success = false, message = "Api tarafından silme işlemi başarısız oldu!" });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Create()
+        {
+            var viewModel = new CustomerCreateByAdminViewModel();
+            await PopulateDropdown(viewModel);
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(CustomerCreateByAdminViewModel customerCreateByAdminViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                await PopulateDropdown(customerCreateByAdminViewModel);
+                return View(customerCreateByAdminViewModel);
+            }
+
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+
+            var jsonData = JsonConvert.SerializeObject(customerCreateByAdminViewModel.CustomerCreateByAdmin);
+            var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
+            var responseMessage = await client.PostAsync("api/Customers", stringContent);
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                return RedirectToAction("Index");
+            }
+
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                ModelState.AddModelError(string.Empty, "Bu işlem için yetkiniz yok. Lütfen giriş yapın!");
+                await PopulateDropdown(customerCreateByAdminViewModel);
+                return View(customerCreateByAdminViewModel);
+            }
+
+            var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
+            var errorData = JsonConvert.DeserializeObject<ErrorResponseDto>(errorJsonData);
+            if (errorData != null)
+            {
+                ModelState.AddModelError(string.Empty, errorData.Message);
+            }
+
+            await PopulateDropdown(customerCreateByAdminViewModel);
+            return View(customerCreateByAdminViewModel);
+        }
+
+        private async Task PopulateDropdown(ICustomerDropdownViewModel dropdownViewModel)
+        {
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+
+            var responseMessage = await client.GetAsync("api/Users");
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var jsonData = await responseMessage.Content.ReadAsStringAsync();
+                var responseBox = JsonConvert.DeserializeObject<ResponseModel<List<UserResultDto>>>(jsonData);
+                if (responseBox != null && responseBox.Data != null)
+                {
+                    dropdownViewModel.Users = responseBox.Data;
+                }
+            }
         }
     }
 }
