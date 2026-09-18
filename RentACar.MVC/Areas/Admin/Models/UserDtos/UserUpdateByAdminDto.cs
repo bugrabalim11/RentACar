@@ -2,7 +2,7 @@
 
 namespace RentACar.MVC.Areas.Admin.Models.UserDtos
 {
-    public class UserUpdateForAdminDto
+    public class UserUpdateByAdminDto
     {
         public int Id { get; set; }
 

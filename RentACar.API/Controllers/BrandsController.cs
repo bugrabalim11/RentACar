@@ -41,7 +41,7 @@ namespace RentACar.API.Controllers
         [Authorize(Roles = "admin")] 
         // veya [Authorize(Roles = "Admin,Moderator")] şeklinde virgülle çoklu rütbe de verebilirsin.
         [HttpPost]
-        public async Task<IActionResult> AddAsync(BrandCreateDto brandAddDto)
+        public async Task<IActionResult> CreateAsync(BrandCreateDto brandAddDto)
         {
             var result = await _brandService.AddAsync(brandAddDto);
 

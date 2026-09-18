@@ -28,13 +28,13 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
-                var responseBox = JsonConvert.DeserializeObject<ResponseModel<List<UserResultForAdminDto>>>(jsonData);
+                var responseBox = JsonConvert.DeserializeObject<ResponseModel<List<UserResultByAdminDto>>>(jsonData);
                 if (responseBox != null && responseBox.Data != null)
                 {
                     return View(responseBox.Data);
                 }
             }
-            return View(new List<UserResultForAdminDto>());
+            return View(new List<UserResultByAdminDto>());
         }
 
         [HttpPost]
@@ -76,18 +76,18 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            var viewModel = new UserCreateForAdminViewModel();
+            var viewModel = new UserCreateByAdminViewModel();
             // SENİOR NOTU: Tepsinin (ViewModel) içine boş bir UserCreateForAdminDto (Sipariş Fişi) koyuyoruz.
             // Eğer bunu yapmazsak, View (HTML) tarafı '@Model.UserCreate.FirstName' gibi değerleri okumaya çalıştığında 
             // "Masa var ama üstünde kağıt yok!" diyerek Null Reference Exception (CS0120) hatası fırlatabilir.
             // Bu hamle, bellekte (RAM) o boş kağıda fiziksel bir yer ayırır. İşimi şansa bırakmıyoruz!
-            viewModel.UserCreate = new UserCreateForAdminDto();
+            viewModel.UserCreate = new UserCreateByAdminDto();
             await PopulateDropdown(viewModel);
             return View(viewModel);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(UserCreateForAdminViewModel userCreateForAdminViewModel)
+        public async Task<IActionResult> Create(UserCreateByAdminViewModel userCreateForAdminViewModel)
         {
             if (!ModelState.IsValid)
             {
@@ -131,10 +131,10 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
-                var responseBox = JsonConvert.DeserializeObject<ResponseModel<UserUpdateForAdminDto>>(jsonData);
+                var responseBox = JsonConvert.DeserializeObject<ResponseModel<UserUpdateByAdminDto>>(jsonData);
                 if (responseBox != null && responseBox.Data != null)
                 {
-                    var viewModel = new UserUpdateForAdminViewModel
+                    var viewModel = new UserUpdateByAdminViewModel
                     {
                         UserUpdate = responseBox.Data
                     };
@@ -146,7 +146,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Update(UserUpdateForAdminViewModel userUpdateForAdminViewModel)
+        public async Task<IActionResult> Update(UserUpdateByAdminViewModel userUpdateForAdminViewModel)
         {
             if (!ModelState.IsValid)
             {

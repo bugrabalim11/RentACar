@@ -7,16 +7,16 @@ namespace RentACar.Business.Abstract
     public interface IUserService
     {
         Task<IDataResult<List<UserResultDto>>> GetAllAsync();
-        Task<IDataResult<List<UserResultForAdminDto>>> GetAllForAdminAsync();
+        Task<IDataResult<List<UserResultByAdminDto>>> GetAllForAdminAsync();
         Task<IDataResult<UserResultDto>> GetByIdAsync(int id);
         Task<IDataResult<UserResultDto>> GetMyProfile(int id);
 
         // Güvenlik Şefinin (AuthManager) doğrudan kullanacağı, çıplak Entity kabul eden masa
         Task<IResult> AddAsync(User user);
 
-        Task<IDataResult<UserUpdateForAdminDto>> GetByIdForUpdateAsync(int id);
-        Task<IResult> UpdateForAdminAsync(UserUpdateForAdminDto userUpdateForAdminDto);
-        Task<IResult> CreateForAdminAsync(UserCreateForAdminDto userCreateForAdminDto);
+        Task<IDataResult<UserUpdateByAdminDto>> GetByIdForUpdateAsync(int id);
+        Task<IResult> UpdateForAdminAsync(UserUpdateByAdminDto userUpdateForAdminDto);
+        Task<IResult> CreateForAdminAsync(UserCreateByAdminDto userCreateForAdminDto);
         Task<IResult> UpdateMyProfileAsync(int userId, UserProfileUpdateDto userProfileUpdateDto);
         Task<IResult> DeleteAsync(int id);
         Task<IResult> RestoreAsync(int id);

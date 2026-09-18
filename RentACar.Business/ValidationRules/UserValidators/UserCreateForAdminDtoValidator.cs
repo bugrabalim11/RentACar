@@ -3,7 +3,7 @@ using RentACar.Core.Entities.DTOs.UserDtos;
 
 namespace RentACar.Business.ValidationRules.UserValidators
 {
-    public class UserCreateForAdminDtoValidator : AbstractValidator<UserCreateForAdminDto>
+    public class UserCreateForAdminDtoValidator : AbstractValidator<UserCreateByAdminDto>
     {
         public UserCreateForAdminDtoValidator()
         {

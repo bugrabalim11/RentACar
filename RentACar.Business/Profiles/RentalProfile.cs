@@ -28,7 +28,7 @@ namespace RentACar.Business.Profiles
                 .ForMember(dest => dest.DropOffOfficeName, opt => opt.MapFrom(src => src.DropOffOffice.Name));
             CreateMap<RentalCreateDto, Rental>();
             CreateMap<RentalCreateByAdminDto, Rental>();
-            CreateMap<RentalUpdateDto, Rental>();
+            CreateMap<RentalUpdateByAdminDto, Rental>();
         }
     }
 }

@@ -55,11 +55,11 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<List<UserResultDto>>(userDtos, "Kullanıcılar başarıyla listelendi.");
         }
 
-        public async Task<IDataResult<List<UserResultForAdminDto>>> GetAllForAdminAsync()
+        public async Task<IDataResult<List<UserResultByAdminDto>>> GetAllForAdminAsync()
         {
             var users = await _userRepository.GetAllAsync(ignoreQueryFilters: true);
-            var userDtos = _mapper.Map<List<UserResultForAdminDto>>(users);
-            return new SuccessDataResult<List<UserResultForAdminDto>>(userDtos, "Kullanıcılar başarıyla listelendi.");
+            var userDtos = _mapper.Map<List<UserResultByAdminDto>>(users);
+            return new SuccessDataResult<List<UserResultByAdminDto>>(userDtos, "Kullanıcılar başarıyla listelendi.");
         }
 
         public async Task<IDataResult<UserResultDto>> GetByIdAsync(int id)
@@ -74,23 +74,23 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<UserResultDto>(userDto, "Kullancı başarıyla getirildi.");
         }
 
-        public async Task<IDataResult<UserUpdateForAdminDto>> GetByIdForUpdateAsync(int id)
+        public async Task<IDataResult<UserUpdateByAdminDto>> GetByIdForUpdateAsync(int id)
         {
             var user = await _userRepository.GetAsync(x => x.Id == id);
             if (user == null)
             {
-                return new ErrorDataResult<UserUpdateForAdminDto>("Kullanıcı bulunamadı.");
+                return new ErrorDataResult<UserUpdateByAdminDto>("Kullanıcı bulunamadı.");
             }
 
             var operationClaim = await _userOperationClaimRepository.GetAsync(x => x.UserId == user.Id);
 
-            var userDto = _mapper.Map<UserUpdateForAdminDto>(user);
+            var userDto = _mapper.Map<UserUpdateByAdminDto>(user);
 
             // Şüpheli paket etiketini (if) kaldırdık, doğrudan atamayı çaktık!
             // KONTROL EDİLECEK ŞART? EVET İSE BURASI ÇALIŞIR: HAYIR İSE BURASI ÇALIŞIR
             userDto.OperationClaimId = (operationClaim != null) ? operationClaim.OperationClaimId : 0;
 
-            return new SuccessDataResult<UserUpdateForAdminDto>(userDto, "Kullancı başarıyla getirildi.");
+            return new SuccessDataResult<UserUpdateByAdminDto>(userDto, "Kullancı başarıyla getirildi.");
         }
 
         public async Task<IDataResult<UserResultDto>> GetMyProfile(int id)
@@ -105,7 +105,7 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<UserResultDto>(userDto, "Profil başarıyla getirildi.");
         }
 
-        public async Task<IResult> CreateForAdminAsync(UserCreateForAdminDto userCreateForAdminDto)
+        public async Task<IResult> CreateForAdminAsync(UserCreateByAdminDto userCreateForAdminDto)
         {
             // 1. İş Kuralı Kontrolü: Bu e-posta daha önce alınmış mı diye güvenlik kurallarımıza soruyoruz.
             userCreateForAdminDto.Email = userCreateForAdminDto.Email.Trim().ToLower();
@@ -147,7 +147,7 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Kullanıcı başarıyla eklendi.");
         }
 
-        public async Task<IResult> UpdateForAdminAsync(UserUpdateForAdminDto userUpdateForAdminDto)
+        public async Task<IResult> UpdateForAdminAsync(UserUpdateByAdminDto userUpdateForAdminDto)
         {
             // 1. Kimlik Kontrolü: Güncellenmek istenen adam gerçekten veritabanında (depoda) var mı?
             userUpdateForAdminDto.Email = userUpdateForAdminDto.Email.Trim().ToLower();

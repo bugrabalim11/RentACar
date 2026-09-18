@@ -195,7 +195,7 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<RentalDetailDto>(rentalDetailDto, "Araç kiralama detayı getirildi.");
         }
 
-        public async Task<IResult> UpdateAsync(RentalUpdateDto rentalUpdateDto)
+        public async Task<IResult> UpdateAsync(RentalUpdateByAdminDto rentalUpdateDto)
         {
             var existingRental = await _rentalRepository.GetAsync(x => x.Id == rentalUpdateDto.Id);
             if (existingRental == null)

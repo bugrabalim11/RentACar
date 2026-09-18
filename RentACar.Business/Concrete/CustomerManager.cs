@@ -106,7 +106,7 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<CustomerDetailDto>(customerDto, "Müşteri bilgileri başarıyla getirildi.");
         }
 
-        public async Task<IResult> UpdateAsync(CustomerUpdateDto customerUpdateDto)
+        public async Task<IResult> UpdateAsync(CustomerUpdateByAdminDto customerUpdateDto)
         {
             customerUpdateDto.NationalIdentity = customerUpdateDto.NationalIdentity.Trim();
             var existingCustomer = await _customerRepository.GetAsync(x => x.Id == customerUpdateDto.Id);

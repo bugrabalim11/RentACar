@@ -1,6 +1,6 @@
 ﻿namespace RentACar.Core.Entities.DTOs.UserDtos
 {
-    public class UserCreateForAdminDto : IDto
+    public class UserCreateByAdminDto : IDto
     {
         public string Email { get; set; } = null!;
         public string Password { get; set; } = null!;

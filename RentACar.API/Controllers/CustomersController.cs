@@ -59,7 +59,7 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpPost]
-        public async Task<IActionResult> AddForAdminAsync(CustomerCreateByAdminDto customerAddByAdminDto)
+        public async Task<IActionResult> CreateByAdminAsync(CustomerCreateByAdminDto customerAddByAdminDto)
         {
             var result = await _customerService.AddForAdminAsync(customerAddByAdminDto);
             if (result.Success)
@@ -71,7 +71,7 @@ namespace RentACar.API.Controllers
 
             [Authorize]
             [HttpPost("profile")]
-            public async Task<IActionResult> AddAsync(CustomerCreateDto customerAddDto)
+            public async Task<IActionResult> CreateAsync(CustomerCreateDto customerAddDto)
             {
                 var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userIdString)) return Unauthorized("Kimlik doğrulama hatası!");
@@ -103,7 +103,7 @@ namespace RentACar.API.Controllers
 
             [Authorize(Roles = "admin")]
             [HttpPut("{id}")]
-            public async Task<IActionResult> UpdateForAdminAsync(int id, CustomerUpdateDto customerUpdateDto)
+            public async Task<IActionResult> UpdateByAdminAsync(int id, CustomerUpdateByAdminDto customerUpdateDto)
             {
                 // Senior Vizyonu: İstek (Request) tutarlılık kontrolü (Controller'ın görevi).
                 // URL'deki kapı numarası ile DTO (Kargo paketi) içindeki ID eşleşiyor mu?

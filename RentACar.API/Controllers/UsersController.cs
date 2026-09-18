@@ -101,7 +101,7 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpPut("updateforadmin/{id}")]
-        public async Task<IActionResult> UpdateForAdminAsync(int id, UserUpdateForAdminDto userUpdateForAdminDto)
+        public async Task<IActionResult> UpdateByAdminAsync(int id, UserUpdateByAdminDto userUpdateForAdminDto)
         {
             if (id != userUpdateForAdminDto.Id)
             {
@@ -117,7 +117,7 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpPost("createforadmin")]
-        public async Task<IActionResult> CreateForAdminAsync(UserCreateForAdminDto userCreateForAdminDto)
+        public async Task<IActionResult> CreateByAdminAsync(UserCreateByAdminDto userCreateForAdminDto)
         {
             var result = await _userService.CreateForAdminAsync(userCreateForAdminDto);
             if (result.Success)

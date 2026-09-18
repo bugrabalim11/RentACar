@@ -4,10 +4,10 @@ using RentACar.MVC.Models.Interfaces;
 
 namespace RentACar.MVC.Areas.Admin.Models.UserDtos
 {
-    public class UserCreateForAdminViewModel : IUserDropdownViewModel
+    public class UserCreateByAdminViewModel : IUserDropdownViewModel
     {
         [ValidateNever]
         public List<OperationClaimResultDto> Roles { get; set; } = null!;
-        public UserCreateForAdminDto UserCreate { get; set; } = null!;
+        public UserCreateByAdminDto UserCreate { get; set; } = null!;
     }
 }

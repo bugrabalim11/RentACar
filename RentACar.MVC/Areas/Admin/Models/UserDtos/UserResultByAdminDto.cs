@@ -1,6 +1,6 @@
-﻿namespace RentACar.Core.Entities.DTOs.UserDtos
+﻿namespace RentACar.MVC.Areas.Admin.Models.UserDtos
 {
-    public class UserResultForAdminDto : IDto
+    public class UserResultByAdminDto
     {
         public int Id { get; set; }
         public string FirstName { get; set; } = null!;

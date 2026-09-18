@@ -2,7 +2,7 @@
 
 namespace RentACar.MVC.Areas.Admin.Models.UserDtos
 {
-    public class UserCreateForAdminDto
+    public class UserCreateByAdminDto
     {
         [Required(ErrorMessage = "Lütfen e-posta adresinizi giriniz!")]
         [EmailAddress(ErrorMessage = "Lütfen geçerli bir e-posta adresi giriniz!")]
