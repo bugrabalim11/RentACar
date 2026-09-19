@@ -1,0 +1,104 @@
+﻿@using RentACar.MVC.Areas.Admin.Models.RentalDtos
+@model List<RentalResultDto>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Araç Kiralama Listesi</h5>
+        <a asp-action="Create" class="btn btn-primary">Yeni Kiralama Ekle</a>
+    </div>
+
+    <div class="card-body">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>
+                        #
+                    </th>
+                    <th>
+                        Müşteri
+                    </th>
+                    <th>
+                        Araç
+                    </th>
+                    <th>
+                        Kiralama Tarihi Başlangıcı
+                    </th>
+                    <th>
+                        Kiralama Tarihi Bitişi
+                    </th>
+                    <th>
+                        Aksiyonlar
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @item.Id
+                        </td>
+                        <td>
+                            @item.CustomerFullName
+                        </td>
+                        <td>
+                            @item.CarInfo
+                        </td>
+                        <td>
+                            @item.RentDate.ToShortDateString()
+                        </td>
+                        <td>
+                            @if (item.ReturnDate.HasValue)
+                            {
+                                @item.ReturnDate.Value.ToShortDateString()
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">Müşteride / Devam Ediyor</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a asp-action="Detail" asp-route-id="@item.Id" class="btn btn-info btn-sm">Detay</a>
+                                <a asp-action="Update" asp-route-id="@item.Id" class="btn btn-warning me-2">Güncelle</a>
+                                <button onclick="deleteRentals(@item.Id)" class="btn btn-danger">Sil</button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    function deleteRentals(id) {
+        // Güvenlik görevlisini çağırıyoruz
+        Swal.fire({
+            title: 'Emin misin?',
+            text: 'Bu kiralamayı kalıcı olarak sileceksin!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Evet, Sil!',
+            cancelButtonText: 'İptal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('@Url.Action("Delete", "Rentals", new { area = "Admin" })' + '/' + id, {
+                    method: 'POST'
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.reload();
+                        } else {
+                            Swal.fire('Hata!', data.message, 'error');
+                        }
+                    });
+            }
+        });
+    }
+</script>
