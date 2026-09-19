@@ -8,7 +8,7 @@
         public string LastName { get; set; } = null!;
         public string NationalIdentity { get; set; } = null!;
 
-        // TODO İlerde bunu mapping ile yapıcaz
+        // Not: Dropdown'da kullanıcı dostu (UX) görünüm için computed property kullanıldı.
         public string FullName => $"{FirstName} {LastName}";
     }
 }

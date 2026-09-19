@@ -7,8 +7,7 @@
         public string LastName { get; set; } = null!;
         public string Email { get; set; } = null!;
 
-        // TODO TEK BİR FULLNAME PROPU YAZ MANUEL MAPPİNG YAP CREATE BİTTİKEN SONRA
-        // CSHTML de sadece okuma için ekledik
+        // Not: Dropdown'da kullanıcı dostu (UX) görünüm için computed property kullanıldı.
         public string UserDisplayInfo => $"{FirstName} {LastName} - {Email}";
     }
 }
