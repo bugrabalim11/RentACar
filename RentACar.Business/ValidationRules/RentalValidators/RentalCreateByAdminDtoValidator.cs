@@ -14,7 +14,7 @@ namespace RentACar.Business.ValidationRules.RentalValidators
             RuleFor(x => x.DropOffOfficeId).GreaterThan(0).WithMessage("Lütfen geçerli bir şube seçiniz.");
 
             RuleFor(x => x.RentDate)
-                .NotEmpty()
+                .NotEmpty().WithMessage("Araç kiralama tarihi boş geçilemez!")
                 .GreaterThanOrEqualTo(DateTime.Today)
                 .WithMessage("Kiralama tarihi bugünün tarihinden önce olamaz!");
 

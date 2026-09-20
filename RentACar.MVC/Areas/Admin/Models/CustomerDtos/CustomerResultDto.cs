@@ -9,6 +9,6 @@
         public string NationalIdentity { get; set; } = null!;
 
         // Not: Dropdown'da kullanıcı dostu (UX) görünüm için computed property kullanıldı.
-        public string FullName => $"{FirstName} {LastName}";
+        public string FullName => $"{FirstName} {LastName} - {NationalIdentity}";
     }
 }

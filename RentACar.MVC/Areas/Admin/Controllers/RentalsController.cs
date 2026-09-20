@@ -1,8 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using RentACar.MVC.Areas.Admin.Models.CarDtos;
+using RentACar.MVC.Areas.Admin.Models.CustomerDtos;
+using RentACar.MVC.Areas.Admin.Models.ErrorResponseDtos;
+using RentACar.MVC.Areas.Admin.Models.OfficeDtos;
 using RentACar.MVC.Areas.Admin.Models.RentalDtos;
+using RentACar.MVC.Models.Interfaces;
 using RentACar.MVC.Models.Responses;
+using System.Text;
 
 namespace RentACar.MVC.Areas.Admin.Controllers
 {
@@ -48,6 +54,76 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 return Json(new { success = false, message = "Bu işlem için yetkiniz yok. Lütfen giriş yapın!" });
             }
             return Json(new { success = false, message = "Api tarafından silme işlemi başarısız oldu!" });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Create()
+        {
+            var viewModel = new RentalCreateByAdminViewModel();
+            viewModel.RentalCreateByAdmin = new RentalCreateByAdminDto();
+            await PopulateDropdowns(viewModel);
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(RentalCreateByAdminViewModel rentalCreateByAdminViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                await PopulateDropdowns(rentalCreateByAdminViewModel);
+                return View(rentalCreateByAdminViewModel);
+            }
+
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+
+            var jsonData = JsonConvert.SerializeObject(rentalCreateByAdminViewModel.RentalCreateByAdmin);
+            var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
+            var responseMessage = await client.PostAsync("api/Rentals", stringContent);
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                return RedirectToAction("Index");
+            }
+
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                ModelState.AddModelError(string.Empty, "Bu işlem için yetkiniz yok. Lütfen giriş yapın!");
+                await PopulateDropdowns(rentalCreateByAdminViewModel);
+                return View(rentalCreateByAdminViewModel);
+            }
+
+            var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
+            var errorData = JsonConvert.DeserializeObject<ErrorResponseDto>(errorJsonData);
+            if (errorData != null)
+            {
+                ModelState.AddModelError(string.Empty, errorData.Message);
+            }
+
+            await PopulateDropdowns(rentalCreateByAdminViewModel);
+            return View(rentalCreateByAdminViewModel);
+        }
+
+        private async Task PopulateDropdowns(IRentalDropdownsViewModel dropdownsViewModel)
+        {
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+            var customerResponseMessage = await client.GetAsync("api/Customers");
+            var carResponseMessage = await client.GetAsync("api/Cars");
+            var officeResponseMessage = await client.GetAsync("api/Offices");
+            if (customerResponseMessage.IsSuccessStatusCode && carResponseMessage.IsSuccessStatusCode && officeResponseMessage.IsSuccessStatusCode)
+            {
+                var customerJsonData = await customerResponseMessage.Content.ReadAsStringAsync();
+                var carJsonData = await carResponseMessage.Content.ReadAsStringAsync();
+                var officeJsonData = await officeResponseMessage.Content.ReadAsStringAsync();
+
+                var customerResponseBox = JsonConvert.DeserializeObject<ResponseModel<List<CustomerResultDto>>>(customerJsonData);
+                var carResponseBox = JsonConvert.DeserializeObject<ResponseModel<List<CarResultDto>>>(carJsonData);
+                var officeResponseBox = JsonConvert.DeserializeObject<ResponseModel<List<OfficeResultDto>>>(officeJsonData);
+                if (customerResponseBox != null && customerResponseBox.Data != null && carResponseBox != null && carResponseBox.Data != null && officeResponseBox != null && officeResponseBox.Data != null)
+                {
+                    dropdownsViewModel.Customers = customerResponseBox.Data;
+                    dropdownsViewModel.Cars = carResponseBox.Data;
+                    dropdownsViewModel.Offices = officeResponseBox.Data;
+                }
+            }
         }
     }
 }
