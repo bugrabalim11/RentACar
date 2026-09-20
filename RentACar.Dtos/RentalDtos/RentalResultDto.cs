@@ -11,5 +11,6 @@ namespace RentACar.Dtos.RentalDtos
         public string LastName { get; set; } = null!;
         public DateTime RentDate { get; set; }
         public DateTime? ReturnDate { get; set; }
+        public decimal TotalAmount { get; set; }
     }
 }

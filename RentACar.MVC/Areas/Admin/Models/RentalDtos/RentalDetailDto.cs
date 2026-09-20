@@ -1,8 +1,6 @@
-﻿using RentACar.Core.Entities;
-
-namespace RentACar.Dtos.RentalDtos
+﻿namespace RentACar.MVC.Areas.Admin.Models.RentalDtos
 {
-    public class RentalDetailDto : IDto
+    public class RentalDetailDto
     {
         public int Id { get; set; }
         public DateTime RentDate { get; set; }
@@ -22,5 +20,8 @@ namespace RentACar.Dtos.RentalDtos
         public int PickUpOfficeId { get; set; }
         public int DropOffOfficeId { get; set; }
         public decimal TotalAmount { get; set; }
+
+        public string CarInfo => $"{BrandName} {ModelName} - {Plate}";
+        public string FullName => $"{FirstName} {LastName} - {Email}";
     }
 }

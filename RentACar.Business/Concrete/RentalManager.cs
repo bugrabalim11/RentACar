@@ -86,6 +86,7 @@ namespace RentACar.Business.Concrete
                 return new ErrorResult(paymentResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
             }
 
+            rental.TotalAmount = totalAmount;
             await _rentalRepository.AddAsync(rental);
             return new SuccessResult("Araç kiralama başarıyla oluşturuldu.");
         }
@@ -129,6 +130,7 @@ namespace RentACar.Business.Concrete
                 return new ErrorResult(paymentResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
             }
 
+            rental.TotalAmount = totalAmount;
             await _rentalRepository.AddAsync(rental);
             return new SuccessResult("Araç kiralama başarıyla oluşturuldu.");
         }

@@ -10,6 +10,7 @@
         public string LastName { get; set; } = null!;
         public DateTime RentDate { get; set; }
         public DateTime? ReturnDate { get; set; }
+        public decimal TotalAmount { get; set; }
 
         // Not: Dropdown'da kullanıcı dostu (UX) görünüm için computed property kullanıldı.
         public string CustomerFullName => $"{FirstName} {LastName}";

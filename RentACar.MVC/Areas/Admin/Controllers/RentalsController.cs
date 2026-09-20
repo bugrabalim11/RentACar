@@ -162,6 +162,24 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             return View(viewModel);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Detail(int id)
+        {
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+
+            var responseMessage = await client.GetAsync($"api/Rentals/{id}");
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var jsonData = await responseMessage.Content.ReadAsStringAsync();
+                var responseBox = JsonConvert.DeserializeObject<ResponseModel<RentalDetailDto>>(jsonData);
+                if (responseBox != null && responseBox.Data != null)
+                {
+                    return View(responseBox.Data);
+                }
+            }
+            return RedirectToAction("Index");
+        }
+
         private async Task PopulateDropdowns(IRentalDropdownsViewModel dropdownsViewModel)
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
