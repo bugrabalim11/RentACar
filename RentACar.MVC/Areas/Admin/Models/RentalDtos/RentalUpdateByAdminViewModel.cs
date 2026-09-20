@@ -6,7 +6,7 @@ using RentACar.MVC.Models.Interfaces;
 
 namespace RentACar.MVC.Areas.Admin.Models.RentalDtos
 {
-    public class RentalCreateByAdminViewModel : IRentalDropdownsViewModel
+    public class RentalUpdateByAdminViewModel : IRentalDropdownsViewModel
     {
         [ValidateNever]
         public List<CustomerResultDto> Customers { get; set; } = new List<CustomerResultDto>();
@@ -16,6 +16,6 @@ namespace RentACar.MVC.Areas.Admin.Models.RentalDtos
 
         [ValidateNever]
         public List<OfficeResultDto> Offices { get; set; } = new List<OfficeResultDto>();
-        public RentalCreateByAdminDto RentalCreateByAdmin { get; set; } = new RentalCreateByAdminDto();
+        public RentalUpdateByAdminDto RentalUpdateByAdmin { get; set; } = new RentalUpdateByAdminDto();
     }
 }

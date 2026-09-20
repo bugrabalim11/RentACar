@@ -102,6 +102,66 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             return View(rentalCreateByAdminViewModel);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Update(int id)
+        {
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+
+            var responseMessage = await client.GetAsync($"api/Rentals/{id}");
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var jsonData = await responseMessage.Content.ReadAsStringAsync();
+                var responseBox = JsonConvert.DeserializeObject<ResponseModel<RentalUpdateByAdminDto>>(jsonData);
+                if (responseBox != null && responseBox.Data != null)
+                {
+                    var viewModel = new RentalUpdateByAdminViewModel
+                    {
+                        RentalUpdateByAdmin = responseBox.Data
+                    };
+                    await PopulateDropdowns(viewModel);
+                    return View(viewModel);
+                }
+            }
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Update(RentalUpdateByAdminViewModel viewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                await PopulateDropdowns(viewModel);
+                return View(viewModel);
+            }
+
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+
+            var jsonData = JsonConvert.SerializeObject(viewModel.RentalUpdateByAdmin);
+            var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
+            var responseMessage = await client.PutAsync($"api/Rentals/{viewModel.RentalUpdateByAdmin.Id}", stringContent);
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                return RedirectToAction("Index");
+            }
+
+            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                ModelState.AddModelError(string.Empty, "Bu işlem için yetkiniz yok. Lütfen giriş yapın!");
+                await PopulateDropdowns(viewModel);
+                return View(viewModel);
+            }
+
+            var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
+            var errorData = JsonConvert.DeserializeObject<ErrorResponseDto>(errorJsonData);
+            if (errorData != null)
+            {
+                ModelState.AddModelError(string.Empty, errorData.Message);
+            }
+
+            await PopulateDropdowns(viewModel);
+            return View(viewModel);
+        }
+
         private async Task PopulateDropdowns(IRentalDropdownsViewModel dropdownsViewModel)
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
