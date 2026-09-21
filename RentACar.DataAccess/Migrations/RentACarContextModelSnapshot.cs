@@ -17,7 +17,7 @@ namespace RentACar.DataAccess.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.10")
+                .HasAnnotation("ProductVersion", "10.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -98,7 +98,7 @@ namespace RentACar.DataAccess.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("OperationClaimId")
+                    b.Property<int?>("OperationClaimId")
                         .HasColumnType("integer");
 
                     b.Property<int>("UserId")
@@ -164,9 +164,8 @@ namespace RentACar.DataAccess.Migrations
                     b.Property<int>("Kilometer")
                         .HasColumnType("integer");
 
-                    b.Property<string>("LuggageCapacity")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("LuggageCapacity")
+                        .HasColumnType("integer");
 
                     b.Property<int>("MinDriverAge")
                         .HasColumnType("integer");
@@ -453,6 +452,9 @@ namespace RentACar.DataAccess.Migrations
 
                     b.Property<DateTime?>("ReturnDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("numeric");
 
                     b.HasKey("Id");
 

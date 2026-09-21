@@ -6,7 +6,7 @@ using System.Text;
 
 namespace RentACar.Business.ValidationRules.RentalValidators
 {
-    public class RentalUpdateDtoValidator : AbstractValidator<RentalUpdateDto>
+    public class RentalUpdateDtoValidator : AbstractValidator<RentalUpdateByAdminDto>
     {
         public RentalUpdateDtoValidator()
         {

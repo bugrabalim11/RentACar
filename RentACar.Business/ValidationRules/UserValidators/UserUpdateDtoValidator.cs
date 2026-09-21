@@ -1,21 +1,23 @@
 ﻿using FluentValidation;
-using RentACar.Dtos.UserDtos;
+using RentACar.Core.Entities.DTOs.UserDtos;
 
 namespace RentACar.Business.ValidationRules.UserValidators
 {
-    public class UserUpdateDtoValidator : AbstractValidator<UserUpdateForAdminDto>
+    public class UserUpdateDtoValidator : AbstractValidator<UserUpdateByAdminDto>
     {
         public UserUpdateDtoValidator()
         {
             RuleFor(x => x.Id).GreaterThan(0).WithMessage("Lütfen geçerli bir kullanıcı seçiniz.");
 
             RuleFor(x => x.FirstName)
-                .NotEmpty().WithMessage("Kullanıcı ismi boş geçilemez.")
-                .MinimumLength(2).WithMessage("Kullanıcı ismi en az 2 karakter olmalıdır.");
+                .NotEmpty().WithMessage("Kullanıcı adı boş geçilemez.")
+                .MinimumLength(2).WithMessage("Kullanıcı adı en az 2 karakter olmalıdır.")
+                .MaximumLength(50).WithMessage("Kullanıcı adı en fazla 50 karakter olmalıdır.");
 
             RuleFor(x => x.LastName)
-                .NotEmpty().WithMessage("Kullanıcı soyismi boş geçilemez.")
-                .MinimumLength(2).WithMessage("Kullancı soyismi en az 2 karakter olmalıdır.");
+                .NotEmpty().WithMessage("Kullanıcı soyadı boş geçilemez.")
+                .MinimumLength(2).WithMessage("Kullanıcı soyadı en az 2 karakter olmalıdır.")
+                .MaximumLength(50).WithMessage("Kullanıcı soyadı en fazla 50 karakter olmalıdır.");
 
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("E-posta adresi boş geçilemez.")

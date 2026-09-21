@@ -17,5 +17,10 @@ namespace RentACar.Dtos.RentalDtos
         public string Email { get; set; } = null!;
         public string PickUpOfficeName { get; set; } = null!;
         public string DropOffOfficeName { get; set; } = null!;
+        public int CarId { get; set; }
+        public int CustomerId { get; set; }
+        public int PickUpOfficeId { get; set; }
+        public int DropOffOfficeId { get; set; }
+        public decimal TotalAmount { get; set; }
     }
 }

@@ -41,7 +41,7 @@ namespace RentACar.API.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> AddAsync(ContactMessageAddDto contactMessageAddDto)
+        public async Task<IActionResult> CreateAsync(ContactMessageCreateDto contactMessageAddDto)
         {
             var result = await _contactMessageService.AddAsync(contactMessageAddDto);
             if (result.Success)
@@ -66,6 +66,17 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> ChangeIsReadStatusAsync(int id)
         {
             var result = await _contactMessageService.ChangeIsReadStatusAsync(id);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [HttpPatch("MarkAsRead/{id}")]
+        public async Task<IActionResult> MarkAsReadAsync(int id)
+        {
+            var result = await _contactMessageService.MarkAsReadAsync(id);
             if (result.Success)
             {
                 return Ok(result);

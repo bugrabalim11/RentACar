@@ -10,13 +10,13 @@ namespace RentACar.Business.Abstract
     public interface IBrandService
     {
         // Liste döneceğimiz için IDataResult içine List<Brand> koyuyoruz
-        Task<IDataResult<List<BrandListDto>>> GetAllAsync();
+        Task<IDataResult<List<BrandResultDto>>> GetAllAsync();
 
         // Tek bir marka döneceğimiz için IDataResult içine tek bir Brand koyuyoruz
-        Task<IDataResult<BrandListDto>> GetByIdAsync(int id);
+        Task<IDataResult<BrandResultDto>> GetByIdAsync(int id);
 
-        // Eski hali: Task AddAsync(BrandAddDto brandAddDto);
-        Task<IResult> AddAsync(BrandAddDto brandAddDto);
+        // Eski hali: Task AddAsync(BrandCreateDto brandAddDto);
+        Task<IResult> AddAsync(BrandCreateDto brandAddDto);
 
         // Eski hali: Task<bool> UpdateAsync(BrandUpdateDto brandUpdateDto);
         Task<IResult> UpdateAsync(BrandUpdateDto brandUpdateDto);

@@ -8,7 +8,7 @@ namespace RentACar.Business.Profiles
     {
         public CarImageProfile()
         {
-            CreateMap<CarImageAddDto, CarImage>();
+            CreateMap<CarImageCreateDto, CarImage>();
             CreateMap<CarImageUpdateDto, CarImage>();
             CreateMap<CarImage, CarImageDetailDto>()
                 .ForMember(dest => dest.CarName, opt => opt.MapFrom(src => $"{src.Car.Brand.Name} {src.Car.ModelName}"));

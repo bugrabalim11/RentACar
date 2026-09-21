@@ -11,9 +11,9 @@ namespace RentACar.Business.Profiles
     {
         public UserOperationClaimProfile()
         {
-            CreateMap<UserOperationClaimAddDto, UserOperationClaim>();
+            CreateMap<UserOperationClaimCreateDto, UserOperationClaim>();
             CreateMap<UserOperationClaimUpdateDto, UserOperationClaim>();
-            CreateMap<UserOperationClaim, UserOperationClaimListDto>();
+            CreateMap<UserOperationClaim, UserOperationClaimResultDto>();
         }
     }
 }

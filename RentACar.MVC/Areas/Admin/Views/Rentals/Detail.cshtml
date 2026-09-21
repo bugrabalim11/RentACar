@@ -1,0 +1,60 @@
+﻿@using RentACar.MVC.Areas.Admin.Models.RentalDtos
+@model RentalDetailDto
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Detaylar</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Araç Teslim Ofisi</label>
+                    <p class="form-control bg-light">@Model.PickUpOfficeName</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Araç İade Ofisi</label>
+                    <p class="form-control bg-light">@Model.DropOffOfficeName</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Başlangıç Tarihi</label>
+                    <p class="form-control bg-light">@Model.RentDate.ToLocalTime().ToShortDateString()</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Bitiş Tarihi</label>
+                        @if (Model.ReturnDate.HasValue)
+                        {
+                            <p class="form-control bg-light"> @Model.ReturnDate.Value.ToLocalTime().ToShortDateString()</p>
+                        }
+                        else
+                        {
+                            <p class="form-control bg-light"> <span class="badge bg-success">Müşteride / Devam Ediyor</span></p>
+                        }
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Müşteri</label>
+                    <p class="form-control bg-light">@Model.FullName</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Araç</label>
+                    <p class="form-control bg-light">@Model.CarInfo</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Günlük Fiyat</label>
+                    <p class="form-control bg-light">@Model.DailyPrice ₺</p>
+                </div>
+                 <div class="mb-3">
+                    <label class="form-label fw-bold">Toplam Fiyat</label>
+                    <p class="form-control bg-light">@Model.TotalAmount ₺</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Minimum Ehliyet Tecrübesi</label>
+                    <p class="form-control bg-light">@Model.MinDrivingExperience</p>
+                </div>
+            </div>
+            <a asp-action="Index" class="btn btn-secondary">Araç Kiralama Listesine Dön</a>
+        </div>
+    </div>
+</div>

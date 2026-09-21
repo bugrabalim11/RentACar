@@ -11,9 +11,9 @@ namespace RentACar.Business.Profiles
     {
         public ContactInfoProfile()
         {
-            CreateMap<ContactInfoAddDto, ContactInfo>();
+            CreateMap<ContactInfoCreateDto, ContactInfo>();
             CreateMap<ContactInfoUpdateDto, ContactInfo>();
-            CreateMap<ContactInfo, ContactInfoListDto>();
+            CreateMap<ContactInfo, ContactInfoResultDto>();
         }
     }
 }

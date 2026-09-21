@@ -40,7 +40,7 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpPost]
-        public async Task<IActionResult> AddAsync(OfficeAddDto officeAddDto)
+        public async Task<IActionResult> CreateAsync(OfficeCreateDto officeAddDto)
         {
             var result = await _officeService.AddAsync(officeAddDto);
             if (result.Success)
@@ -51,7 +51,7 @@ namespace RentACar.API.Controllers
         }
 
         [Authorize(Roles = "admin")]
-        [HttpPut]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync(int id, OfficeUpdateDto officeUpdateDto)
         {
             if (id != officeUpdateDto.Id)

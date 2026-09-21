@@ -25,7 +25,7 @@ namespace RentACar.Business.Concrete
             _operationClaimService = operationClaimService;
         }
 
-        public async Task<IResult> AddAsync(UserOperationClaimAddDto userOperationClaimAddDto)
+        public async Task<IResult> AddAsync(UserOperationClaimCreateDto userOperationClaimAddDto)
         {
             // İŞ KURALI(BUSINESS RULE) KONTROLÜ - YENİ EKLENEN KISIM
             IResult? result = BusinessRules.Run(
@@ -57,23 +57,23 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Kullanıcının yetkisi başarıyla kaldırıldı.");
         }
 
-        public async Task<IDataResult<List<UserOperationClaimListDto>>> GetAllAsync()
+        public async Task<IDataResult<List<UserOperationClaimResultDto>>> GetAllAsync()
         {
             var userOperationClaims = await _userOperationClaimRepository.GetAllAsync();
-            var userOperationClaimDtos = _mapper.Map<List<UserOperationClaimListDto>>(userOperationClaims);
-            return new SuccessDataResult<List<UserOperationClaimListDto>>(userOperationClaimDtos, "Tüm kullanıcı yetkileri listelendi.");
+            var userOperationClaimDtos = _mapper.Map<List<UserOperationClaimResultDto>>(userOperationClaims);
+            return new SuccessDataResult<List<UserOperationClaimResultDto>>(userOperationClaimDtos, "Tüm kullanıcı yetkileri listelendi.");
         }
 
-        public async Task<IDataResult<UserOperationClaimListDto>> GetByIdAsync(int id)
+        public async Task<IDataResult<UserOperationClaimResultDto>> GetByIdAsync(int id)
         {
             var userOperationClaim = await _userOperationClaimRepository.GetAsync(x => x.Id == id);
             if (userOperationClaim == null)
             {
-                return new ErrorDataResult<UserOperationClaimListDto>("Belirtilen yetki ataması bulunamadı.");
+                return new ErrorDataResult<UserOperationClaimResultDto>("Belirtilen yetki ataması bulunamadı.");
             }
 
-            var userOperationClaimDto = _mapper.Map<UserOperationClaimListDto>(userOperationClaim);
-            return new SuccessDataResult<UserOperationClaimListDto>(userOperationClaimDto, "Yetki ataması başarıyla getirildi.");
+            var userOperationClaimDto = _mapper.Map<UserOperationClaimResultDto>(userOperationClaim);
+            return new SuccessDataResult<UserOperationClaimResultDto>(userOperationClaimDto, "Yetki ataması başarıyla getirildi.");
         }
 
         public async Task<IDataResult<List<UserOperationClaimDetailDto>>> GetMyOperationClaimsAsync(int userId)

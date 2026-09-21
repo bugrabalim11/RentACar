@@ -22,7 +22,7 @@ namespace RentACar.Business.Concrete
             _carService = carService;
         }
 
-        public async Task<IResult> AddAsync(ColorAddDto colorAddDto)
+        public async Task<IResult> AddAsync(ColorCreateDto colorAddDto)
         {
             colorAddDto.Name = colorAddDto.Name.Trim();
             IResult? result = BusinessRules.Run(await CheckIfColorNameExistsAsync(colorAddDto.Name));
@@ -68,23 +68,23 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Renk başarıyla silindi.");
         }
 
-        public async Task<IDataResult<List<ColorListDto>>> GetAllAsync()
+        public async Task<IDataResult<List<ColorResultDto>>> GetAllAsync()
         {
             var colors = await _colorRepository.GetAllAsync();
-            var colorDtos = _mapper.Map<List<ColorListDto>>(colors);
-            return new SuccessDataResult<List<ColorListDto>>(colorDtos, "Renkler başarıyla listelendi.");
+            var colorDtos = _mapper.Map<List<ColorResultDto>>(colors);
+            return new SuccessDataResult<List<ColorResultDto>>(colorDtos, "Renkler başarıyla listelendi.");
         }
 
-        public async Task<IDataResult<ColorListDto>> GetByIdAsync(int id)
+        public async Task<IDataResult<ColorResultDto>> GetByIdAsync(int id)
         {
             var color = await _colorRepository.GetAsync(x => x.Id == id);
             if (color == null)
             {
-                return new ErrorDataResult<ColorListDto>("Aranan renk bulunamadı.");
+                return new ErrorDataResult<ColorResultDto>("Aranan renk bulunamadı.");
             }
 
-            var colorDto = _mapper.Map<ColorListDto>(color);
-            return new SuccessDataResult<ColorListDto>(colorDto, "Renk başarıyla getirildi.");
+            var colorDto = _mapper.Map<ColorResultDto>(color);
+            return new SuccessDataResult<ColorResultDto>(colorDto, "Renk başarıyla getirildi.");
         }
 
         public async Task<IResult> UpdateAsync(ColorUpdateDto colorUpdateDto)

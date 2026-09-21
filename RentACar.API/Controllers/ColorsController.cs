@@ -42,7 +42,7 @@ namespace RentACar.API.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpPost]
-        public async Task<IActionResult> AddAsync(ColorAddDto colorAddDto)
+        public async Task<IActionResult> CreateAsync(ColorCreateDto colorAddDto)
         {
             var result = await _colorService.AddAsync(colorAddDto);
             if (result.Success)
@@ -53,7 +53,7 @@ namespace RentACar.API.Controllers
         }
 
         [Authorize(Roles = "admin")]
-        [HttpPut]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync(int id, ColorUpdateDto colorUpdateDto)
         {
             if (id != colorUpdateDto.Id)

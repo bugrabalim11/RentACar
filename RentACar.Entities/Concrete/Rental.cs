@@ -9,10 +9,11 @@ namespace RentACar.Entities.Concrete
         public int CustomerId { get; set; }
         public int PickUpOfficeId { get; set; }
         public int DropOffOfficeId { get; set; }
-        public DateTime RentDate { get; set; }
+        public DateTime RentDate { get; set; }  
         public DateTime? ReturnDate { get; set; }
         public bool IsDeleted { get; set; } = false;
         public DateTime? DeletedDate { get; set; }
+        public decimal TotalAmount { get; set; }
 
 
 

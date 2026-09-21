@@ -1,0 +1,49 @@
+﻿@using RentACar.MVC.Areas.Admin.Models.UserDtos
+@model UserUpdateByAdminViewModel
+
+@{
+    ViewData["Title"] = "Kullanıcı Güncelle";
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Kullanıcı Güncelle</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" asp-action="Update">
+                <input type="hidden" asp-for="UserUpdate.Id" />
+                <div class="row">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Rütbe</label>
+                            <select asp-for="UserUpdate.OperationClaimId" class="form-control" asp-items="@(new SelectList(Model.Roles, "Id", "Name"))">
+                                <option value="">Lütfen Rütbe Seçiniz...</option>
+                            </select>
+                            <span asp-validation-for="UserUpdate.OperationClaimId" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Kullanıcı Adı</label>
+                            <input asp-for="UserUpdate.FirstName" class="form-control" placeholder="Örn: Ali, Zeynep..." />
+                            <span asp-validation-for="UserUpdate.FirstName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Kullanıcı Soyadı</label>
+                            <input asp-for="UserUpdate.LastName" class="form-control" placeholder="Örn: Yılmaz..." />
+                            <span asp-validation-for="UserUpdate.LastName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">E-posta</label>
+                            <input asp-for="UserUpdate.Email" class="form-control" type="email" placeholder="Örn: ornek@gmail.com..." />
+                            <span asp-validation-for="UserUpdate.Email" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary mt-4">Kaydet</button>
+            </form>
+        </div>
+    </div>
+</div>

@@ -40,7 +40,7 @@ namespace RentACar.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddAsync(OperationClaimAddDto operationClaimAddDto)
+        public async Task<IActionResult> CreateAsync(OperationClaimCreateDto operationClaimAddDto)
         {
             var result = await _operationClaimService.AddAsync(operationClaimAddDto);
             if (result.Success)

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
-using RentACar.Dtos.UserDtos;
+using RentACar.Core.Entities.DTOs.UserDtos;
 using System.Security.Claims;
 
 namespace RentACar.API.Controllers
@@ -32,10 +32,34 @@ namespace RentACar.API.Controllers
         }
 
         [Authorize(Roles = "admin")]
+        [HttpGet("getallforadmin")]
+        public async Task<IActionResult> GetAllForAdminAsync()
+        {
+            var result = await _userService.GetAllForAdminAsync();
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [Authorize(Roles = "admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await _userService.GetByIdAsync(id);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpGet("getbyidforupdate/{id}")]
+        public async Task<IActionResult> GetByIdForUpdate(int id)
+        {
+            var result = await _userService.GetByIdForUpdateAsync(id);
             if (result.Success)
             {
                 return Ok(result);
@@ -76,14 +100,26 @@ namespace RentACar.API.Controllers
         }
 
         [Authorize(Roles = "admin")]
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateForAdminAsync(int id, UserUpdateForAdminDto userUpdateForAdminDto)
+        [HttpPut("updateforadmin/{id}")]
+        public async Task<IActionResult> UpdateByAdminAsync(int id, UserUpdateByAdminDto userUpdateForAdminDto)
         {
             if (id != userUpdateForAdminDto.Id)
             {
                 return BadRequest("Güvenlik İhlali: URL'deki ID ile gönderilen kullanıcı ID'si eşleşmiyor!");
             }
             var result = await _userService.UpdateForAdminAsync(userUpdateForAdminDto);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpPost("createforadmin")]
+        public async Task<IActionResult> CreateByAdminAsync(UserCreateByAdminDto userCreateForAdminDto)
+        {
+            var result = await _userService.CreateForAdminAsync(userCreateForAdminDto);
             if (result.Success)
             {
                 return Ok(result);
@@ -112,6 +148,18 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> DeleteAsync(int id)
         {
             var result = await _userService.DeleteAsync(id);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpPatch("restore/{id}")]
+        public async Task<IActionResult> RestoreAsync(int id)
+        {
+            var result = await _userService.RestoreAsync(id);
             if (result.Success)
             {
                 return Ok(result);

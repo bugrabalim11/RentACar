@@ -1,0 +1,54 @@
+﻿using FluentValidation;
+using RentACar.Dtos.CarDtos;
+
+namespace RentACar.Business.ValidationRules.CarValidators
+{
+    // Sınıfımızın FluentValidation'ın AbstractValidator'ından miras alması gerekiyor
+    // İçine de hangi DTO'yu denetleyeceğini (CarCreateDto) yazıyoruz.
+    // Bool değerlere kural yazmadık çünkü FluentValidation'da bool değerler için genellikle kural yazmaya gerek yoktur.
+    public class CarCreateDtoValidator : AbstractValidator<CarCreateDto>
+    {
+        public CarCreateDtoValidator()
+        {
+            RuleFor(x => x.BrandId).GreaterThan(0).WithMessage("Lütfen geçerli bir marka seçiniz.");
+            RuleFor(x => x.ColorId).GreaterThan(0).WithMessage("Lütfen geçerli bir renk seçiniz.");
+
+
+            RuleFor(x => x.ModelName)
+                 .NotEmpty().WithMessage("Araç model ismi boş bırakılamaz.")
+                 .MinimumLength(2).WithMessage("Araç model ismi en az 2 karakter olmalıdır.");
+
+            RuleFor(x => x.Plate)
+                .NotEmpty().WithMessage("Araç plakası boş bırakılamaz.")
+                .MaximumLength(10).WithMessage("Araç plakası en fazla 10 karakter olmalıdır.");
+
+            // YENİ HALİ:
+            RuleFor(x => x.TransmissionType).IsInEnum().WithMessage("Lütfen geçerli bir vites tipi seçiniz (1: Manuel, 2: Otomatik, 3: Yarı Otomatik).");
+            RuleFor(x => x.LuggageCapacity).IsInEnum().WithMessage("Lütfen geçerli bir bagaj boyutu seçiniz (1: Small, 2: Medium, 3: Large).");
+
+            RuleFor(x => x.DailyPrice)
+                .NotEmpty().WithMessage("Günlük fiyat alanı boş bırakılamaz.")
+                .GreaterThan(0).WithMessage("Günlük fiyat 0'dan büyük olmalıdır.");
+
+            RuleFor(x => x.Kilometer)
+                .NotEmpty().WithMessage("Kilometre alanı boş bırakılamaz.")
+                .GreaterThanOrEqualTo(0).WithMessage("Kilometre 0'dan küçük olamaz.");
+
+            RuleFor(x => x.DoorCount)
+                .NotEmpty().WithMessage("Kapı sayısı alanı boş bırakılamaz.")
+                .InclusiveBetween(2, 6).WithMessage("Kapı sayısı 2 ile 6 arasında olmalıdır.");
+
+            RuleFor(x => x.SeatCount)
+                .NotEmpty().WithMessage("Koltuk sayısı alanı boş bırakılamaz.")
+                .InclusiveBetween(2, 10).WithMessage("Koltuk sayısı 2 ile 10 arasında olmalıdır.");
+
+            RuleFor(x => x.MinDriverAge)
+                .NotEmpty().WithMessage("Minimum sürücü yaşı alanı boş bırakılamaz.")
+                .GreaterThanOrEqualTo(18).WithMessage("Minimum sürücü yaşı 18'den küçük olamaz.");
+
+            RuleFor(x => x.MinDrivingExperience).GreaterThanOrEqualTo(0).WithMessage("Minimum sürücü deneyemi negatif bir değer olamaz.");
+
+            RuleFor(x => x.MinFindexScore).InclusiveBetween(0, 1900).WithMessage("Findex puanı 0 ile 1900 arasında olamalıdır.");
+        }
+    }
+}

@@ -21,7 +21,7 @@ namespace RentACar.Business.Concrete
             _mapper = mapper;
             _userService = userService;
         }
-        public async Task<IResult> AddForAdminAsync(CustomerAddByAdminDto customerAddByAdminDto)
+        public async Task<IResult> AddForAdminAsync(CustomerCreateByAdminDto customerAddByAdminDto)
         {
             customerAddByAdminDto.NationalIdentity = customerAddByAdminDto.NationalIdentity.Trim();
 
@@ -40,7 +40,7 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Müşteri profili başarıyla oluşturuldu.");
         }
 
-        public async Task<IResult> AddAsync(int userId, CustomerAddDto customerAddDto)
+        public async Task<IResult> AddAsync(int userId, CustomerCreateDto customerAddDto)
         {
             customerAddDto.NationalIdentity = customerAddDto.NationalIdentity.Trim();
 
@@ -75,11 +75,11 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Müşteri başarıyla silindi.");
         }
 
-        public async Task<IDataResult<List<CustomerListDto>>> GetAllAsync()
+        public async Task<IDataResult<List<CustomerResultDto>>> GetAllAsync()
         {
             var customers = await _customerRepository.GetCustomersWithDetailsAsync();
-            var customerDtos = _mapper.Map<List<CustomerListDto>>(customers);
-            return new SuccessDataResult<List<CustomerListDto>>(customerDtos, "Müşteriler başarıyla listelendi.");
+            var customerDtos = _mapper.Map<List<CustomerResultDto>>(customers);
+            return new SuccessDataResult<List<CustomerResultDto>>(customerDtos, "Müşteriler başarıyla listelendi.");
         }
 
         public async Task<IDataResult<CustomerDetailDto>> GetByIdAsync(int id)
@@ -106,7 +106,7 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<CustomerDetailDto>(customerDto, "Müşteri bilgileri başarıyla getirildi.");
         }
 
-        public async Task<IResult> UpdateAsync(CustomerUpdateDto customerUpdateDto)
+        public async Task<IResult> UpdateAsync(CustomerUpdateByAdminDto customerUpdateDto)
         {
             customerUpdateDto.NationalIdentity = customerUpdateDto.NationalIdentity.Trim();
             var existingCustomer = await _customerRepository.GetAsync(x => x.Id == customerUpdateDto.Id);

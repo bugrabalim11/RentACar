@@ -28,7 +28,7 @@ namespace RentACar.Business.Concrete
             _findexScoreService = findexScoreService;
         }
 
-        public async Task<IResult> AddAsync(RentalAddDto rentalAddDto, int userId)
+        public async Task<IResult> AddAsync(RentalCreateDto rentalAddDto, int userId)
         {
             // 1. RentDate (Başlangıç tarihi) zaten boş olamaz (Nullable değil). Ona direkt etiketi bas:
             rentalAddDto.RentDate = DateTime.SpecifyKind(rentalAddDto.RentDate, DateTimeKind.Utc);
@@ -70,27 +70,22 @@ namespace RentACar.Business.Concrete
             rental.CustomerId = customerResult.Data.Id;
 
             var car = await _carService.GetByIdAsync(rental.CarId);
-            int totalDays = 1;
-            if (rental.ReturnDate.HasValue)
-            {
-                var timeSpan = rental.ReturnDate.Value - rental.RentDate;
-                totalDays = timeSpan.Days;
 
-                // Aynı gün getirirse 0 çıkmasın diye senin o harika kalkanını buraya da koyalım:
-                if (totalDays == 0) totalDays = 1;
-            }
-            decimal totalAmount = totalDays * car.Data.DailyPrice;
+            // Arık matemetik işlemlerini bu yardımcı metoddan alıyoruz
+            decimal totalAmount = CalculateTotalAmount(rental.RentDate, rental.ReturnDate, car.Data.DailyPrice);
+
             var paymentResult = await _paymentService.PayAsync(rentalAddDto.CreditCardInformation, totalAmount);
             if (!paymentResult.Success)
             {
                 return new ErrorResult(paymentResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
             }
 
+            rental.TotalAmount = totalAmount;
             await _rentalRepository.AddAsync(rental);
             return new SuccessResult("Araç kiralama başarıyla oluşturuldu.");
         }
 
-        public async Task<IResult> AddByAdminAsync(RentalAddByAdminDto rentalAddByAdminDto)
+        public async Task<IResult> AddByAdminAsync(RentalCreateByAdminDto rentalAddByAdminDto)
         {
             rentalAddByAdminDto.RentDate = DateTime.SpecifyKind(rentalAddByAdminDto.RentDate, DateTimeKind.Utc);
             if (rentalAddByAdminDto.ReturnDate.HasValue)
@@ -115,20 +110,14 @@ namespace RentACar.Business.Concrete
             var rental = _mapper.Map<Rental>(rentalAddByAdminDto);
 
             var car = await _carService.GetByIdAsync(rental.CarId);
-            int totalDays = 1;
-            if (rental.ReturnDate.HasValue)
-            {
-                var timeSpan = rental.ReturnDate.Value - rental.RentDate;
-                totalDays = timeSpan.Days;
-                if (totalDays == 0) totalDays = 1;
-            }
-            decimal totalAmount = totalDays * car.Data.DailyPrice;
+            var totalAmount = CalculateTotalAmount(rental.RentDate, rental.ReturnDate, car.Data.DailyPrice);
             var paymentResult = await _paymentService.PayAsync(rentalAddByAdminDto.CreditCardInformation, totalAmount);
             if (!paymentResult.Success)
             {
                 return new ErrorResult(paymentResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
             }
 
+            rental.TotalAmount = totalAmount;
             await _rentalRepository.AddAsync(rental);
             return new SuccessResult("Araç kiralama başarıyla oluşturuldu.");
         }
@@ -147,23 +136,23 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Araç kiralama başarıyla silindi.");
         }
 
-        public async Task<IDataResult<List<RentalListDto>>> GetAllAsync()
+        public async Task<IDataResult<List<RentalResultDto>>> GetAllAsync()
         {
             var rentals = await _rentalRepository.GetRentalsWithDetailsAsync();
-            var rentalsListDtos = _mapper.Map<List<RentalListDto>>(rentals);
-            return new SuccessDataResult<List<RentalListDto>>(rentalsListDtos, "Kiralama işlemleri başarıyla listelendi.");
+            var rentalsListDtos = _mapper.Map<List<RentalResultDto>>(rentals);
+            return new SuccessDataResult<List<RentalResultDto>>(rentalsListDtos, "Kiralama işlemleri başarıyla listelendi.");
         }
 
-        public async Task<IDataResult<List<RentalListDto>>> GetAllByUserIdAsync(int userId)
+        public async Task<IDataResult<List<RentalResultDto>>> GetAllByUserIdAsync(int userId)
         {
             var rentals = await _rentalRepository.GetRentalsByUserIdAsync(userId);
             if (rentals == null || !rentals.Any())
             {
-                return new ErrorDataResult<List<RentalListDto>>("Kullanıcıya ait kiralama işlemleri bulunamadı.");
+                return new ErrorDataResult<List<RentalResultDto>>("Kullanıcıya ait kiralama işlemleri bulunamadı.");
             }
 
-            var mappedRentals = _mapper.Map<List<RentalListDto>>(rentals);
-            return new SuccessDataResult<List<RentalListDto>>(mappedRentals, "Kullanıcıya ait kiralama işlemleri başarıyla listelendi.");
+            var mappedRentals = _mapper.Map<List<RentalResultDto>>(rentals);
+            return new SuccessDataResult<List<RentalResultDto>>(mappedRentals, "Kullanıcıya ait kiralama işlemleri başarıyla listelendi.");
         }
 
         public async Task<IDataResult<RentalDetailDto>> GetMyRentalByIdAsync(int rentalId, int userId)
@@ -195,7 +184,7 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<RentalDetailDto>(rentalDetailDto, "Araç kiralama detayı getirildi.");
         }
 
-        public async Task<IResult> UpdateAsync(RentalUpdateDto rentalUpdateDto)
+        public async Task<IResult> UpdateByAdminAsync(RentalUpdateByAdminDto rentalUpdateDto)
         {
             var existingRental = await _rentalRepository.GetAsync(x => x.Id == rentalUpdateDto.Id);
             if (existingRental == null)
@@ -223,7 +212,20 @@ namespace RentACar.Business.Concrete
                 return result;
             }
 
+            var car = await _carService.GetByIdAsync(rentalUpdateDto.CarId);
+            var newTotalAmount = CalculateTotalAmount(rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate, car.Data.DailyPrice);
+            var difference = newTotalAmount - existingRental.TotalAmount;
+            if (difference > 0)
+            {
+                var paymentResult = await _paymentService.PayAsync(rentalUpdateDto.CreditCardInformation, difference);
+                if (!paymentResult.Success)
+                {
+                    return new ErrorResult(paymentResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
+                }
+            }
+
             _mapper.Map(rentalUpdateDto, existingRental);
+            existingRental.TotalAmount = newTotalAmount;
             await _rentalRepository.UpdateAsync(existingRental);
             return new SuccessResult("Araç kiralama başarıyla güncellendi.");
         }
@@ -251,6 +253,19 @@ namespace RentACar.Business.Concrete
                 return result;
             }
 
+            var car = await _carService.GetByIdAsync(existingRental.CarId);
+            var newTotalAmount = CalculateTotalAmount(existingRental.RentDate, rentalUpdateReturnDateDto.ReturnDate, car.Data.DailyPrice);
+            var difference = newTotalAmount - existingRental.TotalAmount;
+            if (difference > 0)
+            {
+                var paymentResult = await _paymentService.PayAsync(rentalUpdateReturnDateDto.CreditCardInformation, difference);
+                if (!paymentResult.Success)
+                {
+                    return new ErrorResult(paymentResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
+                }
+            }
+
+            existingRental.TotalAmount= newTotalAmount;
             existingRental.ReturnDate = rentalUpdateReturnDateDto.ReturnDate;
             await _rentalRepository.UpdateAsync(existingRental);
             return new SuccessResult("Araç teslim tarihiniz başarıyla güncellendi.");
@@ -371,6 +386,19 @@ namespace RentACar.Business.Concrete
                 return new ErrorResult("Bu aracı kiralamaya findex puanınız yetmiyor!");
             }
             return new SuccessResult();
+        }
+
+        private decimal CalculateTotalAmount(DateTime rentDate, DateTime? returnDate, decimal dailyPrice)
+        {
+            int totalDays = 1;
+            if (returnDate.HasValue)
+            {
+                var timeSpan = returnDate.Value - rentDate;
+                totalDays = timeSpan.Days;
+                if (totalDays == 0 || totalDays < 0) { totalDays = 1; }
+            }
+            var totalAmount = totalDays * dailyPrice;
+            return totalAmount;
         }
     }
 }

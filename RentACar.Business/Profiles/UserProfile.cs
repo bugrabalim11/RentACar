@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Entities.DTOs.AuthDtos;
-using RentACar.Dtos.UserDtos;
+using RentACar.Core.Entities.DTOs.UserDtos;
 
 namespace RentACar.Business.Profiles
 {
@@ -9,12 +9,13 @@ namespace RentACar.Business.Profiles
     {
         public UserProfile()
         {
-            CreateMap<UserUpdateForAdminDto, User>();
+            CreateMap<UserUpdateByAdminDto, User>().ReverseMap();
             CreateMap<UserProfileUpdateDto, User>();
-            CreateMap<User, UserListDto>();
-            CreateMap<User, UserListForAdminDto>();
+            CreateMap<User, UserResultDto>();
+            CreateMap<User, UserResultByAdminDto>();
 
             CreateMap<UserForRegisterDto, User>();
+            CreateMap<UserCreateByAdminDto, User>();
         }
     }
 }

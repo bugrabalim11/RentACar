@@ -22,7 +22,7 @@ namespace RentACar.Business.Concrete
             _carService = carService;
         }
 
-        public async Task<IResult> AddAsync(BrandAddDto brandAddDto)
+        public async Task<IResult> AddAsync(BrandCreateDto brandAddDto)
         {
             // Gelen verinin sağındaki ve solundaki görünmez boşlukları tıraşla (Trim) 
             brandAddDto.Name = brandAddDto.Name.Trim();
@@ -81,25 +81,25 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Marka başarıyla silindi.");
         }
 
-        public async Task<IDataResult<List<BrandListDto>>> GetAllAsync()
+        public async Task<IDataResult<List<BrandResultDto>>> GetAllAsync()
         {
             var brands = await _brandRepository.GetAllAsync();
 
-            var brandDtos = _mapper.Map<List<BrandListDto>>(brands);
+            var brandDtos = _mapper.Map<List<BrandResultDto>>(brands);
 
-            return new SuccessDataResult<List<BrandListDto>>(brandDtos, "Markalar başarıyla listelendi.");
+            return new SuccessDataResult<List<BrandResultDto>>(brandDtos, "Markalar başarıyla listelendi.");
         }
 
-        public async Task<IDataResult<BrandListDto>> GetByIdAsync(int id)
+        public async Task<IDataResult<BrandResultDto>> GetByIdAsync(int id)
         {
             var brand = await _brandRepository.GetAsync(x => x.Id == id);
             if (brand == null)
             {
-                return new ErrorDataResult<BrandListDto>("Aranan marka bulunamadı.");
+                return new ErrorDataResult<BrandResultDto>("Aranan marka bulunamadı.");
             }
 
-            var brandDto = _mapper.Map<BrandListDto>(brand);
-            return new SuccessDataResult<BrandListDto>(brandDto, "Marka başarıyla getirildi.");
+            var brandDto = _mapper.Map<BrandResultDto>(brand);
+            return new SuccessDataResult<BrandResultDto>(brandDto, "Marka başarıyla getirildi.");
         }
 
         public async Task<IResult> UpdateAsync(BrandUpdateDto brandUpdateDto)

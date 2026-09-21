@@ -8,9 +8,9 @@ namespace RentACar.Business.Profiles
     {
         public OperationClaimProfile()
         {
-            CreateMap<OperationClaimAddDto, OperationClaim>();
+            CreateMap<OperationClaimCreateDto, OperationClaim>();
             CreateMap<OperationClaimUpdateDto, OperationClaim>();
-            CreateMap<OperationClaim, OperationClaimListDto>();
+            CreateMap<OperationClaim, OperationClaimResultDto>();
         }
     }
 }

@@ -38,10 +38,10 @@ namespace RentACar.API.Controllers
             return NotFound(result);
         }
 
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")] 
         // veya [Authorize(Roles = "Admin,Moderator")] şeklinde virgülle çoklu rütbe de verebilirsin.
         [HttpPost]
-        public async Task<IActionResult> AddAsync(BrandAddDto brandAddDto)
+        public async Task<IActionResult> CreateAsync(BrandCreateDto brandAddDto)
         {
             var result = await _brandService.AddAsync(brandAddDto);
 

@@ -1,0 +1,36 @@
+﻿@using RentACar.MVC.Areas.Admin.Models.ContactInfoDtos
+@model ContactInfoUpdateDto
+
+@{
+    ViewData["Title"] = "İletişim Bilgisi Güncelle";
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">İletişim Bilgisi Güncelle</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" asp-action="Update">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <input type="hidden" asp-for="Id" />
+                <div class="mb-3">
+                    <label class="form-label">Address</label>
+                    <input type="text" class="form-control" asp-for="Address" placeholder="Örn: Ankara/Kızılay..." />
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Telefon Numarası</label>
+                    <input type="text" class="form-control" asp-for="Phone" placeholder="Örn: 05551234567..." />
+                    <span asp-validation-for="Phone" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">E-posta Adresi</label>
+                    <input type="text" class="form-control" asp-for="Email" placeholder="Örn: example@example.com" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-primary">Güncelle</button>
+            </form>
+        </div>
+    </div>
+</div>

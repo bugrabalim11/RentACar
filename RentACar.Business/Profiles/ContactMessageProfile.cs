@@ -12,8 +12,8 @@ namespace RentACar.Business.Profiles
     {
         public ContactMessageProfile()
         {
-            CreateMap<ContactMessage, ContactMessageListDto>();
-            CreateMap<ContactMessageAddDto, ContactMessage>();
+            CreateMap<ContactMessage, ContactMessageResultDto>();
+            CreateMap<ContactMessageCreateDto, ContactMessage>();
         }
     }
 }

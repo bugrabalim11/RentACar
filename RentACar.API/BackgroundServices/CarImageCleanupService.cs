@@ -31,13 +31,13 @@ namespace RentACar.API.BackgroundServices
                     {
                         await carImageService.DeleteOldImagesAsync();
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        // boş kalsın
+                        Console.WriteLine($"Temizlik sırasında hata: {ex.Message}");
                     }
-
-                    await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
                 }
+
+                await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
             }
         }
     }

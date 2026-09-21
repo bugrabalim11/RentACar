@@ -22,7 +22,7 @@ namespace RentACar.Business.Concrete
             _rentalService = rentalService;
         }
 
-        public async Task<IResult> AddAsync(OfficeAddDto officeAddDto)
+        public async Task<IResult> AddAsync(OfficeCreateDto officeAddDto)
         {
             officeAddDto.Name = officeAddDto.Name.Trim();
             IResult? result = BusinessRules.Run(await CheckIfOfficeExistsAsync(officeAddDto.Name));
@@ -56,23 +56,23 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Ofis başarıyla silindi.");
         }
 
-        public async Task<IDataResult<List<OfficeListDto>>> GetAllAsync()
+        public async Task<IDataResult<List<OfficeResultDto>>> GetAllAsync()
         {
             var offices = await _officeRepository.GetAllAsync();
-            var officeDtos = _mapper.Map<List<OfficeListDto>>(offices);
-            return new SuccessDataResult<List<OfficeListDto>>(officeDtos, "Ofisler başarıyla listelendi.");
+            var officeDtos = _mapper.Map<List<OfficeResultDto>>(offices);
+            return new SuccessDataResult<List<OfficeResultDto>>(officeDtos, "Ofisler başarıyla listelendi.");
         }
 
-        public async Task<IDataResult<OfficeListDto>> GetByIdAsync(int id)
+        public async Task<IDataResult<OfficeResultDto>> GetByIdAsync(int id)
         {
             var office = await _officeRepository.GetAsync(x => x.Id == id);
             if (office == null)
             {
-                return new ErrorDataResult<OfficeListDto>("Ofis bulunamadı.");
+                return new ErrorDataResult<OfficeResultDto>("Ofis bulunamadı.");
             }
 
-            var officeDto = _mapper.Map<OfficeListDto>(office);
-            return new SuccessDataResult<OfficeListDto>(officeDto, "Ofis başarıyla getirildi.");
+            var officeDto = _mapper.Map<OfficeResultDto>(office);
+            return new SuccessDataResult<OfficeResultDto>(officeDto, "Ofis başarıyla getirildi.");
         }
 
         public async Task<IResult> UpdateAsync(OfficeUpdateDto officeUpdateDto)

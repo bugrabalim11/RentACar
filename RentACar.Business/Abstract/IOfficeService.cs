@@ -5,9 +5,9 @@ namespace RentACar.Business.Abstract
 {
     public interface IOfficeService
     {
-        Task<IDataResult<List<OfficeListDto>>> GetAllAsync();
-        Task<IDataResult<OfficeListDto>> GetByIdAsync(int id);
-        Task<IResult> AddAsync(OfficeAddDto officeAddDto);
+        Task<IDataResult<List<OfficeResultDto>>> GetAllAsync();
+        Task<IDataResult<OfficeResultDto>> GetByIdAsync(int id);
+        Task<IResult> AddAsync(OfficeCreateDto officeAddDto);
         Task<IResult> UpdateAsync(OfficeUpdateDto officeUpdateDto);
         Task<IResult> DeleteAsync(int id);
     }

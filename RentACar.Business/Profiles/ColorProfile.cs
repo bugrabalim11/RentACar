@@ -12,9 +12,9 @@ namespace RentACar.Business.Profiles
     {
         public ColorProfile()
         {
-            CreateMap<ColorAddDto, Color>();
+            CreateMap<ColorCreateDto, Color>();
             CreateMap<ColorUpdateDto, Color>();
-            CreateMap<Color, ColorListDto>();
+            CreateMap<Color, ColorResultDto>();
         }
     }
 }
