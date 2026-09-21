@@ -45,12 +45,12 @@
                             @item.Description
                         </td>
                         <td>
-                            @item.CheckInTime.ToShortDateString()
+                            @item.CheckInTime.ToLocalTime().ToShortDateString()
                         </td>
                         <td>
                             @if (item.CheckOutTime.HasValue)
                             {
-                                @item.CheckOutTime.Value.ToShortDateString()
+                                @item.CheckOutTime.Value.ToLocalTime().ToShortDateString()
                             }
                             else
                             {

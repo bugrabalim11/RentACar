@@ -137,6 +137,11 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                         CheckInTime = responseBox.Data.CheckInTime,
                         CheckOutTime = responseBox.Data.CheckOutTime
                     };
+                    viewModel.CheckInTime = viewModel.CheckInTime.ToLocalTime();
+                    if (viewModel.CheckOutTime.HasValue)
+                    {
+                        viewModel.CheckOutTime = viewModel.CheckOutTime.Value.ToLocalTime();
+                    }
                     return View(viewModel);
                 }
             }

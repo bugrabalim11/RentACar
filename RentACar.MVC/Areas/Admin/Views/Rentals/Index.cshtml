@@ -48,12 +48,12 @@
                             @item.CarInfo
                         </td>
                         <td>
-                            @item.RentDate.ToShortDateString()
+                            @item.RentDate.ToLocalTime().ToShortDateString()
                         </td>
                         <td>
                             @if (item.ReturnDate.HasValue)
                             {
-                                @item.ReturnDate.Value.ToShortDateString()
+                                @item.ReturnDate.Value.ToLocalTime().ToShortDateString()
                             }
                             else
                             {

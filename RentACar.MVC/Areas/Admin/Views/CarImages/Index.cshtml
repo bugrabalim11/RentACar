@@ -36,7 +36,7 @@
                             <img src="https://localhost:7085/@item.ImagePath" width="100" class="rounded" />
                         </td>
                         <td>
-                            @item.UploadDate.ToShortDateString()
+                            @item.UploadDate.ToLocalTime().ToShortDateString()
                         </td>
                         <td>
                             <button onclick="deleteCarImages(@item.Id)" class="btn btn-danger">Sil</button>

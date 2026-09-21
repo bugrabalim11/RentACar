@@ -24,7 +24,7 @@
         </div>
         <div class="mb-3">
             <label class="form-label fw-bold">Gönderim Tarihi</label>
-            <p class="form-control bg-light">@Model.SendDate.ToString("dd.MM.yyyy HH:mm")</p>
+            <p class="form-control bg-light">@Model.SendDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</p>
         </div>
         <a asp-action="Index" class="btn btn-secondary">Gelen Kutusuna Dön</a>
     </div>

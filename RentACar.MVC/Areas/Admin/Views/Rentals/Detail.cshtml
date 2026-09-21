@@ -18,13 +18,13 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-bold">Başlangıç Tarihi</label>
-                    <p class="form-control bg-light">@Model.RentDate.ToShortDateString()</p>
+                    <p class="form-control bg-light">@Model.RentDate.ToLocalTime().ToShortDateString()</p>
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-bold">Bitiş Tarihi</label>
                         @if (Model.ReturnDate.HasValue)
                         {
-                            <p class="form-control bg-light"> @Model.ReturnDate.Value.ToShortDateString()</p>
+                            <p class="form-control bg-light"> @Model.ReturnDate.Value.ToLocalTime().ToShortDateString()</p>
                         }
                         else
                         {

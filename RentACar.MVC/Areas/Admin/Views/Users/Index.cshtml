@@ -62,7 +62,7 @@
                             }
                         </td>
                         <td>
-                            @item.DeletedDate?.ToString("dd.MM.yyyy")
+                            @item.DeletedDate?.ToLocalTime().ToString("dd.MM.yyyy")
                         </td>
                         <td>
                             <div class="d-flex gap-2">
