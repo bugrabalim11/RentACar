@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using RentACar.MVC.Areas.Admin.Models.CreditCardInformationDtos;
+using System.ComponentModel.DataAnnotations;
 
 namespace RentACar.MVC.Areas.Admin.Models.RentalDtos
 {
@@ -19,5 +20,6 @@ namespace RentACar.MVC.Areas.Admin.Models.RentalDtos
         [Required(ErrorMessage = "Lütfen araç kiralama tarihini boş geçmeyiniz!")]
         public DateTime RentDate { get; set; }
         public DateTime? ReturnDate { get; set; }
+        public CreditCardInformationDto CreditCardInformation { get; set; } = null!;
     }
 }

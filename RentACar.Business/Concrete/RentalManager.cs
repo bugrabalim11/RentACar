@@ -110,9 +110,7 @@ namespace RentACar.Business.Concrete
             var rental = _mapper.Map<Rental>(rentalAddByAdminDto);
 
             var car = await _carService.GetByIdAsync(rental.CarId);
-
             var totalAmount = CalculateTotalAmount(rental.RentDate, rental.ReturnDate, car.Data.DailyPrice);
-
             var paymentResult = await _paymentService.PayAsync(rentalAddByAdminDto.CreditCardInformation, totalAmount);
             if (!paymentResult.Success)
             {
@@ -186,7 +184,7 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<RentalDetailDto>(rentalDetailDto, "Araç kiralama detayı getirildi.");
         }
 
-        public async Task<IResult> UpdateAsync(RentalUpdateByAdminDto rentalUpdateDto)
+        public async Task<IResult> UpdateByAdminAsync(RentalUpdateByAdminDto rentalUpdateDto)
         {
             var existingRental = await _rentalRepository.GetAsync(x => x.Id == rentalUpdateDto.Id);
             if (existingRental == null)
@@ -214,7 +212,20 @@ namespace RentACar.Business.Concrete
                 return result;
             }
 
+            var car = await _carService.GetByIdAsync(rentalUpdateDto.CarId);
+            var newTotalAmount = CalculateTotalAmount(rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate, car.Data.DailyPrice);
+            var difference = newTotalAmount - existingRental.TotalAmount;
+            if (difference > 0)
+            {
+                var paymentResult = await _paymentService.PayAsync(rentalUpdateDto.CreditCardInformation, difference);
+                if (!paymentResult.Success)
+                {
+                    return new ErrorResult(paymentResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
+                }
+            }
+
             _mapper.Map(rentalUpdateDto, existingRental);
+            existingRental.TotalAmount = newTotalAmount;
             await _rentalRepository.UpdateAsync(existingRental);
             return new SuccessResult("Araç kiralama başarıyla güncellendi.");
         }
@@ -242,6 +253,19 @@ namespace RentACar.Business.Concrete
                 return result;
             }
 
+            var car = await _carService.GetByIdAsync(existingRental.CarId);
+            var newTotalAmount = CalculateTotalAmount(existingRental.RentDate, rentalUpdateReturnDateDto.ReturnDate, car.Data.DailyPrice);
+            var difference = newTotalAmount - existingRental.TotalAmount;
+            if (difference > 0)
+            {
+                var paymentResult = await _paymentService.PayAsync(rentalUpdateReturnDateDto.CreditCardInformation, difference);
+                if (!paymentResult.Success)
+                {
+                    return new ErrorResult(paymentResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
+                }
+            }
+
+            existingRental.TotalAmount= newTotalAmount;
             existingRental.ReturnDate = rentalUpdateReturnDateDto.ReturnDate;
             await _rentalRepository.UpdateAsync(existingRental);
             return new SuccessResult("Araç teslim tarihiniz başarıyla güncellendi.");

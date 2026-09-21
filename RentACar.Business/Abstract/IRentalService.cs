@@ -12,7 +12,7 @@ namespace RentACar.Business.Abstract
         Task<IResult> CheckIfAnyRentalExistsByOfficeIdAsync(int officeId);
         Task<IResult> AddAsync(RentalCreateDto rentalAddDto, int userId);
         Task<IResult> AddByAdminAsync(RentalCreateByAdminDto rentalAddByAdminDto);
-        Task<IResult> UpdateAsync(RentalUpdateByAdminDto rentalUpdateDto);
+        Task<IResult> UpdateByAdminAsync(RentalUpdateByAdminDto rentalUpdateDto);
         Task<IResult> UpdateMyRentalAsync(int userId, int rentalId, RentalUpdateReturnDateDto rentalUpdateReturnDateDto);
         Task<IResult> DeleteAsync(int id);
     }

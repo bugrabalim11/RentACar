@@ -48,6 +48,33 @@
                             <span asp-validation-for="RentalUpdateByAdmin.ReturnDate" class="text-danger"></span>
                         </div>
                     </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Kart Sahibi İsmi Ve Soyisimi</label>
+                            <input asp-for="RentalUpdateByAdmin.CreditCardInformation.CardHolderFullName" class="form-control" placeholder="Örn: Buğra Balım..." />
+                            <span asp-validation-for="RentalUpdateByAdmin.CreditCardInformation.CardHolderFullName" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Kart Numarası</label>
+                            <input asp-for="RentalUpdateByAdmin.CreditCardInformation.CardNumber" class="form-control" placeholder="Örn: 1234567890123..." />
+                            <span asp-validation-for="RentalUpdateByAdmin.CreditCardInformation.CardNumber" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Kart Geçerlilik Yılı</label>
+                            <input asp-for="RentalUpdateByAdmin.CreditCardInformation.ExpireYear" class="form-control" placeholder="Örn: 2030..." />
+                            <span asp-validation-for="RentalUpdateByAdmin.CreditCardInformation.ExpireYear" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Kart Geçerlilik Ayı</label>
+                            <input asp-for="RentalUpdateByAdmin.CreditCardInformation.ExpireMonth" class="form-control" placeholder="Örn: 12..." />
+                            <span asp-validation-for="RentalUpdateByAdmin.CreditCardInformation.ExpireMonth" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">CVV</label>
+                            <input asp-for="RentalUpdateByAdmin.CreditCardInformation.Cvv" class="form-control" placeholder="Örn: 123..." />
+                            <span asp-validation-for="RentalUpdateByAdmin.CreditCardInformation.Cvv" class="text-danger"></span>
+                        </div>
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary mt-4">Kaydet</button>
             </form>

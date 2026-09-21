@@ -23,7 +23,7 @@
                             <span asp-validation-for="RentalCreateByAdmin.CustomerId" class="text-danger"></span>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Araç Adı</label>
+                            <label class="form-label">Araç</label>
                             <select asp-for="RentalCreateByAdmin.CarId" class="form-control" asp-items="@(new SelectList(Model.Cars, "Id", "CarInfo"))">
                                 <option value="">Lütfen Araç Seçiniz...</option>
                             </select>
