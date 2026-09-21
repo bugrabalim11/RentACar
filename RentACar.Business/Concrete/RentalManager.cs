@@ -70,16 +70,10 @@ namespace RentACar.Business.Concrete
             rental.CustomerId = customerResult.Data.Id;
 
             var car = await _carService.GetByIdAsync(rental.CarId);
-            int totalDays = 1;
-            if (rental.ReturnDate.HasValue)
-            {
-                var timeSpan = rental.ReturnDate.Value - rental.RentDate;
-                totalDays = timeSpan.Days;
 
-                // Aynı gün getirirse 0 çıkmasın diye senin o harika kalkanını buraya da koyalım:
-                if (totalDays == 0) totalDays = 1;
-            }
-            decimal totalAmount = totalDays * car.Data.DailyPrice;
+            // Arık matemetik işlemlerini bu yardımcı metoddan alıyoruz
+            decimal totalAmount = CalculateTotalAmount(rental.RentDate, rental.ReturnDate, car.Data.DailyPrice);
+
             var paymentResult = await _paymentService.PayAsync(rentalAddDto.CreditCardInformation, totalAmount);
             if (!paymentResult.Success)
             {
@@ -116,14 +110,9 @@ namespace RentACar.Business.Concrete
             var rental = _mapper.Map<Rental>(rentalAddByAdminDto);
 
             var car = await _carService.GetByIdAsync(rental.CarId);
-            int totalDays = 1;
-            if (rental.ReturnDate.HasValue)
-            {
-                var timeSpan = rental.ReturnDate.Value - rental.RentDate;
-                totalDays = timeSpan.Days;
-                if (totalDays == 0) totalDays = 1;
-            }
-            decimal totalAmount = totalDays * car.Data.DailyPrice;
+
+            var totalAmount = CalculateTotalAmount(rental.RentDate, rental.ReturnDate, car.Data.DailyPrice);
+
             var paymentResult = await _paymentService.PayAsync(rentalAddByAdminDto.CreditCardInformation, totalAmount);
             if (!paymentResult.Success)
             {
@@ -373,6 +362,19 @@ namespace RentACar.Business.Concrete
                 return new ErrorResult("Bu aracı kiralamaya findex puanınız yetmiyor!");
             }
             return new SuccessResult();
+        }
+
+        private decimal CalculateTotalAmount(DateTime rentDate, DateTime? returnDate, decimal dailyPrice)
+        {
+            int totalDays = 1;
+            if (returnDate.HasValue)
+            {
+                var timeSpan = returnDate.Value - rentDate;
+                totalDays = timeSpan.Days;
+                if (totalDays == 0 || totalDays < 0) { totalDays = 1; }
+            }
+            var totalAmount = totalDays * dailyPrice;
+            return totalAmount;
         }
     }
 }
