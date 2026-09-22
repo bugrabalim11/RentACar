@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using RentACar.Core.Exceptions;
-using System.Net;
 using System.Text.Json;
 
 namespace RentACar.API.Middlewares
@@ -33,38 +32,42 @@ namespace RentACar.API.Middlewares
             // Döneceğimiz cevabın bir JSON formatı olduğunu belirtiyoruz
             context.Response.ContentType = "application/json";
 
-            // Eğer yakaladığımız hata FluentValidation'ın fırlattığı kuralsa
+            // Boş zarfı yarattık
+            ErrorDetails errorDetails = new ErrorDetails(); 
+
+            // 1. ODA: Validasyon (Kutuya 400 yaz ve listeyi doldur)
             if (exception is ValidationException validationException)
             {
-                // Durum kodunu 400 Bad Request (Hatalı İstek) yapıyoruz
-                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-
-                // Sadece senin o yazdığın güzel hata mesajlarını (ErrorMessage) seçip alıyoruz
-                var errors = validationException.Errors.Select(e => e.ErrorMessage);
-
-                // Şık bir JSON objesi oluşturup içine hataları koyuyoruz
-                var result = JsonSerializer.Serialize(new { ValidationErrors = errors });
-
-                await context.Response.WriteAsync(result);
-                return; // İşlemi burada kesmesi için boş return koyduk
+                errorDetails.StatusCode = 400;
+                errorDetails.Message = "Doğrulama kuralı ihlali!";
+                errorDetails.ValidationErrors = validationException.Errors.Select(e => e.ErrorMessage);
             }
-
+            // 2. ODA: Business (Kutuya 400 yaz ve mesajı BusinessException'dan al)
             else if (exception is BusinessException businessException)
             {
-                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                var message= businessException.Message;
-                var result = JsonSerializer.Serialize(new { BusinessError = message });
-
-                await context.Response.WriteAsync(result);
-                return;
+                errorDetails.StatusCode = 400;
+                errorDetails.Message = businessException.Message;
+                // ValidationErrors'a hiç dokunmuyoruz, o zaten boş/null kalacak
+                // çünkü ValiadationRules'tan geçmiş BusinessRules'ta hata var.
+            }
+            // 3. ODA: Bilinmeyen Sistem Hataları (Kutuya 500 yaz)
+            else
+            {
+                errorDetails.StatusCode = 500;
+                errorDetails.Message = "Sistemde beklemeyen bir hata oluştu!";
             }
 
+            // --- KODUN SON ÇIKIŞ NOKTASI (TEK KURYE) ---
 
-            // Eğer kurallar dışında, sistemsel/kodsal beklenmedik bir hata fırlarsa (Örn: Veritabanı koptu)
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError; // 500
+            // Zarfın üstünde hangi kod yazıyorsa (400 mü 500 mü), asıl HTTP yanıtına onu veriyoruz:
+            // Tarayıcıya hata kodunu veriyoruz yani
+            context.Response.StatusCode = errorDetails.StatusCode;
 
-            var genericResult = JsonSerializer.Serialize(new { Message = "Sistemde beklenmeyen bir hata oluştu!" });
-            await context.Response.WriteAsync(genericResult);
+            // Zarfı JSON'a çevir (Paketle)
+            var result = JsonSerializer.Serialize(errorDetails);
+
+            // Yolla gitsin!
+            await context.Response.WriteAsync(result);
         }
     }
 }

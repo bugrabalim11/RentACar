@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace RentACar.Core.Utilities.Results
+﻿namespace RentACar.Core.Utilities.Results
 {
     public class ErrorResult : Result
     {

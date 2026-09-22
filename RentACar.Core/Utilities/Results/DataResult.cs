@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace RentACar.Core.Utilities.Results
+﻿namespace RentACar.Core.Utilities.Results
 {
     // T: Döneceğimiz veri tipi (Car, List<Brand> vs.)
     public class DataResult<T> : Result, IDataResult<T>

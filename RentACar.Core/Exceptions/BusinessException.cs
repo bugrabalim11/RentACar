@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.Text;
-
-namespace RentACar.Core.Exceptions
+﻿namespace RentACar.Core.Exceptions
 {
     public class BusinessException : Exception
     {
