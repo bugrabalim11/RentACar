@@ -27,10 +27,6 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> AddAsync(ColorCreateDto colorAddDto)
         {
-            if (string.IsNullOrWhiteSpace(colorAddDto.Name))
-            {
-                throw new BusinessException("Renk boş geçilemez!");
-            }
             colorAddDto.Name = colorAddDto.Name.Trim();
 
             // ASİSTAN KONTROLÜ: Aynı renk isminden var mı?
@@ -89,10 +85,6 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> UpdateAsync(ColorUpdateDto colorUpdateDto)
         {
-            if (string.IsNullOrWhiteSpace(colorUpdateDto.Name))
-            {
-                throw new BusinessException("Renk boş geçilemez!");
-            }
             colorUpdateDto.Name = colorUpdateDto.Name.Trim();
 
             IResult? result = BusinessRules.Run(await CheckIfColorNameExistsForUpdateAsync(colorUpdateDto.Name, colorUpdateDto.Id));

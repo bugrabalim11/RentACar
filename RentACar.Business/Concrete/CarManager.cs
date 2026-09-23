@@ -26,10 +26,6 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> AddAsync(CarCreateDto carAddDto)
         {
-            if (string.IsNullOrWhiteSpace(carAddDto.Plate))
-            {
-                throw new BusinessException("Plaka boş geçilemez!");
-            }
             carAddDto.Plate = carAddDto.Plate.Replace(" ", "").ToUpper();
 
             IResult? result = BusinessRules.Run(
@@ -98,10 +94,6 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException("Güncellencek araç bulunamadı.");
             }
 
-            if (string.IsNullOrWhiteSpace(carUpdateDto.Plate))
-            {
-                throw new BusinessException("Plaka boş geçilemez!");
-            }
             carUpdateDto.Plate = carUpdateDto.Plate.Replace(" ", "").ToUpper();
 
             IResult? result = BusinessRules.Run(

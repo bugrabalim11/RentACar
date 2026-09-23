@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using RentACar.Business.Abstract;
 using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Entities.DTOs.AuthDtos;

@@ -26,7 +26,7 @@ namespace RentACar.Business.Concrete
             IResult? result = BusinessRules.Run(await CheckIfContactInfoAlreadyExistsAsync());
             if (result != null)
             {
-                throw new BusinessException(result.Message ?? "Zaten bir tane iletişim bilgisi kayıtlı! Başka bir tane daha ekleyemezsiniz.");
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             var contactInfo = _mapper.Map<ContactInfo>(contactInfoAddDto);
