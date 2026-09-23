@@ -6,5 +6,6 @@ namespace RentACar.Business.Abstract
     {
         Task<IResult>CheckIfBrandExistsAsync(int brandId);
         Task<IResult>CheckIfColorExistsAsync(int colorId);
+        Task<IResult> CheckIfColorIsUsedByAnyCarAsync(int colorId);
     }
 }

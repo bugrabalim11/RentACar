@@ -15,16 +15,22 @@ namespace RentACar.Business.Concrete
         private readonly IColorRepository _colorRepository;
         private readonly IMapper _mapper;
         private readonly ICarService _carService;
+        private readonly IReferenceCheckService _referenceCheckService;
 
-        public ColorManager(IColorRepository colorRepository, IMapper mapper, ICarService carService)
+        public ColorManager(IColorRepository colorRepository, IMapper mapper, ICarService carService, IReferenceCheckService referenceCheckService)
         {
             _colorRepository = colorRepository;
             _mapper = mapper;
             _carService = carService;
+            _referenceCheckService = referenceCheckService;
         }
 
         public async Task<IResult> AddAsync(ColorCreateDto colorAddDto)
         {
+            if (string.IsNullOrWhiteSpace(colorAddDto.Name))
+            {
+                throw new BusinessException("Renk boş geçilemez!");
+            }
             colorAddDto.Name = colorAddDto.Name.Trim();
 
             // ASİSTAN KONTROLÜ: Aynı renk isminden var mı?
@@ -32,7 +38,7 @@ namespace RentACar.Business.Concrete
             if (result != null)
             {
                 // Hata varsa kırmızı alarm!
-                throw new BusinessException(result.Message ?? "Bu renk zaten sistemde kayıtlı! Lütfen başka deneyiniz.");
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             var color = _mapper.Map<Color>(colorAddDto);
@@ -48,12 +54,10 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException("Silinecek renk bulunamadı.");
             }
 
-            // KORUYUCU İŞ KURALI (Data Integrity): Bu rengi kullanan araçlar var mı?
-            var existingCars = await _carService.GetCarsByColorIdAsync(id);
-            if (existingCars.Data != null && existingCars.Data.Any())
+            IResult? result = BusinessRules.Run(await _referenceCheckService.CheckIfColorIsUsedByAnyCarAsync(id));
+            if (result != null)
             {
-                // Rengi kullanan araba varsa silme işlemini şiddetle reddet!
-                throw new BusinessException("Bu renk sistemdeki araçlar tarafından kullanıldığı için silinemez!");
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen hata oluştu!");
             }
 
             // SOFT DELETE (Yumuşak Silme)
@@ -85,12 +89,16 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> UpdateAsync(ColorUpdateDto colorUpdateDto)
         {
+            if (string.IsNullOrWhiteSpace(colorUpdateDto.Name))
+            {
+                throw new BusinessException("Renk boş geçilemez!");
+            }
             colorUpdateDto.Name = colorUpdateDto.Name.Trim();
 
             IResult? result = BusinessRules.Run(await CheckIfColorNameExistsForUpdateAsync(colorUpdateDto.Name, colorUpdateDto.Id));
             if (result != null)
             {
-                throw new BusinessException(result.Message ?? "Bu renk zaten sistemde kayıtlı! Lütfen başka deneyiniz.");
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             var existingColor = await _colorRepository.GetAsync(x => x.Id == colorUpdateDto.Id);
