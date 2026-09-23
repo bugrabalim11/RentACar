@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using RentACar.Business.Abstract;
+using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
@@ -24,59 +25,45 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> AddAsync(BrandCreateDto brandAddDto)
         {
-            // Gelen verinin sağındaki ve solundaki görünmez boşlukları tıraşla (Trim) 
+            // 1. TEMİZLİK: Gelen verinin sağındaki ve solundaki görünmez boşlukları tıraşla (Kandırmacayı önle)
             brandAddDto.Name = brandAddDto.Name.Trim();
 
-            // Asistanı çağır ve bekçinin raporunu kucağına (params) ver:
+            // 2. KONTROL: Asistanı (BusinessRules) çağır ve bekçinin raporunu okuması için ver.
             IResult? result = BusinessRules.Run(await CheckIfBrandNameExistAsync(brandAddDto.Name));
-
-            // Asistanın getirdiği sonuca bak:
             if (result != null)
             {
-                // Eğer result null değilse, asistan bir ceza makbuzu (ErrorResult) bulmuş demektir.
-                // Hiç veritabanı işlemlerine girmeden direkt bu hatayı vezneye yolla!
-                return result;
+                // BANT SORUMLUSU: Asistan hata raporuyla dönerse sistemi durdur ve kırmızı alarma bas! (Middleware yakalar)
+                throw new BusinessException(result.Message ?? "Bu marka zaten sistemde kayıtlı! Lütfen başka marka deneyiniz.");
             }
 
+            // 3. İŞLEM: Formu gerçek nesneye çevir ve veritabanına ekle.
             var brand = _mapper.Map<Brand>(brandAddDto);
             await _brandRepository.AddAsync(brand);
 
-            // ARTIK VOID (BOŞ) DÖNMÜYORUZ, KUTU DÖNÜYORUZ!
             return new SuccessResult("Marka başarıyla eklendi.");
         }
 
-
-        // Bu metot bu dükkanın kendi içindeki Update / Delete işlemleri için DEĞİL, dışarıdan(CarManager gibi) gelen
-        // 'Marka var mı?' sorgularına yanıt vermek için açık bırakılmıştır.Ölü kod (Dead Code) değildir.
-        public async Task<IResult> CheckIfBrandExistsAsync(int id)
-        {
-            bool existingBrand = await _brandRepository.AnyAsync(x => x.Id == id);
-            if (existingBrand)
-            {
-                return new SuccessResult();
-            }
-            return new ErrorResult("Aranan marka sistemde bulunamadı.");
-        }
 
         public async Task<IResult> DeleteAsync(int id)
         {
             var existingBrand = await _brandRepository.GetAsync(x => x.Id == id);
             if (existingBrand == null)
             {
-                return new ErrorResult("Silinecek marka bulunamadı.");
+                throw new BusinessException("Silinecek marka bulunamadı.");
             }
 
+            // SOFT DELETE (Yumuşak Silme): Veritabanından uçurmuyoruz, üzerini çiziyoruz.
             existingBrand.IsDeleted = true;
             existingBrand.DeletedDate = DateTime.UtcNow;
 
+            // BAĞIMLILIK TEMİZLİĞİ: Marka silinirse, o markaya ait arabaları da vitrinden kaldır.
             var existingCars = await _carService.GetAllByBrandIdAsync(id);
+            // Performasnlı değil büyük sistemlerde repository ye özel metot yazılır tek hamlede isDeleted true yapar
             foreach (var car in existingCars.Data)
             {
-                if (car != null)
-                {
-                    await _carService.DeleteAsync(car.Id); // Her bir aracı silmek için DeleteAsync metodunu çağırıyoruz
-                }
+                await _carService.DeleteAsync(car.Id);
             }
+
             await _brandRepository.UpdateAsync(existingBrand);
             return new SuccessResult("Marka başarıyla silindi.");
         }
@@ -84,9 +71,7 @@ namespace RentACar.Business.Concrete
         public async Task<IDataResult<List<BrandResultDto>>> GetAllAsync()
         {
             var brands = await _brandRepository.GetAllAsync();
-
             var brandDtos = _mapper.Map<List<BrandResultDto>>(brands);
-
             return new SuccessDataResult<List<BrandResultDto>>(brandDtos, "Markalar başarıyla listelendi.");
         }
 
@@ -95,7 +80,7 @@ namespace RentACar.Business.Concrete
             var brand = await _brandRepository.GetAsync(x => x.Id == id);
             if (brand == null)
             {
-                return new ErrorDataResult<BrandResultDto>("Aranan marka bulunamadı.");
+                throw new BusinessException("Aranan marka bulunamadı.");
             }
 
             var brandDto = _mapper.Map<BrandResultDto>(brand);
@@ -105,28 +90,27 @@ namespace RentACar.Business.Concrete
         public async Task<IResult> UpdateAsync(BrandUpdateDto brandUpdateDto)
         {
             brandUpdateDto.Name = brandUpdateDto.Name.Trim();
+
             IResult? result = BusinessRules.Run(await CheckIfBrandNameExistsForUpdateAsync(brandUpdateDto.Name, brandUpdateDto.Id));
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "Bu marka zaten sistemde kayıtlı! Lütfen başka deneyiniz.");
             }
 
             var existingBrand = await _brandRepository.GetAsync(x => x.Id == brandUpdateDto.Id);
             if (existingBrand == null)
             {
-                // ARTIK FALSE YERİNE ERROR RESULT KUTUSU DÖNÜYORUZ!
-                return new ErrorResult("Güncellenecek marka bulunamadı.");
+                throw new BusinessException("Güncellenecek marka bulunamadı.");
             }
 
             _mapper.Map(brandUpdateDto, existingBrand);
             await _brandRepository.UpdateAsync(existingBrand);
 
-            // ARTIK TRUE YERİNE SUCCESS RESULT KUTUSU DÖNÜYORUZ!
             return new SuccessResult("Marka başarıyla güncellendi.");
         }
 
-
         // ILike ile büyük/küçük harf duyarsız (case-insensitive) esnek arama yapılır.
+        // N-Tier Notu: Bu kullanım projeyi PostgreSQL'e bağımlı kılar, ancak orijinal büyük harf girişlerini bozmamak için bu mimari taviz (trade-off) verilmiştir.
         private async Task<IResult> CheckIfBrandNameExistAsync(string name)
         {
             bool existingBrand = await _brandRepository.AnyAsync(x => Microsoft.EntityFrameworkCore.EF.Functions.ILike(x.Name, name));

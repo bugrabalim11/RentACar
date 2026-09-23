@@ -2,6 +2,7 @@
 using RentACar.Business.Abstract;
 using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Entities.DTOs.UserDtos;
+using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.Core.Utilities.Security.Hashing;
@@ -26,7 +27,7 @@ namespace RentACar.Business.Concrete
             var existingUser = await _userRepository.GetAsync(x => x.Id == id);
             if (existingUser == null)
             {
-                return new ErrorResult("Silinecek kullanıcı bulunamadı.");
+                throw new BusinessException("Silinecek kullanıcı bulunamadı.");
             }
 
             existingUser.IsDeleted = true;
@@ -40,7 +41,7 @@ namespace RentACar.Business.Concrete
             var deletedUser = await _userRepository.GetAsync(x => x.Id == id && x.IsDeleted == true, ignoreQueryFilters: true);
             if (deletedUser == null)
             {
-                return new ErrorResult("Geri Getirilecek kullanıcı bulunamadı.");
+                throw new BusinessException("Geri Getirilecek kullanıcı bulunamadı.");
             }
             deletedUser.IsDeleted = false;
             deletedUser.DeletedDate = null;
@@ -67,7 +68,7 @@ namespace RentACar.Business.Concrete
             var user = await _userRepository.GetAsync(x => x.Id == id);
             if (user == null)
             {
-                return new ErrorDataResult<UserResultDto>("Kullanıcı bulunamadı.");
+                throw new BusinessException("Kullanıcı bulunamadı.");
             }
 
             var userDto = _mapper.Map<UserResultDto>(user);
@@ -79,7 +80,7 @@ namespace RentACar.Business.Concrete
             var user = await _userRepository.GetAsync(x => x.Id == id);
             if (user == null)
             {
-                return new ErrorDataResult<UserUpdateByAdminDto>("Kullanıcı bulunamadı.");
+                throw new BusinessException("Kullanıcı bulunamadı.");
             }
 
             var operationClaim = await _userOperationClaimRepository.GetAsync(x => x.UserId == user.Id);
@@ -98,7 +99,7 @@ namespace RentACar.Business.Concrete
             var user = await _userRepository.GetAsync(x => x.Id == id);
             if (user == null)
             {
-                return new ErrorDataResult<UserResultDto>("Profil bulunamadı.");
+                throw new BusinessException("Profil bulunamadı.");
             }
 
             var userDto = _mapper.Map<UserResultDto>(user);
@@ -112,7 +113,7 @@ namespace RentACar.Business.Concrete
             IResult? result = BusinessRules.Run(await CheckIfEmailExistsAsync(userCreateForAdminDto.Email));
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             // 2. Güvenlik (Hashing): Gelen çıplak şifreyi blenderdan geçirip (Hash ve Salt) şifreli hale getiriyoruz.
@@ -154,14 +155,14 @@ namespace RentACar.Business.Concrete
             var existingUser = await _userRepository.GetAsync(x => x.Id == userUpdateForAdminDto.Id);
             if (existingUser == null)
             {
-                return new ErrorResult("Güncellenecek kullanıcı bulunamadı.");
+                throw new BusinessException("Güncellenecek kullanıcı bulunamadı.");
             }
 
             // 2. Güvenlik Duvarı: Adam e-postasını değiştiriyorsa, bu yeni e-posta sistemde başkası tarafından kullanılıyor mu?
             IResult? result = BusinessRules.Run(await CheckIfEmailExistsForUpdateAsync(userUpdateForAdminDto.Email, userUpdateForAdminDto.Id));
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             // 3. Kimlik Kartını Güncelleme: Dışarıdan gelen formdaki (DTO) yeni bilgileri, veritabanından çektiğimiz gerçek nesnenin üzerine yazıyoruz.
@@ -199,13 +200,13 @@ namespace RentACar.Business.Concrete
             var existingUser = await _userRepository.GetAsync(x => x.Id == userId);
             if (existingUser == null)
             {
-                return new ErrorResult("Güncellenecek kullanıcı bulunamadı!");
+                throw new BusinessException("Güncellenecek kullanıcı bulunamadı!");
             }
 
             IResult? result = BusinessRules.Run(await CheckIfEmailExistsForUpdateAsync(userProfileUpdateDto.Email, existingUser.Id));
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             _mapper.Map(userProfileUpdateDto, existingUser);

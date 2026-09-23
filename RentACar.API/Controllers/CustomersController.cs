@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
+using RentACar.Core.Exceptions;
 using RentACar.Dtos.CustomerDtos;
 using System.Security.Claims;
 
@@ -22,11 +23,7 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> GelAllAsync()
         {
             var result = await _customerService.GetAllAsync();
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [Authorize(Roles = "admin")]
@@ -34,27 +31,18 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await _customerService.GetByIdAsync(id);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [Authorize]
         [HttpGet("profile")]
         public async Task<IActionResult> GetMyCustomerProfileAsync()
         {
-            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdString)) return Unauthorized("Kimlik doğrulama hatası!");
-            int userId = Convert.ToInt32(userIdString);
+            // SENIOR VİZYONU: Amelelik bitti, tek satırda kimliği cüzdandan çekiyoruz!
+            int userId = GetUserIdFromClaims();
 
             var result = await _customerService.GetMyCustomerProfileAsync(userId);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [Authorize(Roles = "admin")]
@@ -62,74 +50,60 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> CreateByAdminAsync(CustomerCreateByAdminDto customerAddByAdminDto)
         {
             var result = await _customerService.AddForAdminAsync(customerAddByAdminDto);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
-            [Authorize]
-            [HttpPost("profile")]
-            public async Task<IActionResult> CreateAsync(CustomerCreateDto customerAddDto)
-            {
-                var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(userIdString)) return Unauthorized("Kimlik doğrulama hatası!");
-                int userId = Convert.ToInt32(userIdString);
+        [Authorize]
+        [HttpPost("profile")]
+        public async Task<IActionResult> CreateAsync(CustomerCreateDto customerAddDto)
+        {
+            int userId = GetUserIdFromClaims();
+            var result = await _customerService.AddAsync(userId, customerAddDto);
+            return Ok(result);
+        }
 
-                var result = await _customerService.AddAsync(userId, customerAddDto);
-                if (result.Success)
-                {
-                    return Ok(result);
-                }
-                return BadRequest(result);
+        [Authorize]
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateAsync(CustomerUpdateMyProfileDto customerUpdateMyProfileDto)
+        {
+            int userId = GetUserIdFromClaims();
+            var result = await _customerService.UpdateMyProfileAsync(userId, customerUpdateMyProfileDto);
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateByAdminAsync(int id, CustomerUpdateByAdminDto customerUpdateDto)
+        {
+            // İstek tutarlılık kontrolü: URL'deki kapı numarası ile kargo paketi (DTO) eşleşiyor mu?
+            if (id != customerUpdateDto.Id)
+            {
+                throw new BusinessException("Güvenlik İhlali: URL'deki ID ile gönderilen müşteri ID'si eşleşmiyor!");
             }
 
-            [Authorize]
-            [HttpPut("profile")]
-            public async Task<IActionResult> UpdateAsync(CustomerUpdateMyProfileDto customerUpdateMyProfileDto)
+            var result = await _customerService.UpdateAsync(customerUpdateDto);
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAsync(int id)
+        {
+            var result = await _customerService.DeleteAsync(id);
+            return Ok(result);
+        }
+
+        // --- YARDIMCI METOTLAR (Sadece bu Controller'ın iç kullanımı için) ---
+
+        // DRY Prensibi: Cüzdandan (Token) ID okuma işlemini tek bir merkeze topladık.
+        private int GetUserIdFromClaims()
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString))
             {
-                var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(userIdString)) return Unauthorized("Kimlik doğrulama hatası!");
-                int userId = Convert.ToInt32(userIdString);
-
-                var result = await _customerService.UpdateMyProfileAsync(userId, customerUpdateMyProfileDto);
-                if (result.Success)
-                {
-                    return Ok(result);
-                }
-                return BadRequest(result);
+                throw new BusinessException("Kimlik doğrulama hatası! Geçerli bir token bulunamadı!");
             }
-
-            [Authorize(Roles = "admin")]
-            [HttpPut("{id}")]
-            public async Task<IActionResult> UpdateByAdminAsync(int id, CustomerUpdateByAdminDto customerUpdateDto)
-            {
-                // Senior Vizyonu: İstek (Request) tutarlılık kontrolü (Controller'ın görevi).
-                // URL'deki kapı numarası ile DTO (Kargo paketi) içindeki ID eşleşiyor mu?
-                if (id != customerUpdateDto.Id)
-                {
-                    return BadRequest("Güvenlik İhlali: URL'deki ID ile gönderilen müşteri ID'si eşleşmiyor!");
-                }
-
-                var result = await _customerService.UpdateAsync(customerUpdateDto);
-                if (result.Success)
-                {
-                    return Ok(result);
-                }
-                return BadRequest(result);
-            }
-
-            [Authorize(Roles = "admin")]
-            [HttpDelete("{id}")]
-            public async Task<IActionResult> DeleteAsync(int id)
-            {
-                var result = await _customerService.DeleteAsync(id);
-                if (result.Success)
-                {
-                    return Ok(result);
-                }
-                return BadRequest(result);
-            }
+            return Convert.ToInt32(userIdString);
         }
     }
+}

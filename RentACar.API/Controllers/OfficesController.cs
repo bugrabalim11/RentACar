@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
+using RentACar.Core.Exceptions;
 using RentACar.Dtos.OfficeDtos;
 
 namespace RentACar.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "admin")]
     public class OfficesController : ControllerBase
     {
         private readonly IOfficeService _officeService;
@@ -16,67 +18,46 @@ namespace RentACar.API.Controllers
             _officeService = officeService;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetAllAsync()
         {
             var result = await _officeService.GetAllAsync();
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await _officeService.GetByIdAsync(id);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
-        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<IActionResult> CreateAsync(OfficeCreateDto officeAddDto)
         {
             var result = await _officeService.AddAsync(officeAddDto);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
-        [Authorize(Roles = "admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync(int id, OfficeUpdateDto officeUpdateDto)
         {
             if (id != officeUpdateDto.Id)
             {
-                return BadRequest("Güvenlik İhlali: URL'deki ID ile gönderilen ofis ID'si eşleşmiyor!");
+                throw new BusinessException("Güvenlik İhlali: URL'deki ID ile gönderilen ofis ID'si eşleşmiyor!");
             }
 
             var result = await _officeService.UpdateAsync(officeUpdateDto);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
-        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             var result = await _officeService.DeleteAsync(id);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
     }
 }

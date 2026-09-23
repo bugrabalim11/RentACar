@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
-using RentACar.Core.Entities.Concrete;
+using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
@@ -32,7 +32,7 @@ namespace RentACar.Business.Concrete
             );
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             var customer = _mapper.Map<Customer>(customerAddByAdminDto);
@@ -52,7 +52,7 @@ namespace RentACar.Business.Concrete
 
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             var customer = _mapper.Map<Customer>(customerAddDto);
@@ -66,7 +66,7 @@ namespace RentACar.Business.Concrete
             var existingCustomer = await _customerRepository.GetAsync(x => x.Id == id);
             if (existingCustomer == null)
             {
-                return new ErrorResult("Silinecek müşteri bulunamadı.");
+                throw new BusinessException("Silinecek müşteri bulunamadı.");
             }
 
             existingCustomer.IsDeleted = true;
@@ -87,7 +87,7 @@ namespace RentACar.Business.Concrete
             var customer = await _customerRepository.GetCustomerWithDetailsAsync(id);
             if (customer == null)
             {
-                return new ErrorDataResult<CustomerDetailDto>("Müşteri bulunamadı.");
+                throw new BusinessException("Müşteri bulunamadı.");
             }
 
             var customerDto = _mapper.Map<CustomerDetailDto>(customer);
@@ -99,7 +99,7 @@ namespace RentACar.Business.Concrete
             var customer = await _customerRepository.GetCustomerByUserIdWithDetailsAsync(userId);
             if (customer == null)
             {
-                return new ErrorDataResult<CustomerDetailDto>("Müşteri bilgileri getirelemedi!");
+                throw new BusinessException("Müşteri bilgileri getirelemedi!");
             }
 
             var customerDto = _mapper.Map<CustomerDetailDto>(customer);
@@ -112,13 +112,13 @@ namespace RentACar.Business.Concrete
             var existingCustomer = await _customerRepository.GetAsync(x => x.Id == customerUpdateDto.Id);
             if (existingCustomer == null)
             {
-                return new ErrorResult("Güncellenecek müşteri bulunamadı.");
+                throw new BusinessException("Güncellenecek müşteri bulunamadı.");
             }
 
             IResult? result = BusinessRules.Run(await CheckIfNationalIdentityExistsForUpdate(customerUpdateDto.NationalIdentity, customerUpdateDto.Id));
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             // Doğru kullanım: Map(Kaynak, Hedef)
@@ -133,13 +133,13 @@ namespace RentACar.Business.Concrete
             var existingCustomer = await _customerRepository.GetAsync(x => x.UserId == userId);
             if (existingCustomer == null)
             {
-                return new ErrorResult("Güncellenecek müşteri bulunamadı.");
+                throw new BusinessException("Güncellenecek müşteri bulunamadı.");
             }
 
             IResult? result = BusinessRules.Run(await CheckIfNationalIdentityExistsForUpdate(customerUpdateMyProfileDto.NationalIdentity, existingCustomer.Id));
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             _mapper.Map(customerUpdateMyProfileDto, existingCustomer);

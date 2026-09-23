@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using RentACar.Business.Abstract;
+using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
@@ -28,7 +29,7 @@ namespace RentACar.Business.Concrete
             IResult? result = BusinessRules.Run(await CheckIfOfficeExistsAsync(officeAddDto.Name));
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             var office = _mapper.Map<Office>(officeAddDto);
@@ -41,13 +42,13 @@ namespace RentACar.Business.Concrete
             var existingOffice = await _officeRepository.GetAsync(x => x.Id == id);
             if (existingOffice == null)
             {
-                return new ErrorResult("Silinecek ofis bulunamadı.");
+                throw new BusinessException("Silinecek ofis bulunamadı.");
             }
 
             var rentalCheck = await _rentalService.CheckIfAnyRentalExistsByOfficeIdAsync(id);
             if (!rentalCheck.Success)
             {
-                return new ErrorResult(rentalCheck.Message ?? "Ofise ait kiralama işlemleri mevcut, bu yüzden silinemez!");
+                throw new BusinessException(rentalCheck.Message ?? "Ofise ait kiralama işlemleri mevcut, bu yüzden silinemez!");
             }
 
             existingOffice.IsDeleted = true;
@@ -68,7 +69,7 @@ namespace RentACar.Business.Concrete
             var office = await _officeRepository.GetAsync(x => x.Id == id);
             if (office == null)
             {
-                return new ErrorDataResult<OfficeResultDto>("Ofis bulunamadı.");
+                throw new BusinessException("Ofis bulunamadı.");
             }
 
             var officeDto = _mapper.Map<OfficeResultDto>(office);
@@ -81,13 +82,13 @@ namespace RentACar.Business.Concrete
             IResult? result = BusinessRules.Run(await CheckIfOfficeExistsForUpdateAsync(officeUpdateDto.Name, officeUpdateDto.Id));
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             var existingOffice = await _officeRepository.GetAsync(x => x.Id == officeUpdateDto.Id);
             if (existingOffice == null)
             {
-                return new ErrorResult("Güncellenecek ofis bulunamadı.");
+                throw new BusinessException("Güncellenecek ofis bulunamadı.");
             }
 
             // : Map(Kaynak, Hedef)

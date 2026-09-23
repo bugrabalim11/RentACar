@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
+using RentACar.Core.Exceptions;
 using RentACar.Dtos.RentalDtos;
 using System.Security.Claims;
 
@@ -8,6 +9,7 @@ namespace RentACar.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class RentalsController : ControllerBase
     {
         private readonly IRentalService _rentalService;
@@ -22,27 +24,15 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> CreateByAdminAsync(RentalCreateByAdminDto rentalAddByAdminDto)
         {
             var result = await _rentalService.AddByAdminAsync(rentalAddByAdminDto);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
-        [Authorize]
         [HttpPost("rental")]
         public async Task<IActionResult> CreateAsync(RentalCreateDto rentalAddDto)
         {
-            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdString)) return Unauthorized("Kimlik doğrulama hatası!");
-            int userId = Convert.ToInt32(userIdString);
-
+            int userId = GetUserIdFromClaims();
             var result = await _rentalService.AddAsync(rentalAddDto, userId);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [Authorize(Roles = "admin")]
@@ -50,55 +40,30 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> GetAllAsync()
         {
             var result = await _rentalService.GetAllAsync();
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
-        [Authorize]
         [HttpGet("rentals")]
         public async Task<IActionResult> GetMyRentalsAsync()
         {
-            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdString)) return Unauthorized("Kimlik doğrulama hatası!");
-            int userId = Convert.ToInt32(userIdString);
-
+            int userId = GetUserIdFromClaims();
             var result = await _rentalService.GetAllByUserIdAsync(userId);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
-        [Authorize]
         [HttpGet("rental/{rentalId}")]
         public async Task<IActionResult> GetMyRentalByIdAsync(int rentalId)
         {
-            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdString)) return Unauthorized("Kimlik doğrulama hatası!");
-            int userId = Convert.ToInt32(userIdString);
-
+            int userId = GetUserIdFromClaims();
             var result = await _rentalService.GetMyRentalByIdAsync(rentalId, userId);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
-        [Authorize(Roles = "admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await _rentalService.GetByIdAsync(id);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [Authorize(Roles = "admin")]
@@ -107,43 +72,36 @@ namespace RentACar.API.Controllers
         {
             if (id != rentalUpdateDto.Id)
             {
-                return BadRequest("Güvenlik İhlali: URL'deki ID ile gönderilen kiralama ID'si eşleşmiyor!");
+                throw new BusinessException("Güvenlik İhlali: URL'deki ID ile gönderilen kiralama ID'si eşleşmiyor!");
             }
-
             var result = await _rentalService.UpdateByAdminAsync(rentalUpdateDto);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
-        [Authorize]
         [HttpPut("rental/{rentalId}")]
         public async Task<IActionResult> UpdateMyRentalAsync(int rentalId, RentalUpdateReturnDateDto rentalUpdateReturnDateDto)
         {
-            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdString)) return Unauthorized("Kimlik doğrulama hatası!");
-            int userId = Convert.ToInt32(userIdString);
-
+            int userId = GetUserIdFromClaims();
             var result = await _rentalService.UpdateMyRentalAsync(userId, rentalId, rentalUpdateReturnDateDto);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles ="admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             var result = await _rentalService.DeleteAsync(id);
-            if (result.Success)
+            return Ok(result);
+        }
+
+        private int GetUserIdFromClaims()
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString))
             {
-                return Ok(result);
+                throw new BusinessException("Kimlik doğrulama hatası! Geçerli bir token bulunamadı!");
             }
-            return BadRequest(result);
+            return Convert.ToInt32(userIdString);
         }
     }
 }

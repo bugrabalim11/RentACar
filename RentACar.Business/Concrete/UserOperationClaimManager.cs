@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
-using RentACar.Core.Entities;
 using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Entities.DTOs.UserOperationClaimDtos;
+using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
-using System.Runtime.ConstrainedExecution;
 
 namespace RentACar.Business.Concrete
 {
@@ -35,7 +34,7 @@ namespace RentACar.Business.Concrete
             );
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında bir hata oluştu!");
             }
 
             var userOperationClaim = _mapper.Map<UserOperationClaim>(userOperationClaimAddDto);
@@ -48,7 +47,7 @@ namespace RentACar.Business.Concrete
             var existingUserOperationClaim = await _userOperationClaimRepository.GetAsync(x => x.Id == id);
             if (existingUserOperationClaim == null)
             {
-                return new ErrorResult("Silinmek istenen yetki ataması bulunamadı.");
+                throw new BusinessException("Silinmek istenen yetki ataması bulunamadı.");
             }
 
             existingUserOperationClaim.IsDeleted = true;
@@ -69,7 +68,7 @@ namespace RentACar.Business.Concrete
             var userOperationClaim = await _userOperationClaimRepository.GetAsync(x => x.Id == id);
             if (userOperationClaim == null)
             {
-                return new ErrorDataResult<UserOperationClaimResultDto>("Belirtilen yetki ataması bulunamadı.");
+                throw new BusinessException("Belirtilen yetki ataması bulunamadı.");
             }
 
             var userOperationClaimDto = _mapper.Map<UserOperationClaimResultDto>(userOperationClaim);
@@ -99,7 +98,7 @@ namespace RentACar.Business.Concrete
             var existingUserOperationClaim = await _userOperationClaimRepository.GetAsync(x => x.Id == userOperationClaimUpdateDto.Id);
             if (existingUserOperationClaim == null)
             {
-                return new ErrorResult("Güncellenmek istenen yetki ataması bulunamadı.");
+                throw new BusinessException("Güncellenmek istenen yetki ataması bulunamadı.");
             }
 
             IResult? result = BusinessRules.Run(
@@ -109,7 +108,7 @@ namespace RentACar.Business.Concrete
             );
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında bir hata oluştu!");
             }
 
             _mapper.Map(userOperationClaimUpdateDto, existingUserOperationClaim);

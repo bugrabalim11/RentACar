@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
+using RentACar.Core.Exceptions;
 using RentACar.Dtos.CarDtos;
 
 namespace RentACar.API.Controllers
@@ -22,11 +23,7 @@ namespace RentACar.API.Controllers
         {
             // İşi aşçıya (Business katmanına) devrediyoruz
             var result = await _carService.AddAsync(carAddDto);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [AllowAnonymous]
@@ -35,11 +32,7 @@ namespace RentACar.API.Controllers
         {
             // Aşçıdan tabakları (DTO listesini) istiyoruz
             var result = await _carService.GetAllAsync();
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [AllowAnonymous]
@@ -47,11 +40,7 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await _carService.GetByIdAsync(id);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [HttpPut("{id}")]
@@ -59,26 +48,17 @@ namespace RentACar.API.Controllers
         {
             if (id != carUpdateDto.Id)
             {
-                return BadRequest("Güvenlik İhlali: URL'deki ID ile gönderilen araç ID'si eşleşmiyor!");
+                throw new BusinessException("Güvenlik İhlali: URL'deki ID ile gönderilen araç ID'si eşleşmiyor!");
             }
             var result = await _carService.UpdateAsync(carUpdateDto);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             var result = await _carService.DeleteAsync(id);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
+using RentACar.Core.Exceptions;
 using RentACar.Dtos.CarImageDtos;
 
 namespace RentACar.API.Controllers
@@ -21,11 +22,7 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> CreateAsync([FromForm] CarImageCreateDto carImageAddDto)
         {
             var result = await _carImageService.AddAsync(carImageAddDto);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [HttpPut("{id}")]
@@ -33,26 +30,19 @@ namespace RentACar.API.Controllers
         {
             if (id != carImageUpdateDto.Id)
             {
-                return BadRequest("Güvenlik İhlali: URL'deki ID ile gönderilen resim ID'si eşleşmiyor!");
+                throw new BusinessException("Güvenlik İhlali: URL'deki ID ile gönderilen resim ID'si eşleşmiyor!");
             }
 
             var result = await _carImageService.UpdateAsync(carImageUpdateDto);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
+
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             var result = await _carImageService.DeleteAsync(id);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [AllowAnonymous]
@@ -60,11 +50,7 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> GetImagesByCarIdAsync(int carId)
         {
             var result = await _carImageService.GetImagesByCarIdAsync(carId);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
     }
 }

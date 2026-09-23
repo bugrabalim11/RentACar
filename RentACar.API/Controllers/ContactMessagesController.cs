@@ -21,22 +21,14 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> GetAllAsync()
         {
             var result = await _contactMessageService.GetAllAsync();
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await _contactMessageService.GetByIdAsync(id);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [AllowAnonymous]
@@ -44,44 +36,21 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> CreateAsync(ContactMessageCreateDto contactMessageAddDto)
         {
             var result = await _contactMessageService.AddAsync(contactMessageAddDto);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             var result = await _contactMessageService.DeleteAsync(id);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
-        }
-
-        [HttpPatch("ChangeIsReadStatus/{id}")]
-        public async Task<IActionResult> ChangeIsReadStatusAsync(int id)
-        {
-            var result = await _contactMessageService.ChangeIsReadStatusAsync(id);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [HttpPatch("MarkAsRead/{id}")]
         public async Task<IActionResult> MarkAsReadAsync(int id)
         {
             var result = await _contactMessageService.MarkAsReadAsync(id);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
     }
 }

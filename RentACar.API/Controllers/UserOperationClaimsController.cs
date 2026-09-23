@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
 using RentACar.Core.Entities.DTOs.UserOperationClaimDtos;
+using RentACar.Core.Exceptions;
 
 namespace RentACar.API.Controllers
 {
@@ -21,33 +22,21 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> GetAllAsync()
         {
             var results = await _userOperationClaimService.GetAllAsync();
-            if (results.Success)
-            {
-                return Ok(results);
-            }
-            return BadRequest(results);
+            return Ok(results);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await _userOperationClaimService.GetByIdAsync(id);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateAsync(UserOperationClaimCreateDto userOperationClaimAddDto)
         {
             var result = await _userOperationClaimService.AddAsync(userOperationClaimAddDto);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [HttpPut("{id}")]
@@ -55,37 +44,25 @@ namespace RentACar.API.Controllers
         {
             if (id != userOperationClaimUpdateDto.Id)
             {
-                return BadRequest("Güvenlik İhlali: URL'deki ID ile gönderilen Müşteri ID'si eşleşmiyor!");
+                throw new BusinessException("Güvenlik İhlali: URL'deki ID ile gönderilen Müşteri ID'si eşleşmiyor!");
             }
 
             var result = await _userOperationClaimService.UpdateAsync(userOperationClaimUpdateDto);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             var result = await _userOperationClaimService.DeleteAsync(id);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [HttpGet("details")]
         public async Task<IActionResult> GetClaimDetailsAsync()
         {
             var result = await _userOperationClaimService.GetClaimDetailsAsync();
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
     }
 }

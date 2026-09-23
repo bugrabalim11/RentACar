@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
+using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
@@ -47,7 +48,7 @@ namespace RentACar.Business.Concrete
             var customerResult = await _customerService.GetMyCustomerProfileAsync(userId);
             if (!customerResult.Success)
             {
-                return new ErrorResult("Kiralama yapabilmek için lütfen ilk önce müşteri profilinizi oluşturun!");
+                throw new BusinessException("Kiralama yapabilmek için lütfen ilk önce müşteri profilinizi oluşturun!");
             }
 
             IResult? result = BusinessRules.Run(
@@ -60,7 +61,7 @@ namespace RentACar.Business.Concrete
             );
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             var rental = _mapper.Map<Rental>(rentalAddDto);
@@ -77,7 +78,7 @@ namespace RentACar.Business.Concrete
             var paymentResult = await _paymentService.PayAsync(rentalAddDto.CreditCardInformation, totalAmount);
             if (!paymentResult.Success)
             {
-                return new ErrorResult(paymentResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
+                throw new BusinessException(paymentResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
             }
 
             rental.TotalAmount = totalAmount;
@@ -104,7 +105,7 @@ namespace RentACar.Business.Concrete
             );
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             var rental = _mapper.Map<Rental>(rentalAddByAdminDto);
@@ -114,7 +115,7 @@ namespace RentACar.Business.Concrete
             var paymentResult = await _paymentService.PayAsync(rentalAddByAdminDto.CreditCardInformation, totalAmount);
             if (!paymentResult.Success)
             {
-                return new ErrorResult(paymentResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
+                throw new BusinessException(paymentResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
             }
 
             rental.TotalAmount = totalAmount;
@@ -127,7 +128,7 @@ namespace RentACar.Business.Concrete
             var existingRental = await _rentalRepository.GetAsync(x => x.Id == id);
             if (existingRental == null)
             {
-                return new ErrorResult("Silinecek araç kiralama bulunamadı.");
+                throw new BusinessException("Silinecek araç kiralama bulunamadı.");
             }
 
             existingRental.IsDeleted = true;
@@ -148,7 +149,7 @@ namespace RentACar.Business.Concrete
             var rentals = await _rentalRepository.GetRentalsByUserIdAsync(userId);
             if (rentals == null || !rentals.Any())
             {
-                return new ErrorDataResult<List<RentalResultDto>>("Kullanıcıya ait kiralama işlemleri bulunamadı.");
+                throw new BusinessException("Kullanıcıya ait kiralama işlemleri bulunamadı.");
             }
 
             var mappedRentals = _mapper.Map<List<RentalResultDto>>(rentals);
@@ -160,12 +161,12 @@ namespace RentACar.Business.Concrete
             var rental = await _rentalRepository.GetRentalWithDetailsByIdAsync(rentalId);
             if (rental == null)
             {
-                return new ErrorDataResult<RentalDetailDto>("Aradağınız kiralama bulunamadı!");
+                throw new BusinessException("Aradağınız kiralama bulunamadı!");
             }
 
             if (rental.Customer.UserId != userId)
             {
-                return new ErrorDataResult<RentalDetailDto>("Güvenlik İhlali: Bu kiralama kaydını (faturayı) görüntüleme yetkiniz yok!");
+                throw new BusinessException("Güvenlik İhlali: Bu kiralama kaydını (faturayı) görüntüleme yetkiniz yok!");
             }
 
             var mappedRental = _mapper.Map<RentalDetailDto>(rental);
@@ -177,7 +178,7 @@ namespace RentACar.Business.Concrete
             var rental = await _rentalRepository.GetRentalWithDetailsByIdAsync(id);
             if (rental == null)
             {
-                return new ErrorDataResult<RentalDetailDto>("Aranan araç kiralama bulunamadı.");
+                throw new BusinessException("Aranan araç kiralama bulunamadı.");
             }
 
             var rentalDetailDto = _mapper.Map<RentalDetailDto>(rental);
@@ -189,7 +190,7 @@ namespace RentACar.Business.Concrete
             var existingRental = await _rentalRepository.GetAsync(x => x.Id == rentalUpdateDto.Id);
             if (existingRental == null)
             {
-                return new ErrorResult("Güncellenecek araç kiralama bulunamadı.");
+                throw new BusinessException("Güncellenecek araç kiralama bulunamadı.");
             }
 
             rentalUpdateDto.RentDate = rentalUpdateDto.RentDate.ToUniversalTime();
@@ -209,7 +210,7 @@ namespace RentACar.Business.Concrete
             );
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             var car = await _carService.GetByIdAsync(rentalUpdateDto.CarId);
@@ -220,7 +221,7 @@ namespace RentACar.Business.Concrete
                 var paymentResult = await _paymentService.PayAsync(rentalUpdateDto.CreditCardInformation, difference);
                 if (!paymentResult.Success)
                 {
-                    return new ErrorResult(paymentResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
+                    throw new BusinessException(paymentResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
                 }
             }
 
@@ -239,7 +240,7 @@ namespace RentACar.Business.Concrete
 
             if (existingRental.Customer.UserId != userId)
             {
-                return new ErrorResult("Bu kiralamayı güncellemeye yetkiniz yok!");
+                throw new BusinessException("Bu kiralamayı güncellemeye yetkiniz yok!");
             }
 
             IResult? result = BusinessRules.Run
@@ -250,7 +251,7 @@ namespace RentACar.Business.Concrete
             );
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             var car = await _carService.GetByIdAsync(existingRental.CarId);
@@ -261,11 +262,11 @@ namespace RentACar.Business.Concrete
                 var paymentResult = await _paymentService.PayAsync(rentalUpdateReturnDateDto.CreditCardInformation, difference);
                 if (!paymentResult.Success)
                 {
-                    return new ErrorResult(paymentResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
+                    throw new BusinessException(paymentResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
                 }
             }
 
-            existingRental.TotalAmount= newTotalAmount;
+            existingRental.TotalAmount = newTotalAmount;
             existingRental.ReturnDate = rentalUpdateReturnDateDto.ReturnDate;
             await _rentalRepository.UpdateAsync(existingRental);
             return new SuccessResult("Araç teslim tarihiniz başarıyla güncellendi.");
@@ -348,15 +349,7 @@ namespace RentACar.Business.Concrete
         private async Task<IResult> CheckIfCustomerDrivingExperienceIsSufficient(int carId, int customerId)
         {
             var carResult = await _carService.GetByIdAsync(carId);
-            if (!carResult.Success)
-            {
-                return new ErrorResult("Araç bilgileri bulunamadı!");
-            }
             var customerResult = await _customerService.GetByIdAsync(customerId);
-            if (!customerResult.Success)
-            {
-                return new ErrorResult("Müşteri bilgileri bulunamadı!");
-            }
 
             int customerExperience = DateTime.UtcNow.Year - customerResult.Data.DrivingLicenseYear;
             if (customerExperience < carResult.Data.MinDrivingExperience)
@@ -369,16 +362,7 @@ namespace RentACar.Business.Concrete
         private async Task<IResult> CheckIfCustomerFindexScoreIsSufficient(int carId, int customerId)
         {
             var carResult = await _carService.GetByIdAsync(carId);
-            if (!carResult.Success)
-            {
-                return new ErrorResult("Araç bulunamadı!");
-            }
-
             var customerResult = await _customerService.GetByIdAsync(customerId);
-            if (!customerResult.Success)
-            {
-                return new ErrorResult("Müşteri bulunamadı!");
-            }
 
             int findexResult = _findexScoreService.GetScoreByCustomerId(customerId);
             if (findexResult < carResult.Data.MinFindexScore)
