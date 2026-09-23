@@ -272,16 +272,6 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Araç teslim tarihiniz başarıyla güncellendi.");
         }
 
-        public async Task<IResult> CheckIfAnyRentalExistsByOfficeIdAsync(int officeId)
-        {
-            bool result = await _rentalRepository.AnyAsync(x => x.PickUpOfficeId == officeId || x.DropOffOfficeId == officeId);
-            if (result)
-            {
-                return new ErrorResult("Ofise ait kiralama işlemleri mevcut, bu yüzden silinemez!");
-            }
-            return new SuccessResult();
-        }
-
         // Bu metot sadece bu sınıfın (Manager'ın) içinde kullanılacağı için 'private' yapıyoruz.
         // Amacımız: Verilen araba ID'si, istenen tarihler arasında başka bir kiralama kaydında var mı?
         private async Task<IResult> CheckIfCarAvailable(int carId, DateTime rentDate, DateTime? returnDate)
