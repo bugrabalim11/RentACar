@@ -240,16 +240,6 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Kullancı güvenli bir şekilde sisteme eklendi.");
         }
 
-        public async Task<IResult> CheckIfUserExistsAsync(int id)
-        {
-            bool existingUser = await _userRepository.AnyAsync(x => x.Id == id);
-            if (existingUser)
-            {
-                return new SuccessResult();
-            }
-            return new ErrorResult("Bu kullanıcı sistemde bulunamadı!");
-        }
-
         public async Task<IResult> CheckIfEmailExistsAsync(string email)
         {
             bool existingEmail = await _userRepository.AnyAsync(x => x.Email == email, ignoreQueryFilters: true);

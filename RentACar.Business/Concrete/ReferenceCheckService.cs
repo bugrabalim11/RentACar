@@ -9,12 +9,14 @@ namespace RentACar.Business.Concrete
         private readonly IBrandRepository _brandRepository;
         private readonly IColorRepository _colorRepository;
         private readonly ICarRepository _carRepository;
+        private readonly IUserRepository _userRepository;
 
-        public ReferenceCheckService(IBrandRepository brandRepository, IColorRepository colorRepository, ICarRepository carRepository)
+        public ReferenceCheckService(IBrandRepository brandRepository, IColorRepository colorRepository, ICarRepository carRepository, IUserRepository userRepository)
         {
             _brandRepository = brandRepository;
             _colorRepository = colorRepository;
             _carRepository = carRepository;
+            _userRepository = userRepository;
         }
 
         public async Task<IResult> CheckIfBrandExistsAsync(int brandId)
@@ -45,6 +47,16 @@ namespace RentACar.Business.Concrete
                 return new SuccessResult();
             }
             return new ErrorResult("Bu renk sistemdeki araçlar tarafından kullanıldığı için silinemez!");
+        }
+
+        public async Task<IResult> CheckIfUserExistsAsync(int userId)
+        {
+            bool existingUser = await _userRepository.AnyAsync(x => x.Id == userId);
+            if (existingUser)
+            {
+                return new SuccessResult();
+            }
+            return new ErrorResult("Bu kullanıcı sistemde bulunamadı!");
         }
     }
 }

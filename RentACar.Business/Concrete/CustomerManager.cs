@@ -13,20 +13,20 @@ namespace RentACar.Business.Concrete
     {
         private readonly ICustomerRepository _customerRepository;
         private readonly IMapper _mapper;
-        private readonly IUserService _userService;
+        private readonly IReferenceCheckService _referenceCheckService;
 
-        public CustomerManager(ICustomerRepository customerRepository, IMapper mapper, IUserService userService)
+        public CustomerManager(ICustomerRepository customerRepository, IMapper mapper, IReferenceCheckService referenceCheckService)
         {
             _customerRepository = customerRepository;
             _mapper = mapper;
-            _userService = userService;
+            _referenceCheckService = referenceCheckService;
         }
         public async Task<IResult> AddForAdminAsync(CustomerCreateByAdminDto customerAddByAdminDto)
         {
             customerAddByAdminDto.NationalIdentity = customerAddByAdminDto.NationalIdentity.Trim();
 
             IResult? result = BusinessRules.Run(
-            await CheckIfUserExistsAsync(customerAddByAdminDto.UserId),
+            await _referenceCheckService.CheckIfUserExistsAsync(customerAddByAdminDto.UserId),
             await CheckIfUserAlreadyHasCustomerProfileAsync(customerAddByAdminDto.UserId),
             await CheckIfNationalIdentityExists(customerAddByAdminDto.NationalIdentity)
             );
@@ -45,7 +45,7 @@ namespace RentACar.Business.Concrete
             customerAddDto.NationalIdentity = customerAddDto.NationalIdentity.Trim();
 
             IResult? result = BusinessRules.Run(
-            await CheckIfUserExistsAsync(userId),
+            await _referenceCheckService.CheckIfUserExistsAsync(userId),
             await CheckIfUserAlreadyHasCustomerProfileAsync(userId),
             await CheckIfNationalIdentityExists(customerAddDto.NationalIdentity)
             );
@@ -145,16 +145,6 @@ namespace RentACar.Business.Concrete
             _mapper.Map(customerUpdateMyProfileDto, existingCustomer);
             await _customerRepository.UpdateAsync(existingCustomer);
             return new SuccessResult("Müşteri başarıyla güncellendi.");
-        }
-
-        private async Task<IResult> CheckIfUserExistsAsync(int UserId)
-        {
-            var existingUser = await _userService.CheckIfUserExistsAsync(UserId);
-            if (!existingUser.Success)
-            {
-                return new ErrorResult(existingUser.Message ?? "Bilinmeyen bir kullanıcı hatası oluştu!");
-            }
-            return new SuccessResult();
         }
 
         private async Task<IResult> CheckIfNationalIdentityExistsForUpdate(string nationalId, int currentCustomerId)
