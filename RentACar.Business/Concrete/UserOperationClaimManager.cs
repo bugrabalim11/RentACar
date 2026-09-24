@@ -141,5 +141,19 @@ namespace RentACar.Business.Concrete
             }
             return new SuccessResult();
         }
+
+        public async Task<IDataResult<UserOperationClaimUpdateDto>> GetUpdateDtoByUserIdAsync(int userId)
+        {
+            // 1. Depodan çıplak ürünü al (Sen bunu zaten yazdın, harika!)
+            var existingClaim = await _userOperationClaimRepository.GetAsync(x => x.UserId == userId);
+            if (existingClaim == null)
+            {
+                return new ErrorDataResult<UserOperationClaimUpdateDto>("Kullanıcıya ait rütbe bulunamadı!");
+            }
+
+            // 2. Çıplak ürünü, müşterinin istediği kutuya (DTO'ya) çevir!
+            var claimDto = _mapper.Map<UserOperationClaimUpdateDto>(existingClaim);
+            return new SuccessDataResult<UserOperationClaimUpdateDto>(claimDto, "Yetki formu getirildi.");
+        }
     }
 }

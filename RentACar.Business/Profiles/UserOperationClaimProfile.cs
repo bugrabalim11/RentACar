@@ -1,9 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Entities.DTOs.UserOperationClaimDtos;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RentACar.Business.Profiles
 {
@@ -12,7 +9,7 @@ namespace RentACar.Business.Profiles
         public UserOperationClaimProfile()
         {
             CreateMap<UserOperationClaimCreateDto, UserOperationClaim>();
-            CreateMap<UserOperationClaimUpdateDto, UserOperationClaim>();
+            CreateMap<UserOperationClaimUpdateDto, UserOperationClaim>().ReverseMap();
             CreateMap<UserOperationClaim, UserOperationClaimResultDto>();
         }
     }
