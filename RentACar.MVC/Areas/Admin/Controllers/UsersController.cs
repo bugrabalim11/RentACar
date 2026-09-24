@@ -24,7 +24,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.GetAsync("api/Users/getallforadmin");
+            var responseMessage = await client.GetAsync("api/Users/admin-details");
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
@@ -61,7 +61,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 
             // NOT: Patch işlemi kural gereği bir veri paketi (Body) bekler.
             // Sadece ID ile işlem yaptığımız ve ekstra verimiz olmadığı için kuryenin eline boş bir kutu (StringContent) veriyoruz.
-            var responseMessage = await client.PatchAsync($"api/Users/restore/{id}", new StringContent(""));
+            var responseMessage = await client.PatchAsync($"api/Users/{id}/restore", new StringContent(""));
             if (responseMessage.IsSuccessStatusCode)
             {
                 return Json(new { success = true });
@@ -86,6 +86,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             return View(viewModel);
         }
 
+        // TODO TESTİ TEKRAR YAP
         [HttpPost]
         public async Task<IActionResult> Create(UserCreateByAdminViewModel userCreateForAdminViewModel)
         {
@@ -99,7 +100,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 
             var jsonData = JsonConvert.SerializeObject(userCreateForAdminViewModel.UserCreate);
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            var responseMessage = await client.PostAsync("api/Users/createforadmin", stringContent);
+            var responseMessage = await client.PostAsync("api/Users", stringContent);
             if (responseMessage.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");
@@ -127,7 +128,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.GetAsync($"api/Users/getbyidforupdate/{id}");
+            var responseMessage = await client.GetAsync($"api/Users/{id}/update-form");
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
@@ -158,7 +159,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 
             var jsonData = JsonConvert.SerializeObject(userUpdateForAdminViewModel.UserUpdate);
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            var responseMessage = await client.PutAsync($"api/Users/updateforadmin/{userUpdateForAdminViewModel.UserUpdate.Id}", stringContent);
+            var responseMessage = await client.PutAsync($"api/Users/{userUpdateForAdminViewModel.UserUpdate.Id}", stringContent);
             if (responseMessage.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");
