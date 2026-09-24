@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RentACar.MVC.Areas.Admin.Models.BrandDtos;
-using RentACar.MVC.Areas.Admin.Models.ErrorResponseDtos;
 using RentACar.MVC.Models.Responses;
 using System.Text;
 
@@ -100,8 +99,8 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             // 1. ZARFI AÇ VE OKU (ReadAsStringAsync): Mutfaktan gelen kızgın notu (JSON) metin olarak okuyoruz.
             var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
 
-            // 2. ÇEVİRMEN (Deserialize): Okuduğumuz JSON notunu, az önce yaptığımız Çevik Kuryeye (ErrorResponseDto) dönüştürüyoruz.
-            var errorData = JsonConvert.DeserializeObject<ErrorResponseDto>(errorJsonData);
+            // 2. ÇEVİRMEN (Deserialize): Okuduğumuz JSON notunu, az önce yaptığımız Çevik Kuryeye (ErrorDetailsDto) dönüştürüyoruz.
+            var errorData = JsonConvert.DeserializeObject<ErrorDetailsDto>(errorJsonData);
             if (errorData != null)
             {
                 // 3. MÜŞTERİYE NOT YAPIŞTIR (ModelState.AddModelError):
@@ -172,7 +171,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 return View(brandUpdateDto);
             }
             var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
-            var errorData = JsonConvert.DeserializeObject<ErrorResponseDto>(errorJsonData);
+            var errorData = JsonConvert.DeserializeObject<ErrorDetailsDto>(errorJsonData);
             if (errorData != null)
             {
                 ModelState.AddModelError(string.Empty, errorData.Message);

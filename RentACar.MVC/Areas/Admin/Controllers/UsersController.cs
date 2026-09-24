@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
-using RentACar.MVC.Areas.Admin.Models.ErrorResponseDtos;
 using RentACar.MVC.Areas.Admin.Models.OperationClaimDtos;
 using RentACar.MVC.Areas.Admin.Models.UserDtos;
 using RentACar.MVC.Models.Interfaces;
 using RentACar.MVC.Models.Responses;
+using System.Diagnostics.Eventing.Reader;
 using System.Text;
 
 namespace RentACar.MVC.Areas.Admin.Controllers
@@ -60,8 +61,11 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
             // NOT: Patch işlemi kural gereği bir veri paketi (Body) bekler.
-            // Sadece ID ile işlem yaptığımız ve ekstra verimiz olmadığı için kuryenin eline boş bir kutu (StringContent) veriyoruz.
-            var responseMessage = await client.PatchAsync($"api/Users/{id}/restore", new StringContent(""));
+            // SENİOR NOTU: Sadece ID gönderdiğimiz için kuryenin (HttpClient) eline fiziki bir veri (Body) vermiyoruz, boş bir kutu ("") veriyoruz.
+            // Ancak API'nin kapısındaki güvenlik çok katı olduğu için, kutu boş bile olsa üzerine
+            // "Bu bir JSON paketidir" (application/json) etiketini yapıştırmak ZORUNDAYIZ. 
+            // Aksi halde API kapıdan "Bu kutunun cinsi belli değil (415 Unsupported Media Type)" diyerek kargomuzu reddeder!
+            var responseMessage = await client.PatchAsync($"api/Users/{id}/restore", new StringContent("", System.Text.Encoding.UTF8, "application/json"));
             if (responseMessage.IsSuccessStatusCode)
             {
                 return Json(new { success = true });
@@ -113,10 +117,21 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             }
 
             var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
-            var errorData = JsonConvert.DeserializeObject<ErrorResponseDto>(errorJsonData);
+            var errorData = JsonConvert.DeserializeObject<ErrorDetailsDto>(errorJsonData);
+            // TODO: Refactor: DRY prensibi gereği, bu hata yakalama if-else bloğu ileride BaseController'a taşınacak!
             if (errorData != null)
             {
-                ModelState.AddModelError(string.Empty, errorData.Message);
+                if (errorData.ValidationErrors != null && errorData.ValidationErrors.Any())
+                {
+                    foreach (var error in errorData.ValidationErrors)
+                    {
+                        ModelState.AddModelError(string.Empty, error);
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, errorData.Message);
+                }
             }
 
             await PopulateDropdown(userCreateForAdminViewModel);
@@ -172,10 +187,21 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             }
 
             var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
-            var errorData = JsonConvert.DeserializeObject<ErrorResponseDto>(errorJsonData);
+            var errorData = JsonConvert.DeserializeObject<ErrorDetailsDto>(errorJsonData);
+            // TODO: Refactor: DRY prensibi gereği, bu hata yakalama if-else bloğu ileride BaseController'a taşınacak!
             if (errorData != null)
             {
-                ModelState.AddModelError(string.Empty, errorData.Message);
+                if (errorData.ValidationErrors != null && errorData.ValidationErrors.Any())
+                {
+                    foreach (var error in errorData.ValidationErrors)
+                    {
+                        ModelState.AddModelError(string.Empty, error);
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, errorData.Message);
+                }
             }
             await PopulateDropdown(userUpdateForAdminViewModel);
             return View(userUpdateForAdminViewModel);

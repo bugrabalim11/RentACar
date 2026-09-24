@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RentACar.MVC.Areas.Admin.Models.CarDtos;
 using RentACar.MVC.Areas.Admin.Models.CustomerDtos;
-using RentACar.MVC.Areas.Admin.Models.ErrorResponseDtos;
 using RentACar.MVC.Areas.Admin.Models.OfficeDtos;
 using RentACar.MVC.Areas.Admin.Models.RentalDtos;
 using RentACar.MVC.Models.Interfaces;
@@ -92,7 +91,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             }
 
             var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
-            var errorData = JsonConvert.DeserializeObject<ErrorResponseDto>(errorJsonData);
+            var errorData = JsonConvert.DeserializeObject<ErrorDetailsDto>(errorJsonData);
             if (errorData != null)
             {
                 ModelState.AddModelError(string.Empty, errorData.Message);
@@ -161,7 +160,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             }
 
             var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
-            var errorData = JsonConvert.DeserializeObject<ErrorResponseDto>(errorJsonData);
+            var errorData = JsonConvert.DeserializeObject<ErrorDetailsDto>(errorJsonData);
             if (errorData != null)
             {
                 ModelState.AddModelError(string.Empty, errorData.Message);
