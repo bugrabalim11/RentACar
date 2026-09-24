@@ -13,15 +13,13 @@ namespace RentACar.Business.Concrete
     {
         private readonly IUserOperationClaimRepository _userOperationClaimRepository;
         private readonly IMapper _mapper;
-        private readonly IUserService _userService;
-        private readonly IOperationClaimService _operationClaimService;
+        private readonly IReferenceCheckService _referenceCheckService;
 
-        public UserOperationClaimManager(IUserOperationClaimRepository userOperationClaimRepository, IMapper mapper, IUserService userService, IOperationClaimService operationClaimService)
+        public UserOperationClaimManager(IUserOperationClaimRepository userOperationClaimRepository, IMapper mapper, IReferenceCheckService referenceCheckService)
         {
             _userOperationClaimRepository = userOperationClaimRepository;
             _mapper = mapper;
-            _userService = userService;
-            _operationClaimService = operationClaimService;
+            _referenceCheckService = referenceCheckService;
         }
 
         public async Task<IResult> AddAsync(UserOperationClaimCreateDto userOperationClaimAddDto)
@@ -29,8 +27,8 @@ namespace RentACar.Business.Concrete
             // İŞ KURALI(BUSINESS RULE) KONTROLÜ - YENİ EKLENEN KISIM
             IResult? result = BusinessRules.Run(
             await CheckIfUserHasThisClaimAlreadyAsync(userOperationClaimAddDto.UserId, userOperationClaimAddDto.OperationClaimId),
-            await CheckIfOperationClaimExistsAsync(userOperationClaimAddDto.OperationClaimId),
-            await CheckIfUserExistsAsync(userOperationClaimAddDto.UserId)
+            await _referenceCheckService.CheckIfOperationClaimExistsAsync(userOperationClaimAddDto.OperationClaimId),
+            await _referenceCheckService.CheckIfUserExistsAsync(userOperationClaimAddDto.UserId)
             );
             if (result != null)
             {
@@ -103,8 +101,8 @@ namespace RentACar.Business.Concrete
 
             IResult? result = BusinessRules.Run(
             await CheckIfUserHasThisClaimAlreadyForUpdateAsync(existingUserOperationClaim.UserId, userOperationClaimUpdateDto.OperationClaimId, userOperationClaimUpdateDto.Id),
-            await CheckIfOperationClaimExistsAsync(userOperationClaimUpdateDto.OperationClaimId),
-            await CheckIfUserExistsAsync(existingUserOperationClaim.UserId)
+            await _referenceCheckService.CheckIfOperationClaimExistsAsync(userOperationClaimUpdateDto.OperationClaimId),
+            await _referenceCheckService.CheckIfUserExistsAsync(existingUserOperationClaim.UserId)
             );
             if (result != null)
             {
@@ -140,26 +138,6 @@ namespace RentACar.Business.Concrete
             if (isExist)
             {
                 return new ErrorResult("Bu yetki zaten kullanıcıda mevcut!");
-            }
-            return new SuccessResult();
-        }
-
-        private async Task<IResult> CheckIfUserExistsAsync(int userId)
-        {
-            var existingUser = await _userService.GetByIdAsync(userId);
-            if (!existingUser.Success)
-            {
-                return new ErrorResult(existingUser.Message ?? "Bu kullanıcı bulunamadı! Lüten tekrar deneyiniz.");
-            }
-            return new SuccessResult();
-        }
-
-        private async Task<IResult> CheckIfOperationClaimExistsAsync(int operationClaimId)
-        {
-            var existingOperationClaim = await _operationClaimService.GetByIdAsync(operationClaimId);
-            if (!existingOperationClaim.Success)
-            {
-                return new ErrorResult(existingOperationClaim.Message ?? "Bu statü bulunamadı! Lüten tekrar deneyiniz.");
             }
             return new SuccessResult();
         }

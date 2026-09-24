@@ -11,14 +11,16 @@ namespace RentACar.Business.Concrete
         private readonly ICarRepository _carRepository;
         private readonly IUserRepository _userRepository;
         private readonly IRentalRepository _rentalRepository;
+        private readonly IOperationClaimRepository _operationClaimRepository;
 
-        public ReferenceCheckService(IBrandRepository brandRepository, IColorRepository colorRepository, ICarRepository carRepository, IUserRepository userRepository, IRentalRepository rentalRepository)
+        public ReferenceCheckService(IBrandRepository brandRepository, IColorRepository colorRepository, ICarRepository carRepository, IUserRepository userRepository, IRentalRepository rentalRepository, IOperationClaimRepository operationClaimRepository)
         {
             _brandRepository = brandRepository;
             _colorRepository = colorRepository;
             _carRepository = carRepository;
             _userRepository = userRepository;
             _rentalRepository = rentalRepository;
+            _operationClaimRepository = operationClaimRepository;
         }
 
         public async Task<IResult> CheckIfBrandExistsAsync(int brandId)
@@ -59,6 +61,16 @@ namespace RentACar.Business.Concrete
                 return new SuccessResult();
             }
             return new ErrorResult("Ofise ait kiralama işlemleri mevcut, bu yüzden silinemez!");
+        }
+
+        public async Task<IResult> CheckIfOperationClaimExistsAsync(int operationClaimId)
+        {
+            bool existOperationClaim = await _operationClaimRepository.AnyAsync(x => x.Id == operationClaimId);
+            if (!existOperationClaim)
+            {
+                return new ErrorResult("Böyle bir yetki sistemde bulunamadı!");
+            }
+            return new SuccessResult();
         }
 
         public async Task<IResult> CheckIfUserExistsAsync(int userId)
