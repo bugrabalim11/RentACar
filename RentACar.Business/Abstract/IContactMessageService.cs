@@ -9,7 +9,6 @@ namespace RentACar.Business.Abstract
         Task<IDataResult<ContactMessageResultDto>> GetByIdAsync(int id);
         Task<IResult> AddAsync(ContactMessageCreateDto contactMessageAddDto);
         Task<IResult> DeleteAsync(int id);
-        Task<IResult> ChangeIsReadStatusAsync(int id);
         Task<IResult> MarkAsReadAsync(int id);
     }
 }

@@ -19,6 +19,14 @@ builder.Services.AddControllers(options =>
     options.Filters.Add<ValidationFilters>();
 });
 
+// SENİOR DOKUNUŞU: İşgüzar Korumayı Kovuyoruz!
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    // Suppress = Baskıla / İptal et. 
+    // Yani "Otomatik geçersiz model filtresini iptal et" diyoruz.
+    options.SuppressModelStateInvalidFilter = true;
+});
+
 builder.Services.AddHostedService<CarImageCleanupService>();
 
 // 1. Adım: FluentValidation'ın otomatik doğrulama (AutoValidation) özelliğini aktif et.

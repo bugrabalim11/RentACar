@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
 using RentACar.Core.Entities.DTOs.OperationClaimDtos;
+using RentACar.Core.Exceptions;
 
 namespace RentACar.API.Controllers
 {
@@ -21,60 +22,40 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> GetAllAsync()
         {
             var result = await _operationClaimService.GetAllAsync();
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await _operationClaimService.GetByIdAsync(id);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateAsync(OperationClaimCreateDto operationClaimAddDto)
         {
             var result = await _operationClaimService.AddAsync(operationClaimAddDto);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync(int id, OperationClaimUpdateDto operationClaimUpdateDto)
         {
-            if(operationClaimUpdateDto.Id != id)
+            if (operationClaimUpdateDto.Id != id)
             {
-                return BadRequest("Güvenlik İhlali: URL'deki ID ile gönderilen yetki ID'si eşleşmiyor!");
+                throw new BusinessException("Güvenlik İhlali: URL'deki ID ile gönderilen yetki ID'si eşleşmiyor!");
             }
 
             var result = await _operationClaimService.UpdateAsync(operationClaimUpdateDto);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             var result = await _operationClaimService.DeleteAsync(id);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
     }
 }

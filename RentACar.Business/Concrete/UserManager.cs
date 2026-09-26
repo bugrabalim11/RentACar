@@ -2,6 +2,8 @@
 using RentACar.Business.Abstract;
 using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Entities.DTOs.UserDtos;
+using RentACar.Core.Entities.DTOs.UserOperationClaimDtos;
+using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.Core.Utilities.Security.Hashing;
@@ -13,12 +15,12 @@ namespace RentACar.Business.Concrete
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
-        private readonly IUserOperationClaimRepository _userOperationClaimRepository;
-        public UserManager(IUserRepository userRepository, IMapper mapper, IUserOperationClaimRepository userOperationClaimRepository)
+        private readonly IUserOperationClaimService _userOperationClaimService;
+        public UserManager(IUserRepository userRepository, IMapper mapper, IUserOperationClaimService userOperationClaimService)
         {
             _userRepository = userRepository;
             _mapper = mapper;
-            _userOperationClaimRepository = userOperationClaimRepository;
+            _userOperationClaimService = userOperationClaimService;
         }
 
         public async Task<IResult> DeleteAsync(int id)
@@ -26,7 +28,7 @@ namespace RentACar.Business.Concrete
             var existingUser = await _userRepository.GetAsync(x => x.Id == id);
             if (existingUser == null)
             {
-                return new ErrorResult("Silinecek kullanıcı bulunamadı.");
+                throw new BusinessException("Silinecek kullanıcı bulunamadı.");
             }
 
             existingUser.IsDeleted = true;
@@ -40,7 +42,7 @@ namespace RentACar.Business.Concrete
             var deletedUser = await _userRepository.GetAsync(x => x.Id == id && x.IsDeleted == true, ignoreQueryFilters: true);
             if (deletedUser == null)
             {
-                return new ErrorResult("Geri Getirilecek kullanıcı bulunamadı.");
+                throw new BusinessException("Geri Getirilecek kullanıcı bulunamadı.");
             }
             deletedUser.IsDeleted = false;
             deletedUser.DeletedDate = null;
@@ -67,7 +69,7 @@ namespace RentACar.Business.Concrete
             var user = await _userRepository.GetAsync(x => x.Id == id);
             if (user == null)
             {
-                return new ErrorDataResult<UserResultDto>("Kullanıcı bulunamadı.");
+                throw new BusinessException("Kullanıcı bulunamadı.");
             }
 
             var userDto = _mapper.Map<UserResultDto>(user);
@@ -76,19 +78,29 @@ namespace RentACar.Business.Concrete
 
         public async Task<IDataResult<UserUpdateByAdminDto>> GetByIdForUpdateAsync(int id)
         {
+            // 1. Kullanıcıyı bul
             var user = await _userRepository.GetAsync(x => x.Id == id);
             if (user == null)
             {
-                return new ErrorDataResult<UserUpdateByAdminDto>("Kullanıcı bulunamadı.");
+                throw new BusinessException("Kullanıcı bulunamadı.");
             }
-
-            var operationClaim = await _userOperationClaimRepository.GetAsync(x => x.UserId == user.Id);
 
             var userDto = _mapper.Map<UserUpdateByAdminDto>(user);
 
-            // Şüpheli paket etiketini (if) kaldırdık, doğrudan atamayı çaktık!
-            // KONTROL EDİLECEK ŞART? EVET İSE BURASI ÇALIŞIR: HAYIR İSE BURASI ÇALIŞIR
-            userDto.OperationClaimId = (operationClaim != null) ? operationClaim.OperationClaimId : 0;
+            // 2. DOĞRU ŞEFİ, DOĞRU METOTLA ÇAĞIR! (GetByIdAsync DEĞİL!)
+            var claimResult = await _userOperationClaimService.GetUpdateDtoByUserIdAsync(id);
+
+            // 3. Şef başarılı döndüyse (Yani adamın gerçekten bir rütbe kartı varsa)
+            if (claimResult.Success)
+            {
+                // DİKKAT: .Data.Id DEĞİL, .Data.OperationClaimId !!!
+                userDto.OperationClaimId = claimResult.Data.OperationClaimId;
+            }
+            else
+            {
+                // Adamın rütbesi yoksa hata fırlatma, sadece null bırak. Formda "Rütbesiz" görünsün.
+                userDto.OperationClaimId = null;
+            }
 
             return new SuccessDataResult<UserUpdateByAdminDto>(userDto, "Kullancı başarıyla getirildi.");
         }
@@ -98,7 +110,7 @@ namespace RentACar.Business.Concrete
             var user = await _userRepository.GetAsync(x => x.Id == id);
             if (user == null)
             {
-                return new ErrorDataResult<UserResultDto>("Profil bulunamadı.");
+                throw new BusinessException("Profil bulunamadı.");
             }
 
             var userDto = _mapper.Map<UserResultDto>(user);
@@ -112,7 +124,7 @@ namespace RentACar.Business.Concrete
             IResult? result = BusinessRules.Run(await CheckIfEmailExistsAsync(userCreateForAdminDto.Email));
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             // 2. Güvenlik (Hashing): Gelen çıplak şifreyi blenderdan geçirip (Hash ve Salt) şifreli hale getiriyoruz.
@@ -135,12 +147,12 @@ namespace RentACar.Business.Concrete
             {
                 // 6. Yetki Kartı (Rol) Ataması: Yeni oluşan kimlik numarasıyla (user.Id),
                 // Admin'in vitrinden seçtiği rol numarasını eşleştirip yetki tablosuna kaydediyoruz.
-                UserOperationClaim userOperationClaim = new UserOperationClaim
+                UserOperationClaimCreateDto userOperationClaimCreateDto = new UserOperationClaimCreateDto
                 {
                     UserId = user.Id,
-                    OperationClaimId = userCreateForAdminDto.OperationClaimId
+                    OperationClaimId = userCreateForAdminDto.OperationClaimId.Value
                 };
-                await _userOperationClaimRepository.AddAsync(userOperationClaim);
+                await _userOperationClaimService.AddAsync(userOperationClaimCreateDto);
                 return new SuccessResult("Kullanıcı başarıyla eklendi ve rütbe ataması yapıldı.");
             }
 
@@ -154,14 +166,14 @@ namespace RentACar.Business.Concrete
             var existingUser = await _userRepository.GetAsync(x => x.Id == userUpdateForAdminDto.Id);
             if (existingUser == null)
             {
-                return new ErrorResult("Güncellenecek kullanıcı bulunamadı.");
+                throw new BusinessException("Güncellenecek kullanıcı bulunamadı.");
             }
 
             // 2. Güvenlik Duvarı: Adam e-postasını değiştiriyorsa, bu yeni e-posta sistemde başkası tarafından kullanılıyor mu?
             IResult? result = BusinessRules.Run(await CheckIfEmailExistsForUpdateAsync(userUpdateForAdminDto.Email, userUpdateForAdminDto.Id));
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             // 3. Kimlik Kartını Güncelleme: Dışarıdan gelen formdaki (DTO) yeni bilgileri, veritabanından çektiğimiz gerçek nesnenin üzerine yazıyoruz.
@@ -170,24 +182,35 @@ namespace RentACar.Business.Concrete
             await _userRepository.UpdateAsync(existingUser);
 
             // 4. Yetki Kartı (Rütbe) Operasyonu: Adamın mevcut bir rütbe kartı var mı diye arıyoruz.
-            var operationClaim = await _userOperationClaimRepository.GetAsync(x => x.UserId == existingUser.Id);
-            if (operationClaim != null)
+            var claimResult = await _userOperationClaimService.GetUpdateDtoByUserIdAsync(existingUser.Id);
+            if (claimResult.Success)
             {
-                // Durum A: Adamın zaten bir yetki kartı var. Formdan gelen yeni rütbe (veya rütbesizlik/null) ile kartı güncelliyoruz.
-                operationClaim.OperationClaimId = userUpdateForAdminDto.OperationClaimId;
-                await _userOperationClaimRepository.UpdateAsync(operationClaim);
+                // Durum A: Adamın zaten bir yetki kartı var.
+                if (userUpdateForAdminDto.OperationClaimId.HasValue)
+                {
+                    // Admin yeni bir rütbe seçmiş, kartı güncelliyoruz.
+                    // .Value diyerek int? içindeki kesin int değerini alıyoruz (Hatanın çözümü!)
+                    claimResult.Data.OperationClaimId = userUpdateForAdminDto.OperationClaimId.Value;
+                    await _userOperationClaimService.UpdateAsync(claimResult.Data);
+                }
+                else
+                {
+                    // Admin formda "Rütbesiz" seçeneğini seçmiş (null göndermiş). 
+                    // Adamın mevcut rütbe kartını yırtıp atıyoruz!
+                    await _userOperationClaimService.DeleteAsync(claimResult.Data.Id);
+                }
             }
             else
             {
                 if (userUpdateForAdminDto.OperationClaimId.HasValue)
                 {
                     // Durum B: Adamın önceden kartı YOKTU. Eğer Admin formdan yeni bir rütbe seçmişse, adama sıfırdan bir yetki kartı basıyoruz.
-                    UserOperationClaim userOperationClaim = new UserOperationClaim
+                    UserOperationClaimCreateDto userOperationClaimCreateDto = new UserOperationClaimCreateDto
                     {
                         UserId = existingUser.Id,
-                        OperationClaimId = userUpdateForAdminDto.OperationClaimId
+                        OperationClaimId = userUpdateForAdminDto.OperationClaimId.Value
                     };
-                    await _userOperationClaimRepository.AddAsync(userOperationClaim);
+                    await _userOperationClaimService.AddAsync(userOperationClaimCreateDto);
                 }
             }
             return new SuccessResult("Kullanıcı başarıyla güncellendi.");
@@ -199,13 +222,13 @@ namespace RentACar.Business.Concrete
             var existingUser = await _userRepository.GetAsync(x => x.Id == userId);
             if (existingUser == null)
             {
-                return new ErrorResult("Güncellenecek kullanıcı bulunamadı!");
+                throw new BusinessException("Güncellenecek kullanıcı bulunamadı!");
             }
 
             IResult? result = BusinessRules.Run(await CheckIfEmailExistsForUpdateAsync(userProfileUpdateDto.Email, existingUser.Id));
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             _mapper.Map(userProfileUpdateDto, existingUser);
@@ -237,16 +260,6 @@ namespace RentACar.Business.Concrete
 
             await _userRepository.AddAsync(user);
             return new SuccessResult("Kullancı güvenli bir şekilde sisteme eklendi.");
-        }
-
-        public async Task<IResult> CheckIfUserExistsAsync(int id)
-        {
-            bool existingUser = await _userRepository.AnyAsync(x => x.Id == id);
-            if (existingUser)
-            {
-                return new SuccessResult();
-            }
-            return new ErrorResult("Bu kullanıcı sistemde bulunamadı!");
         }
 
         public async Task<IResult> CheckIfEmailExistsAsync(string email)

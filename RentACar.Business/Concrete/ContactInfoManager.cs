@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
+using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
@@ -21,10 +22,11 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> AddAsync(ContactInfoCreateDto contactInfoAddDto)
         {
+            // SINGLETON KURALI: Sistemde sadece 1 adet aktif iletişim bilgisi olabilir!
             IResult? result = BusinessRules.Run(await CheckIfContactInfoAlreadyExistsAsync());
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             var contactInfo = _mapper.Map<ContactInfo>(contactInfoAddDto);
@@ -37,9 +39,10 @@ namespace RentACar.Business.Concrete
             var existingContactInfo = await _contactInfoRepository.GetAsync(x => x.Id == id);
             if (existingContactInfo == null)
             {
-                return new ErrorResult("Silinecek iletişim bilgisi bulunamadı.");
+                throw new BusinessException("Silinecek iletişim bilgisi bulunamadı.");
             }
 
+            // SOFT DELETE: Çöpe atıyoruz, veritabanından tamamen silmiyoruz.
             existingContactInfo.IsDeleted = true;
             existingContactInfo.DeletedDate = DateTime.UtcNow;
             await _contactInfoRepository.UpdateAsync(existingContactInfo);
@@ -58,7 +61,8 @@ namespace RentACar.Business.Concrete
             var contactInfo = await _contactInfoRepository.GetAsync(x => x.Id == id);
             if (contactInfo == null)
             {
-                return new ErrorDataResult<ContactInfoResultDto>("İletişim bilgisi bulunamadı.");
+                // BUM! Eski ErrorDataResult formları yakıldı, Kırmızı Alarm devrede!
+                throw new BusinessException("İletişim bilgisi bulunamadı.");
             }
 
             var contactInfoDto = _mapper.Map<ContactInfoResultDto>(contactInfo);
@@ -70,18 +74,19 @@ namespace RentACar.Business.Concrete
             var existingContactInfo = await _contactInfoRepository.GetAsync(x => x.Id == contactInfoUpdateDto.Id);
             if (existingContactInfo == null)
             {
-                return new ErrorResult("Güncellenecek iletişim bilgisi bulunamadı.");
+                throw new BusinessException("Güncellenecek iletişim bilgisi bulunamadı.");
             }
 
-            // Bu satır harika çalışır, Tercüman (Mapper) DTO'daki yeni bilgileri alır ve veritabanından çektiğin existingContactInfo nesnesinin üzerine yazar.
+            // TERCÜMAN (Mapper): DTO'daki yeni bilgileri, veritabanındaki mevcut nesnenin üzerine direkt yazar.
             _mapper.Map(contactInfoUpdateDto, existingContactInfo);
             await _contactInfoRepository.UpdateAsync(existingContactInfo);
             return new SuccessResult("İletişim bilgisi başarıyla güncellendi.");
         }
 
-
+        // --- İÇ RAPORLAMA MERKEZİ ---
         private async Task<IResult> CheckIfContactInfoAlreadyExistsAsync()
         {
+            // Veritabanında silinmemiş (aktif) bir iletişim bilgisi var mı diye sorar.
             bool isExist = await _contactInfoRepository.AnyAsync(x => !x.IsDeleted);
             if (isExist)
             {

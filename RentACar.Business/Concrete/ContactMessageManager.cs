@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
+using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
@@ -21,14 +22,17 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> AddAsync(ContactMessageCreateDto contactMessageAddDto)
         {
+            // 1. TEMİZLİK
             contactMessageAddDto.Email = contactMessageAddDto.Email.Trim().ToLower();
 
+            // 2. RATE LIMITING (SPAM KORUMASI): Aynı adam peş peşe mesaj atıp sistemi yoramasın.
             IResult? result = BusinessRules.Run(await CheckIfUserCanSendMessageAsync(contactMessageAddDto.Email));
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "Sistemimizi korumak adına peş peşe mesaj gönderemezsiniz. Lütfen 5 dakika sonra tekrar deneyiniz!");
             }
 
+            // 3. MÜHÜRLEME: Tarihi ve Okunma durumunu sistem manuel basar, müşteriye güvenilmez.
             var contactMessage = _mapper.Map<ContactMessage>(contactMessageAddDto);
             contactMessage.SendDate = DateTime.UtcNow;
             contactMessage.IsRead = false;
@@ -37,27 +41,12 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Mesajınız başarıyla gönderildi.");
         }
 
-        public async Task<IResult> ChangeIsReadStatusAsync(int id)
-        {
-            var contactMessage = await _contactMessageRepository.GetAsync(x => x.Id == id);
-            if (contactMessage == null)
-            {
-                return new ErrorResult("Böyle bir mesaj bulunamadı.");
-            }
-
-            // Şalter Mantığı (Toggle): Mesaj okunmuşsa (true) okunmadı (false) yapar; okunmamışsa (false) okundu (true) yapar.
-            contactMessage.IsRead = !contactMessage.IsRead;
-
-            await _contactMessageRepository.UpdateAsync(contactMessage);
-            return new SuccessResult("Mesajın okunma durumu güncellendi.");
-        }
-
         public async Task<IResult> DeleteAsync(int id)
         {
             var existingContactMessage = await _contactMessageRepository.GetAsync(x => x.Id == id);
             if (existingContactMessage == null)
             {
-                return new ErrorResult("Silinecek mesaj bulunamadı.");
+                throw new BusinessException("Silinecek mesaj bulunamadı.");
             }
 
             existingContactMessage.IsDeleted = true;
@@ -78,21 +67,23 @@ namespace RentACar.Business.Concrete
             var contactMessage = await _contactMessageRepository.GetAsync(x => x.Id == id);
             if (contactMessage == null)
             {
-                return new ErrorDataResult<ContactMessageResultDto>("Mesaj bulunamadı.");
+                throw new BusinessException("Mesaj bulunamadı.");
             }
 
             var contactMessageDto = _mapper.Map<ContactMessageResultDto>(contactMessage);
             return new SuccessDataResult<ContactMessageResultDto>(contactMessageDto, "Mesaj başarıyla getirildi.");
         }
 
+        // TASK-BASED UPDATE 2: Tek Yönlü İşlem (Idempotent)
         public async Task<IResult> MarkAsReadAsync(int id)
         {
             var contactMessage = await _contactMessageRepository.GetAsync(x => x.Id == id);
             if (contactMessage == null)
             {
-                return new ErrorResult("Mesaj bulunamadı.");
+                throw new BusinessException("Mesaj bulunamadı.");
             }
 
+            // Sadece okunmamışsa veritabanına gidip günceller (Performans dostu).
             if (!contactMessage.IsRead)
             {
                 contactMessage.IsRead = true;
@@ -101,8 +92,11 @@ namespace RentACar.Business.Concrete
             return new SuccessResult();
         }
 
+        // --- İÇ RAPORLAMA MERKEZİ ---
         private async Task<IResult> CheckIfUserCanSendMessageAsync(string email)
         {
+            // Zaman Yolcusu Kontrolü: Şu anki saatten (UtcNow) 5 dakika öncesine (-5) gidiyoruz.
+            // Eğer adamın son mesaj tarihi bu 5 dakikalık pencerenin içindeyse (büyükse), true döner ve adamı bloklarız.
             bool sendMessage = await _contactMessageRepository.AnyAsync(x => x.Email.ToLower() == email && x.SendDate > DateTime.UtcNow.AddMinutes(-5)); // >= de olabilirdi aynı şey
             if (sendMessage)
             {

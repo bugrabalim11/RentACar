@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
+using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
@@ -17,6 +18,14 @@ namespace RentACar.Business.Concrete
         private readonly IPaymentService _paymentService;
         private readonly ICarStatusService _carStatusService;
         private readonly IFindexScoreService _findexScoreService;
+
+        // SENİOR MİMARİ NOTU: Constructor Over-Injection (Aşırı Bağımlılık) - Code Smell (Kod Kokusu)
+        // Şu an bu Manager (Şantiye Şefi) sınıfına tam 7 farklı servis dışarıdan enjekte edildi.
+        // N-Tier mimaride orta ölçekli projeler için bu pratik ve öğretici olsa da; 
+        // Kurumsal (Enterprise) projelerde bir sınıfın bu kadar çok yere bağımlı olması Test edilebilirliği zorlaştırır.
+        // ÇÖZÜM VİZYONU: İlerleyen büyük projelerde bu karmaşayı önlemek için Manager'ın yükünü dağıtacağız.
+        // "Facade Pattern" (Ön Cephe Tasarımı) veya "CQRS / MediatR" (Komut ve Sorgu Ayrışımı) gibi ileri seviye mimariler 
+        // kullanarak İş Kurallarını (Business Rules) çok daha modüler bir yapıya taşıyacağız.
         public RentalManager(IRentalRepository rentalRepository, IMapper mapper, ICarService carService, ICustomerService customerService, IPaymentService paymentService, ICarStatusService carStatusService, IFindexScoreService findexScoreService)
         {
             _rentalRepository = rentalRepository;
@@ -47,7 +56,7 @@ namespace RentACar.Business.Concrete
             var customerResult = await _customerService.GetMyCustomerProfileAsync(userId);
             if (!customerResult.Success)
             {
-                return new ErrorResult("Kiralama yapabilmek için lütfen ilk önce müşteri profilinizi oluşturun!");
+                throw new BusinessException("Kiralama yapabilmek için lütfen ilk önce müşteri profilinizi oluşturun!");
             }
 
             IResult? result = BusinessRules.Run(
@@ -60,7 +69,7 @@ namespace RentACar.Business.Concrete
             );
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             var rental = _mapper.Map<Rental>(rentalAddDto);
@@ -77,7 +86,7 @@ namespace RentACar.Business.Concrete
             var paymentResult = await _paymentService.PayAsync(rentalAddDto.CreditCardInformation, totalAmount);
             if (!paymentResult.Success)
             {
-                return new ErrorResult(paymentResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
+                throw new BusinessException(paymentResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
             }
 
             rental.TotalAmount = totalAmount;
@@ -104,7 +113,7 @@ namespace RentACar.Business.Concrete
             );
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             var rental = _mapper.Map<Rental>(rentalAddByAdminDto);
@@ -114,7 +123,7 @@ namespace RentACar.Business.Concrete
             var paymentResult = await _paymentService.PayAsync(rentalAddByAdminDto.CreditCardInformation, totalAmount);
             if (!paymentResult.Success)
             {
-                return new ErrorResult(paymentResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
+                throw new BusinessException(paymentResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
             }
 
             rental.TotalAmount = totalAmount;
@@ -127,7 +136,7 @@ namespace RentACar.Business.Concrete
             var existingRental = await _rentalRepository.GetAsync(x => x.Id == id);
             if (existingRental == null)
             {
-                return new ErrorResult("Silinecek araç kiralama bulunamadı.");
+                throw new BusinessException("Silinecek araç kiralama bulunamadı.");
             }
 
             existingRental.IsDeleted = true;
@@ -148,7 +157,7 @@ namespace RentACar.Business.Concrete
             var rentals = await _rentalRepository.GetRentalsByUserIdAsync(userId);
             if (rentals == null || !rentals.Any())
             {
-                return new ErrorDataResult<List<RentalResultDto>>("Kullanıcıya ait kiralama işlemleri bulunamadı.");
+                throw new BusinessException("Kullanıcıya ait kiralama işlemleri bulunamadı.");
             }
 
             var mappedRentals = _mapper.Map<List<RentalResultDto>>(rentals);
@@ -160,12 +169,12 @@ namespace RentACar.Business.Concrete
             var rental = await _rentalRepository.GetRentalWithDetailsByIdAsync(rentalId);
             if (rental == null)
             {
-                return new ErrorDataResult<RentalDetailDto>("Aradağınız kiralama bulunamadı!");
+                throw new BusinessException("Aradağınız kiralama bulunamadı!");
             }
 
             if (rental.Customer.UserId != userId)
             {
-                return new ErrorDataResult<RentalDetailDto>("Güvenlik İhlali: Bu kiralama kaydını (faturayı) görüntüleme yetkiniz yok!");
+                throw new BusinessException("Güvenlik İhlali: Bu kiralama kaydını (faturayı) görüntüleme yetkiniz yok!");
             }
 
             var mappedRental = _mapper.Map<RentalDetailDto>(rental);
@@ -177,7 +186,7 @@ namespace RentACar.Business.Concrete
             var rental = await _rentalRepository.GetRentalWithDetailsByIdAsync(id);
             if (rental == null)
             {
-                return new ErrorDataResult<RentalDetailDto>("Aranan araç kiralama bulunamadı.");
+                throw new BusinessException("Aranan araç kiralama bulunamadı.");
             }
 
             var rentalDetailDto = _mapper.Map<RentalDetailDto>(rental);
@@ -189,7 +198,7 @@ namespace RentACar.Business.Concrete
             var existingRental = await _rentalRepository.GetAsync(x => x.Id == rentalUpdateDto.Id);
             if (existingRental == null)
             {
-                return new ErrorResult("Güncellenecek araç kiralama bulunamadı.");
+                throw new BusinessException("Güncellenecek araç kiralama bulunamadı.");
             }
 
             rentalUpdateDto.RentDate = rentalUpdateDto.RentDate.ToUniversalTime();
@@ -209,18 +218,21 @@ namespace RentACar.Business.Concrete
             );
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             var car = await _carService.GetByIdAsync(rentalUpdateDto.CarId);
             var newTotalAmount = CalculateTotalAmount(rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate, car.Data.DailyPrice);
             var difference = newTotalAmount - existingRental.TotalAmount;
+            // SENİOR NOTU: Müşteri aracı erken teslim ettiğinde (difference < 0) para iadesi YAPILMAMAKTADIR.
+            // Çünkü aracın o tarihler arası başka müşteriye kiralanma fırsatı (Fırsat Maliyeti) baltalanmıştır.
+            // İş kuralı gereği bu durum bilerek göz ardı edilmiştir.
             if (difference > 0)
             {
                 var paymentResult = await _paymentService.PayAsync(rentalUpdateDto.CreditCardInformation, difference);
                 if (!paymentResult.Success)
                 {
-                    return new ErrorResult(paymentResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
+                    throw new BusinessException(paymentResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
                 }
             }
 
@@ -239,46 +251,38 @@ namespace RentACar.Business.Concrete
 
             if (existingRental.Customer.UserId != userId)
             {
-                return new ErrorResult("Bu kiralamayı güncellemeye yetkiniz yok!");
+                throw new BusinessException("Bu kiralamayı güncellemeye yetkiniz yok!");
             }
 
             IResult? result = BusinessRules.Run
             (
                 CheckIfRentalIsAlreadyCompleted(existingRental.ReturnDate),
-                CheckIfReturnDateIsAfterRentDate(existingRental.RentDate, rentalUpdateReturnDateDto.ReturnDate),
                 await CheckIfCarAvailableForUpdate(rentalId, existingRental.CarId, existingRental.RentDate, rentalUpdateReturnDateDto.ReturnDate)
             );
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             var car = await _carService.GetByIdAsync(existingRental.CarId);
             var newTotalAmount = CalculateTotalAmount(existingRental.RentDate, rentalUpdateReturnDateDto.ReturnDate, car.Data.DailyPrice);
             var difference = newTotalAmount - existingRental.TotalAmount;
+            // SENİOR NOTU: Müşteri aracı erken teslim ettiğinde (difference < 0) para iadesi YAPILMAMAKTADIR.
+            // Çünkü aracın o tarihler arası başka müşteriye kiralanma fırsatı (Fırsat Maliyeti) baltalanmıştır.
+            // İş kuralı gereği bu durum bilerek göz ardı edilmiştir.
             if (difference > 0)
             {
                 var paymentResult = await _paymentService.PayAsync(rentalUpdateReturnDateDto.CreditCardInformation, difference);
                 if (!paymentResult.Success)
                 {
-                    return new ErrorResult(paymentResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
+                    throw new BusinessException(paymentResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
                 }
             }
 
-            existingRental.TotalAmount= newTotalAmount;
+            existingRental.TotalAmount = newTotalAmount;
             existingRental.ReturnDate = rentalUpdateReturnDateDto.ReturnDate;
             await _rentalRepository.UpdateAsync(existingRental);
             return new SuccessResult("Araç teslim tarihiniz başarıyla güncellendi.");
-        }
-
-        public async Task<IResult> CheckIfAnyRentalExistsByOfficeIdAsync(int officeId)
-        {
-            bool result = await _rentalRepository.AnyAsync(x => x.PickUpOfficeId == officeId || x.DropOffOfficeId == officeId);
-            if (result)
-            {
-                return new ErrorResult("Ofise ait kiralama işlemleri mevcut, bu yüzden silinemez!");
-            }
-            return new SuccessResult();
         }
 
         // Bu metot sadece bu sınıfın (Manager'ın) içinde kullanılacağı için 'private' yapıyoruz.
@@ -318,15 +322,6 @@ namespace RentACar.Business.Concrete
             return new SuccessResult();
         }
 
-        private IResult CheckIfReturnDateIsAfterRentDate(DateTime rentDate, DateTime returnDate)
-        {
-            if (returnDate.Date < rentDate.Date)
-            {
-                return new ErrorResult("Dönüş tarihi, kiralama başlangıç tarihinden önce olamaz!");
-            }
-            return new SuccessResult();
-        }
-
         private IResult CheckIfRentalIsAlreadyCompleted(DateTime? returnDate)
         {
             // Kural 1: Araç henüz teslim edilmemiş (ucu açık kiralama). Güncellemeye izin ver.
@@ -348,15 +343,7 @@ namespace RentACar.Business.Concrete
         private async Task<IResult> CheckIfCustomerDrivingExperienceIsSufficient(int carId, int customerId)
         {
             var carResult = await _carService.GetByIdAsync(carId);
-            if (!carResult.Success)
-            {
-                return new ErrorResult("Araç bilgileri bulunamadı!");
-            }
             var customerResult = await _customerService.GetByIdAsync(customerId);
-            if (!customerResult.Success)
-            {
-                return new ErrorResult("Müşteri bilgileri bulunamadı!");
-            }
 
             int customerExperience = DateTime.UtcNow.Year - customerResult.Data.DrivingLicenseYear;
             if (customerExperience < carResult.Data.MinDrivingExperience)
@@ -369,16 +356,7 @@ namespace RentACar.Business.Concrete
         private async Task<IResult> CheckIfCustomerFindexScoreIsSufficient(int carId, int customerId)
         {
             var carResult = await _carService.GetByIdAsync(carId);
-            if (!carResult.Success)
-            {
-                return new ErrorResult("Araç bulunamadı!");
-            }
-
             var customerResult = await _customerService.GetByIdAsync(customerId);
-            if (!customerResult.Success)
-            {
-                return new ErrorResult("Müşteri bulunamadı!");
-            }
 
             int findexResult = _findexScoreService.GetScoreByCustomerId(customerId);
             if (findexResult < carResult.Data.MinFindexScore)
@@ -390,11 +368,18 @@ namespace RentACar.Business.Concrete
 
         private decimal CalculateTotalAmount(DateTime rentDate, DateTime? returnDate, decimal dailyPrice)
         {
-            int totalDays = 1;
+            decimal totalDays = 1;
             if (returnDate.HasValue)
             {
                 var timeSpan = returnDate.Value - rentDate;
-                totalDays = timeSpan.Days;
+
+                // SENİOR NOTU: Neden (decimal) ile Casting (Bilinçli Tip Dönüşümü) yaptık?
+                // Math.Ceiling fonksiyonu bize 'double' döner (Bilim İnsanı mantığı: virgüllü ve esnek).
+                // Ancak para işlemleri (dailyPrice) sıfır hata payı isteyen 'decimal' (Muhasebeci mantığı) tipindedir.
+                // C# derleyicisi bu iki farklı dünyanın çarpılmasına güvenlik gereği izin vermez.
+                // Bu yüzden (decimal) yazarak "Bilim insanının yuvarladığı sayıyı, muhasebecinin diline çevir" dedik.
+                totalDays = (decimal)Math.Ceiling(timeSpan.TotalDays);
+
                 if (totalDays == 0 || totalDays < 0) { totalDays = 1; }
             }
             var totalAmount = totalDays * dailyPrice;

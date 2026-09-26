@@ -22,41 +22,28 @@ namespace RentACar.API.Controllers
         [HttpPost("Login")]
         public async Task<IActionResult> Login(UserForLoginDto userForLoginDto)
         {
-            // 1. Şefe formu ver
+            // 1. SİPARİŞ: Garson formu direkt mutfağa (AuthService) iletir.
+            // Hata durumunu Middleware halledeceği için garson sadece Mutlu Senaryoya (Happy Path) odaklanır!
             var userToLogin = await _authService.Login(userForLoginDto);
-            if (!userToLogin.Success)
-            {
-                return BadRequest(userToLogin);
-            }
 
-            // 2. Şef onaylarsa adamın biletini (Token) bas
+            // 2. BİLET KESİMİ: Şef onayladıysa VIP biletini (Token) bas.
             var result = await _authService.CreateAccessToken(userToLogin.Data);
-            if (result.Success)
-            {
-                // Bileti müşteriye teslim et
-                return Ok(result.Data);
-            }
 
-            return BadRequest(result);
+            // 3. TESLİMAT: Bileti müşteriye teslim et. (200 OK)
+            return Ok(result.Data);
         }
 
         [HttpPost("Register")]
         public async Task<IActionResult> Register(UserForRegisterDto userForRegisterDto)
         {
-            // 2. Şefe kayıt formunu ve şifreyi gönder (Blender çalışsın)
+            // 1. SİPARİŞ: Kayıt formunu mutfağa yolla (Blender çalışsın).  
             var registerResult = await _authService.Register(userForRegisterDto, userForRegisterDto.Password);
-            if (!registerResult.Success)
-            {
-                return BadRequest(registerResult);
-            }
 
-            // 3. Kayıt başarılıysa VIP bileti bas ve teslim et
+            // 2. BİLET KESİMİ: Kayıt başarılıysa direkt Token üret.
             var result = await _authService.CreateAccessToken(registerResult.Data);
-            if (result.Success)
-            {
-                return Ok(result.Data);
-            }
-            return BadRequest(result);
+
+            // 3. TESLİMAT: (200 OK)
+            return Ok(result.Data);
         }
 
         // [ApiController] aslında hepsine [FromBody] ekliyor ama biz Explicit (Açıkça belirtmek) yaptık.
@@ -64,16 +51,15 @@ namespace RentACar.API.Controllers
         [HttpPut("change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] UserChangePasswordDto userForChangePasswordDto)
         {
-            // Adamın cüzdanına (User) bak, 'NameIdentifier' etiketli ilk kartı (FindFirst) bul ve üstündeki değeri (Value) oku.
+            // 1. KİMLİK TESPİTİ: Adamın Token cüzdanına bak, 'NameIdentifier' etiketli kartı (Id) bul.
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             int userId = Convert.ToInt32(userIdString);
 
+            // 2. SİPARİŞ: Şifre değiştirme talebini mutfağa ilet.
             var result = await _authService.ChangePassword(userId, userForChangePasswordDto);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+
+            // 3. TESLİMAT: (200 OK)
+            return Ok(result);
         }
     }
 }

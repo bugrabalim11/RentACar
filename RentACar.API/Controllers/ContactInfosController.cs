@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
+using RentACar.Core.Exceptions;
 using RentACar.Dtos.ContactInfoDtos;
 
 namespace RentACar.API.Controllers
@@ -22,11 +23,7 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> GetAllAsync()
         {
             var result = await _contactInfoService.GetAllAsync();
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [AllowAnonymous]
@@ -34,49 +31,33 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await _contactInfoService.GetByIdAsync(id);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateAsync(ContactInfoCreateDto contactInfoAddDto)
         {
             var result = await _contactInfoService.AddAsync(contactInfoAddDto);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
-        
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync(int id, ContactInfoUpdateDto contactInfoUpdateDto)
         {
             if (id != contactInfoUpdateDto.Id)
             {
-                return BadRequest("Güvenlik İhlali: URL'deki ID ile gönderilen marka ID'si eşleşmiyor!");
+                throw new BusinessException("Güvenlik İhlali: URL'deki ID ile gönderilen iletişim bilgisi ID'si eşleşmiyor!");
             }
 
             var result = await _contactInfoService.UpdateAsync(contactInfoUpdateDto);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             var result = await _contactInfoService.DeleteAsync(id);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
     }
 }

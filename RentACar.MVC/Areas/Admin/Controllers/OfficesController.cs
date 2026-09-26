@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using RentACar.MVC.Areas.Admin.Models.ErrorResponseDtos;
 using RentACar.MVC.Areas.Admin.Models.OfficeDtos;
 using RentACar.MVC.Models.Responses;
 using System.Text;
@@ -80,7 +79,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             }
 
             var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
-            var errorData = JsonConvert.DeserializeObject<ErrorResponseDto>(errorJsonData);
+            var errorData = JsonConvert.DeserializeObject<ErrorDetailsDto>(errorJsonData);
             if (errorData != null)
             {
                 ModelState.AddModelError(string.Empty, errorData.Message);
@@ -131,7 +130,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 return View(officeUpdateDto);
             }
             var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
-            var errorData = JsonConvert.DeserializeObject<ErrorResponseDto>(errorJsonData);
+            var errorData = JsonConvert.DeserializeObject<ErrorDetailsDto>(errorJsonData);
             if (errorData != null)
             {
                 ModelState.AddModelError(string.Empty, errorData.Message);

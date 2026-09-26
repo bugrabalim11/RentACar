@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
+using RentACar.Core.Exceptions;
 using RentACar.Dtos.CarMaintenanceDtos;
 
 namespace RentACar.API.Controllers
@@ -21,44 +22,28 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> CreateAsync(CarMaintenanceCreateDto carMaintenanceAddDto)
         {
             var result = await _carMaintenanceService.AddAsync(carMaintenanceAddDto);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             var result = await _carMaintenanceService.DeleteAsync(id);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllAsync()
         {
             var result = await _carMaintenanceService.GetAllAsync();
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await _carMaintenanceService.GetByIdAsync(id);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
 
         [HttpPut("{id}")]
@@ -66,15 +51,11 @@ namespace RentACar.API.Controllers
         {
             if (id != carMaintenanceUpdateDto.Id)
             {
-                return BadRequest("Güvenlik İhlali: URL'deki ID ile gönderilen tamir ID'si eşleşmiyor!");
+                throw new BusinessException("Güvenlik İhlali: URL'deki ID ile gönderilen tamir ID'si eşleşmiyor!");
             }
 
             var result = await _carMaintenanceService.UpdateAsync(carMaintenanceUpdateDto);
-            if (result.Success)
-            {
-                return Ok(result);
-            }
-            return BadRequest(result);
+            return Ok(result);
         }
     }
 }

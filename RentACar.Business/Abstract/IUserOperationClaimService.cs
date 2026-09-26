@@ -14,5 +14,11 @@ namespace RentACar.Business.Abstract
 
         // DİKKAT: Dışarıya çıplak liste değil, resmi kutumuz olan IDataResult içinde yolluyoruz!
         Task<IDataResult<List<UserOperationClaimDetailDto>>> GetClaimDetailsAsync();
+
+        /// <summary>
+        /// Verilen kullanıcı ID'sine ait yetki atama kaydını bulur ve güncelleme işlemlerinde (UpdateForAdmin) 
+        /// kullanılmak üzere UserOperationClaimUpdateDto formatında geri döner.
+        /// </summary>
+        Task<IDataResult<UserOperationClaimUpdateDto>> GetUpdateDtoByUserIdAsync(int userId);
     }
 }

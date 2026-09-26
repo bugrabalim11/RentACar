@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using RentACar.Business.Abstract;
 using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Entities.DTOs.OperationClaimDtos;
+using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
@@ -26,7 +27,7 @@ namespace RentACar.Business.Concrete
             IResult? result = BusinessRules.Run(await CheckIfOperationClaimExistsAsync(operationClaimAddDto.Name));
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             var operationClaim = _mapper.Map<OperationClaim>(operationClaimAddDto);
@@ -39,13 +40,13 @@ namespace RentACar.Business.Concrete
             var existingOperationClaim = await _operationClaimRepository.GetAsync(x => x.Id == id);
             if (existingOperationClaim == null)
             {
-                return new ErrorResult("Silinecek yetki bulunamadı.");
+                throw new BusinessException("Silinecek yetki bulunamadı.");
             }
 
             IResult? result = BusinessRules.Run(CheckIfOperationClaimNameIsAdmin(existingOperationClaim.Name));
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             existingOperationClaim.IsDeleted = true;
@@ -66,7 +67,7 @@ namespace RentACar.Business.Concrete
             var operationClaim = await _operationClaimRepository.GetAsync(x => x.Id == id);
             if (operationClaim == null)
             {
-                return new ErrorDataResult<OperationClaimResultDto>("Yetki bulunamadı.");
+                throw new BusinessException("Yetki bulunamadı.");
             }
 
             var operationClaimDto = _mapper.Map<OperationClaimResultDto>(operationClaim);
@@ -79,7 +80,7 @@ namespace RentACar.Business.Concrete
             var existingOperationClaim = await _operationClaimRepository.GetAsync(x => x.Id == operationClaimUpdateDto.Id);
             if (existingOperationClaim == null)
             {
-                return new ErrorResult("Güncellenecek yetki bulunamadı.");
+                throw new BusinessException("Güncellenecek yetki bulunamadı.");
             }
 
             IResult? result = BusinessRules.Run(
@@ -88,7 +89,7 @@ namespace RentACar.Business.Concrete
             );
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             _mapper.Map(operationClaimUpdateDto, existingOperationClaim);
@@ -121,7 +122,9 @@ namespace RentACar.Business.Concrete
 
         private IResult CheckIfOperationClaimNameIsAdmin(string name)
         {
-            if (name.ToLower() == "admin")
+            // StringComparison.OrdinalIgnoreCase: "Büyük/küçük harfe takılma ve işletim sisteminin diline
+            // (Türkçe/İngilizce vb.) bakmadan evrensel karşılaştır" demektir. Hafızada yeni kutu açmaz, %100 performanslıdır!
+            if (name.Equals("admin", StringComparison.OrdinalIgnoreCase))
             {
                 return new ErrorResult("Sistemin temel yetkileri üzerinde değişiklik yapılmasına izin verilmez!");
             }

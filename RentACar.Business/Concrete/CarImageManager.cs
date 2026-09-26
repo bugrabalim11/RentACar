@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
+using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Helpers.FileHelper;
 using RentACar.Core.Utilities.Results;
@@ -27,21 +28,25 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> AddAsync(CarImageCreateDto carImageAddDto)
         {
-            IResult? result = BusinessRules.Run(
-            await CheckIfCarImageLimitExceededAsync(carImageAddDto.CarId),
-            await CheckIfCarExists(carImageAddDto.CarId)
-            );
+            var car = await _carService.GetByIdAsync(carImageAddDto.CarId);
+
+            // 1. ASİSTAN KONTROLÜ: Kuralları (Limiti) asistana ver.
+            IResult? result = BusinessRules.Run(await CheckIfCarImageLimitExceededAsync(carImageAddDto.CarId));
+            // 2. KIRMIZI ALARM: Hata varsa asistanın mesajıyla Middleware'i tetikle!
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
-            string? imagePath = _fileHelper.Upload(carImageAddDto.ImageFile, "wwwroot\\Images");
 
+            // 3. FİZİKSEL YÜKLEME: Resmi sunucunun (wwwroot) klasörüne yükle.
+            // TODO Refactroing yap
+            string? imagePath = _fileHelper.Upload(carImageAddDto.ImageFile, "wwwroot\\Images");
             if (imagePath == null)
             {
-                return new ErrorResult("Resim yüklenirken bir hata oluştu veya dosya boş.");
+                throw new BusinessException("Resim yüklenirken bir hata oluştu veya dosya boş.");
             }
 
+            // 4. VERİTABANI KAYDI
             CarImage carImage = new CarImage
             {
                 CarId = carImageAddDto.CarId,
@@ -58,9 +63,11 @@ namespace RentACar.Business.Concrete
             var result = await _carImageRepository.GetAsync(x => x.Id == id);
             if (result == null)
             {
-                return new ErrorResult("Resim bulunamadı!");
+                throw new BusinessException("Resim bulunamadı!");
             }
 
+            // SOFT DELETE: Resmi gerçekten silmiyoruz, sadece çöp kutusuna (IsDeleted) atıyoruz.
+            // Fiziksel temizliği arka plan servisi (DeleteOldImagesAsync) yapacak.
             result.IsDeleted = true;
             result.DeletedDate = DateTime.UtcNow;
             await _carImageRepository.UpdateAsync(result);
@@ -69,62 +76,47 @@ namespace RentACar.Business.Concrete
 
         public async Task<IDataResult<List<CarImageDetailDto>>> GetImagesByCarIdAsync(int carId)
         {
-            IResult? result = BusinessRules.Run(await CheckIfCarExists(carId));
-            if (result != null)
-            {
-                return new ErrorDataResult<List<CarImageDetailDto>>(result.Message ?? "Araç resimlerini getirilirken hata oluştu!");
-            }
-
+            var car = await _carService.GetByIdAsync(carId);
             var carImages = await _carImageRepository.GetImagesWithCarDetailsAsync(carId);
-            if (carImages == null)
-            {
-                return new ErrorDataResult<List<CarImageDetailDto>>("Bu araca ait resimler bulunamadı!");
-            }
 
-            // Dolapta hiç resim YOK MU?
-            if (!carImages.Any())
+            // Dolapta hiç resim YOK MU? (Eğer liste boş dönerse)
+            if (carImages == null || !carImages.Any())
             {
-                var carResult = await _carService.GetByIdAsync(carId);
-                // Müşteriye sunulacak porselen tabak (DTO Listesi) hazırlıyoruz
+                // Müşteriye sunulacak "Varsayılan (Default) Resim" tepsisini hazırlıyoruz.
                 var defaultDtoList = new List<CarImageDetailDto>
                 {
                     new CarImageDetailDto
                     {
                         CarId = carId,
+                        // TODO Refactroing yap
                         ImagePath = "wwwroot\\Images\\default.jpg",
                         UploadDate = DateTime.UtcNow,
-                        CarName = $"{carResult.Data?.BrandName} {carResult.Data?.ModelName}"
+                        CarName = $"{car.Data?.BrandName} {car.Data?.ModelName}"
                     }
                 };
 
-                // Sahte listeyi kuryeye verip metodu DİREKT burada bitiriyoruz. (Aşağıya inmez)
+                // Erken Çıkış (Early Return): Sahte listeyi kuryeye verip metodu burada bitiriyoruz.
                 return new SuccessDataResult<List<CarImageDetailDto>>(defaultDtoList, "Bu araca ait resim bulunamadı, varsayılan resim getirildi.");
             }
 
             // Robot, çiğ etleri (carImages) alıp, Profile dosyasındaki tarifine göre pişirip DTO tepsisine diziyor.
             var dtoList = _mapper.Map<List<CarImageDetailDto>>(carImages);
-
             return new SuccessDataResult<List<CarImageDetailDto>>(dtoList, "Bu araca ait resimler başarıyla getirildi.");
         }
 
         public async Task<IResult> UpdateAsync(CarImageUpdateDto carImageUpdateDto)
         {
-            IResult? result = BusinessRules.Run(await CheckIfCarExists(carImageUpdateDto.CarId));
-            if (result != null)
-            {
-                return result;
-            }
-
+            var car = await _carService.GetByIdAsync(carImageUpdateDto.CarId);
             var existingCarImage = await _carImageRepository.GetAsync(x => x.Id == carImageUpdateDto.Id);
             if (existingCarImage == null)
             {
-                return new ErrorResult("Resim bulunamadı!");
+                throw new BusinessException("Resim bulunamadı!");
             }
 
             string? newImagePath = _fileHelper.Update(carImageUpdateDto.ImageFile, existingCarImage.ImagePath, "wwwroot\\Images");
             if (newImagePath == null)
             {
-                return new ErrorResult("Resim güncellenirken bir hata oluştu veya dosya boş.");
+                throw new BusinessException("Resim güncellenirken bir hata oluştu veya dosya boş.");
             }
 
             existingCarImage.ImagePath = newImagePath;
@@ -134,47 +126,39 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Resim başarıyla güncellendi.");
         }
 
+        public async Task<IResult> DeleteOldImagesAsync()
+        {
+            // KARANTİNA KURALI: Sadece silinmiş (IsDeleted) olanları VE 
+            // çöp kutusunda 30 günden fazla beklemiş olanları (karantina süresi dolanları) getir.
+            var oldImages = await _carImageRepository.GetAllAsync(x => x.IsDeleted && x.DeletedDate < DateTime.UtcNow.AddDays(-30), ignoreQueryFilters: true);
+
+            // KORUMA KALKANI (Guard Clause / Early Return): 
+            // Eğer silinecek resim yoksa gereksiz yere foreach döngüsüne girmemek için kapıdan dön.
+            if (oldImages == null || !oldImages.Any())
+            {
+                return new SuccessResult("Silinecek eski resim bulunamadı.");
+            }
+
+            foreach (var image in oldImages)
+            {
+                // ÖNCE FİZİKSEL TEMİZLİK: Sunucunun klasöründeki asıl JPG/PNG dosyasını uçuruyoruz.
+                _fileHelper.Delete(image.ImagePath);
+
+                // SONRA VERİTABANI TEMİZLİĞİ: SQL'den o kaydı kalıcı olarak (Hard Delete) siliyoruz.
+                await _carImageRepository.DeleteAsync(image);
+            }
+            return new SuccessResult();
+        }
+
+        // --- İÇ RAPORLAMA MERKEZİ (KURAL USTALARI) ---
+        // Sadece Manager'ın okuması için rapor (ErrorResult) dönerler. Middleware'i tetiklemezler.
+
         private async Task<IResult> CheckIfCarImageLimitExceededAsync(int carId)
         {
             var result = await _carImageRepository.CountAsync(x => x.CarId == carId);
             if (result >= 5)
             {
                 return new ErrorResult("Bir arabanın en fazla 5 resmi olabilir.");
-            }
-            return new SuccessResult();
-        }
-
-        private async Task<IResult> CheckIfCarExists(int carId)
-        {
-            var result = await _carService.GetByIdAsync(carId);
-            if (!result.Success)
-            {
-                return new ErrorResult("Araba bulunamadı.");
-            }
-            return new SuccessResult();
-        }
-
-        public async Task<IResult> DeleteOldImagesAsync()
-        {
-            // KURAL: Sadece silinmiş (IsDeleted) olanları VE 
-            // çöp kutusunda 30 günden fazla beklemiş olanları (karantina süresi dolanları) getir.
-            var oldImages = await _carImageRepository.GetAllAsync(x => x.IsDeleted && x.DeletedDate < DateTime.UtcNow.AddDays(-30), ignoreQueryFilters: true);
-
-            // GÜVENLİK KAPISI (Bekçiyi boş yere yormamak için)
-            // Eğer liste hiç oluşmadıysa (null) VEYA listenin içinde hiç eleman YOKSA (!Any)
-            if (oldImages == null || !oldImages.Any())
-            {
-                return new SuccessResult("Silinecek eski resim bulunamadı.");
-            }
-
-            // ADIM: Çöp torbalarını tek tek açıyoruz.
-            foreach (var image in oldImages)
-            {
-                // ÖNCE FİZİKSEL TEMİZLİK: Sunucunun (wwwroot/images) klasöründeki asıl JPG/PNG dosyasını uçuruyoruz.
-                _fileHelper.Delete(image.ImagePath);
-
-                // SONRA VERİTABANI TEMİZLİĞİ: SQL'den o kaydı kalıcı olarak (Hard Delete) siliyoruz.
-                await _carImageRepository.DeleteAsync(image);
             }
             return new SuccessResult();
         }

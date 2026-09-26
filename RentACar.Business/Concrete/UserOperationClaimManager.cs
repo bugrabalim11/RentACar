@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
-using RentACar.Core.Entities;
 using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Entities.DTOs.UserOperationClaimDtos;
+using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
-using System.Runtime.ConstrainedExecution;
 
 namespace RentACar.Business.Concrete
 {
@@ -14,15 +13,13 @@ namespace RentACar.Business.Concrete
     {
         private readonly IUserOperationClaimRepository _userOperationClaimRepository;
         private readonly IMapper _mapper;
-        private readonly IUserService _userService;
-        private readonly IOperationClaimService _operationClaimService;
+        private readonly IReferenceCheckService _referenceCheckService;
 
-        public UserOperationClaimManager(IUserOperationClaimRepository userOperationClaimRepository, IMapper mapper, IUserService userService, IOperationClaimService operationClaimService)
+        public UserOperationClaimManager(IUserOperationClaimRepository userOperationClaimRepository, IMapper mapper, IReferenceCheckService referenceCheckService)
         {
             _userOperationClaimRepository = userOperationClaimRepository;
             _mapper = mapper;
-            _userService = userService;
-            _operationClaimService = operationClaimService;
+            _referenceCheckService = referenceCheckService;
         }
 
         public async Task<IResult> AddAsync(UserOperationClaimCreateDto userOperationClaimAddDto)
@@ -30,12 +27,12 @@ namespace RentACar.Business.Concrete
             // İŞ KURALI(BUSINESS RULE) KONTROLÜ - YENİ EKLENEN KISIM
             IResult? result = BusinessRules.Run(
             await CheckIfUserHasThisClaimAlreadyAsync(userOperationClaimAddDto.UserId, userOperationClaimAddDto.OperationClaimId),
-            await CheckIfOperationClaimExistsAsync(userOperationClaimAddDto.OperationClaimId),
-            await CheckIfUserExistsAsync(userOperationClaimAddDto.UserId)
+            await _referenceCheckService.CheckIfOperationClaimExistsAsync(userOperationClaimAddDto.OperationClaimId),
+            await _referenceCheckService.CheckIfUserExistsAsync(userOperationClaimAddDto.UserId)
             );
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında bir hata oluştu!");
             }
 
             var userOperationClaim = _mapper.Map<UserOperationClaim>(userOperationClaimAddDto);
@@ -48,7 +45,7 @@ namespace RentACar.Business.Concrete
             var existingUserOperationClaim = await _userOperationClaimRepository.GetAsync(x => x.Id == id);
             if (existingUserOperationClaim == null)
             {
-                return new ErrorResult("Silinmek istenen yetki ataması bulunamadı.");
+                throw new BusinessException("Silinmek istenen yetki ataması bulunamadı.");
             }
 
             existingUserOperationClaim.IsDeleted = true;
@@ -69,7 +66,7 @@ namespace RentACar.Business.Concrete
             var userOperationClaim = await _userOperationClaimRepository.GetAsync(x => x.Id == id);
             if (userOperationClaim == null)
             {
-                return new ErrorDataResult<UserOperationClaimResultDto>("Belirtilen yetki ataması bulunamadı.");
+                throw new BusinessException("Belirtilen yetki ataması bulunamadı.");
             }
 
             var userOperationClaimDto = _mapper.Map<UserOperationClaimResultDto>(userOperationClaim);
@@ -99,17 +96,17 @@ namespace RentACar.Business.Concrete
             var existingUserOperationClaim = await _userOperationClaimRepository.GetAsync(x => x.Id == userOperationClaimUpdateDto.Id);
             if (existingUserOperationClaim == null)
             {
-                return new ErrorResult("Güncellenmek istenen yetki ataması bulunamadı.");
+                throw new BusinessException("Güncellenmek istenen yetki ataması bulunamadı.");
             }
 
             IResult? result = BusinessRules.Run(
             await CheckIfUserHasThisClaimAlreadyForUpdateAsync(existingUserOperationClaim.UserId, userOperationClaimUpdateDto.OperationClaimId, userOperationClaimUpdateDto.Id),
-            await CheckIfOperationClaimExistsAsync(userOperationClaimUpdateDto.OperationClaimId),
-            await CheckIfUserExistsAsync(existingUserOperationClaim.UserId)
+            await _referenceCheckService.CheckIfOperationClaimExistsAsync(userOperationClaimUpdateDto.OperationClaimId),
+            await _referenceCheckService.CheckIfUserExistsAsync(existingUserOperationClaim.UserId)
             );
             if (result != null)
             {
-                return result;
+                throw new BusinessException(result.Message ?? "İş kurallarında bir hata oluştu!");
             }
 
             _mapper.Map(userOperationClaimUpdateDto, existingUserOperationClaim);
@@ -145,24 +142,18 @@ namespace RentACar.Business.Concrete
             return new SuccessResult();
         }
 
-        private async Task<IResult> CheckIfUserExistsAsync(int userId)
+        public async Task<IDataResult<UserOperationClaimUpdateDto>> GetUpdateDtoByUserIdAsync(int userId)
         {
-            var existingUser = await _userService.GetByIdAsync(userId);
-            if (!existingUser.Success)
+            // 1. Depodan çıplak ürünü al (Sen bunu zaten yazdın, harika!)
+            var existingClaim = await _userOperationClaimRepository.GetAsync(x => x.UserId == userId);
+            if (existingClaim == null)
             {
-                return new ErrorResult(existingUser.Message ?? "Bu kullanıcı bulunamadı! Lüten tekrar deneyiniz.");
+                return new ErrorDataResult<UserOperationClaimUpdateDto>("Kullanıcıya ait rütbe bulunamadı!");
             }
-            return new SuccessResult();
-        }
 
-        private async Task<IResult> CheckIfOperationClaimExistsAsync(int operationClaimId)
-        {
-            var existingOperationClaim = await _operationClaimService.GetByIdAsync(operationClaimId);
-            if (!existingOperationClaim.Success)
-            {
-                return new ErrorResult(existingOperationClaim.Message ?? "Bu statü bulunamadı! Lüten tekrar deneyiniz.");
-            }
-            return new SuccessResult();
+            // 2. Çıplak ürünü, müşterinin istediği kutuya (DTO'ya) çevir!
+            var claimDto = _mapper.Map<UserOperationClaimUpdateDto>(existingClaim);
+            return new SuccessDataResult<UserOperationClaimUpdateDto>(claimDto, "Yetki formu getirildi.");
         }
     }
 }

@@ -7,7 +7,9 @@ namespace RentACar.Business.ValidationRules.RentalValidators
     {
         public RentalUpdateReturnDateDtoValidator()
         {
-            RuleFor(x => x.ReturnDate).NotEmpty().WithMessage("Araç teslim tarihi boş geçilemez.");
+            RuleFor(x => x.ReturnDate)
+                .NotEmpty().WithMessage("Araç teslim tarihi boş geçilemez!")
+                .GreaterThanOrEqualTo(DateTime.Today).WithMessage("Teslim tarihi bugünün tarihinden önce olamaz!");
         }
     }
 }
