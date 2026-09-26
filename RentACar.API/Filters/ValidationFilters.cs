@@ -26,6 +26,8 @@ namespace RentACar.API.Filters
 
                 // 4. Adamın kafasına çıplak listeyi değil, bu jilet gibi hazırlanmış kutuyu fırlatıyoruz!
                 context.Result = new BadRequestObjectResult(erroDetails);
+
+                return;
             }
 
             // 5. ONAY: Eğer if bloğuna girmediyse (çanta temizse), adamı AVM'nin içine (bir sonraki adıma / Controller'a) yolla.

@@ -94,7 +94,17 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             var errorData = JsonConvert.DeserializeObject<ErrorDetailsDto>(errorJsonData);
             if (errorData != null)
             {
-                ModelState.AddModelError(string.Empty, errorData.Message);
+                if (errorData.ValidationErrors != null && errorData.ValidationErrors.Any())
+                {
+                    foreach (var error in errorData.ValidationErrors)
+                    {
+                        ModelState.AddModelError(string.Empty, error);
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, errorData.Message);
+                }
             }
 
             await PopulateDropdowns(rentalCreateByAdminViewModel);
@@ -163,7 +173,17 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             var errorData = JsonConvert.DeserializeObject<ErrorDetailsDto>(errorJsonData);
             if (errorData != null)
             {
-                ModelState.AddModelError(string.Empty, errorData.Message);
+                if (errorData.ValidationErrors != null && errorData.ValidationErrors.Any())
+                {
+                    foreach (var error in errorData.ValidationErrors)
+                    {
+                        ModelState.AddModelError(string.Empty, error);
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, errorData.Message);
+                }
             }
 
             await PopulateDropdowns(viewModel);

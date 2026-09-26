@@ -51,7 +51,7 @@ namespace RentACar.API.Controllers
             return Ok(result);
         }
 
-        [HttpGet("rental/{rentalId}")]
+        [HttpGet("{rentalId}/rental")]
         public async Task<IActionResult> GetMyRentalByIdAsync(int rentalId)
         {
             int userId = GetUserIdFromClaims();
@@ -78,7 +78,7 @@ namespace RentACar.API.Controllers
             return Ok(result);
         }
 
-        [HttpPut("rental/{rentalId}")]
+        [HttpPut("{rentalId}/rental")]
         public async Task<IActionResult> UpdateMyRentalAsync(int rentalId, RentalUpdateReturnDateDto rentalUpdateReturnDateDto)
         {
             int userId = GetUserIdFromClaims();

@@ -18,6 +18,14 @@ namespace RentACar.Business.Concrete
         private readonly IPaymentService _paymentService;
         private readonly ICarStatusService _carStatusService;
         private readonly IFindexScoreService _findexScoreService;
+
+        // SENİOR MİMARİ NOTU: Constructor Over-Injection (Aşırı Bağımlılık) - Code Smell (Kod Kokusu)
+        // Şu an bu Manager (Şantiye Şefi) sınıfına tam 7 farklı servis dışarıdan enjekte edildi.
+        // N-Tier mimaride orta ölçekli projeler için bu pratik ve öğretici olsa da; 
+        // Kurumsal (Enterprise) projelerde bir sınıfın bu kadar çok yere bağımlı olması Test edilebilirliği zorlaştırır.
+        // ÇÖZÜM VİZYONU: İlerleyen büyük projelerde bu karmaşayı önlemek için Manager'ın yükünü dağıtacağız.
+        // "Facade Pattern" (Ön Cephe Tasarımı) veya "CQRS / MediatR" (Komut ve Sorgu Ayrışımı) gibi ileri seviye mimariler 
+        // kullanarak İş Kurallarını (Business Rules) çok daha modüler bir yapıya taşıyacağız.
         public RentalManager(IRentalRepository rentalRepository, IMapper mapper, ICarService carService, ICustomerService customerService, IPaymentService paymentService, ICarStatusService carStatusService, IFindexScoreService findexScoreService)
         {
             _rentalRepository = rentalRepository;
@@ -216,6 +224,9 @@ namespace RentACar.Business.Concrete
             var car = await _carService.GetByIdAsync(rentalUpdateDto.CarId);
             var newTotalAmount = CalculateTotalAmount(rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate, car.Data.DailyPrice);
             var difference = newTotalAmount - existingRental.TotalAmount;
+            // SENİOR NOTU: Müşteri aracı erken teslim ettiğinde (difference < 0) para iadesi YAPILMAMAKTADIR.
+            // Çünkü aracın o tarihler arası başka müşteriye kiralanma fırsatı (Fırsat Maliyeti) baltalanmıştır.
+            // İş kuralı gereği bu durum bilerek göz ardı edilmiştir.
             if (difference > 0)
             {
                 var paymentResult = await _paymentService.PayAsync(rentalUpdateDto.CreditCardInformation, difference);
@@ -246,7 +257,6 @@ namespace RentACar.Business.Concrete
             IResult? result = BusinessRules.Run
             (
                 CheckIfRentalIsAlreadyCompleted(existingRental.ReturnDate),
-                CheckIfReturnDateIsAfterRentDate(existingRental.RentDate, rentalUpdateReturnDateDto.ReturnDate),
                 await CheckIfCarAvailableForUpdate(rentalId, existingRental.CarId, existingRental.RentDate, rentalUpdateReturnDateDto.ReturnDate)
             );
             if (result != null)
@@ -257,6 +267,9 @@ namespace RentACar.Business.Concrete
             var car = await _carService.GetByIdAsync(existingRental.CarId);
             var newTotalAmount = CalculateTotalAmount(existingRental.RentDate, rentalUpdateReturnDateDto.ReturnDate, car.Data.DailyPrice);
             var difference = newTotalAmount - existingRental.TotalAmount;
+            // SENİOR NOTU: Müşteri aracı erken teslim ettiğinde (difference < 0) para iadesi YAPILMAMAKTADIR.
+            // Çünkü aracın o tarihler arası başka müşteriye kiralanma fırsatı (Fırsat Maliyeti) baltalanmıştır.
+            // İş kuralı gereği bu durum bilerek göz ardı edilmiştir.
             if (difference > 0)
             {
                 var paymentResult = await _paymentService.PayAsync(rentalUpdateReturnDateDto.CreditCardInformation, difference);
@@ -309,15 +322,6 @@ namespace RentACar.Business.Concrete
             return new SuccessResult();
         }
 
-        private IResult CheckIfReturnDateIsAfterRentDate(DateTime rentDate, DateTime returnDate)
-        {
-            if (returnDate.Date < rentDate.Date)
-            {
-                return new ErrorResult("Dönüş tarihi, kiralama başlangıç tarihinden önce olamaz!");
-            }
-            return new SuccessResult();
-        }
-
         private IResult CheckIfRentalIsAlreadyCompleted(DateTime? returnDate)
         {
             // Kural 1: Araç henüz teslim edilmemiş (ucu açık kiralama). Güncellemeye izin ver.
@@ -364,11 +368,18 @@ namespace RentACar.Business.Concrete
 
         private decimal CalculateTotalAmount(DateTime rentDate, DateTime? returnDate, decimal dailyPrice)
         {
-            int totalDays = 1;
+            decimal totalDays = 1;
             if (returnDate.HasValue)
             {
                 var timeSpan = returnDate.Value - rentDate;
-                totalDays = timeSpan.Days;
+
+                // SENİOR NOTU: Neden (decimal) ile Casting (Bilinçli Tip Dönüşümü) yaptık?
+                // Math.Ceiling fonksiyonu bize 'double' döner (Bilim İnsanı mantığı: virgüllü ve esnek).
+                // Ancak para işlemleri (dailyPrice) sıfır hata payı isteyen 'decimal' (Muhasebeci mantığı) tipindedir.
+                // C# derleyicisi bu iki farklı dünyanın çarpılmasına güvenlik gereği izin vermez.
+                // Bu yüzden (decimal) yazarak "Bilim insanının yuvarladığı sayıyı, muhasebecinin diline çevir" dedik.
+                totalDays = (decimal)Math.Ceiling(timeSpan.TotalDays);
+
                 if (totalDays == 0 || totalDays < 0) { totalDays = 1; }
             }
             var totalAmount = totalDays * dailyPrice;
