@@ -6,7 +6,7 @@ namespace RentACar.Business.Abstract
 {
     public interface ICarImageService
     {
-        Task<IResult> AddAsync(CarImageCreateDto carImageAddDto);
+        Task<IDataResult<int>> AddAsync(CarImageCreateDto carImageAddDto);
         Task<IResult> UpdateAsync(CarImageUpdateDto carImageUpdateDto);
         Task<IResult> DeleteAsync(int id);
         Task<IDataResult<List<CarImageDetailDto>>> GetImagesByCarIdAsync(int carId);

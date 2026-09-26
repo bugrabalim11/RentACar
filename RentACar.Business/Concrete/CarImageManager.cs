@@ -26,7 +26,7 @@ namespace RentACar.Business.Concrete
             _mapper = mapper;
         }
 
-        public async Task<IResult> AddAsync(CarImageCreateDto carImageAddDto)
+        public async Task<IDataResult<int>> AddAsync(CarImageCreateDto carImageAddDto)
         {
             var car = await _carService.GetByIdAsync(carImageAddDto.CarId);
 
@@ -55,7 +55,7 @@ namespace RentACar.Business.Concrete
             };
 
             await _carImageRepository.AddAsync(carImage);
-            return new SuccessResult("Resim başarıyla eklendi.");
+            return new SuccessDataResult<int>(carImage.Id, "Resim başarıyla eklendi.");
         }
 
         public async Task<IResult> DeleteAsync(int id)

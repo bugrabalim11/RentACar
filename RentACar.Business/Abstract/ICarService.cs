@@ -14,8 +14,8 @@ namespace RentACar.Business.Abstract
         // 2. Tekil Dönerken
         Task<IDataResult<CarDetailDto>> GetByIdAsync(int id);
 
-        // 3. Ekle, Sil, Güncelle işlemleri sadece boş kargo kutusu (IResult) döner
-        Task<IResult> AddAsync(CarCreateDto carAddDto);
+        // 3. Sil, Güncelle işlemleri sadece boş kargo kutusu (IResult) döner
+        Task<IDataResult<int>> AddAsync(CarCreateDto carAddDto);
         Task<IResult> UpdateAsync(CarUpdateDto carUpdateDto);
         Task<IResult> DeleteAsync(int id);
         Task<IResult> CheckIfCarExistsAsync(int carId);

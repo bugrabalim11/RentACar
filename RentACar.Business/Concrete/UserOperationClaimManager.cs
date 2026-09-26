@@ -22,7 +22,7 @@ namespace RentACar.Business.Concrete
             _referenceCheckService = referenceCheckService;
         }
 
-        public async Task<IResult> AddAsync(UserOperationClaimCreateDto userOperationClaimAddDto)
+        public async Task<IDataResult<int>> AddAsync(UserOperationClaimCreateDto userOperationClaimAddDto)
         {
             // İŞ KURALI(BUSINESS RULE) KONTROLÜ - YENİ EKLENEN KISIM
             IResult? result = BusinessRules.Run(
@@ -37,7 +37,7 @@ namespace RentACar.Business.Concrete
 
             var userOperationClaim = _mapper.Map<UserOperationClaim>(userOperationClaimAddDto);
             await _userOperationClaimRepository.AddAsync(userOperationClaim);
-            return new SuccessResult("Kullanıcıya yetki başarıyla atandı.");
+            return new SuccessDataResult<int>(userOperationClaim.Id, "Kullanıcıya yetki başarıyla atandı.");
         }
 
         public async Task<IResult> DeleteAsync(int id)

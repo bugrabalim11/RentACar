@@ -24,7 +24,7 @@ namespace RentACar.Business.Concrete
             _carStatusService = carStatusService;
         }
 
-        public async Task<IResult> AddAsync(CarMaintenanceCreateDto carMaintenanceAddDto)
+        public async Task<IDataResult<int>> AddAsync(CarMaintenanceCreateDto carMaintenanceAddDto)
         {
             // 1. ZAMAN YOLCUSU AYARI (Timezone): PostgreSQL UTC saat formatı ister. 
             // Garsonun getirdiği bu tarihe "Bu Evrensel (UTC) bir tarihtir" etiketini (mührünü) basıyoruz.
@@ -50,7 +50,7 @@ namespace RentACar.Business.Concrete
             // 4. İŞLEM: DTO'yu Entity'e çevir ve veritabanına kaydet.
             var maintenance = _mapper.Map<CarMaintenance>(carMaintenanceAddDto);
             await _carMaintenanceRepository.AddAsync(maintenance);
-            return new SuccessResult("Aracın tamir tarihleri başarıyla sisteme kaydedildi.");
+            return new SuccessDataResult<int>(maintenance.Id, "Aracın tamir tarihleri başarıyla sisteme kaydedildi.");
         }
 
         public async Task<IResult> DeleteAsync(int id)

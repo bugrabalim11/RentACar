@@ -20,7 +20,7 @@ namespace RentACar.Business.Concrete
             _mapper = mapper;
         }
 
-        public async Task<IResult> AddAsync(ContactMessageCreateDto contactMessageAddDto)
+        public async Task<IDataResult<int>> AddAsync(ContactMessageCreateDto contactMessageAddDto)
         {
             // 1. TEMİZLİK
             contactMessageAddDto.Email = contactMessageAddDto.Email.Trim().ToLower();
@@ -38,7 +38,7 @@ namespace RentACar.Business.Concrete
             contactMessage.IsRead = false;
 
             await _contactMessageRepository.AddAsync(contactMessage);
-            return new SuccessResult("Mesajınız başarıyla gönderildi.");
+            return new SuccessDataResult<int>(contactMessage.Id, "Mesajınız başarıyla gönderildi.");
         }
 
         public async Task<IResult> DeleteAsync(int id)

@@ -23,7 +23,7 @@ namespace RentACar.Business.Concrete
             _carService = carService;
         }
 
-        public async Task<IResult> AddAsync(BrandCreateDto brandAddDto)
+        public async Task<IDataResult<int>> AddAsync(BrandCreateDto brandAddDto)
         {
             // 1. TEMİZLİK: Gelen verinin sağındaki ve solundaki görünmez boşlukları tıraşla (Kandırmacayı önle)
             brandAddDto.Name = brandAddDto.Name.Trim();
@@ -40,7 +40,7 @@ namespace RentACar.Business.Concrete
             var brand = _mapper.Map<Brand>(brandAddDto);
             await _brandRepository.AddAsync(brand);
 
-            return new SuccessResult("Marka başarıyla eklendi.");
+            return new SuccessDataResult<int>(brand.Id, "Marka başarıyla eklendi.");
         }
 
 
