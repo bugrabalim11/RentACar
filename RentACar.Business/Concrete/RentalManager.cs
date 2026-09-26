@@ -37,7 +37,7 @@ namespace RentACar.Business.Concrete
             _findexScoreService = findexScoreService;
         }
 
-        public async Task<IResult> AddAsync(RentalCreateDto rentalAddDto, int userId)
+        public async Task<IDataResult<int>> AddAsync(RentalCreateDto rentalAddDto, int userId)
         {
             // 1. RentDate (Başlangıç tarihi) zaten boş olamaz (Nullable değil). Ona direkt etiketi bas:
             rentalAddDto.RentDate = DateTime.SpecifyKind(rentalAddDto.RentDate, DateTimeKind.Utc);
@@ -91,10 +91,14 @@ namespace RentACar.Business.Concrete
 
             rental.TotalAmount = totalAmount;
             await _rentalRepository.AddAsync(rental);
-            return new SuccessResult("Araç kiralama başarıyla oluşturuldu.");
+            // SENİOR MİMARİ NOTU: Postman Otomasyonu ve RESTful Standartları Gereği;
+            // Yeni bir veri (POST/Create) eklendiğinde geriye sadece "Başarılı" mesajı dönmek YETERSİZDİR.
+            // Sistemi tüketen diğer yazılımların (Client) veya Test Robotlarının zincirleme işlem yapabilmesi için,
+            // veritabanında (SQL) yeni oluşan ID'yi (rental.Id) kutunun (SuccessDataResult) içine koyup iade etmek ZORUNDAYIZ.
+            return new SuccessDataResult<int>(rental.Id, "Araç kiralama başarıyla oluşturuldu.");
         }
 
-        public async Task<IResult> AddByAdminAsync(RentalCreateByAdminDto rentalAddByAdminDto)
+        public async Task<IDataResult<int>> AddByAdminAsync(RentalCreateByAdminDto rentalAddByAdminDto)
         {
             rentalAddByAdminDto.RentDate = DateTime.SpecifyKind(rentalAddByAdminDto.RentDate, DateTimeKind.Utc);
             if (rentalAddByAdminDto.ReturnDate.HasValue)
@@ -128,7 +132,7 @@ namespace RentACar.Business.Concrete
 
             rental.TotalAmount = totalAmount;
             await _rentalRepository.AddAsync(rental);
-            return new SuccessResult("Araç kiralama başarıyla oluşturuldu.");
+            return new SuccessDataResult<int>(rental.Id, "Araç kiralama başarıyla oluşturuldu.");
         }
 
         public async Task<IResult> DeleteAsync(int id)

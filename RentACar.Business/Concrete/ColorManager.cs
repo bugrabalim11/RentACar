@@ -25,7 +25,7 @@ namespace RentACar.Business.Concrete
             _referenceCheckService = referenceCheckService;
         }
 
-        public async Task<IResult> AddAsync(ColorCreateDto colorAddDto)
+        public async Task<IDataResult<int>> AddAsync(ColorCreateDto colorAddDto)
         {
             colorAddDto.Name = colorAddDto.Name.Trim();
 
@@ -39,7 +39,7 @@ namespace RentACar.Business.Concrete
 
             var color = _mapper.Map<Color>(colorAddDto);
             await _colorRepository.AddAsync(color);
-            return new SuccessResult("Renk başarıyla eklendi.");
+            return new SuccessDataResult<int>(color.Id, "Renk başarıyla eklendi.");
         }
 
         public async Task<IResult> DeleteAsync(int id)

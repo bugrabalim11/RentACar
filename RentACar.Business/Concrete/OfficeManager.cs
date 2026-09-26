@@ -23,7 +23,7 @@ namespace RentACar.Business.Concrete
             _referenceCheckService = referenceCheckService;
         }
 
-        public async Task<IResult> AddAsync(OfficeCreateDto officeAddDto)
+        public async Task<IDataResult<int>> AddAsync(OfficeCreateDto officeAddDto)
         {
             officeAddDto.Name = officeAddDto.Name.Trim();
             officeAddDto.City = officeAddDto.City.Trim();
@@ -36,7 +36,7 @@ namespace RentACar.Business.Concrete
 
             var office = _mapper.Map<Office>(officeAddDto);
             await _officeRepository.AddAsync(office);
-            return new SuccessResult("Ofis başarıyla eklendi.");
+            return new SuccessDataResult<int>(office.Id, "Ofis başarıyla eklendi.");
         }
 
         public async Task<IResult> DeleteAsync(int id)

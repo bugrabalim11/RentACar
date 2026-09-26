@@ -8,7 +8,7 @@ namespace RentACar.Business.Abstract
         Task<IDataResult<List<UserOperationClaimResultDto>>> GetAllAsync();
         Task<IDataResult<UserOperationClaimResultDto>> GetByIdAsync(int id);
         Task<IDataResult<List<UserOperationClaimDetailDto>>> GetMyOperationClaimsAsync(int userId);
-        Task<IResult> AddAsync(UserOperationClaimCreateDto userOperationClaimAddDto);
+        Task<IDataResult<int>> AddAsync(UserOperationClaimCreateDto userOperationClaimAddDto);
         Task<IResult> UpdateAsync(UserOperationClaimUpdateDto userOperationClaimUpdateDto);
         Task<IResult> DeleteAsync(int id);
 

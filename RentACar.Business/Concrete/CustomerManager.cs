@@ -21,7 +21,7 @@ namespace RentACar.Business.Concrete
             _mapper = mapper;
             _referenceCheckService = referenceCheckService;
         }
-        public async Task<IResult> AddForAdminAsync(CustomerCreateByAdminDto customerAddByAdminDto)
+        public async Task<IDataResult<int>> AddForAdminAsync(CustomerCreateByAdminDto customerAddByAdminDto)
         {
             customerAddByAdminDto.NationalIdentity = customerAddByAdminDto.NationalIdentity.Trim();
 
@@ -37,10 +37,10 @@ namespace RentACar.Business.Concrete
 
             var customer = _mapper.Map<Customer>(customerAddByAdminDto);
             await _customerRepository.AddAsync(customer);
-            return new SuccessResult("Müşteri profili başarıyla oluşturuldu.");
+            return new SuccessDataResult<int>(customer.Id, "Müşteri profili başarıyla oluşturuldu.");
         }
 
-        public async Task<IResult> AddAsync(int userId, CustomerCreateDto customerAddDto)
+        public async Task<IDataResult<int>> AddAsync(int userId, CustomerCreateDto customerAddDto)
         {
             customerAddDto.NationalIdentity = customerAddDto.NationalIdentity.Trim();
 
@@ -58,7 +58,7 @@ namespace RentACar.Business.Concrete
             var customer = _mapper.Map<Customer>(customerAddDto);
             customer.UserId = userId;
             await _customerRepository.AddAsync(customer);
-            return new SuccessResult("Müşteri başarıyla eklendi.");
+            return new SuccessDataResult<int>(customer.Id, "Müşteri başarıyla eklendi.");
         }
 
         public async Task<IResult> DeleteAsync(int id)

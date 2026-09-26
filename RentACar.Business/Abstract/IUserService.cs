@@ -12,11 +12,11 @@ namespace RentACar.Business.Abstract
         Task<IDataResult<UserResultDto>> GetMyProfile(int id);
 
         // Güvenlik Şefinin (AuthManager) doğrudan kullanacağı, çıplak Entity kabul eden masa
-        Task<IResult> AddAsync(User user);
+        Task<IDataResult<int>> AddAsync(User user);
 
         Task<IDataResult<UserUpdateByAdminDto>> GetByIdForUpdateAsync(int id);
         Task<IResult> UpdateForAdminAsync(UserUpdateByAdminDto userUpdateForAdminDto);
-        Task<IResult> CreateForAdminAsync(UserCreateByAdminDto userCreateForAdminDto);
+        Task<IDataResult<int>> CreateForAdminAsync(UserCreateByAdminDto userCreateForAdminDto);
         Task<IResult> UpdateMyProfileAsync(int userId, UserProfileUpdateDto userProfileUpdateDto);
         Task<IResult> DeleteAsync(int id);
         Task<IResult> RestoreAsync(int id);

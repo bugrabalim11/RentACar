@@ -12,7 +12,7 @@ namespace RentACar.Business.Abstract
         Task<IDataResult<BrandResultDto>> GetByIdAsync(int id);
 
         // Eski hali: Task AddAsync(BrandCreateDto brandAddDto);
-        Task<IResult> AddAsync(BrandCreateDto brandAddDto);
+        Task<IDataResult<int>> AddAsync(BrandCreateDto brandAddDto);
 
         // Eski hali: Task<bool> UpdateAsync(BrandUpdateDto brandUpdateDto);
         Task<IResult> UpdateAsync(BrandUpdateDto brandUpdateDto);

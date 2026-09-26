@@ -24,7 +24,7 @@ namespace RentACar.Business.Concrete
             _referenceCheckService = referenceCheckService;
         }
 
-        public async Task<IResult> AddAsync(CarCreateDto carAddDto)
+        public async Task<IDataResult<int>> AddAsync(CarCreateDto carAddDto)
         {
             carAddDto.Plate = carAddDto.Plate.Replace(" ", "").ToUpper();
 
@@ -41,7 +41,7 @@ namespace RentACar.Business.Concrete
             // 3. KAYIT (Her şey tamamsa yemeği pişir)
             var car = _mapper.Map<Car>(carAddDto);
             await _carRepository.AddAsync(car);
-            return new SuccessResult("Araç başarıyla eklendi.");
+            return new SuccessDataResult<int>(car.Id, "Araç başarıyla eklendi.");
         }
 
         public async Task<IResult> DeleteAsync(int id)

@@ -117,7 +117,7 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<UserResultDto>(userDto, "Profil başarıyla getirildi.");
         }
 
-        public async Task<IResult> CreateForAdminAsync(UserCreateByAdminDto userCreateForAdminDto)
+        public async Task<IDataResult<int>> CreateForAdminAsync(UserCreateByAdminDto userCreateForAdminDto)
         {
             // 1. İş Kuralı Kontrolü: Bu e-posta daha önce alınmış mı diye güvenlik kurallarımıza soruyoruz.
             userCreateForAdminDto.Email = userCreateForAdminDto.Email.Trim().ToLower();
@@ -153,10 +153,10 @@ namespace RentACar.Business.Concrete
                     OperationClaimId = userCreateForAdminDto.OperationClaimId.Value
                 };
                 await _userOperationClaimService.AddAsync(userOperationClaimCreateDto);
-                return new SuccessResult("Kullanıcı başarıyla eklendi ve rütbe ataması yapıldı.");
+                return new SuccessDataResult<int>(userOperationClaimCreateDto.UserId, "Kullanıcı başarıyla eklendi ve rütbe ataması yapıldı.");
             }
 
-            return new SuccessResult("Kullanıcı başarıyla eklendi.");
+            return new SuccessDataResult<int>(user.Id, "Kullanıcı başarıyla eklendi.");
         }
 
         public async Task<IResult> UpdateForAdminAsync(UserUpdateByAdminDto userUpdateForAdminDto)
@@ -251,7 +251,7 @@ namespace RentACar.Business.Concrete
         }
 
 
-        public async Task<IResult> AddAsync(User user)
+        public async Task<IDataResult<int>> AddAsync(User user)
         {
             // Senior Vizyonu: Burada neden Validation (Kapı Memuru) veya AutoMapper yok?
             // Çünkü bu metodu sadece AuthManager çağıracak. AuthManager zaten kapıda şifre kurallarına baktı, 
@@ -259,7 +259,7 @@ namespace RentACar.Business.Concrete
             // O yüzden direkt ameleyle (Repository) depoya yolluyoruz!
 
             await _userRepository.AddAsync(user);
-            return new SuccessResult("Kullancı güvenli bir şekilde sisteme eklendi.");
+            return new SuccessDataResult<int>(user.Id, "Kullancı güvenli bir şekilde sisteme eklendi.");
         }
 
         public async Task<IResult> CheckIfEmailExistsAsync(string email)

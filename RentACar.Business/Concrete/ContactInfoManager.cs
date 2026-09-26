@@ -20,7 +20,7 @@ namespace RentACar.Business.Concrete
             _mapper = mapper;
         }
 
-        public async Task<IResult> AddAsync(ContactInfoCreateDto contactInfoAddDto)
+        public async Task<IDataResult<int>> AddAsync(ContactInfoCreateDto contactInfoAddDto)
         {
             // SINGLETON KURALI: Sistemde sadece 1 adet aktif iletişim bilgisi olabilir!
             IResult? result = BusinessRules.Run(await CheckIfContactInfoAlreadyExistsAsync());
@@ -31,7 +31,7 @@ namespace RentACar.Business.Concrete
 
             var contactInfo = _mapper.Map<ContactInfo>(contactInfoAddDto);
             await _contactInfoRepository.AddAsync(contactInfo);
-            return new SuccessResult("İletişim bilgisi başarıyla eklendi.");
+            return new SuccessDataResult<int>(contactInfo.Id, "İletişim bilgisi başarıyla eklendi.");
         }
 
         public async Task<IResult> DeleteAsync(int id)

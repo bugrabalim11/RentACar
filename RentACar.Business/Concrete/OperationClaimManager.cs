@@ -21,7 +21,7 @@ namespace RentACar.Business.Concrete
             _mapper = mapper;
         }
 
-        public async Task<IResult> AddAsync(OperationClaimCreateDto operationClaimAddDto)
+        public async Task<IDataResult<int>> AddAsync(OperationClaimCreateDto operationClaimAddDto)
         {
             operationClaimAddDto.Name = operationClaimAddDto.Name.Trim();
             IResult? result = BusinessRules.Run(await CheckIfOperationClaimExistsAsync(operationClaimAddDto.Name));
@@ -32,7 +32,7 @@ namespace RentACar.Business.Concrete
 
             var operationClaim = _mapper.Map<OperationClaim>(operationClaimAddDto);
             await _operationClaimRepository.AddAsync(operationClaim);
-            return new SuccessResult("Yeni yetki başarıyla eklendi.");
+            return new SuccessDataResult<int>(operationClaim.Id, "Yeni yetki başarıyla eklendi.");
         }
 
         public async Task<IResult> DeleteAsync(int id)
