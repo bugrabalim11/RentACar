@@ -2,13 +2,14 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RentACar.MVC.Areas.Admin.Models.AuthDtos;
+using RentACar.MVC.Controllers;
 using RentACar.MVC.Models.Responses;
 
 namespace RentACar.MVC.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [AllowAnonymous]
-    public class LoginController : Controller
+    public class LoginController : BaseController
     {
         private readonly IHttpClientFactory _httpClientFactory;
 
@@ -42,16 +43,8 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             // 5. KAZA KONTROLÜ (BAŞARISIZLIK): Eğer kurye kapıdan kovulursa (Örn: Şifre yanlış)
             if (!responseMessage.IsSuccessStatusCode)
             {
-                // API'den dönen kırmızı hata notunu oku ve bizim Hata Kalıbına (ErrorDetailsDto) dök.
-                var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
-                var errrorData = JsonConvert.DeserializeObject<ErrorDetailsDto>(errorJsonData);
-
-                if (errrorData != null)
-                {
-                    // Müşteriye formu silmeden, üzerine kırmızı hata notunu yapıştırarak geri ver.
-                    ModelState.AddModelError(string.Empty, errrorData.Message);
-                    return View(userForLoginDto);
-                }
+                await HandleApiErrorAsync(responseMessage);
+                return View(userForLoginDto);
             }
 
             // 6. ZAFER (BAŞARI): Kod buraya kadar takılmadan ulaştıysa, kurye başarılı dönmüş (200 OK) demektir!
