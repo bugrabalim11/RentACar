@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using RentACar.MVC.Areas.Admin.Models.BrandDtos;
 using RentACar.MVC.Areas.Admin.Models.CarDtos;
 using RentACar.MVC.Areas.Admin.Models.ColorDtos;
+using RentACar.MVC.Controllers;
 using RentACar.MVC.Models.Interfaces;
 using RentACar.MVC.Models.Responses;
 using System.Text;
@@ -12,7 +13,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = "admin")]
-    public class CarsController : Controller
+    public class CarsController : BaseController
     {
         private readonly IHttpClientFactory _httpClientFactory;
 
@@ -48,11 +49,8 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             {
                 return Json(new { success = true });
             }
-            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                return Json(new { success = false, message = "Bu işlem için yetkiniz yok. Lütfen giriş yapın!" });
-            }
-            return Json(new { success = false, message = "Api tarafından silme işlemi başarısız oldu!" });
+            string errorMessage = await GetApiErrorMessageAsync(responseMessage);
+            return Json(new { success = false, message = errorMessage });
         }
 
         [HttpGet]
@@ -102,23 +100,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 return RedirectToAction("Index");
             }
 
-            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                ModelState.AddModelError(string.Empty, "Bu işlem için yetkiniz yok. Lütfen giriş yapın!");
-                // Hata sayfası döneceği için tepsiyi yine doldurmalıyız!
-                await PopulateDropdowns(carCreateViewModel);
-                return View(carCreateViewModel);
-            }
-
-            var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
-            var errorData = JsonConvert.DeserializeObject<ErrorDetailsDto>(errorJsonData);
-            if (errorData != null)
-            {
-                ModelState.AddModelError(string.Empty, errorData.Message);
-            }
-
-            // EN ALTTA BİR DAHA DOLDUR!
-            // Buraya kadar geldiysek kesin bir hata vardır ve sayfa geri dönecektir. Listeleri doldurmadan yollama!
+            await HandleApiErrorAsync(responseMessage);
             await PopulateDropdowns(carCreateViewModel);
             return View(carCreateViewModel);
         }
@@ -164,19 +146,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             {
                 return RedirectToAction("Index");
             }
-            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                ModelState.AddModelError(string.Empty, "Bu işlem için yetkiniz yok. Lütfen giriş yapın!");
-                await PopulateDropdowns(carUpdateViewModel);
-                return View(carUpdateViewModel);
-            }
-
-            var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
-            var errorData = JsonConvert.DeserializeObject<ErrorDetailsDto>(errorJsonData);
-            if (errorData != null)
-            {
-                ModelState.AddModelError(string.Empty, errorData.Message);
-            }
+            await HandleApiErrorAsync(responseMessage);
             await PopulateDropdowns(carUpdateViewModel);
             return View(carUpdateViewModel);
         }
@@ -202,7 +172,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 {
                     // DİKKAT: 'new ViewModel()' DEMİYORUZ! Kullanıcının doldurduğu mevcut 'viewModel' içine 
                     // sadece eksik olan listeleri monte ediyoruz ki adamın yazdığı veriler silinmesin!
-                    carDropdownViewModel.Brands =brandsResponseBox.Data;
+                    carDropdownViewModel.Brands = brandsResponseBox.Data;
                     carDropdownViewModel.Colors = colorsResponseBox.Data;
                 }
             }
