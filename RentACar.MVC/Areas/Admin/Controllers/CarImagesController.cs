@@ -102,8 +102,8 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 return RedirectToAction("Index", new { carId = carImageCreateDto.CarId });
             }
 
-            // API'den hata dönerse (örn: 5MB sınırı aşıldıysa) aynı sayfada kal
-            var errorMessage = await responseMessage.Content.ReadAsStringAsync();
+            // Refactor: BaseController ile hatayı ekrana bas
+            await HandleApiErrorAsync(responseMessage);
             return View(carImageCreateDto);
         }
     }
