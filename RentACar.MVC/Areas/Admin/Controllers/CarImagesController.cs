@@ -2,13 +2,14 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RentACar.MVC.Areas.Admin.Models.CarImageDtos;
+using RentACar.MVC.Controllers;
 using RentACar.MVC.Models.Responses;
 
 namespace RentACar.MVC.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = "admin")]
-    public class CarImagesController : Controller
+    public class CarImagesController : BaseController
     {
         private readonly IHttpClientFactory _httpClientFactory;
 
@@ -48,11 +49,8 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             {
                 return Json(new { success = true });
             }
-            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                return Json(new { success = false, message = "Bu işlem için yetkiniz yok. Lütfen giriş yapın!" });
-            }
-            return Json(new { success = false, message = "Api tarafından silme işlemi başarısız oldu!" });
+            string errorMessage = await GetApiErrorMessageAsync(responseMessage);
+            return Json(new { success = false, message = errorMessage });
         }
 
         [HttpGet]

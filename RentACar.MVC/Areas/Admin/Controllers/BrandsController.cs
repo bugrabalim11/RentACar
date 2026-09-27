@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RentACar.MVC.Areas.Admin.Models.BrandDtos;
+using RentACar.MVC.Controllers;
 using RentACar.MVC.Models.Responses;
 using System.Text;
 
@@ -9,7 +10,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = "admin")]
-    public class BrandsController : Controller
+    public class BrandsController : BaseController
     {
         private readonly IHttpClientFactory _httpClientFactory;
         public BrandsController(IHttpClientFactory httpClientFactory)
@@ -47,12 +48,8 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             {
                 return Json(new { success = true });
             }
-            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                return Json(new { success = false, message = "Bu işlem için yetkiniz yok. Lütfen giriş yapın!" });
-            }
-
-            return Json(new { success = false, message = "API tarafında silme işlemi başarısız oldu!" });
+            string errorMessage = await GetApiErrorMessageAsync(responseMessage);
+            return Json(new { success = false, message = errorMessage });
         }
 
         [HttpGet]
@@ -91,23 +88,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 return RedirectToAction("Index");
             }
 
-            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                ModelState.AddModelError(string.Empty, "Bu işlem için yetkiniz yok. Lütfen giriş yapın!");
-                return View(brandCreateDto);
-            }
-            // 1. ZARFI AÇ VE OKU (ReadAsStringAsync): Mutfaktan gelen kızgın notu (JSON) metin olarak okuyoruz.
-            var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
-
-            // 2. ÇEVİRMEN (Deserialize): Okuduğumuz JSON notunu, az önce yaptığımız Çevik Kuryeye (ErrorDetailsDto) dönüştürüyoruz.
-            var errorData = JsonConvert.DeserializeObject<ErrorDetailsDto>(errorJsonData);
-            if (errorData != null)
-            {
-                // 3. MÜŞTERİYE NOT YAPIŞTIR (ModelState.AddModelError):
-                // Kurye boş sipariş fişini müşteriye geri vermeden önce, formun üzerine kırmızı bir not yapıştırıyor!
-                ModelState.AddModelError(string.Empty, errorData.Message);
-            }
-
+            await HandleApiErrorAsync(responseMessage);
             // brandCreateDto dödürdük ki hata varsa hepsini tekrar yazmasın 
             return View(brandCreateDto);
         }
@@ -164,18 +145,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Eğer mutfak bizi direkt kapıdan kovduysa (Giriş yapmamışsak)
-            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                ModelState.AddModelError(string.Empty, "Bu işlem için yetkiniz yok. Lütfen giriş yapın!");
-                return View(brandUpdateDto);
-            }
-            var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
-            var errorData = JsonConvert.DeserializeObject<ErrorDetailsDto>(errorJsonData);
-            if (errorData != null)
-            {
-                ModelState.AddModelError(string.Empty, errorData.Message);
-            }
+            await HandleApiErrorAsync(responseMessage);
             return View(brandUpdateDto);
         }
     }

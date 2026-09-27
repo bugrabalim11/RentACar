@@ -1,17 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
 using RentACar.MVC.Areas.Admin.Models.OperationClaimDtos;
 using RentACar.MVC.Areas.Admin.Models.UserDtos;
+using RentACar.MVC.Controllers;
 using RentACar.MVC.Models.Interfaces;
 using RentACar.MVC.Models.Responses;
-using System.Diagnostics.Eventing.Reader;
 using System.Text;
 
 namespace RentACar.MVC.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class UsersController : Controller
+    public class UsersController : BaseController
     {
         private readonly IHttpClientFactory _httpClientFactory;
 
@@ -48,11 +47,10 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             {
                 return Json(new { success = true });
             }
-            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                return Json(new { success = false, message = "Bu işlem için yetkiniz yok. Lütfen giriş yapın!" });
-            }
-            return Json(new { success = false, message = "Api tarafından silme işlemi başarısız oldu!" });
+
+            // Eğer patladıysa, Bölge Müdürünü (BaseController) ara, hatayı metin olarak al ve JS kuryesine JSON olarak ver!
+            string errorMessage = await GetApiErrorMessageAsync(responseMessage);
+            return Json(new { success = false, message = errorMessage });
         }
 
         [HttpPost]
@@ -70,11 +68,8 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             {
                 return Json(new { success = true });
             }
-            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                return Json(new { success = false, message = "Bu işlem için yetkiniz yok. Lütfen giriş yapın!" });
-            }
-            return Json(new { success = false, message = "Api tarafından geri getirme işlemi başarısız oldu!" });
+            string errorMessage = await GetApiErrorMessageAsync(responseMessage);
+            return Json(new { success = false, message = errorMessage });
         }
 
         [HttpGet]
@@ -90,7 +85,6 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             return View(viewModel);
         }
 
-        // TODO TESTİ TEKRAR YAP
         [HttpPost]
         public async Task<IActionResult> Create(UserCreateByAdminViewModel userCreateForAdminViewModel)
         {
@@ -109,31 +103,9 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             {
                 return RedirectToAction("Index");
             }
-            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                ModelState.AddModelError(string.Empty, "Bu işlem için yetkiniz yok. Lütfen giriş yapın!");
-                await PopulateDropdown(userCreateForAdminViewModel);
-                return View(userCreateForAdminViewModel);
-            }
 
-            var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
-            var errorData = JsonConvert.DeserializeObject<ErrorDetailsDto>(errorJsonData);
-            // TODO: Refactor: DRY prensibi gereği, bu hata yakalama if-else bloğu ileride BaseController'a taşınacak!
-            if (errorData != null)
-            {
-                if (errorData.ValidationErrors != null && errorData.ValidationErrors.Any())
-                {
-                    foreach (var error in errorData.ValidationErrors)
-                    {
-                        ModelState.AddModelError(string.Empty, error);
-                    }
-                }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, errorData.Message);
-                }
-            }
-
+            // Refactor: DRY prensibi gereği, bu hata yakalama if-else bloğu BaseController'a taşındı!
+            await HandleApiErrorAsync(responseMessage);
             await PopulateDropdown(userCreateForAdminViewModel);
             return View(userCreateForAdminViewModel);
         }
@@ -179,30 +151,9 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             {
                 return RedirectToAction("Index");
             }
-            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                ModelState.AddModelError(string.Empty, "Bu işlem için yetkiniz yok. Lütfen giriş yapın!");
-                await PopulateDropdown(userUpdateForAdminViewModel);
-                return View(userUpdateForAdminViewModel);
-            }
 
-            var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
-            var errorData = JsonConvert.DeserializeObject<ErrorDetailsDto>(errorJsonData);
-            // TODO: Refactor: DRY prensibi gereği, bu hata yakalama if-else bloğu ileride BaseController'a taşınacak!
-            if (errorData != null)
-            {
-                if (errorData.ValidationErrors != null && errorData.ValidationErrors.Any())
-                {
-                    foreach (var error in errorData.ValidationErrors)
-                    {
-                        ModelState.AddModelError(string.Empty, error);
-                    }
-                }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, errorData.Message);
-                }
-            }
+            // Refactor: DRY prensibi gereği, bu hata yakalama if-else bloğu BaseController'a taşındı!
+            await HandleApiErrorAsync(responseMessage);
             await PopulateDropdown(userUpdateForAdminViewModel);
             return View(userUpdateForAdminViewModel);
         }

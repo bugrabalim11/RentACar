@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RentACar.MVC.Areas.Admin.Models.ColorDtos;
+using RentACar.MVC.Controllers;
 using RentACar.MVC.Models.Responses;
 using System.Text;
 
@@ -9,7 +10,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = "admin")]
-    public class ColorsController : Controller
+    public class ColorsController : BaseController
     {
         private readonly IHttpClientFactory _httpClientFactory;
 
@@ -46,11 +47,8 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             {
                 return Json(new { success = true });
             }
-            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                return Json(new { success = false, message = "Bu işlem için yetkiniz yok. Lütfen giriş yapın!" });
-            }
-            return Json(new { success = false, message = "Api tarafından silme işlemi başarısız oldu!" });
+            string errorMessage = await GetApiErrorMessageAsync(responseMessage);
+            return Json(new { success = false, message = errorMessage });
         }
 
         [HttpGet]
@@ -73,19 +71,8 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             {
                 return RedirectToAction("Index");
             }
-            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                ModelState.AddModelError(string.Empty, "Bu işlem için yetkiniz yok. Lütfen giriş yapın!");
-                return View(colorCreateDto);
-            }
 
-            var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
-            var errorData = JsonConvert.DeserializeObject<ErrorDetailsDto>(errorJsonData);
-            if (errorData != null)
-            {
-                ModelState.AddModelError(string.Empty, errorData.Message);
-            }
-
+            await HandleApiErrorAsync(responseMessage);
             return View(colorCreateDto);
         }
 
@@ -126,18 +113,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 return RedirectToAction("Index");
             }
 
-            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                ModelState.AddModelError(string.Empty, "Bu işlem için yetkiniz yok. Lütfen giriş yapın!");
-                return View(colorUpdateDto);
-            }
-
-            var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
-            var errorData = JsonConvert.DeserializeObject<ErrorDetailsDto>(errorJsonData);
-            if (errorData != null)
-            {
-                ModelState.AddModelError(string.Empty, errorData.Message);
-            }
+            await HandleApiErrorAsync(responseMessage);
             return View(colorUpdateDto);
         }
     }

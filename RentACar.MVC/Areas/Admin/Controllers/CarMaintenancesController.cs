@@ -2,15 +2,15 @@
 using Newtonsoft.Json;
 using RentACar.MVC.Areas.Admin.Models.CarDtos;
 using RentACar.MVC.Areas.Admin.Models.CarMaintenanceDtos;
+using RentACar.MVC.Controllers;
 using RentACar.MVC.Models.Interfaces;
 using RentACar.MVC.Models.Responses;
 using System.Text;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RentACar.MVC.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class CarMaintenancesController : Controller
+    public class CarMaintenancesController : BaseController
     {
         private readonly IHttpClientFactory _httpClientFactory;
 
@@ -46,11 +46,8 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             {
                 return Json(new { success = true });
             }
-            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                return Json(new { success = false, message = "Bu işlem için yetkiniz yok. Lütfen giriş yapın!" });
-            }
-            return Json(new { success = false, message = "Api tarafından silme işlemi başarısız oldu!" });
+            string errorMessage = await GetApiErrorMessageAsync(responseMessage);
+            return Json(new { success = false, message = errorMessage });
         }
 
         [HttpGet]
@@ -94,26 +91,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 return RedirectToAction("Index");
             }
 
-            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                ModelState.AddModelError(string.Empty, "Bu işlem için yetkiniz yok. Lütfen giriş yapın!");
-                await PopulateDropdowns(carMaintenanceCreateViewModel);
-                return View(carMaintenanceCreateViewModel);
-            }
-
-            var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
-            // Kuryeden nesne (Dto) değil, direkt metin (string) listesi geldiğini anladık.
-            var errorData = JsonConvert.DeserializeObject<List<string>>(errorJsonData);
-
-            if (errorData != null)
-            {
-                foreach (var message in errorData) // Sepetteki (errorData) her bir Post-it kağıdını (message) al
-                {
-                    // Vitrine direkt o düz metni bas
-                    ModelState.AddModelError(string.Empty, message);
-                }
-            }
-
+            await HandleApiErrorAsync(responseMessage);
             await PopulateDropdowns(carMaintenanceCreateViewModel);
             return View(carMaintenanceCreateViewModel);
         }
@@ -162,21 +140,8 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             {
                 return RedirectToAction("Index");
             }
-            if (responseMessage.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                ModelState.AddModelError(string.Empty, "Bu işlem için yetkiniz yok. Lütfen giriş yapın!");
-                return View(carMaintenanceUpdateDto);
-            }
-
-            var errorJsonData = await responseMessage.Content.ReadAsStringAsync();
-            var errorData = JsonConvert.DeserializeObject<List<string>>(errorJsonData);
-            if (errorData != null)
-            {
-                foreach (var message in errorData)
-                {
-                    ModelState.AddModelError(string.Empty, message);
-                }
-            }
+            
+            await HandleApiErrorAsync(responseMessage);
             return View(carMaintenanceUpdateDto);
         }
         private async Task PopulateDropdowns(ICarMaintenanceDropdownViewModel carMaintenanceDropdownViewModel)
