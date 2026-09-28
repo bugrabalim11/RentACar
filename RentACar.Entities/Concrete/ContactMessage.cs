@@ -9,7 +9,6 @@ namespace RentACar.Entities.Concrete
         public string Email { get; set; } = null!;
         public string Subject { get; set; } = null!;
         public string Message { get; set; } = null!;
-        public DateTime SendDate { get; set; }
         public bool IsRead { get; set; }
     }
 }

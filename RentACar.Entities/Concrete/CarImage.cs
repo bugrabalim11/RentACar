@@ -8,8 +8,6 @@ namespace RentACar.Entities.Concrete
         // Id, CreatedDate, UpdatedDate, DeletedDate ve IsDeleted otomatik olarak BaseEntity'den (Babadan) gelir!
         public int CarId { get; set; }
         public string ImagePath { get; set; } = null!;
-        public DateTime UploadDate { get; set; }
-
         public Car Car { get; set; } = null!;
     }
 }

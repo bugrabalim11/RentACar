@@ -44,7 +44,6 @@ namespace RentACar.Business.Concrete
 
             // SOFT DELETE: Çöpe atıyoruz, veritabanından tamamen silmiyoruz.
             existingContactInfo.IsDeleted = true;
-            existingContactInfo.DeletedDate = DateTime.UtcNow;
             await _contactInfoRepository.UpdateAsync(existingContactInfo);
             return new SuccessResult("İletişim bilgisi başarıyla silindi.");
         }

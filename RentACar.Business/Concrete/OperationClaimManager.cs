@@ -50,7 +50,6 @@ namespace RentACar.Business.Concrete
             }
 
             existingOperationClaim.IsDeleted = true;
-            existingOperationClaim.DeletedDate = DateTime.UtcNow;
             await _operationClaimRepository.UpdateAsync(existingOperationClaim);
             return new SuccessResult("Yetki başarıyla silindi.");
         }

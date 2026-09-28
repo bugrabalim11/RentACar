@@ -53,7 +53,6 @@ namespace RentACar.Business.Concrete
             }
 
             existingCar.IsDeleted = true;
-            existingCar.DeletedDate = DateTime.UtcNow;
             await _carRepository.UpdateAsync(existingCar);
             return new SuccessResult("Araç başarıyla silindi.");
         }

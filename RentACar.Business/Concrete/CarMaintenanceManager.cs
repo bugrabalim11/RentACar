@@ -63,7 +63,6 @@ namespace RentACar.Business.Concrete
 
             // SOFT DELETE (Yumuşak Silme): Gerçekten silmiyoruz, üzerini çizip çöp kutusuna atıyoruz.
             existingMaintenance.IsDeleted = true;
-            existingMaintenance.DeletedDate = DateTime.UtcNow;
 
             await _carMaintenanceRepository.UpdateAsync(existingMaintenance);
             return new SuccessResult("Tamir kaydı başaryla silindi.");

@@ -58,7 +58,6 @@ namespace RentACar.Business.Concrete
 
             // SOFT DELETE (Yumuşak Silme)
             existingColor.IsDeleted = true;
-            existingColor.DeletedDate = DateTime.UtcNow;
             await _colorRepository.UpdateAsync(existingColor);
             return new SuccessResult("Renk başarıyla silindi.");
         }

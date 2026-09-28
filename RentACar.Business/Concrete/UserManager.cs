@@ -32,7 +32,6 @@ namespace RentACar.Business.Concrete
             }
 
             existingUser.IsDeleted = true;
-            existingUser.DeletedDate = DateTime.UtcNow;
             await _userRepository.UpdateAsync(existingUser);
             return new SuccessResult("Kullanıcı başarıyla silindi.");
         }

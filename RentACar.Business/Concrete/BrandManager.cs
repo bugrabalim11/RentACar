@@ -54,7 +54,6 @@ namespace RentACar.Business.Concrete
 
             // SOFT DELETE (Yumuşak Silme): Veritabanından uçurmuyoruz, üzerini çiziyoruz.
             existingBrand.IsDeleted = true;
-            existingBrand.DeletedDate = DateTime.UtcNow;
 
             // BAĞIMLILIK TEMİZLİĞİ: Marka silinirse, o markaya ait arabaları da vitrinden kaldır.
             var existingCars = await _carService.GetAllByBrandIdAsync(id);

@@ -49,7 +49,6 @@ namespace RentACar.Business.Concrete
             }
 
             existingUserOperationClaim.IsDeleted = true;
-            existingUserOperationClaim.DeletedDate = DateTime.UtcNow;
             await _userOperationClaimRepository.UpdateAsync(existingUserOperationClaim);
             return new SuccessResult("Kullanıcının yetkisi başarıyla kaldırıldı.");
         }
