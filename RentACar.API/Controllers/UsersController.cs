@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
 using RentACar.Core.Entities.DTOs.UserDtos;
 using RentACar.Core.Exceptions;
-using System.Security.Claims;
+using RentACar.Core.Extensions;
 
 namespace RentACar.API.Controllers
 {
@@ -54,7 +54,7 @@ namespace RentACar.API.Controllers
         [HttpGet("profile")]
         public async Task<IActionResult> GetMyProfileAsync()
         {
-            int userId = GetUserIdFromClaims();
+            int userId = User.GetUserId();
             var result = await _userService.GetMyProfile(userId);
             return Ok(result);
         }
@@ -82,7 +82,7 @@ namespace RentACar.API.Controllers
         [HttpPut("profile")]
         public async Task<IActionResult> UpdateMyProfile(UserProfileUpdateDto userProfileUpdateDto)
         {
-            int userId = GetUserIdFromClaims();
+            int userId = User.GetUserId();
             var result = await _userService.UpdateMyProfileAsync(userId, userProfileUpdateDto);
             return Ok(result);
         }
@@ -106,20 +106,9 @@ namespace RentACar.API.Controllers
         [HttpDelete("profile")]
         public async Task<IActionResult> DeleteMyAccount()
         {
-            int userId = GetUserIdFromClaims();
+            int userId = User.GetUserId();
             var result = await _userService.DeleteAsync(userId);
             return Ok(result);
-        }
-
-        // TODO bu metodu "Extension Method" (Genişletme Metodu) dediğimiz tek bir merkeze taşıyıp bütün Controller'larda oradan çağıracağız.
-        private int GetUserIdFromClaims()
-        {
-            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdString))
-            {
-                throw new BusinessException("Kimlik doğrulama hatası! Geçerli bir token bulunamadı!");
-            }
-            return Convert.ToInt32(userIdString);
         }
     }
 }

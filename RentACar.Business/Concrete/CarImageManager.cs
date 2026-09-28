@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
+using RentACar.Business.Constants;
 using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Helpers.FileHelper;
@@ -39,8 +40,7 @@ namespace RentACar.Business.Concrete
             }
 
             // 3. FİZİKSEL YÜKLEME: Resmi sunucunun (wwwroot) klasörüne yükle.
-            // TODO Refactroing yap
-            string? imagePath = _fileHelper.Upload(carImageAddDto.ImageFile, "wwwroot\\Images");
+            string? imagePath = _fileHelper.Upload(carImageAddDto.ImageFile, PathConstants.ImagesPath);
             if (imagePath == null)
             {
                 throw new BusinessException("Resim yüklenirken bir hata oluştu veya dosya boş.");
@@ -88,8 +88,7 @@ namespace RentACar.Business.Concrete
                     new CarImageDetailDto
                     {
                         CarId = carId,
-                        // TODO Refactroing yap
-                        ImagePath = "wwwroot\\Images\\default.jpg",
+                        ImagePath = PathConstants.DefaultImagePath,
                         UploadDate = DateTime.UtcNow,
                         CarName = $"{car.Data?.BrandName} {car.Data?.ModelName}"
                     }
@@ -113,7 +112,7 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException("Resim bulunamadı!");
             }
 
-            string? newImagePath = _fileHelper.Update(carImageUpdateDto.ImageFile, existingCarImage.ImagePath, "wwwroot\\Images");
+            string? newImagePath = _fileHelper.Update(carImageUpdateDto.ImageFile, existingCarImage.ImagePath, PathConstants.ImagesPath);
             if (newImagePath == null)
             {
                 throw new BusinessException("Resim güncellenirken bir hata oluştu veya dosya boş.");

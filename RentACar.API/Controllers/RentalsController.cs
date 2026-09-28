@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
 using RentACar.Core.Exceptions;
+using RentACar.Core.Extensions;
 using RentACar.Dtos.RentalDtos;
-using System.Security.Claims;
 
 namespace RentACar.API.Controllers
 {
@@ -30,7 +30,7 @@ namespace RentACar.API.Controllers
         [HttpPost("rental")]
         public async Task<IActionResult> CreateAsync(RentalCreateDto rentalAddDto)
         {
-            int userId = GetUserIdFromClaims();
+            int userId = User.GetUserId();
             var result = await _rentalService.AddAsync(rentalAddDto, userId);
             return Ok(result);
         }
@@ -46,7 +46,7 @@ namespace RentACar.API.Controllers
         [HttpGet("rentals")]
         public async Task<IActionResult> GetMyRentalsAsync()
         {
-            int userId = GetUserIdFromClaims();
+            int userId = User.GetUserId();
             var result = await _rentalService.GetAllByUserIdAsync(userId);
             return Ok(result);
         }
@@ -54,7 +54,7 @@ namespace RentACar.API.Controllers
         [HttpGet("{rentalId}/rental")]
         public async Task<IActionResult> GetMyRentalByIdAsync(int rentalId)
         {
-            int userId = GetUserIdFromClaims();
+            int userId = User.GetUserId();
             var result = await _rentalService.GetMyRentalByIdAsync(rentalId, userId);
             return Ok(result);
         }
@@ -81,7 +81,7 @@ namespace RentACar.API.Controllers
         [HttpPut("{rentalId}/rental")]
         public async Task<IActionResult> UpdateMyRentalAsync(int rentalId, RentalUpdateReturnDateDto rentalUpdateReturnDateDto)
         {
-            int userId = GetUserIdFromClaims();
+            int userId = User.GetUserId();
             var result = await _rentalService.UpdateMyRentalAsync(userId, rentalId, rentalUpdateReturnDateDto);
             return Ok(result);
         }
@@ -92,16 +92,6 @@ namespace RentACar.API.Controllers
         {
             var result = await _rentalService.DeleteAsync(id);
             return Ok(result);
-        }
-
-        private int GetUserIdFromClaims()
-        {
-            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdString))
-            {
-                throw new BusinessException("Kimlik doğrulama hatası! Geçerli bir token bulunamadı!");
-            }
-            return Convert.ToInt32(userIdString);
         }
     }
 }
