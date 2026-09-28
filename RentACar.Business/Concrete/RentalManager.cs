@@ -150,7 +150,8 @@ namespace RentACar.Business.Concrete
         public async Task<IDataResult<List<RentalResultDto>>> GetAllAsync()
         {
             var rentals = await _rentalRepository.GetRentalsWithDetailsAsync();
-            var rentalsListDtos = _mapper.Map<List<RentalResultDto>>(rentals);
+            var sortedORentals = rentals.OrderByDescending(x => x.CreatedDate).ToList();
+            var rentalsListDtos = _mapper.Map<List<RentalResultDto>>(sortedORentals);
             return new SuccessDataResult<List<RentalResultDto>>(rentalsListDtos, "Kiralama işlemleri başarıyla listelendi.");
         }
 
@@ -162,7 +163,8 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException("Kullanıcıya ait kiralama işlemleri bulunamadı.");
             }
 
-            var mappedRentals = _mapper.Map<List<RentalResultDto>>(rentals);
+            var sortedRentals = rentals.OrderByDescending(x => x.CreatedDate).ToList();
+            var mappedRentals = _mapper.Map<List<RentalResultDto>>(sortedRentals);
             return new SuccessDataResult<List<RentalResultDto>>(mappedRentals, "Kullanıcıya ait kiralama işlemleri başarıyla listelendi.");
         }
 

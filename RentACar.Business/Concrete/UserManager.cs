@@ -8,6 +8,7 @@ using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.Core.Utilities.Security.Hashing;
 using RentACar.DataAccess.Abstract;
+using RentACar.Entities.Concrete;
 
 namespace RentACar.Business.Concrete
 {
@@ -54,14 +55,16 @@ namespace RentACar.Business.Concrete
         public async Task<IDataResult<List<UserResultDto>>> GetAllAsync()
         {
             var users = await _userRepository.GetAllAsync();
-            var userDtos = _mapper.Map<List<UserResultDto>>(users);
+            var sortedUsers = users.OrderByDescending(x => x.CreatedDate).ToList();
+            var userDtos = _mapper.Map<List<UserResultDto>>(sortedUsers);
             return new SuccessDataResult<List<UserResultDto>>(userDtos, "Kullanıcılar başarıyla listelendi.");
         }
 
         public async Task<IDataResult<List<UserResultByAdminDto>>> GetAllForAdminAsync()
         {
             var users = await _userRepository.GetAllAsync(ignoreQueryFilters: true);
-            var userDtos = _mapper.Map<List<UserResultByAdminDto>>(users);
+            var sortedUsers = users.OrderByDescending(x => x.CreatedDate).ToList();
+            var userDtos = _mapper.Map<List<UserResultByAdminDto>>(sortedUsers);
             return new SuccessDataResult<List<UserResultByAdminDto>>(userDtos, "Kullanıcılar başarıyla listelendi.");
         }
 

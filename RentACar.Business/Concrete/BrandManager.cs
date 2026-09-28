@@ -72,7 +72,11 @@ namespace RentACar.Business.Concrete
         public async Task<IDataResult<List<BrandResultDto>>> GetAllAsync()
         {
             var brands = await _brandRepository.GetAllAsync();
-            var brandDtos = _mapper.Map<List<BrandResultDto>>(brands);
+
+            // SENİOR DOKUNUŞU: UI'da zıplamayı engelle, en son eklenen marka hep en tepede çıksın!
+            var sortedBrands = brands.OrderByDescending(x => x.CreatedDate).ToList();
+
+            var brandDtos = _mapper.Map<List<BrandResultDto>>(sortedBrands);
             return new SuccessDataResult<List<BrandResultDto>>(brandDtos, "Markalar başarıyla listelendi.");
         }
 

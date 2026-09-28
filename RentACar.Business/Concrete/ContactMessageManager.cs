@@ -55,7 +55,8 @@ namespace RentACar.Business.Concrete
         public async Task<IDataResult<List<ContactMessageResultDto>>> GetAllAsync()
         {
             var contactMessages = await _contactMessageRepository.GetAllAsync();
-            var contactMessageDtos = _mapper.Map<List<ContactMessageResultDto>>(contactMessages);
+            var sortedContactMessages = contactMessages.OrderByDescending(x => x.CreatedDate).ToList();
+            var contactMessageDtos = _mapper.Map<List<ContactMessageResultDto>>(sortedContactMessages);
             return new SuccessDataResult<List<ContactMessageResultDto>>(contactMessageDtos, "Mesajlar başarıyla listelendi.");
         }
 

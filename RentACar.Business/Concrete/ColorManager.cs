@@ -66,7 +66,8 @@ namespace RentACar.Business.Concrete
         public async Task<IDataResult<List<ColorResultDto>>> GetAllAsync()
         {
             var colors = await _colorRepository.GetAllAsync();
-            var colorDtos = _mapper.Map<List<ColorResultDto>>(colors);
+            var sortedColorss = colors.OrderByDescending(x => x.CreatedDate).ToList();
+            var colorDtos = _mapper.Map<List<ColorResultDto>>(sortedColorss);
             return new SuccessDataResult<List<ColorResultDto>>(colorDtos, "Renkler başarıyla listelendi.");
         }
 

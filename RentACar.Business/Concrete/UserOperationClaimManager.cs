@@ -6,6 +6,7 @@ using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
+using RentACar.Entities.Concrete;
 
 namespace RentACar.Business.Concrete
 {
@@ -58,7 +59,8 @@ namespace RentACar.Business.Concrete
         public async Task<IDataResult<List<UserOperationClaimResultDto>>> GetAllAsync()
         {
             var userOperationClaims = await _userOperationClaimRepository.GetAllAsync();
-            var userOperationClaimDtos = _mapper.Map<List<UserOperationClaimResultDto>>(userOperationClaims);
+            var sortedUserOperationClaims = userOperationClaims.OrderByDescending(x => x.CreatedDate).ToList();
+            var userOperationClaimDtos = _mapper.Map<List<UserOperationClaimResultDto>>(sortedUserOperationClaims);
             return new SuccessDataResult<List<UserOperationClaimResultDto>>(userOperationClaimDtos, "Tüm kullanıcı yetkileri listelendi.");
         }
 

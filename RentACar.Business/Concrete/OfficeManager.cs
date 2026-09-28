@@ -60,7 +60,8 @@ namespace RentACar.Business.Concrete
         public async Task<IDataResult<List<OfficeResultDto>>> GetAllAsync()
         {
             var offices = await _officeRepository.GetAllAsync();
-            var officeDtos = _mapper.Map<List<OfficeResultDto>>(offices);
+            var sortedOffices = offices.OrderByDescending(x => x.CreatedDate).ToList();
+            var officeDtos = _mapper.Map<List<OfficeResultDto>>(sortedOffices);
             return new SuccessDataResult<List<OfficeResultDto>>(officeDtos, "Ofisler başarıyla listelendi.");
         }
 

@@ -76,7 +76,8 @@ namespace RentACar.Business.Concrete
         public async Task<IDataResult<List<CustomerResultDto>>> GetAllAsync()
         {
             var customers = await _customerRepository.GetCustomersWithDetailsAsync();
-            var customerDtos = _mapper.Map<List<CustomerResultDto>>(customers);
+            var sortedCustomers = customers.OrderByDescending(x => x.CreatedDate).ToList();
+            var customerDtos = _mapper.Map<List<CustomerResultDto>>(sortedCustomers);
             return new SuccessDataResult<List<CustomerResultDto>>(customerDtos, "Müşteriler başarıyla listelendi.");
         }
 

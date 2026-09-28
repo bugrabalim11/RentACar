@@ -64,8 +64,11 @@ namespace RentACar.Business.Concrete
             // İşte senin DataAccess'te yazdığın o özel Join'li metodu çağırıyoruz!
             var cars = await _carRepository.GetCarsWithDetailsAsync();
 
+            // SENİOR DOKUNUŞU: UI'da zıplamayı engelle, en son eklenen araba hep en tepede çıksın!
+            var sortedCars = cars.OrderByDescending(x => x.CreatedDate).ToList();
+
             // Arabalar, markaları ve renkleriyle beraber geldi. Şimdi onları şık tabaklara (DTO) koyalım.
-            var carListDtos = _mapper.Map<List<CarResultDto>>(cars);
+            var carListDtos = _mapper.Map<List<CarResultDto>>(sortedCars);
 
             // Kargo kutusuna koy ve yolla!
             return new SuccessDataResult<List<CarResultDto>>(carListDtos, "Arabalar başarıyla listelendi.");

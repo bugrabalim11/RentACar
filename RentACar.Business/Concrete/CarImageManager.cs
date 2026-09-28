@@ -88,13 +88,13 @@ namespace RentACar.Business.Concrete
                         CarName = $"{car.Data?.BrandName} {car.Data?.ModelName}"
                     }
                 };
-
                 // Erken Çıkış (Early Return): Sahte listeyi kuryeye verip metodu burada bitiriyoruz.
                 return new SuccessDataResult<List<CarImageDetailDto>>(defaultDtoList, "Bu araca ait resim bulunamadı, varsayılan resim getirildi.");
             }
 
+            var sortedCarImages = carImages.OrderByDescending(x => x.CreatedDate).ToList();
             // Robot, çiğ etleri (carImages) alıp, Profile dosyasındaki tarifine göre pişirip DTO tepsisine diziyor.
-            var dtoList = _mapper.Map<List<CarImageDetailDto>>(carImages);
+            var dtoList = _mapper.Map<List<CarImageDetailDto>>(sortedCarImages);
             return new SuccessDataResult<List<CarImageDetailDto>>(dtoList, "Bu araca ait resimler başarıyla getirildi.");
         }
 

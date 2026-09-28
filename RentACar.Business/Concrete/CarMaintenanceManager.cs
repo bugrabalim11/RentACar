@@ -68,7 +68,11 @@ namespace RentACar.Business.Concrete
         public async Task<IDataResult<List<CarMaintenanceResultDto>>> GetAllAsync()
         {
             var maintenances = await _carMaintenanceRepository.GetCarMaintenanceWithDetailsAsync();
-            var maintenanceDtos = _mapper.Map<List<CarMaintenanceResultDto>>(maintenances);
+
+            // SENİOR DOKUNUŞU: UI'da zıplamayı engelle, en son eklenen ara tamiri hep en tepede çıksın!
+            var sortedCarMaintenances = maintenances.OrderByDescending(x => x.CreatedDate).ToList();
+
+            var maintenanceDtos = _mapper.Map<List<CarMaintenanceResultDto>>(sortedCarMaintenances);
             return new SuccessDataResult<List<CarMaintenanceResultDto>>(maintenanceDtos, "Tamir kayıtları başarıyla listelendi.");
         }
 
