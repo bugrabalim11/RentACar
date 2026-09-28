@@ -7,6 +7,8 @@ using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
+using RentACar.Dtos.OfficeDtos;
+using RentACar.Entities.Concrete;
 
 namespace RentACar.Business.Concrete
 {
@@ -56,7 +58,8 @@ namespace RentACar.Business.Concrete
         public async Task<IDataResult<List<OperationClaimResultDto>>> GetAllAsync()
         {
             var operationClaims = await _operationClaimRepository.GetAllAsync();
-            var operationClaimDtos = _mapper.Map<List<OperationClaimResultDto>>(operationClaims);
+            var sortedOperationClaims = operationClaims.OrderByDescending(x => x.CreatedDate).ToList();
+            var operationClaimDtos = _mapper.Map<List<OperationClaimResultDto>>(sortedOperationClaims);
             return new SuccessDataResult<List<OperationClaimResultDto>>(operationClaimDtos, "Yetkiler başarıyla listelendi.");
         }
 

@@ -49,7 +49,8 @@ namespace RentACar.Business.Concrete
         public async Task<IDataResult<List<ContactInfoResultDto>>> GetAllAsync()
         {
             var contactInfos = await _contactInfoRepository.GetAllAsync();
-            var contactInfoDtos = _mapper.Map<List<ContactInfoResultDto>>(contactInfos);
+            var sortedContactInfos = contactInfos.OrderByDescending(x => x.CreatedDate).ToList();
+            var contactInfoDtos = _mapper.Map<List<ContactInfoResultDto>>(sortedContactInfos);
             return new SuccessDataResult<List<ContactInfoResultDto>>(contactInfoDtos, "İletişim bilgileri başarıyla listelendi.");
         }
 
