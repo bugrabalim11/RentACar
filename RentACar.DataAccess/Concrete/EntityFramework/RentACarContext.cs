@@ -25,6 +25,44 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
         public DbSet<CarImage> CarImages { get; set; }
         public DbSet<CarMaintenance> CarMaintenances { get; set; }
 
+        // SENİOR NOTU: 'override' kelimesi, EF Core'un orijinal SaveChangesAsync metodunu ezip 
+        // araya kendi kurallarımızı ekleyeceğimiz anlamına gelir.
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            // 1. GÜMRÜK KONTROLÜ (Sadece DNA'mızı taşıyan kargoları durduruyoruz)
+            // Neden BaseEntity? Çünkü yarın öbür gün BaseEntity'den miras almayan küçük bir tablo yaparsak
+            // program patlamasın, memur sadece bizim ana varlıklarımızı kontrol etsin.
+            var entries = ChangeTracker.Entries<BaseEntity>();
+
+            foreach (var entry in entries)
+            {
+                // 2. MÜHÜRLEME İŞLEMİ
+                switch (entry.State)
+                {
+                    // Eğer Manager nesneyi GÜNCELLİYORSA:
+                    case EntityState.Modified:
+                        entry.Entity.UpdatedDate = DateTime.UtcNow;
+                        break;
+
+                    // Eğer Manager nesneyi SİLİYORSA:
+                    case EntityState.Deleted:
+                        // KAPTAN'IN ÖZEL HAMLESİ (Tam Otonom Soft Delete):
+                        // EF Core bunu veritabanından kalıcı olarak silmek üzereydi. 
+                        // Önce durumunu "Silme, sadece Güncelle" (Modified) olarak değiştiriyoruz.
+                        entry.State = EntityState.Modified;
+
+                        // Sonra çöp kutusu mühürlerini basıyoruz!
+                        entry.Entity.DeletedDate = DateTime.UtcNow;
+                        entry.Entity.IsDeleted = true;
+                        break;
+
+                        // (Ekleme - Added durumu yazmıyoruz, çünkü Doğumevi Doktoru (Constructor) onu hallediyor)
+                }
+            }
+
+            // 3. BARİYERİ KALDIR: Memur işini bitirdi, kargoları EF Core'un orijinal metoduna gönderip yolluyoruz.
+            return await base.SaveChangesAsync(cancellationToken);
+        }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // RENTAL VE OFFICE ARASINDAKİ ÇİFT İLİŞKİ KURALI

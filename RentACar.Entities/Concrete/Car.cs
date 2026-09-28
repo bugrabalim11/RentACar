@@ -1,11 +1,12 @@
 ﻿using RentACar.Core.Entities;
+using RentACar.Core.Entities.Concrete;
 using RentACar.Entities.Enums;
 
 namespace RentACar.Entities.Concrete
 {
-    public class Car : IEntity
+    public class Car : BaseEntity, IEntity
     {
-        public int Id { get; set; }
+        // Id, CreatedDate, UpdatedDate, DeletedDate ve IsDeleted otomatik olarak BaseEntity'den (Babadan) gelir!
         public int BrandId { get; set; }
 
         // Senin içinde tuttuğun o BrandId numarası öylesine bir sayı değil, fiziksel bir markayı temsil ediyor.
@@ -25,15 +26,10 @@ namespace RentACar.Entities.Concrete
         public int DoorCount { get; set; }
         public int SeatCount { get; set; }
         public int MinDriverAge { get; set; }
-        public LuggageCapacity LuggageCapacity { get; set; } 
+        public LuggageCapacity LuggageCapacity { get; set; }
         public TransmissionType TransmissionType { get; set; }
         public int MinDrivingExperience { get; set; }
         public int MinFindexScore { get; set; }
-
-
-        public bool IsDeleted { get; set; } = false;
-        public DateTime? DeletedDate { get; set; }
-
 
         // --- İLİŞKİ (Bire-Çok) ---
         // Bir arabanın birden çok kiralama kaydı olabilir

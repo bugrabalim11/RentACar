@@ -50,8 +50,7 @@ namespace RentACar.Business.Concrete
             CarImage carImage = new CarImage
             {
                 CarId = carImageAddDto.CarId,
-                ImagePath = imagePath,
-                UploadDate = DateTime.UtcNow
+                ImagePath = imagePath
             };
 
             await _carImageRepository.AddAsync(carImage);
@@ -66,11 +65,7 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException("Resim bulunamadı!");
             }
 
-            // SOFT DELETE: Resmi gerçekten silmiyoruz, sadece çöp kutusuna (IsDeleted) atıyoruz.
-            // Fiziksel temizliği arka plan servisi (DeleteOldImagesAsync) yapacak.
-            result.IsDeleted = true;
-            result.DeletedDate = DateTime.UtcNow;
-            await _carImageRepository.UpdateAsync(result);
+            await _carImageRepository.DeleteAsync(result);
             return new SuccessResult("Resim başarıyla silindi.");
         }
 
@@ -119,7 +114,6 @@ namespace RentACar.Business.Concrete
             }
 
             existingCarImage.ImagePath = newImagePath;
-            existingCarImage.UploadDate = DateTime.UtcNow;
 
             await _carImageRepository.UpdateAsync(existingCarImage);
             return new SuccessResult("Resim başarıyla güncellendi.");

@@ -34,7 +34,6 @@ namespace RentACar.Business.Concrete
 
             // 3. MÜHÜRLEME: Tarihi ve Okunma durumunu sistem manuel basar, müşteriye güvenilmez.
             var contactMessage = _mapper.Map<ContactMessage>(contactMessageAddDto);
-            contactMessage.SendDate = DateTime.UtcNow;
             contactMessage.IsRead = false;
 
             await _contactMessageRepository.AddAsync(contactMessage);
@@ -49,9 +48,7 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException("Silinecek mesaj bulunamadı.");
             }
 
-            existingContactMessage.IsDeleted = true;
-            existingContactMessage.DeletedDate = DateTime.UtcNow;
-            await _contactMessageRepository.UpdateAsync(existingContactMessage);
+            await _contactMessageRepository.DeleteAsync(existingContactMessage);
             return new SuccessResult("Mesaj başarıyla silindi.");
         }
 
@@ -97,7 +94,7 @@ namespace RentACar.Business.Concrete
         {
             // Zaman Yolcusu Kontrolü: Şu anki saatten (UtcNow) 5 dakika öncesine (-5) gidiyoruz.
             // Eğer adamın son mesaj tarihi bu 5 dakikalık pencerenin içindeyse (büyükse), true döner ve adamı bloklarız.
-            bool sendMessage = await _contactMessageRepository.AnyAsync(x => x.Email.ToLower() == email && x.SendDate > DateTime.UtcNow.AddMinutes(-5)); // >= de olabilirdi aynı şey
+            bool sendMessage = await _contactMessageRepository.AnyAsync(x => x.Email.ToLower() == email && x.CreatedDate > DateTime.UtcNow.AddMinutes(-5)); // >= de olabilirdi aynı şey
             if (sendMessage)
             {
                 return new ErrorResult("Sistemimizi korumak adına peş peşe mesaj gönderemezsiniz. Lütfen 5 dakika sonra tekrar deneyiniz.");

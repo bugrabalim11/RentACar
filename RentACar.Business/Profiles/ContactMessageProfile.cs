@@ -1,10 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Dtos.ContactMessageDtos;
-using RentACar.Dtos.RentalDtos;
 using RentACar.Entities.Concrete;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RentACar.Business.Profiles
 {
@@ -12,7 +8,8 @@ namespace RentACar.Business.Profiles
     {
         public ContactMessageProfile()
         {
-            CreateMap<ContactMessage, ContactMessageResultDto>();
+            CreateMap<ContactMessage, ContactMessageResultDto>()
+                .ForMember(dest => dest.SendDate, opt => opt.MapFrom(src => src.CreatedDate));
             CreateMap<ContactMessageCreateDto, ContactMessage>();
         }
     }

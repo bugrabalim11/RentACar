@@ -143,9 +143,7 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException("Silinecek araç kiralama bulunamadı.");
             }
 
-            existingRental.IsDeleted = true;
-            existingRental.DeletedDate = DateTime.UtcNow;
-            await _rentalRepository.UpdateAsync(existingRental);
+            await _rentalRepository.DeleteAsync(existingRental);
             return new SuccessResult("Araç kiralama başarıyla silindi.");
         }
 

@@ -53,9 +53,7 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
-            existingOffice.IsDeleted = true;
-            existingOffice.DeletedDate = DateTime.UtcNow;
-            await _officeRepository.UpdateAsync(existingOffice);
+            await _officeRepository.DeleteAsync(existingOffice);
             return new SuccessResult("Ofis başarıyla silindi.");
         }
 

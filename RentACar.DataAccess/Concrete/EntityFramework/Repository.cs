@@ -1,10 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RentACar.Core.Entities;
 using RentACar.DataAccess.Abstract;
-using RentACar.DataAccess.Concrete.EntityFramework;
 using System.Linq.Expressions;
 
-namespace RentACar.DataAccess.Concrete
+namespace RentACar.DataAccess.Concrete.EntityFramework
 {
     public class Repository<T> : IRepository<T> where T : class, IEntity, new()
     {

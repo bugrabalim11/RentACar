@@ -56,10 +56,10 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen hata oluştu!");
             }
 
-            // SOFT DELETE (Yumuşak Silme)
-            existingColor.IsDeleted = true;
-            existingColor.DeletedDate = DateTime.UtcNow;
-            await _colorRepository.UpdateAsync(existingColor);
+            // SENİOR NOTU: Biz sadece silme emrini (DeleteAsync) veriyoruz. 
+            // Fiziksel silme (Hard Delete) mi yoksa çöpe atma (Soft Delete) mı yapılacağına 
+            // DataAccess katmanındaki DbContext (Gümrük Memuru) otonom olarak karar verir!
+            await _colorRepository.DeleteAsync(existingColor);
             return new SuccessResult("Renk başarıyla silindi.");
         }
 
