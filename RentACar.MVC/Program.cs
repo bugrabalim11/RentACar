@@ -39,7 +39,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 {
                     // Varsa bunu fedaiye teslim et
                     context.Token = token;
-                }
+                }   
+                return Task.CompletedTask;
+            },
+
+            // SENIOR NOTU: Eğer adam kapıdan 401 yiyip kovulursa (Challenge) devreye girecek olan telsiz:
+            OnChallenge = context =>
+            {
+                // 1. API'nin o ruhsuz, 401 hatasını (karanlık sokağı) iptal et diyoruz:
+                context.HandleResponse();
+
+                // 2. Müşteriyi kibarca kolundan tutup Login kapısına (bilet gişesine) yönlendir (Redirect) diyoruz:
+                context.Response.Redirect("/Admin/Login/Index");
+
                 return Task.CompletedTask;
             }
         };
@@ -70,8 +82,11 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+// Adamın hangi odaya gitmek istediğini buluruz
 app.UseRouting();
-
+// Adama "Sen kimsin, cüzdanında Token var mı?
+app.UseAuthentication();
+// Adamın o odaya girmeye yetkisi var mı?
 app.UseAuthorization();
 
 app.MapStaticAssets();

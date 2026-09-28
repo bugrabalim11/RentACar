@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RentACar.MVC.Areas.Admin.Models.OperationClaimDtos;
 using RentACar.MVC.Controllers;
@@ -8,6 +9,7 @@ using System.Text;
 namespace RentACar.MVC.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "admin")]
     public class OperationClaimsController : BaseController
     {
         private readonly IHttpClientFactory _httpClientFactory;
