@@ -6,9 +6,12 @@ namespace RentACar.Core.Utilities.Helpers.FileHelper
     {
         public void Delete(string filePath)
         {
-            if (File.Exists(filePath))
+            // Veritabanından gelen "Images/guid.jpg" yolunu fiziksel depo yoluna çeviriyoruz
+            string physicalPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", filePath);
+
+            if (File.Exists(physicalPath))
             {
-                File.Delete(filePath);
+                File.Delete(physicalPath);
             }
         }
 
@@ -29,25 +32,29 @@ namespace RentACar.Core.Utilities.Helpers.FileHelper
                 // 2. Aynı isimde dosyalar çakışmasın diye benzersiz bir isim (GUID) üretiyoruz
                 string newFileName = Guid.NewGuid().ToString() + extension;
 
-                // 3. Eğer belirttiğimiz klasör yoksa, o klasörü oluşturuyoruz.
-                if (!Directory.Exists(root))
+                // 3. FİZİKSEL DEPO ADRESİNİ BUL (C:\...\wwwroot\Images)
+                // (Masaüstü mü, Linux sunucu mu?
+                string currentDirectory = Directory.GetCurrentDirectory();
+                string physicalPath = Path.Combine(currentDirectory, "wwwroot", root);
+
+                // 4. KLASÖR YOKSA AÇ
+                if (!Directory.Exists(physicalPath))
                 {
-                    Directory.CreateDirectory(root);
+                    Directory.CreateDirectory(physicalPath);
                 }
 
-                // 4. Klasör yolu ile yeni dosya adını birleştirip tam adresi çıkarıyoruz.
-                string imagePath = Path.Combine(root, newFileName);
-
-                using (FileStream fileStream = File.Create(imagePath))
+                // 5. DOSYAYI FİZİKSEL OLARAK KAYDET
+                string fullPhysicalFilePath = Path.Combine(physicalPath, newFileName);
+                using (FileStream fileStream = File.Create(fullPhysicalFilePath))
                 {
                     // Kargo bandı çalıştı!
                     file.CopyTo(fileStream);
                 }
 
-                // SENIOR NOTU: Sunucu (Windows) dosya yollarında ters slash (\) kullanır, ancak İnternet dünyası (URL) düz slash (/) kullanır.
-                // Ayrıca veritabanının 'wwwroot' gibi fiziksel sunucu klasörlerini bilmesine gerek yoktur.
-                // Bu yüzden veriyi mühürlemeden önce hem 'wwwroot\' kelimesini kesip atıyoruz, hem de web uyumlu olması için slash yönlerini değiştiriyoruz.
-                return imagePath.Replace("wwwroot\\", "").Replace("\\", "/");
+                // 6. VERİTABANI İÇİN TERTEMİZ "GÖRECELİ" YOLU DÖN (Images/guid.jpg)
+                // Path.Combine(root, newFileName) -> "Images\guid.jpg" yapar.
+                // Replace ile Windows'un ters slash'ini, İnternetin düz slash'ine (/) çeviriyoruz!
+                return Path.Combine(root, newFileName).Replace("\\","/");
             }
             return null;
         }

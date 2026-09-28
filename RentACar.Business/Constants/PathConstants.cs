@@ -6,8 +6,8 @@
     // sadece buradaki tabelayı güncelleriz.
     public static class PathConstants
     {
-        // Linux ve Windows uyumluluğu için ters bölü (\) değil, düz bölü (/) kullanıyoruz.
-        public static string ImagesPath = "wwwroot/Images"; 
-        public static string DefaultImagePath = "wwwroot/Images/default.jpg";
+        // Artık wwwroot yok! Sadece klasör adı.
+        public static string ImagesPath = "Images"; 
+        public static string DefaultImagePath = "Images/default.jpg";
     }
 }
