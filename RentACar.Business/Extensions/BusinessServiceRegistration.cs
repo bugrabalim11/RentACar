@@ -5,7 +5,6 @@ using RentACar.Business.Concrete;
 using RentACar.Core.Utilities.Helpers.FileHelper;
 using RentACar.Core.Utilities.Security.Jwt;
 using RentACar.DataAccess.Abstract;
-using RentACar.DataAccess.Concrete;
 using RentACar.DataAccess.Concrete.EntityFramework;
 using System.Reflection;
 

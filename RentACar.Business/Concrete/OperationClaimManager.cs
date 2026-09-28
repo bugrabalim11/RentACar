@@ -49,8 +49,7 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
-            existingOperationClaim.IsDeleted = true;
-            await _operationClaimRepository.UpdateAsync(existingOperationClaim);
+            await _operationClaimRepository.DeleteAsync(existingOperationClaim);
             return new SuccessResult("Yetki başarıyla silindi.");
         }
 

@@ -31,8 +31,10 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException("Silinecek kullanıcı bulunamadı.");
             }
 
-            existingUser.IsDeleted = true;
-            await _userRepository.UpdateAsync(existingUser);
+            // SENİOR NOTU: Biz sadece silme emrini (DeleteAsync) veriyoruz. 
+            // Fiziksel silme (Hard Delete) mi yoksa çöpe atma (Soft Delete) mı yapılacağına 
+            // DataAccess katmanındaki DbContext (Gümrük Memuru) otonom olarak karar verir!
+            await _userRepository.DeleteAsync(existingUser);
             return new SuccessResult("Kullanıcı başarıyla silindi.");
         }
 

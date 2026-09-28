@@ -65,10 +65,7 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException("Resim bulunamadı!");
             }
 
-            // SOFT DELETE: Resmi gerçekten silmiyoruz, sadece çöp kutusuna (IsDeleted) atıyoruz.
-            // Fiziksel temizliği arka plan servisi (DeleteOldImagesAsync) yapacak.
-            result.IsDeleted = true;
-            await _carImageRepository.UpdateAsync(result);
+            await _carImageRepository.DeleteAsync(result);
             return new SuccessResult("Resim başarıyla silindi.");
         }
 

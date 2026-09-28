@@ -69,8 +69,7 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException("Silinecek müşteri bulunamadı.");
             }
 
-            existingCustomer.IsDeleted = true;
-            await _customerRepository.UpdateAsync(existingCustomer);
+            await _customerRepository.DeleteAsync(existingCustomer);
             return new SuccessResult("Müşteri başarıyla silindi.");
         }
 

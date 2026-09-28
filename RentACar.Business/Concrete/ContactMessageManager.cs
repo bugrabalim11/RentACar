@@ -48,8 +48,7 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException("Silinecek mesaj bulunamadı.");
             }
 
-            existingContactMessage.IsDeleted = true;
-            await _contactMessageRepository.UpdateAsync(existingContactMessage);
+            await _contactMessageRepository.DeleteAsync(existingContactMessage);
             return new SuccessResult("Mesaj başarıyla silindi.");
         }
 

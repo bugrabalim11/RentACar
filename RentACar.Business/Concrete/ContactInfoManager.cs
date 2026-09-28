@@ -42,9 +42,7 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException("Silinecek iletişim bilgisi bulunamadı.");
             }
 
-            // SOFT DELETE: Çöpe atıyoruz, veritabanından tamamen silmiyoruz.
-            existingContactInfo.IsDeleted = true;
-            await _contactInfoRepository.UpdateAsync(existingContactInfo);
+            await _contactInfoRepository.DeleteAsync(existingContactInfo);
             return new SuccessResult("İletişim bilgisi başarıyla silindi.");
         }
 

@@ -61,10 +61,7 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException("Silinecek tamir kaydı bulunamadı!");
             }
 
-            // SOFT DELETE (Yumuşak Silme): Gerçekten silmiyoruz, üzerini çizip çöp kutusuna atıyoruz.
-            existingMaintenance.IsDeleted = true;
-
-            await _carMaintenanceRepository.UpdateAsync(existingMaintenance);
+            await _carMaintenanceRepository.DeleteAsync(existingMaintenance);
             return new SuccessResult("Tamir kaydı başaryla silindi.");
         }
 

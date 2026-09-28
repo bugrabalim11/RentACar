@@ -48,8 +48,10 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException("Silinmek istenen yetki ataması bulunamadı.");
             }
 
-            existingUserOperationClaim.IsDeleted = true;
-            await _userOperationClaimRepository.UpdateAsync(existingUserOperationClaim);
+            // SENİOR NOTU: Biz sadece silme emrini (DeleteAsync) veriyoruz. 
+            // Fiziksel silme (Hard Delete) mi yoksa çöpe atma (Soft Delete) mı yapılacağına 
+            // DataAccess katmanındaki DbContext (Gümrük Memuru) otonom olarak karar verir!
+            await _userOperationClaimRepository.DeleteAsync(existingUserOperationClaim);
             return new SuccessResult("Kullanıcının yetkisi başarıyla kaldırıldı.");
         }
 

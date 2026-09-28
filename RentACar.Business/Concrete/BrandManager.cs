@@ -52,8 +52,7 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException("Silinecek marka bulunamadı.");
             }
 
-            // SOFT DELETE (Yumuşak Silme): Veritabanından uçurmuyoruz, üzerini çiziyoruz.
-            existingBrand.IsDeleted = true;
+            await _brandRepository.DeleteAsync(existingBrand);
 
             // BAĞIMLILIK TEMİZLİĞİ: Marka silinirse, o markaya ait arabaları da vitrinden kaldır.
             var existingCars = await _carService.GetAllByBrandIdAsync(id);
@@ -63,7 +62,10 @@ namespace RentACar.Business.Concrete
                 await _carService.DeleteAsync(car.Id);
             }
 
-            await _brandRepository.UpdateAsync(existingBrand);
+            // SENİOR NOTU: Biz sadece silme emrini (DeleteAsync) veriyoruz. 
+            // Fiziksel silme (Hard Delete) mi yoksa çöpe atma (Soft Delete) mı yapılacağına 
+            // DataAccess katmanındaki DbContext (Gümrük Memuru) otonom olarak karar verir!
+            await _brandRepository.DeleteAsync(existingBrand);
             return new SuccessResult("Marka başarıyla silindi.");
         }
 
