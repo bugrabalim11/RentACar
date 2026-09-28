@@ -1,13 +1,11 @@
 ﻿using RentACar.Core.Entities;
+using RentACar.Core.Entities.Concrete;
 
 namespace RentACar.Entities.Concrete
 {
-    public class Color : IEntity
+    public class Color : BaseEntity, IEntity
     {
-        public int Id { get; set; }
         public string Name { get; set; } = null!;
-        public bool IsDeleted { get; set; } = false;
-        public DateTime? DeletedDate { get; set; }
 
         // Bir rengin birden fazla arabası olabilir (One-to-Many ilişkisi)
         // Tıpkı Brand tablosunda yaptığımız gibi listemizi hazırlıyoruz:

@@ -1,10 +1,8 @@
 ﻿namespace RentACar.Core.Entities.Concrete
 {
-    public class OperationClaim : IEntity
+    public class OperationClaim : BaseEntity, IEntity
     {
-        public int Id { get; set; }
+        // Id, CreatedDate, UpdatedDate, DeletedDate ve IsDeleted otomatik olarak BaseEntity'den (Babadan) gelir!
         public string Name { get; set; } = null!;
-        public bool IsDeleted { get; set; } = false;
-        public DateTime? DeletedDate { get; set; }
     }
 }
