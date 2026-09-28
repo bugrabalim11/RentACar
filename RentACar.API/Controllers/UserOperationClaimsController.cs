@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
 using RentACar.Core.Entities.DTOs.UserOperationClaimDtos;
 using RentACar.Core.Exceptions;
-using System.Security.Claims;
+using RentACar.Core.Extensions;
 
 namespace RentACar.API.Controllers
 {
@@ -75,10 +75,7 @@ namespace RentACar.API.Controllers
         [HttpGet("my-claims")]
         public async Task<IActionResult> GetMyClaimsAsync()
         {
-            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdString)) { throw new BusinessException("Kimlik doğrulama hatası! Geçerli bir token bulunamadı!"); }
-            int userId = Convert.ToInt32(userIdString);
-
+            int userId = User.GetUserId();
             var result = await _userOperationClaimService.GetMyOperationClaimsAsync(userId);
             return Ok(result);
         }
