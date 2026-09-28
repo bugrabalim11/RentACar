@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RentACar.MVC.Areas.Admin.Models.AuthDtos;
 using RentACar.MVC.Controllers;
-using RentACar.MVC.Models.Responses;
 
 namespace RentACar.MVC.Areas.Admin.Controllers
 {
