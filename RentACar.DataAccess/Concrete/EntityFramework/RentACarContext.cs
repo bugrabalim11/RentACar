@@ -22,8 +22,9 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
         public DbSet<OperationClaim> OperationClaims { get; set; }
         public DbSet<UserOperationClaim> UserOperationClaims { get; set; }
         public DbSet<User> Users { get; set; }
-        public DbSet<CarImage> CarImages { get; set; }
+        public DbSet<CarImage> CarImages { get; set; }  
         public DbSet<CarMaintenance> CarMaintenances { get; set; }
+        public DbSet<Payment> Payments { get; set; }
 
         // SENİOR NOTU: 'override' kelimesi, EF Core'un orijinal SaveChangesAsync metodunu ezip 
         // araya kendi kurallarımızı ekleyeceğimiz anlamına gelir.
@@ -100,6 +101,7 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
             modelBuilder.Entity<Rental>().HasQueryFilter(r => r.IsDeleted == false);
             modelBuilder.Entity<CarImage>().HasQueryFilter(ci => ci.IsDeleted == false);
             modelBuilder.Entity<CarMaintenance>().HasQueryFilter(cm => cm.IsDeleted == false);
+            modelBuilder.Entity<Payment>().HasQueryFilter(p => p.IsDeleted == false);
         }
     }
 }
