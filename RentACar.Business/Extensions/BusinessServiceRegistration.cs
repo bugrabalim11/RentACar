@@ -57,6 +57,8 @@ namespace RentACar.Business.Extensions
             services.AddScoped<ICarStatusService, CarStatusManager>();
             services.AddScoped<IFindexScoreService, FindexScoreManager>();
             services.AddScoped<IReferenceCheckService, ReferenceCheckService>();
+            services.AddScoped<IPaymentService, PaymentManager>();
+            services.AddScoped<IPaymentRepository, PaymentRepository>();
 
             return services;
         }
