@@ -298,12 +298,10 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
-            var car = await _carService.GetByIdAsync(rentalUpdateDto.CarId);
-            var newTotalAmount = CalculateTotalAmount(rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate, car.Data.DailyPrice);
+            _mapper.Map(rentalUpdateDto, existingRental);
+            var newTotalAmount = CalculateTotalAmount(rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate, existingRental.Car.DailyPrice);
             var difference = newTotalAmount - existingRental.TotalAmount;
-            // SENİOR NOTU: Müşteri aracı erken teslim ettiğinde (difference < 0) para iadesi YAPILMAMAKTADIR.
-            // Çünkü aracın o tarihler arası başka müşteriye kiralanma fırsatı (Fırsat Maliyeti) baltalanmıştır.
-            // İş kuralı gereği bu durum bilerek göz ardı edilmiştir.
+
             if (difference > 0)
             {
                 var posResult = await _posService.PayAsync(rentalUpdateDto.CreditCardInformation, difference);
@@ -311,10 +309,19 @@ namespace RentACar.Business.Concrete
                 {
                     throw new BusinessException(posResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
                 }
+
+                var paymentDto = new PaymentCreateDto
+                {
+                    RentalId = existingRental.Id,
+                    Amount = difference,
+                    TransactionId = Guid.NewGuid().ToString(),
+                    IsSuccessful = true
+                };
+                await _paymentService.AddAsync(paymentDto);
+
+                existingRental.TotalAmount = newTotalAmount;
             }
 
-            _mapper.Map(rentalUpdateDto, existingRental);
-            existingRental.TotalAmount = newTotalAmount;
             await _rentalRepository.UpdateAsync(existingRental);
             return new SuccessResult("Araç kiralama başarıyla güncellendi.");
         }
@@ -341,22 +348,43 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
-            var car = await _carService.GetByIdAsync(existingRental.CarId);
-            var newTotalAmount = CalculateTotalAmount(existingRental.RentDate, rentalUpdateReturnDateDto.ReturnDate, car.Data.DailyPrice);
+            // car.Data.DailyPrice YERİNE existingRental.Car.DailyPrice kullanıyoruz!
+            var newTotalAmount = CalculateTotalAmount(existingRental.RentDate, rentalUpdateReturnDateDto.ReturnDate, existingRental.Car.DailyPrice);
             var difference = newTotalAmount - existingRental.TotalAmount;
             // SENİOR NOTU: Müşteri aracı erken teslim ettiğinde (difference < 0) para iadesi YAPILMAMAKTADIR.
             // Çünkü aracın o tarihler arası başka müşteriye kiralanma fırsatı (Fırsat Maliyeti) baltalanmıştır.
             // İş kuralı gereği bu durum bilerek göz ardı edilmiştir.
+            // SENİOR NOTU: Müşteri aracı erken teslim ettiğinde para iadesi YAPILMAMAKTADIR.
+            // Bu yüzden SADECE fiyat farkı pozitifse (süre uzamışsa) işlem yapıyoruz.
             if (difference > 0)
             {
+                // 1. POS'tan çekim yap...
                 var posResult = await _posService.PayAsync(rentalUpdateReturnDateDto.CreditCardInformation, difference);
                 if (!posResult.Success)
                 {
                     throw new BusinessException(posResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
                 }
+
+                // 2. Ödeme başarılıysa PaymentDto (Fiş) oluştur ve kaydet...
+                // Yeni farklı bir kes
+                var paymentDto = new PaymentCreateDto
+                {
+                    RentalId = existingRental.Id,
+                    Amount = difference,
+                    TransactionId = Guid.NewGuid().ToString(),
+                    IsSuccessful = true
+                };
+                await _paymentService.AddAsync(paymentDto);
+
+                // 3. BOMBA DOKUNUŞ BURADA: Madem sadece fiyat artınca güncelleyeceğiz,
+                // Rental'ın TotalAmount atamasını sadece bu bloğun içine alıyoruz!
+                existingRental.TotalAmount = newTotalAmount;
             }
 
-            existingRental.TotalAmount = newTotalAmount;
+            // Fark 0 veya negatifse (difference <= 0), TotalAmount'a HİÇ DOKUNMUYORUZ.
+            // O zaten veritabanından 1000 TL olarak geldi, öyle kalacak. Paraya çöktük :)
+
+            // Aşağıda sadece tarihi güncelliyor ve SQL'e gönderiyoruz:
             existingRental.ReturnDate = rentalUpdateReturnDateDto.ReturnDate;
             await _rentalRepository.UpdateAsync(existingRental);
             return new SuccessResult("Araç teslim tarihiniz başarıyla güncellendi.");
