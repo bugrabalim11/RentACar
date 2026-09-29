@@ -15,7 +15,7 @@ namespace RentACar.Business.Concrete
         private readonly IMapper _mapper;
         private readonly ICarService _carService;
         private readonly ICustomerService _customerService;
-        private readonly IPaymentService _paymentService;
+        private readonly IPosService _paymentService;
         private readonly ICarStatusService _carStatusService;
         private readonly IFindexScoreService _findexScoreService;
 
@@ -26,7 +26,7 @@ namespace RentACar.Business.Concrete
         // ÇÖZÜM VİZYONU: İlerleyen büyük projelerde bu karmaşayı önlemek için Manager'ın yükünü dağıtacağız.
         // "Facade Pattern" (Ön Cephe Tasarımı) veya "CQRS / MediatR" (Komut ve Sorgu Ayrışımı) gibi ileri seviye mimariler 
         // kullanarak İş Kurallarını (Business Rules) çok daha modüler bir yapıya taşıyacağız.
-        public RentalManager(IRentalRepository rentalRepository, IMapper mapper, ICarService carService, ICustomerService customerService, IPaymentService paymentService, ICarStatusService carStatusService, IFindexScoreService findexScoreService)
+        public RentalManager(IRentalRepository rentalRepository, IMapper mapper, ICarService carService, ICustomerService customerService, IPosService paymentService, ICarStatusService carStatusService, IFindexScoreService findexScoreService)
         {
             _rentalRepository = rentalRepository;
             _mapper = mapper;

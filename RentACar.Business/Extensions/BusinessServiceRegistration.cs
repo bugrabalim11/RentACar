@@ -51,7 +51,7 @@ namespace RentACar.Business.Extensions
             services.AddScoped<ICarImageService, CarImageManager>();
             services.AddScoped<ICarImageRepository, CarImageRepository>();
             services.AddScoped<IFileHelper, FileHelperManager>();
-            services.AddScoped<IPaymentService, PaymentManager>();
+            services.AddScoped<IPosService, PosManager>();
             services.AddScoped<ICarMaintenanceService, CarMaintenanceManager>();
             services.AddScoped<ICarMaintenanceRepository, CarMaintenanceRepository>();
             services.AddScoped<ICarStatusService, CarStatusManager>();
