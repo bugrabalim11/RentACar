@@ -1,3 +1,5 @@
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
@@ -6,25 +8,27 @@ using Microsoft.OpenApi;
 using RentACar.API.BackgroundServices;
 using RentACar.API.Extensions;
 using RentACar.API.Filters;
-using RentACar.Business.Extensions;
+using RentACar.Business.DependencyResolvers.Autofac;
 using RentACar.Business.ValidationRules.OfficeValidators;
 using RentACar.DataAccess.Concrete.EntityFramework;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// 1. Arabanın beynine (Host) diyoruz ki: "İnsan Kaynakları Fabrikası olarak artık Autofac'i kullan!"
+builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
+
+// 2. Autofac'in konteynerini (kutusunu) yapılandırmak için alanı açıyoruz.
+builder.Host.ConfigureContainer<ContainerBuilder>(options =>
+{
+    // Yaptığımız o efsanevi şubeyi (Modülü) sisteme kaydediyoruz!
+    options.RegisterModule(new AutofacBusinessModule());
+});
+
 // Add services to the container.
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ValidationFilters>();
-});
-
-// SENİOR DOKUNUŞU: İşgüzar Korumayı Kovuyoruz!
-builder.Services.Configure<ApiBehaviorOptions>(options =>
-{
-    // Suppress = Baskıla / İptal et. 
-    // Yani "Otomatik geçersiz model filtresini iptal et" diyoruz.
-    options.SuppressModelStateInvalidFilter = true;
 });
 
 builder.Services.AddHostedService<CarImageCleanupService>();
@@ -35,9 +39,6 @@ builder.Services.AddFluentValidationAutoValidation();
 // 2. Adım: Validator kurallarımızın (RuleFor...) nerede olduğunu sisteme göster.
 // (OfficeCreateDtoValidator veya herhangi bir Validator sınıfını referans verebilirsin, sistem o projedeki hepsini bulur)
 builder.Services.AddValidatorsFromAssemblyContaining<OfficeCreateDtoValidator>();
-
-// Business katmanındaki gizli çantamızı buraya tek satırla çağırıyoruz
-builder.Services.AddBusinessServices();
 
 // Kendi yazdığımız güvenlik ve JWT ayarlarını içeri alıyoruz
 builder.Services.AddSecurityServices(builder.Configuration);
