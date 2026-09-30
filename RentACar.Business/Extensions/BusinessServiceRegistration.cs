@@ -22,44 +22,6 @@ namespace RentACar.Business.Extensions
             // Business katmanındaki tüm Validator sınıflarını tara ve otomatik olarak sisteme kaydet
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
-            // Business kayıtları
-            // services.AddScoped<Sözleşme/Meslek, Somut Sınıf/İşçi>();
-            services.AddScoped<ICarService, CarManager>();
-            services.AddScoped<ICarRepository, CarRepository>();
-            services.AddScoped<IBrandService, BrandManager>();
-            services.AddScoped<IBrandRepository, BrandRepository>();
-            services.AddScoped<IColorService, ColorManager>();
-            services.AddScoped<IColorRepository, ColorRepository>();
-            services.AddScoped<ICustomerService, CustomerManager>();
-            services.AddScoped<ICustomerRepository, CustomerRepository>();
-            services.AddScoped<IOfficeService, OfficeManager>();
-            services.AddScoped<IOfficeRepository, OfficeRepository>();
-            services.AddScoped<IRentalService, RentalManager>();
-            services.AddScoped<IRentalRepository, RentalRepository>();
-            services.AddScoped<IContactMessageService, ContactMessageManager>();
-            services.AddScoped<IContactMessageRepository, ContactMessageRepository>();
-            services.AddScoped<IContactInfoService, ContactInfoManager>();
-            services.AddScoped<IContactInfoRepository, ContactInfoRepository>();
-            services.AddScoped<IUserService, UserManager>();
-            services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IAuthService, AuthManager>();
-            services.AddScoped<ITokenHelper, JwtHelper>();
-            services.AddScoped<IOperationClaimService, OperationClaimManager>();
-            services.AddScoped<IOperationClaimRepository, OperationClaimRepository>();
-            services.AddScoped<IUserOperationClaimService, UserOperationClaimManager>();
-            services.AddScoped<IUserOperationClaimRepository, UserOperationClaimRepository>();
-            services.AddScoped<ICarImageService, CarImageManager>();
-            services.AddScoped<ICarImageRepository, CarImageRepository>();
-            services.AddScoped<IFileHelper, FileHelperManager>();
-            services.AddScoped<IPosService, PosManager>();
-            services.AddScoped<ICarMaintenanceService, CarMaintenanceManager>();
-            services.AddScoped<ICarMaintenanceRepository, CarMaintenanceRepository>();
-            services.AddScoped<ICarStatusService, CarStatusManager>();
-            services.AddScoped<IFindexScoreService, FindexScoreManager>();
-            services.AddScoped<IReferenceCheckService, ReferenceCheckService>();
-            services.AddScoped<IPaymentService, PaymentManager>();
-            services.AddScoped<IPaymentRepository, PaymentRepository>();
-
             return services;
         }
     }
