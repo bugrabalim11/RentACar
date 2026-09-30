@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
+using RentACar.Core.Aspects.Autofac.Transaction;
 using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
@@ -24,6 +25,7 @@ namespace RentACar.Business.Concrete
             _carStatusService = carStatusService;
         }
 
+        [TransactionScopeAspect]
         public async Task<IDataResult<int>> AddAsync(CarMaintenanceCreateDto carMaintenanceAddDto)
         {
             // 1. ZAMAN YOLCUSU AYARI (Timezone): PostgreSQL UTC saat formatı ister. 
@@ -53,6 +55,7 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<int>(maintenance.Id, "Aracın tamir tarihleri başarıyla sisteme kaydedildi.");
         }
 
+        [TransactionScopeAspect]
         public async Task<IResult> DeleteAsync(int id)
         {
             var existingMaintenance = await _carMaintenanceRepository.GetAsync(x => x.Id == id);
@@ -88,6 +91,7 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<CarMaintenanceResultDto>(maintenanceDto, "Tamir kaydı başarıyla geitirildi.");
         }
 
+        [TransactionScopeAspect]
         public async Task<IResult> UpdateAsync(CarMaintenanceUpdateDto carMaintenanceUpdateDto)
         {
             // 1. ZAMAN YOLCUSU AYARI (Timezone): Tarihlere UTC mührünü basıyoruz.

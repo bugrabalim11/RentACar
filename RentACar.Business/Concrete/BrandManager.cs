@@ -39,10 +39,8 @@ namespace RentACar.Business.Concrete
             // 3. İŞLEM: Formu gerçek nesneye çevir ve veritabanına ekle.
             var brand = _mapper.Map<Brand>(brandAddDto);
             await _brandRepository.AddAsync(brand);
-
             return new SuccessDataResult<int>(brand.Id, "Marka başarıyla eklendi.");
         }
-
 
         public async Task<IResult> DeleteAsync(int id)
         {
@@ -110,7 +108,6 @@ namespace RentACar.Business.Concrete
 
             _mapper.Map(brandUpdateDto, existingBrand);
             await _brandRepository.UpdateAsync(existingBrand);
-
             return new SuccessResult("Marka başarıyla güncellendi.");
         }
 

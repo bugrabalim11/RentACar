@@ -41,6 +41,7 @@ namespace RentACar.Business.Concrete
             _paymentService = paymentService;
         }
 
+        [TransactionScopeAspect]
         public async Task<IDataResult<int>> AddAsync(RentalCreateDto rentalAddDto, int userId)
         {
             // ===================================================================================
@@ -128,6 +129,7 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<int>(rental.Id, "Araç kiralama başarıyla oluşturuldu.");
         }
 
+        [TransactionScopeAspect]
         public async Task<IDataResult<int>> AddByAdminAsync(RentalCreateByAdminDto rentalAddByAdminDto)
         {
             // ===================================================================================
@@ -208,6 +210,7 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<int>(rental.Id, "Araç kiralama başarıyla oluşturuldu.");
         }
 
+        [TransactionScopeAspect]
         public async Task<IResult> DeleteAsync(int id)
         {
             var existingRental = await _rentalRepository.GetAsync(x => x.Id == id);
@@ -270,6 +273,7 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<RentalDetailDto>(rentalDetailDto, "Araç kiralama detayı getirildi.");
         }
 
+        [TransactionScopeAspect]
         public async Task<IResult> UpdateByAdminAsync(RentalUpdateByAdminDto rentalUpdateDto)
         {
             var existingRental = await _rentalRepository.GetAsync(x => x.Id == rentalUpdateDto.Id);
@@ -326,6 +330,7 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Araç kiralama başarıyla güncellendi.");
         }
 
+        [TransactionScopeAspect]
         public async Task<IResult> UpdateMyRentalAsync(int userId, int rentalId, RentalUpdateReturnDateDto rentalUpdateReturnDateDto)
         {
             rentalUpdateReturnDateDto.ReturnDate = DateTime.SpecifyKind(rentalUpdateReturnDateDto.ReturnDate, DateTimeKind.Utc);

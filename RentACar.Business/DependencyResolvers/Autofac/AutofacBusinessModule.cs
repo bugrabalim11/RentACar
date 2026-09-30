@@ -24,7 +24,7 @@ namespace RentACar.Business.DependencyResolvers.Autofac
                    {
                        Selector = new AspectInterceptorSelector()
                    })
-                   .SingleInstance();
+                   .InstancePerLifetimeScope();;
 
             // 2. DATA ACCESS BİNASI (Ajansız, düz veritabanı işçileri)
             // Eskiden C#'a bana CarRepository'nin yaşadığı binayı (Assembly) bul diye adres veriyorduk 
@@ -33,7 +33,7 @@ namespace RentACar.Business.DependencyResolvers.Autofac
 
             builder.RegisterAssemblyTypes(dataAccessAssembly)
                    .AsImplementedInterfaces()
-                   .SingleInstance();
+                   .InstancePerLifetimeScope();;
 
             // 3. CORE BİNASI (JwtHelper, FileHelper vb. ortak araçlar)
             // Core projesini bulabilmesi için, o projenin içinden FileHelperManager (veya JwtHelper) sınıfını adres gösteriyoruz.
@@ -41,7 +41,7 @@ namespace RentACar.Business.DependencyResolvers.Autofac
 
             builder.RegisterAssemblyTypes(coreAssembly)
                    .AsImplementedInterfaces()
-                   .SingleInstance();
+                   .InstancePerLifetimeScope();;
         }
     }
 }

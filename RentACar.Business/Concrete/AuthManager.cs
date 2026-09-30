@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
+using RentACar.Core.Aspects.Autofac.Transaction;
 using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Entities.DTOs.AuthDtos;
 using RentACar.Core.Entities.DTOs.UserDtos;
@@ -89,6 +90,7 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<User>(userToCheck.Data, "Sisteme başarıyla giriş yapıldı.");
         }
 
+        [TransactionScopeAspect]
         public async Task<IDataResult<User>> Register(UserForRegisterDto userForRegisterDto, string password)
         {
             // 1. E-POSTA TEMİZLİĞİ VE KONTROLÜ

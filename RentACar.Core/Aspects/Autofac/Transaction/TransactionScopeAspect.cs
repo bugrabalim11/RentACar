@@ -10,36 +10,90 @@ namespace RentACar.Core.Aspects.Autofac.Transaction
         // Intercept: Havada yakala! Metot tam çalışacakken ajan araya giriyor.
         public override void Intercept(IInvocation invocation)
         {
-            // TransactionScopeAsyncFlowOption.Enabled : 
-            // Zaman makinesinin farklı asenkron işçiler (Thread'ler) arasında kopmadan devam etmesini sağlar!
-            using (TransactionScope transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            // Zaman makinesini başlat
+            var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+            try
             {
-                try
-                {
-                    // 1. İşçiyi odaya sok ve çalıştır (Burada işçi bekleme odasına -await- geçebilir)
-                    invocation.Proceed();
+                // 1. İşçiyi odaya sok ve çalıştır
+                invocation.Proceed();
 
-                    // 2. SABIRSIZ AJAN İÇİN KONTROL NOKTASI!
-                    // Eğer dönen sonuç bir "Task" (Yani asenkron bir görev) ise:
-                    if (invocation.ReturnValue is System.Threading.Tasks.Task returnValueTask)
+                // 2. KONTROL: Metot Asenkron mu? (Task döndürüyor mu?)
+                if (invocation.ReturnValue is Task task)
+                {
+                    // DOĞRU OLAN: Kutunun şekline değil, metodun Orijinal Sözleşmesine (Signature) bakıyoruz!
+                    // Sözleşme asla yalan söylemez, direkt 'Task<IDataResult<int>>' olarak döner.
+                    var returnType = invocation.Method.ReturnType;
+
+                    // Eğer kutu VIP bir kutuysa (Yani Task<T> gibi Generic bir tipse)
+                    if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
                     {
-                        // Ajan'a diyoruz ki: "İçerideki asenkron işlem %100 bitene kadar burada BEKLE!"
-                        // (Bunu demezsek Ajan hemen aşağı inip işlemi onaylar ve kaçar)
-                        returnValueTask.Wait();
+                        // Kutunun içindeki asıl malzemenin tipini bul (Örn: IDataResult<int>)
+                        var resultType = returnType.GetGenericArguments()[0];
+
+                        // Reflection Sihri: Ajanın içindeki 'HandleAsyncWithResult' metodunu bul ve ona bu malzemeyi öğret
+                        var method = typeof(TransactionScopeAspect)
+                            .GetMethod(nameof(HandleAsyncWithResult), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                            ?.MakeGenericMethod(resultType);
+
+                        // Özel metodumuzu çalıştırıp VIP kutuyu teslim ediyoruz
+                        invocation.ReturnValue = method?.Invoke(this, new object[] { task, transactionScope });
                     }
-
-                    // 3. İşçi (veya işçiler) işini tamamen, hatasız bitirdi. Artık zaman makinesini onaylayabilirsin!
-                    transactionScope.Complete();
+                    else
+                    {
+                        // Normal Kutu (Düz Task dönüyorsa) eski sistem çalışır
+                        invocation.ReturnValue = HandleAsync(task, transactionScope);
+                    }
                 }
-                catch (System.Exception)
+                else
                 {
-                    // 4. Adım: Eğer invocation.Proceed() çalışırken bir yerde hata fırlarsa,
-                    // Sistem buraya (catch) düşer. Balonu patlat (Dispose) ve yapılan her işlemi geri al! (Rollback)
+                    // Metot Senkron ise (Düz void veya int dönüyorsa) eski sistem çalışır
+                    transactionScope.Complete();
                     transactionScope.Dispose();
-
-                    // Hatayı yutma, sisteme geri fırlat ki API'miz "500 Internal Server Error" verebilsin.
-                    throw;
                 }
+            }
+            catch (System.Exception)
+            {
+                // İşçi daha çalışmaya başlamadan (Proceed anında) patlarsa
+                transactionScope.Dispose();
+                throw;
+            }
+        }
+
+        // AJANIN YENİ VIP ASENKRON TAKİP CİHAZI
+        private async Task<T> HandleAsyncWithResult<T>(Task task, TransactionScope transactionScope)
+        {
+            try
+            {
+                // İşçinin işini arka planda asenkron olarak bitirmesini bekle
+                var genericTask = (Task<T>)task;
+                var result = await genericTask;
+
+                // Hata çıkmadıysa zaman makinesini onayla
+                transactionScope.Complete();
+
+                // VIP kutuyu içindeki veriyle (result) beraber teslim et!
+                return result;
+            }
+            finally
+            {
+                // İşlem bitse de, hata da fırlasa makineyi temizle
+                transactionScope.Dispose();
+            }
+        }
+
+        // AJANIN STANDART ASENKRON TAKİP CİHAZI (Bunu silmiştik, geri ekliyoruz!)
+        // Eğer metot geriye IDataResult gibi bir VIP kutu değil de, düz Task dönüyorsa bu çalışır.
+        private async Task HandleAsync(Task task, TransactionScope transactionScope)
+        {
+            try
+            {
+                await task;
+                transactionScope.Complete();
+            }
+            finally
+            {
+                transactionScope.Dispose();
             }
         }
     }

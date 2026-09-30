@@ -13,8 +13,8 @@ namespace RentACar.Core.Utilities.Interceptors
             var classAttributes = type.GetCustomAttributes<MethodInterceptionBaseAttribute>(true).ToList();
 
             // 2. O an çalışan Metodun (Method) tepesindeki mühürleri listele
-            // type.GetMethod() ile tekrar aramıyoruz, postacının verdiği 'method' kolisini direkt açıyoruz.
-            var methodAttributes = method.GetCustomAttributes<MethodInterceptionBaseAttribute>(true);
+            // DOĞRU OLAN: Dedektife metodun adıyla birlikte, aldığı parametrelerin tiplerini (parmak izini) de veriyoruz ki adaş metotlarla karıştırmasın!
+            var methodAttributes = type.GetMethod(method.Name, method.GetParameters().Select(p => p.ParameterType).ToArray())?.GetCustomAttributes<MethodInterceptionBaseAttribute>(true);
 
             // 3. Sınıftaki ve metottaki mühürleri aynı listede birleştir (Polis listeyi hazırlıyor)
             if (methodAttributes != null)
