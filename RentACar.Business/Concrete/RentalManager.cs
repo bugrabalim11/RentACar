@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
+using RentACar.Business.Helpers;
 using RentACar.Core.Aspects.Autofac.Transaction;
 using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Business;
+using RentACar.Core.Utilities.Mailing;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 using RentACar.Dtos.PaymentDtos;
@@ -21,6 +23,7 @@ namespace RentACar.Business.Concrete
         private readonly ICarStatusService _carStatusService;
         private readonly IFindexScoreService _findexScoreService;
         private readonly IPaymentService _paymentService;
+        private readonly IMailService _mailService;
 
         // SENİOR MİMARİ NOTU: Constructor Over-Injection (Aşırı Bağımlılık) - Code Smell (Kod Kokusu)
         // Şu an bu Manager (Şantiye Şefi) sınıfına tam 7 farklı servis dışarıdan enjekte edildi.
@@ -29,7 +32,7 @@ namespace RentACar.Business.Concrete
         // ÇÖZÜM VİZYONU: İlerleyen büyük projelerde bu karmaşayı önlemek için Manager'ın yükünü dağıtacağız.
         // "Facade Pattern" (Ön Cephe Tasarımı) veya "CQRS / MediatR" (Komut ve Sorgu Ayrışımı) gibi ileri seviye mimariler 
         // kullanarak İş Kurallarını (Business Rules) çok daha modüler bir yapıya taşıyacağız.
-        public RentalManager(IRentalRepository rentalRepository, IMapper mapper, ICarService carService, ICustomerService customerService, IPosService posService, ICarStatusService carStatusService, IFindexScoreService findexScoreService, IPaymentService paymentService)
+        public RentalManager(IRentalRepository rentalRepository, IMapper mapper, ICarService carService, ICustomerService customerService, IPosService posService, ICarStatusService carStatusService, IFindexScoreService findexScoreService, IPaymentService paymentService, IMailService mailService)
         {
             _rentalRepository = rentalRepository;
             _mapper = mapper;
@@ -39,6 +42,7 @@ namespace RentACar.Business.Concrete
             _carStatusService = carStatusService;
             _findexScoreService = findexScoreService;
             _paymentService = paymentService;
+            _mailService = mailService;
         }
 
         [TransactionScopeAspect]
@@ -122,8 +126,28 @@ namespace RentACar.Business.Concrete
             await _paymentService.AddAsync(paymentDto);
 
             // ===================================================================================
-            // BÖLÜM 5: ÇIKIŞ (Return)
+            // BÖLÜM 5: BÖLÜM 5: E-POSTA BİLDİRİMİ (İzole Odacık - Transaction'ı Patlatmaması İçin)
             // ===================================================================================
+            try
+            {
+                // 1. Matbaacıdan hazır kargo kutusunu (Zarfı) al
+                // Not: carBrand'i bir üstte veritabanından çektiğin 'car.Data.BrandName' gibi bir yerden alabilirsin.
+                var mailRequest = MailTemplateHelper.CreateRentalSuccessMail(
+                    $"{customerResult.Data.FirstName} {customerResult.Data.LastName}",
+                    customerResult.Data.Email,
+                    $"{car.Data.BrandName} {car.Data.ModelName}",
+                    totalAmount,
+                    rental.RentDate,
+                    rental.ReturnDate);
+
+                // 2. Postacıya teslim et ve yola çıkar
+                await _mailService.SendEmailAsync(mailRequest);
+            }
+            catch (Exception)
+            {
+                // Mail atılamasa bile kiralama işlemi iptal OLMASIN! 
+                // Hata yutulur (İstersen buraya ileride NLog ile loglama yapabiliriz).
+            }
 
             // Postman/UI otomasyonları için üretilen yeni ID'yi teslim et.
             return new SuccessDataResult<int>(rental.Id, "Araç kiralama başarıyla oluşturuldu.");
