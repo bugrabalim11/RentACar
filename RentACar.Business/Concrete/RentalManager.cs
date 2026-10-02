@@ -7,6 +7,8 @@ using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Mailing;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
+using RentACar.Dtos.CarDtos;
+using RentACar.Dtos.CustomerDtos;
 using RentACar.Dtos.PaymentDtos;
 using RentACar.Dtos.RentalDtos;
 using RentACar.Entities.Concrete;
@@ -128,10 +130,11 @@ namespace RentACar.Business.Concrete
             // ===================================================================================
             // BÖLÜM 5: BÖLÜM 5: E-POSTA BİLDİRİMİ (İzole Odacık - Transaction'ı Patlatmaması İçin)
             // ===================================================================================
+
+            // Sadece KUTULARI fırlat, asistan kendi içinde zımbalasın!
             await SendRentalSuccessEmailAsync(
-                $"{customerResult.Data.FirstName} {customerResult.Data.LastName}",
-                customerResult.Data.Email,
-                $"{car.Data.BrandName} {car.Data.ModelName}",
+                customerResult.Data,
+                car.Data,
                 totalAmount,
                 rental.RentDate,
                 rental.ReturnDate
@@ -217,6 +220,19 @@ namespace RentACar.Business.Concrete
             // ===================================================================================
             // BÖLÜM 5: ÇIKIŞ (Return)
             // ===================================================================================
+
+            // İş kurallarında kullanıcı var mı dite kontrol etmiştik bir daha etmemize gerek yok.
+            // E-posta ve isim soyisim bilgileri için bu veriyi çektik
+            var customerResult = await _customerService.GetByIdAsync(rentalAddByAdminDto.CustomerId);
+
+            // Sadece KUTULARI fırlat, asistan kendi içinde zımbalasın!
+            await SendRentalSuccessEmailAsync(
+                customerResult.Data,
+                car.Data,
+                totalAmount,
+                rental.RentDate,
+                rental.ReturnDate
+                );
 
             // Postman/UI otomasyonları için üretilen yeni ID'yi teslim et.
             return new SuccessDataResult<int>(rental.Id, "Araç kiralama başarıyla oluşturuldu.");
@@ -509,15 +525,15 @@ namespace RentACar.Business.Concrete
         }
 
         // Veznedarın fatura ve kargo işlerini halleden özel asistanı
-        private async Task SendRentalSuccessEmailAsync(string customerFullName, string email, string carFullName, decimal totalAmount, DateTime rentDate, DateTime? returnDate)
+        private async Task SendRentalSuccessEmailAsync(CustomerDetailDto customer, CarDetailDto car, decimal totalAmount, DateTime rentDate, DateTime? returnDate)
         {
             try
             {
                 // 1. Matbaacıdan hazır kargo kutusunu (Zarfı) al
                 var mailRequest = MailTemplateHelper.CreateRentalSuccessMail(
-                    customerFullName,
-                    email,
-                    carFullName,
+                    $"{customer.FirstName} {customer.LastName}",
+                    customer.Email,
+                    $"{car.BrandName} {car.ModelName}",
                     totalAmount,
                     rentDate,
                     returnDate);
