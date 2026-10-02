@@ -331,7 +331,9 @@ namespace RentACar.Business.Concrete
             }
 
             _mapper.Map(rentalUpdateDto, existingRental);
-            var newTotalAmount = CalculateTotalAmount(rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate, existingRental.Car.DailyPrice);
+
+            var carResult = await _carService.GetByIdAsync(rentalUpdateDto.CarId);
+            var newTotalAmount = CalculateTotalAmount(rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate, carResult.Data.DailyPrice);
             var difference = newTotalAmount - existingRental.TotalAmount;
 
             if (difference > 0)
@@ -353,6 +355,17 @@ namespace RentACar.Business.Concrete
 
                 existingRental.TotalAmount = newTotalAmount;
             }
+
+            var customerResult = await _customerService.GetByIdAsync(existingRental.CustomerId);
+
+            await SendRentalUpdateEmailAsync(
+            customerResult.Data,
+            carResult.Data,
+            newTotalAmount,
+            difference,
+            rentalUpdateDto.RentDate,
+            rentalUpdateDto.ReturnDate
+            );
 
             await _rentalRepository.UpdateAsync(existingRental);
             return new SuccessResult("Araç kiralama başarıyla güncellendi.");
@@ -545,6 +558,28 @@ namespace RentACar.Business.Concrete
             {
                 // Mail atılamasa bile kiralama işlemi iptal OLMASIN! 
                 // Hata yutulur (İstersen buraya ileride NLog ile loglama yapabiliriz).
+            }
+        }
+
+        private async Task SendRentalUpdateEmailAsync(CustomerDetailDto customer, CarDetailDto car, decimal totalAmount, decimal differenceAmount, DateTime rentDate, DateTime? returnDate)
+        {
+            try
+            {
+                // 1. Matbaacıdan hazır kargo kutusunu (Zarfı) al
+                var mailRequest = MailTemplateHelper.CreateRentalUpdateMail(
+                    $"{customer.FirstName} {customer.LastName}",
+                    customer.Email,
+                    $"{car.BrandName} {car.ModelName}",
+                    totalAmount,
+                    differenceAmount,
+                    rentDate,
+                    returnDate);
+
+                await _mailService.SendEmailAsync(mailRequest);
+            }
+            catch (Exception)
+            {
+
             }
         }
     }
