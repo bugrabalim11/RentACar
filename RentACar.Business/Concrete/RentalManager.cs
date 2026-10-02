@@ -304,6 +304,8 @@ namespace RentACar.Business.Concrete
         [TransactionScopeAspect]
         public async Task<IResult> UpdateByAdminAsync(RentalUpdateByAdminDto rentalUpdateDto)
         {
+            // AsNoTracking kullandığımız için GetRentalWithDetailsByIdAsync metodu yerine GetAsync metodunu kullanıyoruz.
+            // Çünkü c# asnotracing ile takibi bırakıyor ve update işlemi için entity framework'ün takibine ihtiyaç duyuyoruz.
             var existingRental = await _rentalRepository.GetAsync(x => x.Id == rentalUpdateDto.Id);
             if (existingRental == null)
             {
@@ -361,8 +363,8 @@ namespace RentACar.Business.Concrete
             await SendRentalUpdateEmailAsync(
             customerResult.Data,
             carResult.Data,
-            newTotalAmount,
-            difference,
+            existingRental.TotalAmount,
+            difference > 0 ? difference : 0, // Eğer difference 0'dan büyükse difference'ın kendisini kullan; DEĞİLSE 0 kullan.
             rentalUpdateDto.RentDate,
             rentalUpdateDto.ReturnDate
             );
@@ -394,7 +396,6 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
-            // car.Data.DailyPrice YERİNE existingRental.Car.DailyPrice kullanıyoruz!
             var newTotalAmount = CalculateTotalAmount(existingRental.RentDate, rentalUpdateReturnDateDto.ReturnDate, existingRental.Car.DailyPrice);
             var difference = newTotalAmount - existingRental.TotalAmount;
             // SENİOR NOTU: Müşteri aracı erken teslim ettiğinde (difference < 0) para iadesi YAPILMAMAKTADIR.
@@ -426,6 +427,19 @@ namespace RentACar.Business.Concrete
                 // Rental'ın TotalAmount atamasını sadece bu bloğun içine alıyoruz!
                 existingRental.TotalAmount = newTotalAmount;
             }
+
+            // Elimizdeki çamurlu kasaları (Entity), asistanın istediği şık vitrin kutularına (DTO) çeviriyoruz!
+            var carDto = _mapper.Map<CarDetailDto>(existingRental.Car);
+            var customerDto = _mapper.Map<CustomerDetailDto>(existingRental.Customer);
+
+            await SendRentalUpdateEmailAsync(
+            customerDto,
+            carDto,
+            existingRental.TotalAmount,
+            difference > 0 ? difference : 0, // Eğer difference 0'dan büyükse difference'ın kendisini kullan; DEĞİLSE 0 kullan.
+            existingRental.RentDate,
+            rentalUpdateReturnDateDto.ReturnDate
+            );
 
             // Fark 0 veya negatifse (difference <= 0), TotalAmount'a HİÇ DOKUNMUYORUZ.
             // O zaten veritabanından 1000 TL olarak geldi, öyle kalacak. Paraya çöktük :)

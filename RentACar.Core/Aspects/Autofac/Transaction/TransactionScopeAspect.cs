@@ -11,7 +11,12 @@ namespace RentACar.Core.Aspects.Autofac.Transaction
         public override void Intercept(IInvocation invocation)
         {
             // Zaman makinesini başlat
-            var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+            // Zaman makinesi artık asenkron düğümleri koparmayacak ve veritabanını kitleyecek (IsolationLevel)
+            var transactionScope = new TransactionScope(
+                TransactionScopeOption.Required,
+                new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted },
+                TransactionScopeAsyncFlowOption.Enabled
+            );
 
             try
             {
