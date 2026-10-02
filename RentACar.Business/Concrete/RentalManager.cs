@@ -128,26 +128,14 @@ namespace RentACar.Business.Concrete
             // ===================================================================================
             // BÖLÜM 5: BÖLÜM 5: E-POSTA BİLDİRİMİ (İzole Odacık - Transaction'ı Patlatmaması İçin)
             // ===================================================================================
-            try
-            {
-                // 1. Matbaacıdan hazır kargo kutusunu (Zarfı) al
-                // Not: carBrand'i bir üstte veritabanından çektiğin 'car.Data.BrandName' gibi bir yerden alabilirsin.
-                var mailRequest = MailTemplateHelper.CreateRentalSuccessMail(
-                    $"{customerResult.Data.FirstName} {customerResult.Data.LastName}",
-                    customerResult.Data.Email,
-                    $"{car.Data.BrandName} {car.Data.ModelName}",
-                    totalAmount,
-                    rental.RentDate,
-                    rental.ReturnDate);
-
-                // 2. Postacıya teslim et ve yola çıkar
-                await _mailService.SendEmailAsync(mailRequest);
-            }
-            catch (Exception)
-            {
-                // Mail atılamasa bile kiralama işlemi iptal OLMASIN! 
-                // Hata yutulur (İstersen buraya ileride NLog ile loglama yapabiliriz).
-            }
+            await SendRentalSuccessEmailAsync(
+                $"{customerResult.Data.FirstName} {customerResult.Data.LastName}",
+                customerResult.Data.Email,
+                $"{car.Data.BrandName} {car.Data.ModelName}",
+                totalAmount,
+                rental.RentDate,
+                rental.ReturnDate
+                );
 
             // Postman/UI otomasyonları için üretilen yeni ID'yi teslim et.
             return new SuccessDataResult<int>(rental.Id, "Araç kiralama başarıyla oluşturuldu.");
@@ -518,6 +506,30 @@ namespace RentACar.Business.Concrete
             }
             var totalAmount = totalDays * dailyPrice;
             return totalAmount;
+        }
+
+        // Veznedarın fatura ve kargo işlerini halleden özel asistanı
+        private async Task SendRentalSuccessEmailAsync(string customerFullName, string email, string carFullName, decimal totalAmount, DateTime rentDate, DateTime? returnDate)
+        {
+            try
+            {
+                // 1. Matbaacıdan hazır kargo kutusunu (Zarfı) al
+                var mailRequest = MailTemplateHelper.CreateRentalSuccessMail(
+                    customerFullName,
+                    email,
+                    carFullName,
+                    totalAmount,
+                    rentDate,
+                    returnDate);
+
+                // 2. Postacıya teslim et ve yola çıkar
+                await _mailService.SendEmailAsync(mailRequest);
+            }
+            catch (Exception)
+            {
+                // Mail atılamasa bile kiralama işlemi iptal OLMASIN! 
+                // Hata yutulur (İstersen buraya ileride NLog ile loglama yapabiliriz).
+            }
         }
     }
 }
