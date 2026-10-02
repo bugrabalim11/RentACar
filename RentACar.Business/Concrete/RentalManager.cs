@@ -1,10 +1,14 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
+using RentACar.Business.Helpers;
 using RentACar.Core.Aspects.Autofac.Transaction;
 using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Business;
+using RentACar.Core.Utilities.Mailing;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
+using RentACar.Dtos.CarDtos;
+using RentACar.Dtos.CustomerDtos;
 using RentACar.Dtos.PaymentDtos;
 using RentACar.Dtos.RentalDtos;
 using RentACar.Entities.Concrete;
@@ -21,6 +25,7 @@ namespace RentACar.Business.Concrete
         private readonly ICarStatusService _carStatusService;
         private readonly IFindexScoreService _findexScoreService;
         private readonly IPaymentService _paymentService;
+        private readonly IMailService _mailService;
 
         // SENİOR MİMARİ NOTU: Constructor Over-Injection (Aşırı Bağımlılık) - Code Smell (Kod Kokusu)
         // Şu an bu Manager (Şantiye Şefi) sınıfına tam 7 farklı servis dışarıdan enjekte edildi.
@@ -29,7 +34,7 @@ namespace RentACar.Business.Concrete
         // ÇÖZÜM VİZYONU: İlerleyen büyük projelerde bu karmaşayı önlemek için Manager'ın yükünü dağıtacağız.
         // "Facade Pattern" (Ön Cephe Tasarımı) veya "CQRS / MediatR" (Komut ve Sorgu Ayrışımı) gibi ileri seviye mimariler 
         // kullanarak İş Kurallarını (Business Rules) çok daha modüler bir yapıya taşıyacağız.
-        public RentalManager(IRentalRepository rentalRepository, IMapper mapper, ICarService carService, ICustomerService customerService, IPosService posService, ICarStatusService carStatusService, IFindexScoreService findexScoreService, IPaymentService paymentService)
+        public RentalManager(IRentalRepository rentalRepository, IMapper mapper, ICarService carService, ICustomerService customerService, IPosService posService, ICarStatusService carStatusService, IFindexScoreService findexScoreService, IPaymentService paymentService, IMailService mailService)
         {
             _rentalRepository = rentalRepository;
             _mapper = mapper;
@@ -39,6 +44,7 @@ namespace RentACar.Business.Concrete
             _carStatusService = carStatusService;
             _findexScoreService = findexScoreService;
             _paymentService = paymentService;
+            _mailService = mailService;
         }
 
         [TransactionScopeAspect]
@@ -122,8 +128,17 @@ namespace RentACar.Business.Concrete
             await _paymentService.AddAsync(paymentDto);
 
             // ===================================================================================
-            // BÖLÜM 5: ÇIKIŞ (Return)
+            // BÖLÜM 5: BÖLÜM 5: E-POSTA BİLDİRİMİ (İzole Odacık - Transaction'ı Patlatmaması İçin)
             // ===================================================================================
+
+            // Sadece KUTULARI fırlat, asistan kendi içinde zımbalasın!
+            await SendRentalSuccessEmailAsync(
+                customerResult.Data,
+                car.Data,
+                totalAmount,
+                rental.RentDate,
+                rental.ReturnDate
+                );
 
             // Postman/UI otomasyonları için üretilen yeni ID'yi teslim et.
             return new SuccessDataResult<int>(rental.Id, "Araç kiralama başarıyla oluşturuldu.");
@@ -206,6 +221,19 @@ namespace RentACar.Business.Concrete
             // BÖLÜM 5: ÇIKIŞ (Return)
             // ===================================================================================
 
+            // İş kurallarında kullanıcı var mı dite kontrol etmiştik bir daha etmemize gerek yok.
+            // E-posta ve isim soyisim bilgileri için bu veriyi çektik
+            var customerResult = await _customerService.GetByIdAsync(rentalAddByAdminDto.CustomerId);
+
+            // Sadece KUTULARI fırlat, asistan kendi içinde zımbalasın!
+            await SendRentalSuccessEmailAsync(
+                customerResult.Data,
+                car.Data,
+                totalAmount,
+                rental.RentDate,
+                rental.ReturnDate
+                );
+
             // Postman/UI otomasyonları için üretilen yeni ID'yi teslim et.
             return new SuccessDataResult<int>(rental.Id, "Araç kiralama başarıyla oluşturuldu.");
         }
@@ -276,6 +304,8 @@ namespace RentACar.Business.Concrete
         [TransactionScopeAspect]
         public async Task<IResult> UpdateByAdminAsync(RentalUpdateByAdminDto rentalUpdateDto)
         {
+            // AsNoTracking kullandığımız için GetRentalWithDetailsByIdAsync metodu yerine GetAsync metodunu kullanıyoruz.
+            // Çünkü c# asnotracing ile takibi bırakıyor ve update işlemi için entity framework'ün takibine ihtiyaç duyuyoruz.
             var existingRental = await _rentalRepository.GetAsync(x => x.Id == rentalUpdateDto.Id);
             if (existingRental == null)
             {
@@ -303,7 +333,9 @@ namespace RentACar.Business.Concrete
             }
 
             _mapper.Map(rentalUpdateDto, existingRental);
-            var newTotalAmount = CalculateTotalAmount(rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate, existingRental.Car.DailyPrice);
+
+            var carResult = await _carService.GetByIdAsync(rentalUpdateDto.CarId);
+            var newTotalAmount = CalculateTotalAmount(rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate, carResult.Data.DailyPrice);
             var difference = newTotalAmount - existingRental.TotalAmount;
 
             if (difference > 0)
@@ -325,6 +357,17 @@ namespace RentACar.Business.Concrete
 
                 existingRental.TotalAmount = newTotalAmount;
             }
+
+            var customerResult = await _customerService.GetByIdAsync(existingRental.CustomerId);
+
+            await SendRentalUpdateEmailAsync(
+            customerResult.Data,
+            carResult.Data,
+            existingRental.TotalAmount,
+            difference > 0 ? difference : 0, // Eğer difference 0'dan büyükse difference'ın kendisini kullan; DEĞİLSE 0 kullan.
+            rentalUpdateDto.RentDate,
+            rentalUpdateDto.ReturnDate
+            );
 
             await _rentalRepository.UpdateAsync(existingRental);
             return new SuccessResult("Araç kiralama başarıyla güncellendi.");
@@ -353,7 +396,6 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
-            // car.Data.DailyPrice YERİNE existingRental.Car.DailyPrice kullanıyoruz!
             var newTotalAmount = CalculateTotalAmount(existingRental.RentDate, rentalUpdateReturnDateDto.ReturnDate, existingRental.Car.DailyPrice);
             var difference = newTotalAmount - existingRental.TotalAmount;
             // SENİOR NOTU: Müşteri aracı erken teslim ettiğinde (difference < 0) para iadesi YAPILMAMAKTADIR.
@@ -385,6 +427,19 @@ namespace RentACar.Business.Concrete
                 // Rental'ın TotalAmount atamasını sadece bu bloğun içine alıyoruz!
                 existingRental.TotalAmount = newTotalAmount;
             }
+
+            // Elimizdeki çamurlu kasaları (Entity), asistanın istediği şık vitrin kutularına (DTO) çeviriyoruz!
+            var carDto = _mapper.Map<CarDetailDto>(existingRental.Car);
+            var customerDto = _mapper.Map<CustomerDetailDto>(existingRental.Customer);
+
+            await SendRentalUpdateEmailAsync(
+            customerDto,
+            carDto,
+            existingRental.TotalAmount,
+            difference > 0 ? difference : 0, // Eğer difference 0'dan büyükse difference'ın kendisini kullan; DEĞİLSE 0 kullan.
+            existingRental.RentDate,
+            rentalUpdateReturnDateDto.ReturnDate
+            );
 
             // Fark 0 veya negatifse (difference <= 0), TotalAmount'a HİÇ DOKUNMUYORUZ.
             // O zaten veritabanından 1000 TL olarak geldi, öyle kalacak. Paraya çöktük :)
@@ -494,6 +549,52 @@ namespace RentACar.Business.Concrete
             }
             var totalAmount = totalDays * dailyPrice;
             return totalAmount;
+        }
+
+        // Veznedarın fatura ve kargo işlerini halleden özel asistanı
+        private async Task SendRentalSuccessEmailAsync(CustomerDetailDto customer, CarDetailDto car, decimal totalAmount, DateTime rentDate, DateTime? returnDate)
+        {
+            try
+            {
+                // 1. Matbaacıdan hazır kargo kutusunu (Zarfı) al
+                var mailRequest = MailTemplateHelper.CreateRentalSuccessMail(
+                    $"{customer.FirstName} {customer.LastName}",
+                    customer.Email,
+                    $"{car.BrandName} {car.ModelName}",
+                    totalAmount,
+                    rentDate,
+                    returnDate);
+
+                // 2. Postacıya teslim et ve yola çıkar
+                await _mailService.SendEmailAsync(mailRequest);
+            }
+            catch (Exception)
+            {
+                // Mail atılamasa bile kiralama işlemi iptal OLMASIN! 
+                // Hata yutulur (İstersen buraya ileride NLog ile loglama yapabiliriz).
+            }
+        }
+
+        private async Task SendRentalUpdateEmailAsync(CustomerDetailDto customer, CarDetailDto car, decimal totalAmount, decimal differenceAmount, DateTime rentDate, DateTime? returnDate)
+        {
+            try
+            {
+                // 1. Matbaacıdan hazır kargo kutusunu (Zarfı) al
+                var mailRequest = MailTemplateHelper.CreateRentalUpdateMail(
+                    $"{customer.FirstName} {customer.LastName}",
+                    customer.Email,
+                    $"{car.BrandName} {car.ModelName}",
+                    totalAmount,
+                    differenceAmount,
+                    rentDate,
+                    returnDate);
+
+                await _mailService.SendEmailAsync(mailRequest);
+            }
+            catch (Exception)
+            {
+
+            }
         }
     }
 }
