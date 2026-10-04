@@ -1,4 +1,6 @@
-﻿namespace RentACar.Core.Entities.DTOs.UserOperationClaimDtos
+﻿using RentACar.Core.Entities.Signatures;
+
+namespace RentACar.Core.Entities.DTOs.UserOperationClaimDtos
 {
     // Unutma: Bu bir veritabanı tablosu değil (IEntity), bu bir form/tabak (IDto)
     public class UserOperationClaimDetailDto : IDto

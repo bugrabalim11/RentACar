@@ -138,7 +138,7 @@ namespace RentACar.Business.Concrete
                 _fileHelper.Delete(image.ImagePath);
 
                 // SONRA VERİTABANI TEMİZLİĞİ: SQL'den o kaydı kalıcı olarak (Hard Delete) siliyoruz.
-                await _carImageRepository.DeleteAsync(image);
+                await _carImageRepository.HardDeleteByIdAsync(image.Id);
             }
             return new SuccessResult();
         }

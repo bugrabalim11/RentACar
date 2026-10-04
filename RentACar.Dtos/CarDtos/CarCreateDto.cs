@@ -1,5 +1,4 @@
-﻿
-using RentACar.Core.Entities;
+﻿using RentACar.Core.Entities.Signatures;
 using RentACar.Entities.Enums;
 
 namespace RentACar.Dtos.CarDtos

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RentACar.Core.Entities.Concrete;
+using RentACar.Core.Entities.Signatures;
 using RentACar.Entities.Concrete;
 
 namespace RentACar.DataAccess.Concrete.EntityFramework
@@ -22,7 +23,7 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
         public DbSet<OperationClaim> OperationClaims { get; set; }
         public DbSet<UserOperationClaim> UserOperationClaims { get; set; }
         public DbSet<User> Users { get; set; }
-        public DbSet<CarImage> CarImages { get; set; }  
+        public DbSet<CarImage> CarImages { get; set; }
         public DbSet<CarMaintenance> CarMaintenances { get; set; }
         public DbSet<Payment> Payments { get; set; }
 
@@ -45,17 +46,15 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
                         entry.Entity.UpdatedDate = DateTime.UtcNow;
                         break;
 
-                    // Eğer Manager nesneyi SİLİYORSA:
-                    case EntityState.Deleted:
-                        // KAPTAN'IN ÖZEL HAMLESİ (Tam Otonom Soft Delete):
-                        // EF Core bunu veritabanından kalıcı olarak silmek üzereydi. 
-                        // Önce durumunu "Silme, sadece Güncelle" (Modified) olarak değiştiriyoruz.
+                    // Eğer durum Deleted ise VE (when) gelen varlık VIP DEĞİLSE (!is)
+                    case EntityState.Deleted when entry.Entity is not IHardDeletable:
+                        // VIP olmayanlar buraya düşer, Soft Delete (çöpü update yapma) işlemi uygulanır.
                         entry.State = EntityState.Modified;
-
                         // Sonra çöp kutusu mühürlerini basıyoruz!
                         entry.Entity.DeletedDate = DateTime.UtcNow;
                         entry.Entity.IsDeleted = true;
                         break;
+                        // VIP olanlar (IHardDeletable) bu case'e takılmaz, direkt switch'in dışına süzülür ve silinir!
 
                         // (Ekleme - Added durumu yazmıyoruz, çünkü Doğumevi Doktoru (Constructor) onu hallediyor)
                 }
