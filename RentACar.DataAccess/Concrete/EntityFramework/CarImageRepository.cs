@@ -17,8 +17,16 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
             return await _context.CarImages
                 .Where(ci => ci.CarId == carId)
                 .Include(ci => ci.Car)
-                .ThenInclude(ci=>ci.Brand)
+                .ThenInclude(ci => ci.Brand)
                 .ToListAsync();
+        }
+
+        public async Task HardDeleteByIdAsync(int id)
+        {
+            await _context.CarImages
+                .IgnoreQueryFilters()
+                .Where(ci => ci.Id == id)
+                .ExecuteDeleteAsync();
         }
     }
 }
