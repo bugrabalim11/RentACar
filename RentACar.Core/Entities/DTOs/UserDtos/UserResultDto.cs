@@ -1,4 +1,6 @@
-﻿namespace RentACar.Core.Entities.DTOs.UserDtos
+﻿using RentACar.Core.Entities.Signatures;
+
+namespace RentACar.Core.Entities.DTOs.UserDtos
 {
     public class UserResultDto : IDto
     {

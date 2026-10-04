@@ -1,4 +1,6 @@
-﻿namespace RentACar.Core.Entities.DTOs.OperationClaimDtos
+﻿using RentACar.Core.Entities.Signatures;
+
+namespace RentACar.Core.Entities.DTOs.OperationClaimDtos
 {
     public class OperationClaimUpdateDto : IDto
     {

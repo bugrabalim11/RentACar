@@ -1,4 +1,4 @@
-﻿using RentACar.Core.Entities;
+﻿using RentACar.Core.Entities.Signatures;
 
 namespace RentACar.Dtos.ColorDtos
 {
