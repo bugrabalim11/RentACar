@@ -69,13 +69,26 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Resim başarıyla silindi.");
         }
 
+        public async Task<IResult> RestoreAsync(int id)
+        {
+            var deletedImage = await _carImageRepository.GetAsync(x => x.Id == id && x.IsDeleted, ignoreQueryFilters: true);
+            if (deletedImage == null)
+            {
+                throw new BusinessException("Silinmiş resim bulunamadı!");
+            }
+            deletedImage.IsDeleted = false;
+            deletedImage.DeletedDate = null;
+            await _carImageRepository.UpdateAsync(deletedImage);
+            return new SuccessResult("Resim başarıyla geri yüklendi.");
+        }
+
         public async Task<IDataResult<List<CarImageDetailDto>>> GetImagesByCarIdAsync(int carId)
         {
             var car = await _carService.GetByIdAsync(carId);
             var carImages = await _carImageRepository.GetImagesWithCarDetailsAsync(carId);
 
-            // Dolapta hiç resim YOK MU? (Eğer liste boş dönerse)
-            if (carImages == null || !carImages.Any())
+            // EF Core liste dönerken asla null dönmez, boş liste döner. Bu yüzden null yerine Any() ile kutunun içini kontrol ediyoruz.
+            if (!carImages.Any())
             {
                 // Müşteriye sunulacak "Varsayılan (Default) Resim" tepsisini hazırlıyoruz.
                 var defaultDtoList = new List<CarImageDetailDto>
@@ -96,6 +109,20 @@ namespace RentACar.Business.Concrete
             // Robot, çiğ etleri (carImages) alıp, Profile dosyasındaki tarifine göre pişirip DTO tepsisine diziyor.
             var dtoList = _mapper.Map<List<CarImageDetailDto>>(sortedCarImages);
             return new SuccessDataResult<List<CarImageDetailDto>>(dtoList, "Bu araca ait resimler başarıyla getirildi.");
+        }
+
+        public async Task<IDataResult<List<CarImageDeletedDto>>> GetDeletedImagesByCarIdAsync(int carId)
+        {
+            var deletedImages = await _carImageRepository.GetAllAsync(x => x.CarId == carId && x.IsDeleted, ignoreQueryFilters: true);
+            // EF Core liste dönerken asla null dönmez, boş liste döner. Bu yüzden null yerine Any() ile kutunun içini kontrol ediyoruz.
+            if (!deletedImages.Any())
+            {
+                return new SuccessDataResult<List<CarImageDeletedDto>>(new List<CarImageDeletedDto>(), "Çöp kutusu boş.");
+            }
+
+            var sortedCarImages = deletedImages.OrderByDescending(x => x.DeletedDate).ToList();
+            var dtoList = _mapper.Map<List<CarImageDeletedDto>>(sortedCarImages);
+            return new SuccessDataResult<List<CarImageDeletedDto>>(dtoList, "Silinmiş resimler başarıyla getirildi.");
         }
 
         public async Task<IResult> UpdateAsync(CarImageUpdateDto carImageUpdateDto)
@@ -143,22 +170,8 @@ namespace RentACar.Business.Concrete
             return new SuccessResult();
         }
 
-        public async Task<IResult> RestoreAsync(int id)
-        {
-            var deletedImage = await _carImageRepository.GetAsync(x => x.Id == id && x.IsDeleted, ignoreQueryFilters: true);
-            if (deletedImage == null)
-            {
-                throw new BusinessException("Silinmiş resim bulunamadı!");
-            }
-            deletedImage.IsDeleted = false;
-            deletedImage.DeletedDate = null;
-            await _carImageRepository.UpdateAsync(deletedImage);
-            return new SuccessResult("Resim başarıyla geri yüklendi.");
-        }
-
         // --- İÇ RAPORLAMA MERKEZİ (KURAL USTALARI) ---
         // Sadece Manager'ın okuması için rapor (ErrorResult) dönerler. Middleware'i tetiklemezler.
-
         private async Task<IResult> CheckIfCarImageLimitExceededAsync(int carId)
         {
             var result = await _carImageRepository.CountAsync(x => x.CarId == carId);

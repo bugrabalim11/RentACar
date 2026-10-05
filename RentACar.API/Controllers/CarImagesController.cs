@@ -46,10 +46,17 @@ namespace RentACar.API.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet("car/{carId}")]
+        [HttpGet("cars/{carId}")]
         public async Task<IActionResult> GetImagesByCarIdAsync(int carId)
         {
             var result = await _carImageService.GetImagesByCarIdAsync(carId);
+            return Ok(result);
+        }
+
+        [HttpGet("cars/{carId}/deleted")]
+        public async Task<IActionResult> GetDeletedImagesByCarIdAsync(int carId)
+        {
+            var result = await _carImageService.GetDeletedImagesByCarIdAsync(carId);
             return Ok(result);
         }
 

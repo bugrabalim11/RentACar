@@ -23,7 +23,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.GetAsync($"api/CarImages/Car/{carId}");
+            var responseMessage = await client.GetAsync($"api/CarImages/Cars/{carId}");
             // SENIOR NOTU: Kullanıcı 'Yeni Resim Ekle' dediğinde hangi arabaya ekleme yapacağımızı
             // bilmek için bu ID'yi HTML'e ufak bir Post-it notu olarak yolluyoruz.
             ViewBag.CarId = carId;
