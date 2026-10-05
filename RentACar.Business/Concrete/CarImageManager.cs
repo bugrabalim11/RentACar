@@ -143,6 +143,19 @@ namespace RentACar.Business.Concrete
             return new SuccessResult();
         }
 
+        public async Task<IResult> RestoreAsync(int id)
+        {
+            var deletedImage = await _carImageRepository.GetAsync(x => x.Id == id && x.IsDeleted, ignoreQueryFilters: true);
+            if (deletedImage == null)
+            {
+                throw new BusinessException("Silinmiş resim bulunamadı!");
+            }
+            deletedImage.IsDeleted = false;
+            deletedImage.DeletedDate = null;
+            await _carImageRepository.UpdateAsync(deletedImage);
+            return new SuccessResult("Resim başarıyla geri yüklendi.");
+        }
+
         // --- İÇ RAPORLAMA MERKEZİ (KURAL USTALARI) ---
         // Sadece Manager'ın okuması için rapor (ErrorResult) dönerler. Middleware'i tetiklemezler.
 

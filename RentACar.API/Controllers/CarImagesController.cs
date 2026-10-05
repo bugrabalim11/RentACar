@@ -52,5 +52,12 @@ namespace RentACar.API.Controllers
             var result = await _carImageService.GetImagesByCarIdAsync(carId);
             return Ok(result);
         }
+
+        [HttpPatch("{id}/restore")]
+        public async Task<IActionResult> RestoreAsync(int id)
+        {
+            var result = await _carImageService.RestoreAsync(id);
+            return Ok(result);
+        }
     }
 }
