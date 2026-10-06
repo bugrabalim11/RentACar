@@ -71,6 +71,20 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             return Json(new { success = false, message = errorMessage });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Restore(int id)
+        {
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+            // İkinci parametre olan null, API'a fazladan bir JSON nesnesi göndermediğimizi, sadece URL'deki id'nin yeterli olduğunu söyler.
+            var responseMessage = await client.PatchAsync($"api/CarImages/{id}/restore", null);
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                return Json(new { success = true });
+            }
+            string errorMessage = await GetApiErrorMessageAsync(responseMessage);
+            return Json(new { success = false, message = errorMessage });
+        }
+
         [HttpGet]
         public IActionResult Create(int carId)
         {
