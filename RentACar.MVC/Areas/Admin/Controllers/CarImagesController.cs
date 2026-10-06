@@ -39,6 +39,24 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             return View(new List<CarImageResultDto>());
         }
 
+        [HttpGet]
+        public async Task<IActionResult> DeletedImages(int carId)
+        {
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+            var responseMessage = await client.GetAsync($"api/CarImages/Cars/{carId}/deleted");
+            ViewBag.CarId = carId;
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var jsonData = await responseMessage.Content.ReadAsStringAsync();
+                var responseBox = JsonConvert.DeserializeObject<ResponseModel<List<CarImageDeletedDto>>>(jsonData);
+                if (responseBox != null && responseBox.Data != null)
+                {
+                    return View(responseBox.Data);
+                }
+            }
+            return View(new List<CarImageDeletedDto>());
+        }
+
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {

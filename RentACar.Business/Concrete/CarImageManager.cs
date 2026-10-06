@@ -90,19 +90,7 @@ namespace RentACar.Business.Concrete
             // EF Core liste dönerken asla null dönmez, boş liste döner. Bu yüzden null yerine Any() ile kutunun içini kontrol ediyoruz.
             if (!carImages.Any())
             {
-                // Müşteriye sunulacak "Varsayılan (Default) Resim" tepsisini hazırlıyoruz.
-                var defaultDtoList = new List<CarImageDetailDto>
-                {
-                    new CarImageDetailDto
-                    {
-                        CarId = carId,
-                        ImagePath = PathConstants.DefaultImagePath,
-                        UploadDate = DateTime.UtcNow,
-                        CarName = $"{car.Data?.BrandName} {car.Data?.ModelName}"
-                    }
-                };
-                // Erken Çıkış (Early Return): Sahte listeyi kuryeye verip metodu burada bitiriyoruz.
-                return new SuccessDataResult<List<CarImageDetailDto>>(defaultDtoList, "Bu araca ait resim bulunamadı, varsayılan resim getirildi.");
+                return new SuccessDataResult<List<CarImageDetailDto>>(new List<CarImageDetailDto>(), "Resim yok.");
             }
 
             var sortedCarImages = carImages.OrderByDescending(x => x.CreatedDate).ToList();

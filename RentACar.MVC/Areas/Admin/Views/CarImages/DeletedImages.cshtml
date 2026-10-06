@@ -1,0 +1,79 @@
+﻿@using RentACar.MVC.Areas.Admin.Models.CarImageDtos
+@model List<CarImageDeletedDto>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5>Silinen Araç Resimleri</h5>
+    </div>
+
+    <div class="card-body">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>
+                        #
+                    </th>
+                    <th>
+                        Resim Yolu
+                    </th>
+                    <th>
+                        Silinme Tarihi
+                    </th>
+                    <th>
+                        Aksiyonlar
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @item.Id
+                        </td>
+                        <td>
+                            <img src="https://localhost:7085/@item.ImagePath" width="100" class="rounded" />
+                        </td>
+                        <td>
+                            @item.DeletedDate.ToLocalTime().ToShortDateString()
+                        </td>
+                        <td>
+                            <button onclick="restoreCarImage(@item.Id)" class="btn btn-success" style="width:110px;">Geri Getir</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    function restoreCarImage(id) {
+        Swal.fire({
+            title: 'Emin misin?',
+            text: 'Bu resim sisteme geri gönderilecek!',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Evet, Geri Döndür!',
+            cancelButtonText: 'İptal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('@Url.Action("Restore", "CarImages", new { area = "Admin" })' + '/' + id, {
+                    method: 'POST'
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.reload();
+                        } else {
+                            Swal.fire('Hata!', data.message, 'error');
+                        }
+                    });
+            }
+        });
+    }
+</script>

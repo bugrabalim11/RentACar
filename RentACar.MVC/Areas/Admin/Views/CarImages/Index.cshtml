@@ -3,48 +3,74 @@
 
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-        @Model.FirstOrDefault()?.CarName Resimleri
-        <a asp-action="Create" asp-route-carId="@ViewBag.CarId" class="btn btn-primary">Yeni Araç Resmi Ekle</a>
+        <!-- 1. Eleman: Sola Yaslanacak Başlık -->
+        <span>@Model.FirstOrDefault()?.CarName Resimleri</span>
+
+        <!-- 2. Eleman: Sağa Yaslanacak Poşet (Div) -->
+        <div class="d-flex gap-2">
+            <!-- gap-2: Poşetin içindeki butonların arasına tatlı bir boşluk koyar -->
+
+            <a asp-action="DeletedImages" asp-route-carId="@ViewBag.CarId" class="btn btn-warning">
+                🗑️ Çöp Kutusu
+            </a>
+
+            <a asp-action="Create" asp-route-carId="@ViewBag.CarId" class="btn btn-primary">
+                ➕ Yeni Ekle
+            </a>
+        </div>
     </div>
 
     <div class="card-body">
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>
-                        #
-                    </th>
-                    <th>
-                        Resim Yolu
-                    </th>
-                    <th>
-                        Yüklenme Tarihi
-                    </th>
-                    <th>
-                        Aksiyonlar
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
+        <!-- Kargo kutusunda (Model) hiç eleman var mı? (Any() metodu Razor'da da çalışır) -->
+        @if (Model != null && Model.Any())
+        {
+            // 🟢 EĞER DOLUYSA:
+            <table class="table table-bordered">
+                <thead>
                     <tr>
-                        <td>
-                            @item.Id
-                        </td>
-                        <td>
-                            <img src="https://localhost:7085/@item.ImagePath" width="100" class="rounded" />
-                        </td>
-                        <td>
-                            @item.UploadDate.ToLocalTime().ToShortDateString()
-                        </td>
-                        <td>
-                            <button onclick="deleteCarImages(@item.Id)" class="btn btn-danger">Sil</button>
-                        </td>
+                        <th>
+                            #
+                        </th>
+                        <th>
+                            Resim Yolu
+                        </th>
+                        <th>
+                            Yüklenme Tarihi
+                        </th>
+                        <th>
+                            Aksiyonlar
+                        </th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @item.Id
+                            </td>
+                            <td>
+                                <img src="https://localhost:7085/@item.ImagePath" width="100" class="rounded" />
+                            </td>
+                            <td>
+                                @item.UploadDate.ToLocalTime().ToShortDateString()
+                            </td>
+                            <td>
+                                <button onclick="deleteCarImages(@item.Id)" class="btn btn-danger">Sil</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            // 🔴 EĞER BOŞSA (Hayalet satır yerine şık bir uyarı panosu):
+            <div class="alert alert-info text-center mt-3" role="alert">
+                <i class="fa fa-info-circle"></i> Bu araca ait henüz bir resim yüklenmemiş. Lütfen sağ üstteki butondan yeni resim ekleyin.
+            </div>
+        }
+
     </div>
 </div>
 
