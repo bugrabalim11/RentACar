@@ -17,8 +17,8 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label">Kullanıcı</label>
-                            <select asp-for="CustomerCreateByAdmin.UserId" class="form-control" asp-items="@(new SelectList(Model.Users, "Id", "UserDisplayInfo"))">
-                                <option value="">Lütfen Kullanıcı Seçiniz...</option>
+                            <select asp-for="CustomerCreateByAdmin.UserId" class="form-control select2" data-placeholder="Lütfen Kullanıcı Seçiniz..." asp-items="@(new SelectList(Model.Users, "Id", "UserDisplayInfo"))">
+                                <option value=""></option>
                             </select>
                             <span asp-validation-for="CustomerCreateByAdmin.UserId" class="text-danger"></span>
                         </div>
@@ -39,3 +39,16 @@
         </div>
     </div>
 </div>
+@section Scripts {
+    <!-- Önce Select2 motorunun dışarıdan gelen kablosunu takıyoruz -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <!-- Sonra ustabaşına (jQuery) "Barkodluları vitrine çevir" emrini veriyoruz -->
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2({
+                theme: 'bootstrap-5'
+            });
+        });
+    </script>
+}
