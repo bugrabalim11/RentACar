@@ -23,7 +23,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.GetAsync($"api/CarImages/Car/{carId}");
+            var responseMessage = await client.GetAsync($"api/CarImages/Cars/{carId}");
             // SENIOR NOTU: Kullanıcı 'Yeni Resim Ekle' dediğinde hangi arabaya ekleme yapacağımızı
             // bilmek için bu ID'yi HTML'e ufak bir Post-it notu olarak yolluyoruz.
             ViewBag.CarId = carId;
@@ -39,12 +39,44 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             return View(new List<CarImageResultDto>());
         }
 
+        [HttpGet]
+        public async Task<IActionResult> DeletedImages(int carId)
+        {
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+            var responseMessage = await client.GetAsync($"api/CarImages/Cars/{carId}/deleted");
+            ViewBag.CarId = carId;
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var jsonData = await responseMessage.Content.ReadAsStringAsync();
+                var responseBox = JsonConvert.DeserializeObject<ResponseModel<List<CarImageDeletedDto>>>(jsonData);
+                if (responseBox != null && responseBox.Data != null)
+                {
+                    return View(responseBox.Data);
+                }
+            }
+            return View(new List<CarImageDeletedDto>());
+        }
+
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
             var responseMessage = await client.DeleteAsync($"api/CarImages/{id}");
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                return Json(new { success = true });
+            }
+            string errorMessage = await GetApiErrorMessageAsync(responseMessage);
+            return Json(new { success = false, message = errorMessage });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Restore(int id)
+        {
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+            // İkinci parametre olan null, API'a fazladan bir JSON nesnesi göndermediğimizi, sadece URL'deki id'nin yeterli olduğunu söyler.
+            var responseMessage = await client.PatchAsync($"api/CarImages/{id}/restore", null);
             if (responseMessage.IsSuccessStatusCode)
             {
                 return Json(new { success = true });

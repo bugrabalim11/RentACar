@@ -13,6 +13,7 @@ namespace RentACar.Business.Profiles
             CreateMap<CarImage, CarImageDetailDto>()
                 .ForMember(dest => dest.CarName, opt => opt.MapFrom(src => $"{src.Car.Brand.Name} {src.Car.ModelName}"))
                 .ForMember(dest => dest.UploadDate, opt => opt.MapFrom(src => src.CreatedDate));
+            CreateMap<CarImage, CarImageDeletedDto>();
         }
     }
 }
