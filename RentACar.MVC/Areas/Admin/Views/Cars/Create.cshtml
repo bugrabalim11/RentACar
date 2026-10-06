@@ -18,8 +18,8 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label">Marka Adı</label>
-                            <select asp-for="CarCreate.BrandId" class="form-control" asp-items="@(new SelectList(Model.Brands, "Id", "Name"))">
-                                <option value="">Lütfen Marka Seçiniz...</option>
+                            <select asp-for="CarCreate.BrandId" class="form-control select2" data-placeholder="Lütfen Marka Seçiniz..." asp-items="@(new SelectList(Model.Brands, "Id", "Name"))">
+                                <option value=""></option>
                             </select>
                             <span asp-validation-for="CarCreate.BrandId" class="text-danger"></span>
                         </div>
@@ -66,8 +66,8 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label">Renk Adı</label>
-                            <select asp-for="CarCreate.ColorId" class="form-control" asp-items="@(new SelectList(Model.Colors, "Id", "Name"))">
-                                <option value="">Lütfen Renk Seçiniz...</option>
+                            <select asp-for="CarCreate.ColorId" class="form-control select2" data-placeholder="Lütfen Renk Seçiniz..." asp-items="@(new SelectList(Model.Colors, "Id", "Name"))">
+                                <option value=""></option>
                             </select>
                             <span asp-validation-for="CarCreate.ColorId" class="text-danger"></span>
                         </div>
@@ -117,3 +117,17 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <!-- Önce Select2 motorunun dışarıdan gelen kablosunu takıyoruz -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <!-- Sonra ustabaşına (jQuery) "Barkodluları vitrine çevir" emrini veriyoruz -->
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2({
+                theme: 'bootstrap-5'
+            });
+        });
+    </script>
+}
