@@ -18,14 +18,8 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label">Araç</label>
-                            <select asp-for="CarMaintenanceCreate.CarId" class="form-control">
-                                <option value="">Lütfen Araç Seçiniz...</option>
-                                @foreach (var item in Model.Cars)
-                                {
-                                    <option value="@item.Id">
-                                        @item.BrandName @item.ModelName - @item.Plate
-                                    </option>
-                                }
+                            <select asp-for="CarMaintenanceCreate.CarId" class="form-control select2" data-placeholder="Lütfen Araç Seçiniz..." asp-items="@(new SelectList(Model.Cars, "Id", "CarInfo"))">
+                                <option value=""></option>
                             </select>
                             <span asp-validation-for="CarMaintenanceCreate.CarId" class="text-danger"></span>
                         </div>
@@ -55,3 +49,16 @@
         </div>
     </div>
 </div>
+@section Scripts {
+    <!-- Önce Select2 motorunun dışarıdan gelen kablosunu takıyoruz -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <!-- Sonra ustabaşına (jQuery) "Barkodluları vitrine çevir" emrini veriyoruz -->
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2({
+                theme: 'bootstrap-5'
+            });
+        });
+    </script>
+}

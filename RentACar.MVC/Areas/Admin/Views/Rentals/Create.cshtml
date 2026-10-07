@@ -17,29 +17,29 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label">Müşteri Adı</label>
-                            <select asp-for="RentalCreateByAdmin.CustomerId" class="form-control" asp-items="@(new SelectList(Model.Customers, "Id", "FullName"))">
-                                <option value="">Lütfen Müşteri Seçiniz...</option>
+                            <select asp-for="RentalCreateByAdmin.CustomerId" class="form-control select2" data-placeholder="Lütfen Müşteri Seçiniz..." asp-items="@(new SelectList(Model.Customers, "Id", "FullName"))">
+                                <option value=""></option>
                             </select>
                             <span asp-validation-for="RentalCreateByAdmin.CustomerId" class="text-danger"></span>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Araç</label>
-                            <select asp-for="RentalCreateByAdmin.CarId" class="form-control" asp-items="@(new SelectList(Model.Cars, "Id", "CarInfo"))">
-                                <option value="">Lütfen Araç Seçiniz...</option>
+                            <select asp-for="RentalCreateByAdmin.CarId" class="form-control select2" data-placeholder="Lütfen Araç Seçiniz..." asp-items="@(new SelectList(Model.Cars, "Id", "CarInfo"))">
+                                <option value=""></option>
                             </select>
                             <span asp-validation-for="RentalCreateByAdmin.CarId" class="text-danger"></span>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Araç Teslim Ofisi</label>
-                            <select asp-for="RentalCreateByAdmin.PickUpOfficeId" class="form-control" asp-items="@(new SelectList(Model.Offices, "Id", "OfficeInfo"))">
-                                <option value="">Lütfen Ofis Seçiniz...</option>
+                            <select asp-for="RentalCreateByAdmin.PickUpOfficeId" class="form-control select2" data-placeholder="Lütfen Ofis Seçiniz..." asp-items="@(new SelectList(Model.Offices, "Id", "OfficeInfo"))">
+                                <option value=""></option>
                             </select>
                             <span asp-validation-for="RentalCreateByAdmin.PickUpOfficeId" class="text-danger"></span>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Araç İade Ofisi</label>
-                            <select asp-for="RentalCreateByAdmin.DropOffOfficeId" class="form-control" asp-items="@(new SelectList(Model.Offices, "Id", "OfficeInfo"))">
-                                <option value="">Lütfen Ofis Seçiniz...</option>
+                            <select asp-for="RentalCreateByAdmin.DropOffOfficeId" class="form-control select2" data-placeholder="Lütfen Ofis Seçiniz..." asp-items="@(new SelectList(Model.Offices, "Id", "OfficeInfo"))">
+                                <option value=""></option>
                             </select>
                             <span asp-validation-for="RentalCreateByAdmin.DropOffOfficeId" class="text-danger"></span>
                         </div>
@@ -87,3 +87,16 @@
         </div>
     </div>
 </div>
+@section Scripts {
+    <!-- Önce Select2 motorunun dışarıdan gelen kablosunu takıyoruz -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <!-- Sonra ustabaşına (jQuery) "Barkodluları vitrine çevir" emrini veriyoruz -->
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2({
+                theme: 'bootstrap-5'
+            });
+        });
+    </script>
+}
