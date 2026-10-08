@@ -18,7 +18,7 @@ namespace RentACar.Business.Profiles
             // ?? operatörü ile varsayılan (default) bir resim atadık.
             CreateMap<Car, CarResultDto>()
                 .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Brand.Name))
-                .ForMember(dest => dest.CoverImageUrl, opt => opt.MapFrom(src => src.CarImages.Select(x => x.ImagePath).FirstOrDefault() ?? "/uiAssets/images/default-car.jpg"));
+                .ForMember(dest => dest.CoverImageUrl, opt => opt.MapFrom(src => src.CarImages.Select(x => "https://localhost:7085/" + x.ImagePath).FirstOrDefault() ?? "/uiAssets/images/default-car.jpg"));
 
 
             // 2. KURAL: Kullanıcıdan gelen CarCreateDto'yu (içinde Id yok), veritabanına kaydedilecek Car nesnesine çevir
