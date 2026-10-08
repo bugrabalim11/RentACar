@@ -30,6 +30,7 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
             return await _context.Cars
                 .Include(c => c.Brand)
                 .Include(c => c.Color)
+                .Include(c => c.CarImages)
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
     }

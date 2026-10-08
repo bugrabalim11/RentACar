@@ -1,6 +1,4 @@
 ﻿using RentACar.Core.Entities.Signatures;
-using RentACar.Entities.Enums;
-using System.Runtime.Intrinsics.X86;
 
 namespace RentACar.Dtos.CarDtos
 {
@@ -29,5 +27,6 @@ namespace RentACar.Dtos.CarDtos
         public int MinDriverAge { get; set; }
         public int MinDrivingExperience { get; set; }
         public int MinFindexScore { get; set; }
+        public List<string> CoverImagesUrl { get; set; } = null!;
     }
 }
