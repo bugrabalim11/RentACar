@@ -22,5 +22,6 @@ namespace RentACar.MVC.Areas.Admin.Models.CarDtos
         public int MinDriverAge { get; set; }
         public int MinDrivingExperience { get; set; }
         public int MinFindexScore { get; set; }
+        public List<string> CoverImagesUrl { get; set; } = null!;
     }
 }

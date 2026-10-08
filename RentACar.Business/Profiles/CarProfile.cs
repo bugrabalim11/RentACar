@@ -29,11 +29,11 @@ namespace RentACar.Business.Profiles
 
             CreateMap<Car, CarDetailDto>()
                 // ForMember(hedef => hedef.BrandName, ayar => ayar.MapFrom(kaynak => kaynak.Brand.Name))
-                .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Brand.Name))    
+                .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Brand.Name))
                 .ForMember(dest => dest.ColorName, opt => opt.MapFrom(src => src.Color.Name))
-                .ForMember(dest => dest.CoverImagesUrl, opt => opt.MapFrom(src =>
+
                 // ŞART: Arabanın hiç resmi var mı? (Any() metodu "içeride en az 1 tane var mı?" diye bakar)
-                src.CarImages.Any()
+                .ForMember(dest => dest.CoverImagesUrl, opt => opt.MapFrom(src => src.CarImages.Any()
 
                 // DOĞRUYSA (?): Resimleri dön, başlarına API URL'sini ekle ve liste yap
                 ? src.CarImages.Select(x => "https://localhost:7085/" + x.ImagePath).ToList()

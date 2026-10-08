@@ -14,6 +14,7 @@ namespace RentACar.MVC.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
@@ -29,6 +30,24 @@ namespace RentACar.MVC.Controllers
                 }
             }
             return View(new List<CarResultDto>());
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Detail(int id)
+        {
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+
+            var responseMessage = await client.GetAsync($"api/Cars/{id}");
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var jsonData = await responseMessage.Content.ReadAsStringAsync();
+                var responseBox = JsonConvert.DeserializeObject<ResponseModel<CarDetailDto>>(jsonData);
+                if (responseBox != null && responseBox.Data != null)
+                {
+                    return View(responseBox.Data);
+                }
+            }
+            return RedirectToAction("Index");
         }
     }
 }

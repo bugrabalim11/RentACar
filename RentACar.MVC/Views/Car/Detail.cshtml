@@ -1,0 +1,83 @@
+﻿@using RentACar.MVC.Areas.Admin.Models.CarDtos
+@model CarDetailDto
+@{
+    Layout = "_Layout";
+}
+
+<style>
+    /* Temanın menü kapsayıcısını balyozla ezerek karanlık yapıyoruz */
+    header, .site-navbar {
+        background-color: #212529 !important;
+    }
+</style>
+
+<div class="container" style="margin-top:200px;">
+    <div class="row">
+        <!-- SOL TARAF: FOTOĞRAF ALBÜMÜ -->
+        <div class="col-md-6">
+            <div id="carImageSlider" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    @{
+                        int index = 0;
+                    }
+                    @foreach (var img in Model.CoverImagesUrl)
+                    {
+                        // İlk resimse 'active' class'ını ekle, değilse boş bırak
+                        var activeClass = (index == 0) ? "active" : "";
+
+                        <div class="carousel-item @activeClass">
+                            <!-- Resimlerin hepsini aynı boyutta tutmak için object-fit kullandık -->
+                            <img src="@img" class="d-block w-100" style="height: 400px; object-fit: cover;" alt="Araç Resmi">
+                        </div>
+                        index++;
+                    }
+                </div>
+                <!-- İleri/Geri Butonları -->
+                <button class="carousel-control-prev" type="button" data-target="#carImageSlider" data-slide="prev" style="background: transparent; width: 10%; height: 400px; border:none; outline:none">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Önceki</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-target="#carImageSlider" data-slide="next" style="background: transparent; width: 10%; height: 400px; border:none; outline:none">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Sonraki</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- SAĞ TARAF: ARAÇ BİLGİLERİ VE BUTON -->
+        <div class="col-md-6">
+            <!-- Başlık ve Fiyat -->
+            <h2>@Model.BrandName @Model.ModelName</h2>
+            <h3 class="text-success mb-4">@Model.DailyPrice ₺ <small class="text-muted fs-5">/ Gün</small></h3>
+
+            <!-- Araç Özellikleri Listesi -->
+            <ul class="list-group mb-4">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Plaka / Renk</strong>
+                    <span>@Model.Plate / @Model.ColorName</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Kilometre / Müsaitlik Durumu</strong>
+                    <span>@Model.Kilometer km / @(Model.IsAvailable ? "Müsait" : "Kirada/Bakımda")</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Vites Tipi / Min. Findeks Puanı</strong>
+                    <span>@Model.TransmissionType / @Model.MinFindexScore</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Kişi / Kapı Sayısı</strong>
+                    <span>@Model.SeatCount Kişi / @Model.DoorCount Kapı</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Min. Sürücü Yaşı / Ehliyet</strong>
+                    <span>@Model.MinDriverAge Yaş / @Model.MinDrivingExperience Yıl</span>
+                </li>
+            </ul>
+
+            <!-- Vezne Butonu -->
+            <a href="#" class="btn btn-success btn-lg w-100 mt-3 shadow">
+                <i class="fas fa-check-circle"></i> Hemen Kirala
+            </a>
+        </div>
+    </div>
+</div>

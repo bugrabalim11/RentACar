@@ -26,7 +26,7 @@
                 @* 2. TEK BİR ARABA KALIBI *@
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="item-1">
-                        
+
                         <a href="#"><img src="@car.CoverImageUrl" alt="Image" class="img-fluid" style="height:250px; object-fit:cover;"></a>
 
                         <div class="item-1-contents">
@@ -58,8 +58,8 @@
                                 </li>
                             </ul>
                             <div class="d-flex action">
-                                @* İleride buraya tıklandığında DetailDto'yu getiren detay sayfasına (örn: /Car/Detail/@car.Id) yönlendireceğiz! *@
-                                <a href="contact.html" class="btn btn-primary">Şimdi Kirala</a>
+                                @* Ey ASP.NET, Car controller'ına git, Detail action'ını tetikle, parametre olarak da bu arabanın Id'sini yolla! *@
+                                <a asp-controller="Car" asp-action="Detail" asp-route-id="@car.Id" class="btn btn-primary">İncele ve Sonra Kirala</a>
                             </div>
                         </div>
                     </div>
