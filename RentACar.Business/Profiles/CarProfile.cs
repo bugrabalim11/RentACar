@@ -10,8 +10,15 @@ namespace RentACar.Business.Profiles
         public CarProfile()
         {
             // 1. KURAL: Veritabanından gelen Car nesnesini, müşteriye gidecek CarResultDto'ya çevir
+            // SENİOR NOTU:
+            // EĞER src.CarImages.FirstOrDefault().ImagePath yazsaydık; arabanın hiç resmi olmadığında 
+            // null bir nesnenin içinden ImagePath okumaya çalışacağımız için NullReferenceException (CS8602) alırdık.
+            // Bu yüzden önce .Select() ile sadece etiketleri (yazıları) çektik.
+            // Ayrıca UI (Frontend) tarafını if-else ile kirletmemek için (Clean Code), null gelme durumunda 
+            // ?? operatörü ile varsayılan (default) bir resim atadık.
             CreateMap<Car, CarResultDto>()
-                .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Brand.Name));
+                .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Brand.Name))
+                .ForMember(dest => dest.CoverImageUrl, opt => opt.MapFrom(src => src.CarImages.Select(x => x.ImagePath).FirstOrDefault() ?? "/uiAssets/images/default-car.jpg"));
 
 
             // 2. KURAL: Kullanıcıdan gelen CarCreateDto'yu (içinde Id yok), veritabanına kaydedilecek Car nesnesine çevir

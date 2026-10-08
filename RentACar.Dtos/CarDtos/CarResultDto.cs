@@ -10,5 +10,6 @@ namespace RentACar.Dtos.CarDtos
         public int Kilometer { get; set; }
         public decimal DailyPrice { get; set; }
         public string Plate { get; set; } = null!;
+        public string CoverImageUrl { get; set; } = null!;  
     }
 }
