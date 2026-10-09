@@ -1,0 +1,79 @@
+﻿@using RentACar.MVC.Models.UIRentalDtos
+@model UIRentalCreateViewModel
+
+<div class="container mt-5">
+    <h2>Araç Kiralama ve Ödeme Veznesi</h2>
+    <hr />
+
+    <!-- Form, müşterinin girdiği verileri POST metoduyla RentController içindeki CheckOut POST action'ına yollayacak -->
+    <form asp-controller="Rent" asp-action="CheckOut" method="post">
+
+        <!-- GİZLİ ÇEKMECE: Araba ID'si kaybolmasın diye buraya saklıyoruz. Kullanıcı bunu görmez. -->
+        <input type="hidden" asp-for="UIRentalCreateDto.CarId" />
+
+        <div class="row">
+            <!-- SOL BLOK: KİRALAMA BİLGİLERİ -->
+            <div class="col-md-6">
+                <h4>Kiralama Detayları</h4>
+
+                <div class="mb-3">
+                    <label class="form-label">Alış Ofisi</label>
+                    <select asp-for="UIRentalCreateDto.PickUpOfficeId" class="form-control select2" data-placeholder="Lütfen Alış Ofisi Seçiniz..." asp-items="@(new SelectList(Model.Offices, "Id", "Name"))">
+                        <option value=""></option>
+                    </select>
+                    <span asp-validation-for="UIRentalCreateDto.PickUpOfficeId" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Teslim Ofisi</label>
+                    <select asp-for="UIRentalCreateDto.DropOffOfficeId" class="form-control select2" data-placeholder="Lütfen Teslim Ofisi Seçiniz..." asp-items="@(new SelectList(Model.Offices, "Id", "Name"))">
+                        <option value=""></option>
+                    </select>
+                    <span asp-validation-for="UIRentalCreateDto.DropOffOfficeId" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Araç Teslim Tarihi</label>
+                    <input asp-for="UIRentalCreateDto.RentDate" class="form-control" type="date" />
+                    <span asp-validation-for="UIRentalCreateDto.RentDate" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Araç İade Tarihi</label>
+                    <input asp-for="UIRentalCreateDto.ReturnDate" class="form-control" type="date" />
+                    <span asp-validation-for="UIRentalCreateDto.ReturnDate" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- SAĞ BLOK: KREDİ KARTI BİLGİLERİ -->
+            <div class="col-md-6">
+                <h4>Ödeme (Kredi Kartı)</h4>
+
+                <div class="mb-3">
+                            <label class="form-label">Kart Sahibi İsmi Ve Soyisimi</label>
+                            <input asp-for="UIRentalCreateDto.CreditCardInformation.CardHolderFullName" class="form-control" placeholder="Örn: Buğra Balım..." />
+                            <span asp-validation-for="UIRentalCreateDto.CreditCardInformation.CardHolderFullName" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Kart Numarası</label>
+                            <input asp-for="UIRentalCreateDto.CreditCardInformation.CardNumber" class="form-control" placeholder="Örn: 1234567890123..." />
+                            <span asp-validation-for="UIRentalCreateDto.CreditCardInformation.CardNumber" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Kart Geçerlilik Yılı</label>
+                            <input asp-for="UIRentalCreateDto.CreditCardInformation.ExpireYear" class="form-control" placeholder="Örn: 2030..." />
+                            <span asp-validation-for="UIRentalCreateDto.CreditCardInformation.ExpireYear" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Kart Geçerlilik Ayı</label>
+                            <input asp-for="UIRentalCreateDto.CreditCardInformation.ExpireMonth" class="form-control" placeholder="Örn: 12..." />
+                            <span asp-validation-for="UIRentalCreateDto.CreditCardInformation.ExpireMonth" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">CVV</label>
+                            <input asp-for="UIRentalCreateDto.CreditCardInformation.Cvv" class="form-control" placeholder="Örn: 123..." />
+                            <span asp-validation-for="UIRentalCreateDto.CreditCardInformation.Cvv" class="text-danger"></span>
+                        </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-success btn-lg mt-4 w-100">Ödemeyi Tamamla ve Kirala</button>
+    </form>
+</div>

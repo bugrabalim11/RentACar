@@ -74,8 +74,8 @@
                 </li>
             </ul>
 
-            <!-- Vezne Butonu -->
-            <a href="#" class="btn btn-success btn-lg w-100 mt-3 shadow">
+            <!-- Sadece MVC Controller'a ve Action'a yönlendiriyoruz -->
+            <a asp-controller="Rent" asp-action="CheckOut" asp-route-id="@Model.Id" class="btn btn-success btn-lg w-100 mt-3 shadow">
                 <i class="fas fa-check-circle"></i> Hemen Kirala
             </a>
         </div>
