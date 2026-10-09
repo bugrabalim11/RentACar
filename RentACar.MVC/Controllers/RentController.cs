@@ -5,6 +5,7 @@ using RentACar.MVC.Models.Interfaces;
 using RentACar.MVC.Models.Responses;
 using RentACar.MVC.Models.UIRentalDtos;
 using RentACar.MVC.Models.UIRentalViewModels;
+using System.Text;
 
 namespace RentACar.MVC.Controllers
 {
@@ -24,6 +25,27 @@ namespace RentACar.MVC.Controllers
             var viewModel = new UIRentalCreateViewModel();
             viewModel.UIRentalCreateDto = new UIRentalCreateDto();
             viewModel.UIRentalCreateDto.CarId = id;
+            await PopulateDropdowns(viewModel);
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CheckOut(UIRentalCreateViewModel viewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                await PopulateDropdowns(viewModel);
+                return View(viewModel);
+            }
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+            var jsonData = JsonConvert.SerializeObject(viewModel.UIRentalCreateDto);
+            var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
+            var responseMessage = await client.PostAsync("api/Rentals/rental", stringContent);
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            await HandleApiErrorAsync(responseMessage);
             await PopulateDropdowns(viewModel);
             return View(viewModel);
         }

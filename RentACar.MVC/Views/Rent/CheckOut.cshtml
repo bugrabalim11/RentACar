@@ -18,6 +18,9 @@
     <!-- Form, müşterinin girdiği verileri POST metoduyla RentController içindeki CheckOut POST action'ına yollayacak -->
     <form asp-controller="Rent" asp-action="CheckOut" method="post">
 
+        <!-- API'den veya Gümrükten (ModelState) dönen genel hatalar burada kırmızı bir kutu içinde patlayacak -->
+<div asp-validation-summary="All" class="text-danger fw-bold mb-3"></div>
+
         <!-- GİZLİ ÇEKMECE: Araba ID'si kaybolmasın diye buraya saklıyoruz. Kullanıcı bunu görmez. -->
         <input type="hidden" asp-for="UIRentalCreateDto.CarId" />
 
@@ -88,6 +91,9 @@
     </form>
 </div>
 @section Scripts {
+    <!-- Önce Select2'nin beynini (JS) internetten (CDN) çekiyoruz -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <script>
         // Sayfa tamamen yüklendiğinde (Hazır olduğunda) bu kod çalışsın
         $(document).ready(function () {
