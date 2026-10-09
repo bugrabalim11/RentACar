@@ -1,7 +1,17 @@
 ﻿@using RentACar.MVC.Models.UIRentalDtos
 @model UIRentalCreateViewModel
+@{
+    Layout = "_Layout";
+}
 
-<div class="container mt-5">
+<style>
+    /* Temanın menü kapsayıcısını balyozla ezerek karanlık yapıyoruz */
+    header, .site-navbar {
+        background-color: #212529 !important;
+    }
+</style>
+
+<div class="container mt-5 mb-5" style="margin-top:200px;">
     <h2>Araç Kiralama ve Ödeme Veznesi</h2>
     <hr />
 
@@ -77,3 +87,14 @@
         <button type="submit" class="btn btn-success btn-lg mt-4 w-100">Ödemeyi Tamamla ve Kirala</button>
     </form>
 </div>
+@section Scripts {
+    <script>
+        // Sayfa tamamen yüklendiğinde (Hazır olduğunda) bu kod çalışsın
+        $(document).ready(function () {
+            // Class'ı select2 olan elemanları bul ve motoru tak
+            $('.select2').select2({
+                theme: 'bootstrap-5' // Eğer teman destekliyorsa daha şık durur
+            });
+        });
+    </script>
+}
