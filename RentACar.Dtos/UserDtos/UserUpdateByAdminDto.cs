@@ -1,13 +1,13 @@
 ﻿using RentACar.Core.Entities.Signatures;
 
-namespace RentACar.Core.Entities.DTOs.UserDtos
+namespace RentACar.Dtos.UserDtos
 {
-    public class UserCreateByAdminDto : IDto
+    public class UserUpdateByAdminDto : IDto
     {
-        public string Email { get; set; } = null!;
-        public string Password { get; set; } = null!;
+        public int Id { get; set; }
         public string FirstName { get; set; } = null!;
         public string LastName { get; set; } = null!;
+        public string Email { get; set; } = null!;
         public int? OperationClaimId { get; set; }
     }
 }

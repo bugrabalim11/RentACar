@@ -1,5 +1,5 @@
-﻿using RentACar.Core.Entities.DTOs.OperationClaimDtos;
-using RentACar.Core.Utilities.Results;
+﻿using RentACar.Core.Utilities.Results;
+using RentACar.Dtos.OperationClaimDtos;
 
 namespace RentACar.Business.Abstract
 {

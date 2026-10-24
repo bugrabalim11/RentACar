@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace RentACar.Core.Entities.DTOs.AuthDtos
+﻿namespace RentACar.Dtos.AuthDtos
 {
     public class UserForLoginDto
     {

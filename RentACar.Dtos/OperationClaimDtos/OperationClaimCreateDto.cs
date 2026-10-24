@@ -1,6 +1,6 @@
 ﻿using RentACar.Core.Entities.Signatures;
 
-namespace RentACar.Core.Entities.DTOs.OperationClaimDtos
+namespace RentACar.Dtos.OperationClaimDtos
 {
     public class OperationClaimCreateDto : IDto
     {

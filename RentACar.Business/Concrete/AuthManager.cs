@@ -2,13 +2,13 @@
 using RentACar.Business.Abstract;
 using RentACar.Core.Aspects.Autofac.Transaction;
 using RentACar.Core.Entities.Concrete;
-using RentACar.Core.Entities.DTOs.AuthDtos;
-using RentACar.Core.Entities.DTOs.UserDtos;
 using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.Core.Utilities.Security.Hashing;
 using RentACar.Core.Utilities.Security.Jwt;
+using RentACar.Dtos.AuthDtos;
+using RentACar.Dtos.UserDtos;
 
 namespace RentACar.Business.Concrete
 {

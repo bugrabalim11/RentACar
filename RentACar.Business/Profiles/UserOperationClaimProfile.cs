@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Core.Entities.Concrete;
-using RentACar.Core.Entities.DTOs.UserOperationClaimDtos;
+using RentACar.Dtos.UserOperationClaimDtos;
 
 namespace RentACar.Business.Profiles
 {

@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
+﻿using RentACar.Core.Entities.Signatures;
 
-namespace RentACar.Core.Entities.DTOs.AuthDtos
+namespace RentACar.Dtos.UserDtos
 {
-    public class UserForRegisterDto
+    public class UserCreateByAdminDto : IDto
     {
         public string Email { get; set; } = null!;
         public string Password { get; set; } = null!;
         public string FirstName { get; set; } = null!;
         public string LastName { get; set; } = null!;
+        public int? OperationClaimId { get; set; }
     }
 }

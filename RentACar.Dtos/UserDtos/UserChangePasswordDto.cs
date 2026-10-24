@@ -1,6 +1,6 @@
 ﻿using RentACar.Core.Entities.Signatures;
 
-namespace RentACar.Core.Entities.DTOs.UserDtos
+namespace RentACar.Dtos.UserDtos
 {
     public class UserChangePasswordDto : IDto
     {

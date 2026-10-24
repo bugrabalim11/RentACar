@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using RentACar.Core.Entities.Concrete;
-using RentACar.Core.Entities.DTOs.AuthDtos;
-using RentACar.Core.Entities.DTOs.UserDtos;
+using RentACar.Dtos.AuthDtos;
+using RentACar.Dtos.UserDtos;
 
 namespace RentACar.Business.Profiles
 {

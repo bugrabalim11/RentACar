@@ -1,4 +1,4 @@
-﻿namespace RentACar.Core.Entities.DTOs.UserOperationClaimDtos
+﻿namespace RentACar.Dtos.UserOperationClaimDtos
 {
     public class UserOperationClaimResultDto
     {
