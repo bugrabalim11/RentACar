@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using RentACar.Core.Entities.DTOs.OperationClaimDtos;
+using RentACar.Dtos.OperationClaimDtos;
 
 namespace RentACar.Business.ValidationRules.OperationClaimValidators
 {

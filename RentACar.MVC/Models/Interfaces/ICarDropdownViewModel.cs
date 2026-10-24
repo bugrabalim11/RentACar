@@ -1,5 +1,5 @@
-﻿using RentACar.MVC.Areas.Admin.Models.BrandDtos;
-using RentACar.MVC.Areas.Admin.Models.ColorDtos;
+﻿using RentACar.Dtos.BrandDtos;
+using RentACar.Dtos.ColorDtos;
 
 namespace RentACar.MVC.Models.Interfaces
 {

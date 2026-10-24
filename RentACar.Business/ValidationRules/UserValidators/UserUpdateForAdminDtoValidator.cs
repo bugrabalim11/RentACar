@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using RentACar.Core.Entities.DTOs.UserDtos;
+using RentACar.Dtos.UserDtos;
 
 namespace RentACar.Business.ValidationRules.UserValidators
 {

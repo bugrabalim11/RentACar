@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using RentACar.MVC.Areas.Admin.Models.OperationClaimDtos;
-using RentACar.MVC.Areas.Admin.Models.UserDtos;
-using RentACar.MVC.Areas.Admin.Models.UserOperationClaimDtos;
+using RentACar.Dtos.OperationClaimDtos;
+using RentACar.Dtos.UserDtos;
+using RentACar.Dtos.UserOperationClaimDtos;
+using RentACar.MVC.Areas.Admin.Models.UserOperationClaimViewModels;
 using RentACar.MVC.Controllers;
 using RentACar.MVC.Models.Interfaces;
 using RentACar.MVC.Models.Responses;
@@ -94,12 +95,17 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
-                var responseBox = JsonConvert.DeserializeObject<ResponseModel<UserOperationClaimUpdateDto>>(jsonData);
+                var responseBox = JsonConvert.DeserializeObject<ResponseModel<UserOperationClaimResultDto>>(jsonData);
                 if (responseBox != null && responseBox.Data != null)
                 {
                     var viewModel = new UserOperationClaimUpdateViewModel
                     {
-                        UserOperationClaimUpdate = responseBox.Data
+                        UserId = responseBox.Data.UserId,
+                        UserOperationClaimUpdate = new UserOperationClaimUpdateDto
+                        {
+                            Id = responseBox.Data.Id,
+                            OperationClaimId = responseBox.Data.OperationClaimId
+                        }
                     };
                     await PopulateDropdowns(viewModel);
                     return View(viewModel);
@@ -137,6 +143,8 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 
             var usersResponseMessage = await client.GetAsync("api/Users");
             var claimsResponseMessage = await client.GetAsync("api/OperationClaims");
+            ViewBag.UserList = new List<object>();
+            ViewBag.ClaimList = new List<object>();
             if (usersResponseMessage.IsSuccessStatusCode && claimsResponseMessage.IsSuccessStatusCode)
             {
                 var usersJsonData = await usersResponseMessage.Content.ReadAsStringAsync();
@@ -146,8 +154,19 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 var claimsResponseBox = JsonConvert.DeserializeObject<ResponseModel<List<OperationClaimResultDto>>>(claimsJsonData);
                 if (usersResponseBox != null && usersResponseBox.Data != null && claimsResponseBox != null && claimsResponseBox.Data != null)
                 {
-                    userOperationClaimDropdownsViewModel.Users = usersResponseBox.Data;
-                    userOperationClaimDropdownsViewModel.Roles = claimsResponseBox.Data;
+                    var userList = usersResponseBox.Data.Select(c => new
+                    {
+                        Id = c.Id,
+                        UserDisplayName = $"{c.FirstName} {c.LastName} ({c.Email})"
+                    }).ToList();
+                    ViewBag.UserList = userList;
+
+                    var claimList = claimsResponseBox.Data.Select(c => new
+                    {
+                        Id = c.Id,
+                        ClaimName = c.Name
+                    }).ToList();
+                    ViewBag.ClaimList = claimList;
                 }
             }
         }

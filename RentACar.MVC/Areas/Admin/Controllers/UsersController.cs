@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using RentACar.MVC.Areas.Admin.Models.OperationClaimDtos;
-using RentACar.MVC.Areas.Admin.Models.UserDtos;
+using RentACar.Dtos.OperationClaimDtos;
+using RentACar.Dtos.UserDtos;
+using RentACar.MVC.Areas.Admin.Models.UserViewModels;
 using RentACar.MVC.Controllers;
 using RentACar.MVC.Models.Interfaces;
 using RentACar.MVC.Models.Responses;
@@ -164,6 +165,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
             var responseMessage = await client.GetAsync("api/OperationClaims");
+            userDropdownViewModel.Roles = new List<OperationClaimResultDto>();
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();

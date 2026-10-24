@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using RentACar.MVC.Areas.Admin.Models.OfficeDtos;
+using RentACar.Dtos.OfficeDtos;
 using RentACar.MVC.Controllers;
 using RentACar.MVC.Models.Responses;
 using System.Text;

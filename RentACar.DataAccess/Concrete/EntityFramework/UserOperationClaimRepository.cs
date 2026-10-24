@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RentACar.Core.Entities.Concrete;
-using RentACar.Core.Entities.DTOs.UserOperationClaimDtos;
 using RentACar.DataAccess.Abstract;
+using RentACar.Dtos.UserOperationClaimDtos;
 
 namespace RentACar.DataAccess.Concrete.EntityFramework
 {

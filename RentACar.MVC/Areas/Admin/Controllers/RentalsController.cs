@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using RentACar.MVC.Areas.Admin.Models.CarDtos;
-using RentACar.MVC.Areas.Admin.Models.CustomerDtos;
-using RentACar.MVC.Areas.Admin.Models.OfficeDtos;
-using RentACar.MVC.Areas.Admin.Models.RentalDtos;
+using RentACar.Dtos.CarDtos;
+using RentACar.Dtos.CustomerDtos;
+using RentACar.Dtos.OfficeDtos;
+using RentACar.Dtos.RentalDtos;
+using RentACar.MVC.Areas.Admin.Models.RentalViewModels;
 using RentACar.MVC.Controllers;
 using RentACar.MVC.Models.Interfaces;
 using RentACar.MVC.Models.Responses;
@@ -165,6 +166,9 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             var customerResponseMessage = await client.GetAsync("api/Customers");
             var carResponseMessage = await client.GetAsync("api/Cars");
             var officeResponseMessage = await client.GetAsync("api/Offices");
+            ViewBag.CustomerList = new List<object>();
+            ViewBag.CarList = new List<object>(); 
+            ViewBag.OfficeList = new List<object>();
             if (customerResponseMessage.IsSuccessStatusCode && carResponseMessage.IsSuccessStatusCode && officeResponseMessage.IsSuccessStatusCode)
             {
                 var customerJsonData = await customerResponseMessage.Content.ReadAsStringAsync();
@@ -176,9 +180,26 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 var officeResponseBox = JsonConvert.DeserializeObject<ResponseModel<List<OfficeResultDto>>>(officeJsonData);
                 if (customerResponseBox != null && customerResponseBox.Data != null && carResponseBox != null && carResponseBox.Data != null && officeResponseBox != null && officeResponseBox.Data != null)
                 {
-                    dropdownsViewModel.Customers = customerResponseBox.Data;
-                    dropdownsViewModel.Cars = carResponseBox.Data;
-                    dropdownsViewModel.Offices = officeResponseBox.Data;
+                    var customerList = customerResponseBox.Data.Select(c => new
+                    {
+                        Id = c.Id,
+                        CustomerDisplayName = $"{c.FirstName} {c.LastName} - TC: {c.NationalIdentity}"
+                    }).ToList();
+                    ViewBag.CustomerList = customerList;
+
+                    var carList = carResponseBox.Data.Select(c => new
+                    {
+                        Id = c.Id,
+                        CarDisplayName = $"{c.BrandName} {c.ModelName} ({c.Plate})"
+                    }).ToList();
+                    ViewBag.CarList = carList;
+
+                    var officeList = officeResponseBox.Data.Select(o => new
+                    {
+                        Id = o.Id,
+                        OfficeName = o.Name
+                    }).ToList();
+                    ViewBag.OfficeList = officeList;
                 }
             }
         }

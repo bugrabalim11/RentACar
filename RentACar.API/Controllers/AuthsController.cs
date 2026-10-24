@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
-using RentACar.Core.Entities.DTOs.AuthDtos;
-using RentACar.Core.Entities.DTOs.UserDtos;
+using RentACar.Dtos.AuthDtos;
+using RentACar.Dtos.UserDtos;
 using System.Security.Claims;
 
 namespace RentACar.API.Controllers

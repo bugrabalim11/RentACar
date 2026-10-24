@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
-using RentACar.Core.Entities.DTOs.UserDtos;
 using RentACar.Core.Exceptions;
 using RentACar.Core.Extensions;
+using RentACar.Dtos.UserDtos;
 
 namespace RentACar.API.Controllers
 {

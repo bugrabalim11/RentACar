@@ -1,4 +1,4 @@
-﻿@using RentACar.MVC.Areas.Admin.Models.RentalDtos
+﻿@using RentACar.Dtos.RentalDtos
 @model List<RentalResultDto>
 
 <div class="card">
@@ -42,10 +42,10 @@
                             @item.Id
                         </td>
                         <td>
-                            @item.CustomerFullName
+                            @item.FirstName @item.LastName
                         </td>
                         <td>
-                            @item.CarInfo
+                            @item.BrandName @item.ModelName
                         </td>
                         <td>
                             @item.RentDate.ToLocalTime().ToShortDateString()

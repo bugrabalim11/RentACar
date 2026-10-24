@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using RentACar.MVC.Areas.Admin.Models.CarDtos;
+using RentACar.Dtos.CarDtos;
 using RentACar.MVC.Models.Responses;
 
 namespace RentACar.MVC.Controllers

@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using RentACar.MVC.Areas.Admin.Models.CustomerDtos;
-using RentACar.MVC.Areas.Admin.Models.UserDtos;
+using RentACar.Dtos.CustomerDtos;
+using RentACar.Dtos.UserDtos;
+using RentACar.MVC.Areas.Admin.Models.CustomerViewModels;
 using RentACar.MVC.Controllers;
 using RentACar.MVC.Models.Interfaces;
 using RentACar.MVC.Models.Responses;
@@ -136,13 +137,19 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
             var responseMessage = await client.GetAsync("api/Users");
+            ViewBag.CustomerList = new List<object>(); 
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
                 var responseBox = JsonConvert.DeserializeObject<ResponseModel<List<UserResultDto>>>(jsonData);
                 if (responseBox != null && responseBox.Data != null)
                 {
-                    dropdownViewModel.Users = responseBox.Data;
+                    var customerList = responseBox.Data.Select(c => new
+                    {
+                        Id = c.Id,
+                        CustomerDisplayName = $"{c.FirstName} {c.LastName} ({c.Email})"
+                    }).ToList();
+                    ViewBag.CustomerList = customerList;
                 }
             }
         }

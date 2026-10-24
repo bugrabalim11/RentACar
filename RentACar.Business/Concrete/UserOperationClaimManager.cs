@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
 using RentACar.Core.Entities.Concrete;
-using RentACar.Core.Entities.DTOs.UserOperationClaimDtos;
 using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
-using RentACar.Entities.Concrete;
+using RentACar.Dtos.UserOperationClaimDtos;
 
 namespace RentACar.Business.Concrete
 {
