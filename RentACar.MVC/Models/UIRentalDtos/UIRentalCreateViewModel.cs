@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using RentACar.MVC.Areas.Admin.Models.CarDtos;
-using RentACar.MVC.Areas.Admin.Models.CustomerDtos;
-using RentACar.MVC.Areas.Admin.Models.OfficeDtos;
+using RentACar.Dtos.CarDtos;
+using RentACar.Dtos.CustomerDtos;
+using RentACar.Dtos.OfficeDtos;
 using RentACar.MVC.Models.Interfaces;
 using RentACar.MVC.Models.UIRentalViewModels;
 

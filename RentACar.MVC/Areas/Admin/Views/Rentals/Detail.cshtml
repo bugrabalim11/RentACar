@@ -1,4 +1,4 @@
-﻿@using RentACar.MVC.Areas.Admin.Models.RentalDtos
+﻿@using RentACar.Dtos.RentalDtos
 @model RentalDetailDto
 
 <div class="card">
@@ -35,11 +35,11 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label fw-bold">Müşteri</label>
-                    <p class="form-control bg-light">@Model.FullName</p>
+                    <p class="form-control bg-light">@Model.FirstName @Model.LastName</p>
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-bold">Araç</label>
-                    <p class="form-control bg-light">@Model.CarInfo</p>
+                    <p class="form-control bg-light">@Model.BrandName @Model.ModelName</p>
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-bold">Günlük Fiyat</label>

@@ -1,4 +1,4 @@
-﻿@using RentACar.MVC.Areas.Admin.Models.UserOperationClaimDtos
+﻿@using RentACar.MVC.Areas.Admin.Models.UserOperationClaimViewModels
 @model UserOperationClaimUpdateViewModel
 
 @{
@@ -20,10 +20,10 @@
                             <label class="form-label">Kullanıcı</label>
 
                             <!-- 1. GÖRÜNMEZ NINJA: Kuryenin API'ye taşıyacağı GERÇEK ID burada saklı! -->
-                            <input type="hidden" asp-for="UserOperationClaimUpdate.UserId" />
+                            <input type="hidden" asp-for="UserId" />
 
                             <!-- 2. VİTRİN MANKENİ: Admin'in göreceği ama DOKUNAMAYACAĞI kilitli menü -->
-                            <select asp-for="UserOperationClaimUpdate.UserId" disabled="disabled" class="form-control select2" data-placeholder="Lütfen Kullanıcı Seçiniz..." asp-items="@(new SelectList(Model.Users, "Id", "UserDisplayInfo"))">
+                            <select asp-for="UserId" disabled="disabled" class="form-control select2" data-placeholder="Lütfen Kullanıcı Seçiniz..." asp-items="@(new SelectList(ViewBag.UserList, "Id", "UserDisplayName"))">
                                 <option value=""></option>
                             </select>
 
@@ -32,7 +32,7 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label">Rütbe</label>
-                            <select asp-for="UserOperationClaimUpdate.OperationClaimId" class="form-control select2" data-placeholder="Lütfen Rütbe Seçiniz..." asp-items="@(new SelectList(Model.Roles, "Id", "Name"))">
+                            <select asp-for="UserOperationClaimUpdate.OperationClaimId" class="form-control select2" data-placeholder="Lütfen Rütbe Seçiniz..." asp-items="@(new SelectList(ViewBag.ClaimList, "Id", "ClaimName"))">
                                 <option value=""></option>
                             </select>
                             <span asp-validation-for="UserOperationClaimUpdate.OperationClaimId" class="text-danger"></span>

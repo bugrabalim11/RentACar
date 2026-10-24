@@ -1,4 +1,4 @@
-﻿using RentACar.MVC.Areas.Admin.Models.CreditCardInformationDtos;
+﻿using RentACar.Dtos.CreditCardInformationDtos;
 using System.ComponentModel.DataAnnotations;
 
 namespace RentACar.MVC.Models.UIRentalViewModels

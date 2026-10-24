@@ -1,4 +1,4 @@
-﻿using RentACar.MVC.Areas.Admin.Models.UserDtos;
+﻿using RentACar.Dtos.UserDtos;
 
 namespace RentACar.MVC.Models.Interfaces
 {

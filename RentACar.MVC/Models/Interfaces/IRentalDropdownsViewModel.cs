@@ -1,6 +1,6 @@
-﻿using RentACar.MVC.Areas.Admin.Models.CarDtos;
-using RentACar.MVC.Areas.Admin.Models.CustomerDtos;
-using RentACar.MVC.Areas.Admin.Models.OfficeDtos;
+﻿using RentACar.Dtos.CarDtos;
+using RentACar.Dtos.CustomerDtos;
+using RentACar.Dtos.OfficeDtos;
 
 namespace RentACar.MVC.Models.Interfaces
 {

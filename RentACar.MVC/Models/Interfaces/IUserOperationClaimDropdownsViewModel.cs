@@ -1,5 +1,5 @@
-﻿using RentACar.MVC.Areas.Admin.Models.OperationClaimDtos;
-using RentACar.MVC.Areas.Admin.Models.UserDtos;
+﻿using RentACar.Dtos.OperationClaimDtos;
+using RentACar.Dtos.UserDtos;
 
 namespace RentACar.MVC.Models.Interfaces
 {

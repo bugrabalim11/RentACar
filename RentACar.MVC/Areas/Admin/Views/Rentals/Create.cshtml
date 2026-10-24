@@ -1,4 +1,4 @@
-﻿@using RentACar.MVC.Areas.Admin.Models.RentalDtos
+﻿@using RentACar.MVC.Areas.Admin.Models.RentalViewModels
 @model RentalCreateByAdminViewModel
 
 @{
@@ -17,28 +17,28 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label">Müşteri Adı</label>
-                            <select asp-for="RentalCreateByAdmin.CustomerId" class="form-control select2" data-placeholder="Lütfen Müşteri Seçiniz..." asp-items="@(new SelectList(Model.Customers, "Id", "FullName"))">
+                            <select asp-for="RentalCreateByAdmin.CustomerId" class="form-control select2" data-placeholder="Lütfen Müşteri Seçiniz..." asp-items="@(new SelectList(ViewBag.CustomerList, "Id", "CustomerDisplayName"))">
                                 <option value=""></option>
                             </select>
                             <span asp-validation-for="RentalCreateByAdmin.CustomerId" class="text-danger"></span>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Araç</label>
-                            <select asp-for="RentalCreateByAdmin.CarId" class="form-control select2" data-placeholder="Lütfen Araç Seçiniz..." asp-items="@(new SelectList(Model.Cars, "Id", "CarInfo"))">
+                            <select asp-for="RentalCreateByAdmin.CarId" class="form-control select2" data-placeholder="Lütfen Araç Seçiniz..." asp-items="@(new SelectList(ViewBag.CarList, "Id", "CarDisplayName"))">
                                 <option value=""></option>
                             </select>
                             <span asp-validation-for="RentalCreateByAdmin.CarId" class="text-danger"></span>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Araç Teslim Ofisi</label>
-                            <select asp-for="RentalCreateByAdmin.PickUpOfficeId" class="form-control select2" data-placeholder="Lütfen Ofis Seçiniz..." asp-items="@(new SelectList(Model.Offices, "Id", "OfficeInfo"))">
+                            <select asp-for="RentalCreateByAdmin.PickUpOfficeId" class="form-control select2" data-placeholder="Lütfen Ofis Seçiniz..." asp-items="@(new SelectList(ViewBag.OfficeList, "Id", "OfficeName"))">
                                 <option value=""></option>
                             </select>
                             <span asp-validation-for="RentalCreateByAdmin.PickUpOfficeId" class="text-danger"></span>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Araç İade Ofisi</label>
-                            <select asp-for="RentalCreateByAdmin.DropOffOfficeId" class="form-control select2" data-placeholder="Lütfen Ofis Seçiniz..." asp-items="@(new SelectList(Model.Offices, "Id", "OfficeInfo"))">
+                            <select asp-for="RentalCreateByAdmin.DropOffOfficeId" class="form-control select2" data-placeholder="Lütfen Ofis Seçiniz..." asp-items="@(new SelectList(ViewBag.OfficeList, "Id", "OfficeName"))">
                                 <option value=""></option>
                             </select>
                             <span asp-validation-for="RentalCreateByAdmin.DropOffOfficeId" class="text-danger"></span>

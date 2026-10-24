@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using RentACar.MVC.Areas.Admin.Models.BrandDtos;
-using RentACar.MVC.Areas.Admin.Models.CarDtos;
-using RentACar.MVC.Areas.Admin.Models.ColorDtos;
+using RentACar.Dtos.BrandDtos;
+using RentACar.Dtos.CarDtos;
+using RentACar.Dtos.ColorDtos;
+using RentACar.MVC.Areas.Admin.Models.CarViewModels;
 using RentACar.MVC.Controllers;
 using RentACar.MVC.Models.Interfaces;
 using RentACar.MVC.Models.Responses;
@@ -161,6 +162,8 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             var client = _httpClientFactory.CreateClient("RentACarApi");
             var brandsResponseMessage = await client.GetAsync("api/Brands");
             var colorsResponseMessage = await client.GetAsync("api/Colors");
+            carDropdownViewModel.Brands = new List<BrandResultDto>();
+            carDropdownViewModel.Colors = new List<ColorResultDto>();
             if (brandsResponseMessage.IsSuccessStatusCode && colorsResponseMessage.IsSuccessStatusCode)
             {
                 var brandsJsonData = await brandsResponseMessage.Content.ReadAsStringAsync();
