@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Autofac.Extras.DynamicProxy;
 using Castle.DynamicProxy;
+using RentACar.Business.Rules;
 using RentACar.Core.Utilities.Interceptors;
 using System.Reflection;
 using Module = Autofac.Module; // Autofac'in Module sınıfını kullanacağımızı belirtiyoruz
@@ -25,6 +26,9 @@ namespace RentACar.Business.DependencyResolvers.Autofac
                        Selector = new AspectInterceptorSelector()
                    })
                    .InstancePerLifetimeScope();;
+
+            // MÜFETTİŞİN YAKA KARTI (Interface'i olmadığı için AsSelf kullanıyoruz)
+            builder.RegisterType<RentalBusinessRules>().AsSelf().InstancePerLifetimeScope();
 
             // 2. DATA ACCESS BİNASI (Ajansız, düz veritabanı işçileri)
             // Eskiden C#'a bana CarRepository'nin yaşadığı binayı (Assembly) bul diye adres veriyorduk 
