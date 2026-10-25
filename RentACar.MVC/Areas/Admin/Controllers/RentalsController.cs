@@ -7,7 +7,6 @@ using RentACar.Dtos.OfficeDtos;
 using RentACar.Dtos.RentalDtos;
 using RentACar.MVC.Areas.Admin.Models.RentalViewModels;
 using RentACar.MVC.Controllers;
-using RentACar.MVC.Models.Interfaces;
 using RentACar.MVC.Models.Responses;
 using System.Text;
 
@@ -59,7 +58,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var viewModel = new RentalCreateByAdminViewModel();
             viewModel.RentalCreateByAdmin = new RentalCreateByAdminDto();
-            await PopulateDropdowns(viewModel);
+            await PopulateDropdowns();
             return View(viewModel);
         }
 
@@ -68,7 +67,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                await PopulateDropdowns(rentalCreateByAdminViewModel);
+                await PopulateDropdowns();
                 return View(rentalCreateByAdminViewModel);
             }
 
@@ -83,7 +82,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             }
 
             await HandleApiErrorAsync(responseMessage);
-            await PopulateDropdowns(rentalCreateByAdminViewModel);
+            await PopulateDropdowns();
             return View(rentalCreateByAdminViewModel);
         }
 
@@ -103,7 +102,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                     {
                         RentalUpdateByAdmin = responseBox.Data
                     };
-                    await PopulateDropdowns(viewModel);
+                    await PopulateDropdowns();
 
                     // Örnek Pusu Kurulumu:
                     // View da yaptığımız Türkiye saat dilimine çevirme işlemini burada da getiriyoruz
@@ -124,7 +123,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                await PopulateDropdowns(viewModel);
+                await PopulateDropdowns();
                 return View(viewModel);
             }
 
@@ -138,7 +137,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 return RedirectToAction("Index");
             }
             await HandleApiErrorAsync(responseMessage);
-            await PopulateDropdowns(viewModel);
+            await PopulateDropdowns();
             return View(viewModel);
         }
 
@@ -160,7 +159,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             return RedirectToAction("Index");
         }
 
-        private async Task PopulateDropdowns(IRentalDropdownsViewModel dropdownsViewModel)
+        private async Task PopulateDropdowns()
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
             var customerResponseMessage = await client.GetAsync("api/Customers");
