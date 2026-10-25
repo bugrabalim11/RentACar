@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RentACar.Dtos.OfficeDtos;
-using RentACar.MVC.Models.Interfaces;
+using RentACar.Dtos.RentalDtos;
 using RentACar.MVC.Models.Responses;
-using RentACar.MVC.Models.UIRentalDtos;
 using RentACar.MVC.Models.UIRentalViewModels;
 using System.Text;
 
@@ -23,22 +22,22 @@ namespace RentACar.MVC.Controllers
         public async Task<IActionResult> CheckOut(int id)
         {
             var viewModel = new UIRentalCreateViewModel();
-            viewModel.UIRentalCreateDto = new UIRentalCreateDto();
-            viewModel.UIRentalCreateDto.CarId = id;
-            await PopulateDropdowns(viewModel);
+            viewModel.RentalCreateDto = new RentalCreateDto();
+            viewModel.RentalCreateDto.CarId = id;
+            await PopulateDropdowns();
             return View(viewModel);
         }
-
+        // TODO: Login ekranı yapınca burayı test et
         [HttpPost]
         public async Task<IActionResult> CheckOut(UIRentalCreateViewModel viewModel)
         {
             if (!ModelState.IsValid)
             {
-                await PopulateDropdowns(viewModel);
+                await PopulateDropdowns();
                 return View(viewModel);
             }
             var client = _httpClientFactory.CreateClient("RentACarApi");
-            var jsonData = JsonConvert.SerializeObject(viewModel.UIRentalCreateDto);
+            var jsonData = JsonConvert.SerializeObject(viewModel.RentalCreateDto);
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
             var responseMessage = await client.PostAsync("api/Rentals/rental", stringContent);
             if (responseMessage.IsSuccessStatusCode)
@@ -46,14 +45,15 @@ namespace RentACar.MVC.Controllers
                 return RedirectToAction("Index", "Home");
             }
             await HandleApiErrorAsync(responseMessage);
-            await PopulateDropdowns(viewModel);
+            await PopulateDropdowns();
             return View(viewModel);
         }
 
-        private async Task PopulateDropdowns(IRentalDropdownsViewModel dropdownsViewModel)
+        private async Task PopulateDropdowns()
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
             var officeResponseMessage = await client.GetAsync("api/Offices");
+            ViewBag.OfficeList = new List<object>();
             if (officeResponseMessage.IsSuccessStatusCode)
             {
                 var officeJsonData = await officeResponseMessage.Content.ReadAsStringAsync();
@@ -61,7 +61,7 @@ namespace RentACar.MVC.Controllers
                 var officeResponseBox = JsonConvert.DeserializeObject<ResponseModel<List<OfficeResultDto>>>(officeJsonData);
                 if (officeResponseBox != null && officeResponseBox.Data != null)
                 {
-                    dropdownsViewModel.Offices = officeResponseBox.Data;
+                    ViewBag.OfficeList = officeResponseBox.Data;
                 }
             }
         }

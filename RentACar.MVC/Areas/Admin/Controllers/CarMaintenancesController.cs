@@ -5,7 +5,6 @@ using RentACar.Dtos.CarDtos;
 using RentACar.Dtos.CarMaintenanceDtos;
 using RentACar.MVC.Areas.Admin.Models.CarMaintenanceViewModels;
 using RentACar.MVC.Controllers;
-using RentACar.MVC.Models.Interfaces;
 using RentACar.MVC.Models.Responses;
 using System.Text;
 
@@ -70,7 +69,8 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             }
 
             // 3. STANDART İŞLEM: Adam VIP (carId var) olsa da olmasa da, o vitrindeki Dropdown (Araçlar Listesi) dolmak ZORUNDA!
-            await PopulateDropdowns(viewModel);
+            // Artık ViewBag ile taşıyoruz
+            await PopulateDropdowns();
 
             // 4. SERVİS: Hazırlanan tepsiyi müşteriye (View'a) sun.
             return View(viewModel);
@@ -81,7 +81,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                await PopulateDropdowns(carMaintenanceCreateViewModel);
+                await PopulateDropdowns();
                 return View(carMaintenanceCreateViewModel);
             }
 
@@ -95,7 +95,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             }
 
             await HandleApiErrorAsync(responseMessage);
-            await PopulateDropdowns(carMaintenanceCreateViewModel);
+            await PopulateDropdowns();
             return View(carMaintenanceCreateViewModel);
         }
 
@@ -147,7 +147,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             await HandleApiErrorAsync(responseMessage);
             return View(carMaintenanceUpdateDto);
         }
-        private async Task PopulateDropdowns(ICarMaintenanceDropdownViewModel carMaintenanceDropdownViewModel)
+        private async Task PopulateDropdowns()
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
             var responseMessage = await client.GetAsync("api/Cars");
