@@ -6,7 +6,6 @@ using RentACar.Dtos.UserDtos;
 using RentACar.Dtos.UserOperationClaimDtos;
 using RentACar.MVC.Areas.Admin.Models.UserOperationClaimViewModels;
 using RentACar.MVC.Controllers;
-using RentACar.MVC.Models.Interfaces;
 using RentACar.MVC.Models.Responses;
 using System.Text;
 
@@ -59,7 +58,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         public async Task<IActionResult> Create()
         {
             var viewModel = new UserOperationClaimCreateViewModel();
-            await PopulateDropdowns(viewModel);
+            await PopulateDropdowns();
             return View(viewModel);
         }
 
@@ -68,7 +67,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                await PopulateDropdowns(userOperationClaimCreateViewModel);
+                await PopulateDropdowns();
                 return View(userOperationClaimCreateViewModel);
             }
 
@@ -82,7 +81,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 return RedirectToAction("Index");
             }
             await HandleApiErrorAsync(responseMessage);
-            await PopulateDropdowns(userOperationClaimCreateViewModel);
+            await PopulateDropdowns();
             return View(userOperationClaimCreateViewModel);
         }
 
@@ -107,7 +106,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                             OperationClaimId = responseBox.Data.OperationClaimId
                         }
                     };
-                    await PopulateDropdowns(viewModel);
+                    await PopulateDropdowns();
                     return View(viewModel);
                 }
             }
@@ -119,7 +118,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                await PopulateDropdowns(userOperationClaimUpdateViewModel);
+                await PopulateDropdowns();
                 return View(userOperationClaimUpdateViewModel);
             }
 
@@ -133,11 +132,11 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 return RedirectToAction("Index");
             }
             await HandleApiErrorAsync(responseMessage);
-            await PopulateDropdowns(userOperationClaimUpdateViewModel);
+            await PopulateDropdowns();
             return View(userOperationClaimUpdateViewModel);
         }
 
-        private async Task PopulateDropdowns(IUserOperationClaimDropdownsViewModel userOperationClaimDropdownsViewModel)
+        private async Task PopulateDropdowns()
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
