@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RentACar.Dtos.OfficeDtos;
+using RentACar.Dtos.RentalDtos;
 using RentACar.MVC.Models.Responses;
-using RentACar.MVC.Models.UIRentalDtos;
 using RentACar.MVC.Models.UIRentalViewModels;
 using System.Text;
 
@@ -22,8 +22,8 @@ namespace RentACar.MVC.Controllers
         public async Task<IActionResult> CheckOut(int id)
         {
             var viewModel = new UIRentalCreateViewModel();
-            viewModel.UIRentalCreateDto = new UIRentalCreateDto();
-            viewModel.UIRentalCreateDto.CarId = id;
+            viewModel.RentalCreateDto = new RentalCreateDto();
+            viewModel.RentalCreateDto.CarId = id;
             await PopulateDropdowns();
             return View(viewModel);
         }
@@ -37,7 +37,7 @@ namespace RentACar.MVC.Controllers
                 return View(viewModel);
             }
             var client = _httpClientFactory.CreateClient("RentACarApi");
-            var jsonData = JsonConvert.SerializeObject(viewModel.UIRentalCreateDto);
+            var jsonData = JsonConvert.SerializeObject(viewModel.RentalCreateDto);
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
             var responseMessage = await client.PostAsync("api/Rentals/rental", stringContent);
             if (responseMessage.IsSuccessStatusCode)
