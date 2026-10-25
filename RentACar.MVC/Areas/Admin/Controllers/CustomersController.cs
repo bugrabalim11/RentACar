@@ -5,7 +5,6 @@ using RentACar.Dtos.CustomerDtos;
 using RentACar.Dtos.UserDtos;
 using RentACar.MVC.Areas.Admin.Models.CustomerViewModels;
 using RentACar.MVC.Controllers;
-using RentACar.MVC.Models.Interfaces;
 using RentACar.MVC.Models.Responses;
 using System.Text;
 
@@ -57,7 +56,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         public async Task<IActionResult> Create()
         {
             var viewModel = new CustomerCreateByAdminViewModel();
-            await PopulateDropdown(viewModel);
+            await PopulateDropdown();
             return View(viewModel);
         }
 
@@ -66,7 +65,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                await PopulateDropdown(customerCreateByAdminViewModel);
+                await PopulateDropdown();
                 return View(customerCreateByAdminViewModel);
             }
 
@@ -81,7 +80,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             }
 
             await HandleApiErrorAsync(responseMessage);
-            await PopulateDropdown(customerCreateByAdminViewModel);
+            await PopulateDropdown();
             return View(customerCreateByAdminViewModel);
         }
 
@@ -101,7 +100,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                     {
                         CustomerUpdateByAdmin = responseBox.Data
                     };
-                    await PopulateDropdown(viewModel);
+                    await PopulateDropdown();
                     return View(viewModel);
                 }
             }
@@ -113,7 +112,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                await PopulateDropdown(customerUpdateByAdminViewModel);
+                await PopulateDropdown();
                 return View(customerUpdateByAdminViewModel);
             }
 
@@ -128,11 +127,11 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             }
 
             await HandleApiErrorAsync(responseMessage);
-            await PopulateDropdown(customerUpdateByAdminViewModel);
+            await PopulateDropdown();
             return View(customerUpdateByAdminViewModel);
         }
 
-        private async Task PopulateDropdown(ICustomerDropdownViewModel dropdownViewModel)
+        private async Task PopulateDropdown()
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
