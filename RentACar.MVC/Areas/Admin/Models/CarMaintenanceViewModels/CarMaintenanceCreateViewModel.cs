@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using RentACar.Dtos.CarDtos;
 using RentACar.Dtos.CarMaintenanceDtos;
-using RentACar.MVC.Models.Interfaces;
 
 namespace RentACar.MVC.Areas.Admin.Models.CarMaintenanceViewModels
 {
-    public class CarMaintenanceCreateViewModel : ICarMaintenanceDropdownViewModel
+    public class CarMaintenanceCreateViewModel 
     {
         // SENIOR NOTU: Bu Yapıcı Metot(Constructor). 
         // CarMaintenanceCreateViewModel sınıfından 'new' kelimesiyle yeni bir nesne üretildiği MİLİSANİYE burası otomatik çalışır.
@@ -17,7 +16,6 @@ namespace RentACar.MVC.Areas.Admin.Models.CarMaintenanceViewModels
         }
 
         [ValidateNever]
-        public List<CarResultDto> Cars { get; set; } = null!;
         public CarMaintenanceCreateDto CarMaintenanceCreate { get; set; } = null!;
     }
 }
