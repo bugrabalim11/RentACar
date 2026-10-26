@@ -7,8 +7,5 @@ namespace RentACar.Business.Abstract
     {
         Task<IDataResult<List<ColorResultDto>>> GetAllAsync();
         Task<IDataResult<ColorResultDto>> GetByIdAsync(int id);
-        Task<IDataResult<int>> AddAsync(ColorCreateDto colorAddDto);
-        Task<IResult> UpdateAsync(ColorUpdateDto colorUpdateDto);
-        Task<IResult> DeleteAsync(int id);
     }
 }

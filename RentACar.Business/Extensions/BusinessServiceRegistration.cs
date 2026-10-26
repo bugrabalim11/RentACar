@@ -1,9 +1,5 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
-using RentACar.Business.Abstract;
-using RentACar.Business.Concrete;
-using RentACar.Core.Utilities.Helpers.FileHelper;
-using RentACar.Core.Utilities.Security.Jwt;
 using RentACar.DataAccess.Abstract;
 using RentACar.DataAccess.Concrete.EntityFramework;
 using System.Reflection;

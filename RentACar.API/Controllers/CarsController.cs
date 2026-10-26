@@ -1,14 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
-using RentACar.Core.Exceptions;
-using RentACar.Dtos.CarDtos;
 
 namespace RentACar.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "admin")]
+    [AllowAnonymous]
     public class CarsController : ControllerBase
     {
         private readonly ICarService _carService;
@@ -17,47 +15,18 @@ namespace RentACar.API.Controllers
         {
             _carService = carService;
         }
-
-        [HttpPost]
-        public async Task<IActionResult> CreateAsync(CarCreateDto carAddDto)
-        {
-            // İşi aşçıya (Business katmanına) devrediyoruz
-            var result = await _carService.AddAsync(carAddDto);
-            return Ok(result);
-        }
-
-        [AllowAnonymous]
+        // TODO: Mobili kodlarken interface te olan daha kodlanmış markaya ve renge göre araçları getirme metodunu buraya ekle.
         [HttpGet]
         public async Task<IActionResult> GetAllAsync()
         {
-            // Aşçıdan tabakları (DTO listesini) istiyoruz
             var result = await _carService.GetAllAsync();
             return Ok(result);
         }
 
-        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await _carService.GetByIdAsync(id);
-            return Ok(result);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAsync(int id, CarUpdateDto carUpdateDto)
-        {
-            if (id != carUpdateDto.Id)
-            {
-                throw new BusinessException("Güvenlik İhlali: URL'deki ID ile gönderilen araç ID'si eşleşmiyor!");
-            }
-            var result = await _carService.UpdateAsync(carUpdateDto);
-            return Ok(result);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(int id)
-        {
-            var result = await _carService.DeleteAsync(id);
             return Ok(result);
         }
     }

@@ -43,7 +43,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.DeleteAsync($"api/Brands/{id}");
+            var responseMessage = await client.DeleteAsync($"api/admin/brands/{id}");
             if (responseMessage.IsSuccessStatusCode)
             {
                 return Json(new { success = true });
@@ -79,7 +79,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
             // 5. YOLA ÇIKIŞ: Kurye, elindeki zarfla API'nin kapısına POST (Veri Ekleme) isteği atıyor.
-            var responseMessage = await client.PostAsync("api/Brands", stringContent);
+            var responseMessage = await client.PostAsync("api/admin/brands", stringContent);
 
             // 6. MUTLU SON KONTROLÜ: API "Tamamdır, başarıyla ekledim" dedi mi?
             if (responseMessage.IsSuccessStatusCode)
@@ -139,7 +139,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 
             var jsonData = JsonConvert.SerializeObject(brandUpdateDto);
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            var responseMessage = await client.PutAsync($"api/Brands/{brandUpdateDto.Id}", stringContent);
+            var responseMessage = await client.PutAsync($"api/admin/brands/{brandUpdateDto.Id}", stringContent);
             if (responseMessage.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");

@@ -25,7 +25,7 @@ namespace RentACar.API.BackgroundServices
                 // Fabrikayı çalıştırıp 1 gecelik, işi bitince hafızadan silinecek bir vardiya (Scope) yaratıyoruz.
                 using (var scope = _scopeFactory.CreateScope())
                 {
-                    var carImageService = scope.ServiceProvider.GetRequiredService<ICarImageService>();
+                    var carImageService = scope.ServiceProvider.GetRequiredService<IAdminCarImageService>();
 
                     try
                     {
