@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using RentACar.Business.Abstract;
+using RentACar.Business.Rules;
 using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
@@ -14,13 +15,13 @@ namespace RentACar.Business.Concrete
     {
         private readonly IBrandRepository _brandRepository;
         private readonly IMapper _mapper;
-        private readonly ICarService _carService;
+        private readonly BrandBusinessRules _brandBusinessRules;
 
-        public BrandManager(IBrandRepository brandRepository, IMapper mapper, ICarService carService)
+        public BrandManager(IBrandRepository brandRepository, IMapper mapper, BrandBusinessRules brandBusinessRules)
         {
             _brandRepository = brandRepository;
             _mapper = mapper;
-            _carService = carService;
+            _brandBusinessRules = brandBusinessRules;
         }
 
         public async Task<IDataResult<int>> AddAsync(BrandCreateDto brandAddDto)
@@ -50,14 +51,12 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException("Silinecek marka bulunamadı.");
             }
 
-            await _brandRepository.DeleteAsync(existingBrand);
-
-            // BAĞIMLILIK TEMİZLİĞİ: Marka silinirse, o markaya ait arabaları da vitrinden kaldır.
-            var existingCars = await _carService.GetAllByBrandIdAsync(id);
-            // Performasnlı değil büyük sistemlerde repository ye özel metot yazılır tek hamlede isDeleted true yapar
-            foreach (var car in existingCars.Data)
+            IResult? result=BusinessRules.Run(
+                await _brandBusinessRules.CheckIfBrandIsUsedByAnyCarAsync(id)
+                );
+            if (result != null)
             {
-                await _carService.DeleteAsync(car.Id);
+                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
             // SENİOR NOTU: Biz sadece silme emrini (DeleteAsync) veriyoruz. 

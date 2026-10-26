@@ -45,7 +45,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
-            var responseMessage = await client.DeleteAsync($"api/Cars/{id}");
+            var responseMessage = await client.DeleteAsync($"api/admin/cars/{id}");
             if (responseMessage.IsSuccessStatusCode)
             {
                 return Json(new { success = true });
@@ -95,7 +95,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             var client = _httpClientFactory.CreateClient("RentACarApi");
             var jsonData = JsonConvert.SerializeObject(carCreateViewModel.CarCreate);
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            var responseMessage = await client.PostAsync("api/Cars", stringContent);
+            var responseMessage = await client.PostAsync("api/admin/cars", stringContent);
             if (responseMessage.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");
@@ -142,7 +142,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 
             var jsonData = JsonConvert.SerializeObject(carUpdateViewModel.CarUpdate);
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            var responseMessage = await client.PutAsync($"api/Cars/{carUpdateViewModel.CarUpdate.Id}", stringContent);
+            var responseMessage = await client.PutAsync($"api/admin/cars/{carUpdateViewModel.CarUpdate.Id}", stringContent);
             if (responseMessage.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");

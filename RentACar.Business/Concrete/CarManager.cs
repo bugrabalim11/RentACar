@@ -1,121 +1,43 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
 using RentACar.Core.Exceptions;
-using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 using RentACar.Dtos.CarDtos;
-using RentACar.Entities.Concrete;
 
 namespace RentACar.Business.Concrete
 {
     public class CarManager : ICarService
     {
-        // ESKİSİ: private readonly IRepository<Car> _carRepository;
         private readonly ICarRepository _carRepository;
         private readonly IMapper _mapper;
-        private readonly IReferenceCheckService _referenceCheckService;
 
-        // 2. Constructor'a (Yapıcı Metot) ekleyerek sisteme "Bana bu görevliyi getir" diyoruz.
-        public CarManager(ICarRepository carRepository, IMapper mapper, IReferenceCheckService referenceCheckService)
+        public CarManager(ICarRepository carRepository, IMapper mapper)
         {
             _carRepository = carRepository;
             _mapper = mapper;
-            _referenceCheckService = referenceCheckService;
-        }
-
-        public async Task<IDataResult<int>> AddAsync(CarCreateDto carAddDto)
-        {
-            carAddDto.Plate = carAddDto.Plate.Replace(" ", "").ToUpper();
-
-            IResult? result = BusinessRules.Run(
-            await CheckIfCarPlateExistsAsync(carAddDto.Plate),
-            await _referenceCheckService.CheckIfBrandExistsAsync(carAddDto.BrandId),
-            await _referenceCheckService.CheckIfColorExistsAsync(carAddDto.ColorId)
-            );
-            if (result != null)
-            {
-                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
-            }
-
-            // 3. KAYIT (Her şey tamamsa yemeği pişir)
-            var car = _mapper.Map<Car>(carAddDto);
-            await _carRepository.AddAsync(car);
-            return new SuccessDataResult<int>(car.Id, "Araç başarıyla eklendi.");
-        }
-
-        public async Task<IResult> DeleteAsync(int id)
-        {
-            var existingCar = await _carRepository.GetAsync(x => x.Id == id);
-            if (existingCar == null)
-            {
-                throw new BusinessException("Silincek araç bulunamadı.");
-            }
-
-            // SENİOR NOTU: Biz sadece silme emrini (DeleteAsync) veriyoruz. 
-            // Fiziksel silme (Hard Delete) mi yoksa çöpe atma (Soft Delete) mı yapılacağına 
-            // DataAccess katmanındaki DbContext (Gümrük Memuru) otonom olarak karar verir!
-            await _carRepository.DeleteAsync(existingCar);
-            return new SuccessResult("Araç başarıyla silindi.");
-        }
+        }    
 
         public async Task<IDataResult<List<CarResultDto>>> GetAllAsync()
         {
-            // İşte senin DataAccess'te yazdığın o özel Join'li metodu çağırıyoruz!
             var cars = await _carRepository.GetCarsWithDetailsAsync();
-
-            // SENİOR DOKUNUŞU: UI'da zıplamayı engelle, en son eklenen araba hep en tepede çıksın!
             var sortedCars = cars.OrderByDescending(x => x.CreatedDate).ToList();
-
-            // Arabalar, markaları ve renkleriyle beraber geldi. Şimdi onları şık tabaklara (DTO) koyalım.
             var carListDtos = _mapper.Map<List<CarResultDto>>(sortedCars);
-
-            // Kargo kutusuna koy ve yolla!
             return new SuccessDataResult<List<CarResultDto>>(carListDtos, "Arabalar başarıyla listelendi.");
         }
 
-
         public async Task<IDataResult<CarDetailDto>> GetByIdAsync(int id)
         {
-            // ESKİSİ: var car = await _carRepository.GetAsync(x => x.Id == id);
-            // YENİSİ: Artık Join'li veriyi getiren kendi özel metodumuzu kullanıyoruz!
             var car = await _carRepository.GetCarWithDetailsAsync(id);
             if (car == null)
             {
                 throw new BusinessException("Aranan araç detayı bulunamadı.");
             }
 
-            // Bulduysa CarResultDto'ya çevirir, bulamadıysa (null ise) güvenli bir şekilde null döner
             var carDetailDto = _mapper.Map<CarDetailDto>(car);
             return new SuccessDataResult<CarDetailDto>(carDetailDto, "Araba detayı getirildi.");
         }
-
-        public async Task<IResult> UpdateAsync(CarUpdateDto carUpdateDto)
-        {
-            var existingCar = await _carRepository.GetAsync(x => x.Id == carUpdateDto.Id);
-            if (existingCar == null)
-            {
-                throw new BusinessException("Güncellencek araç bulunamadı.");
-            }
-
-            carUpdateDto.Plate = carUpdateDto.Plate.Replace(" ", "").ToUpper();
-
-            IResult? result = BusinessRules.Run(
-            await CheckIfCarPlateExitsForUpdateAsync(carUpdateDto.Plate, carUpdateDto.Id),
-            await _referenceCheckService.CheckIfBrandExistsAsync(carUpdateDto.BrandId),
-            await _referenceCheckService.CheckIfColorExistsAsync(carUpdateDto.ColorId)
-            );
-            if (result != null)
-            {
-                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
-            }
-
-            // 4. EŞLEŞTİRME VE KAYIT
-            _mapper.Map(carUpdateDto, existingCar);
-            await _carRepository.UpdateAsync(existingCar);
-            return new SuccessResult("Araç başarıyla güncellendi.");
-        }
-
+        
         public async Task<IDataResult<List<CarResultDto>>> GetAllByBrandIdAsync(int brandId)
         {
             var existingCars = await _carRepository.GetAllAsync(x => x.BrandId == brandId);
@@ -128,31 +50,6 @@ namespace RentACar.Business.Concrete
             var existingCars = await _carRepository.GetAllAsync(x => x.ColorId == colorId);
             var mappedCars = _mapper.Map<List<CarResultDto>>(existingCars);
             return new SuccessDataResult<List<CarResultDto>>(mappedCars);
-        }
-
-        // İş Kuralı: Aynı plaka var mı kontrolü
-        private async Task<IResult> CheckIfCarPlateExistsAsync(string plate)
-        {
-
-            bool existingPlate = await _carRepository.AnyAsync(x => x.Plate == plate);
-            if (existingPlate)
-            {
-                return new ErrorResult("Bu plaka zaten sistemde kayıtlı!");
-            }
-            return new SuccessResult();
-        }
-
-        // İş Kuralı: Güncelleme yaparken başka bir arabaya ait aynı plaka var mı kontrolü
-        private async Task<IResult> CheckIfCarPlateExitsForUpdateAsync(string plate, int currentCarId)
-        {
-
-            bool isExist = await _carRepository.AnyAsync(x => x.Plate == plate && x.Id != currentCarId);
-
-            if (isExist)
-            {
-                return new ErrorResult("Bu plaka zaten sistemde kayıtlı.");
-            }
-            return new SuccessResult();
         }
 
         public async Task<IResult> CheckIfCarExistsAsync(int carId)
