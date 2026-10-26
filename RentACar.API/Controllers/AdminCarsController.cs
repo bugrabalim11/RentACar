@@ -9,11 +9,11 @@ namespace RentACar.API.Controllers
     [Route("api/admin/cars")]
     [ApiController]
     [Authorize(Roles = "admin")]
-    public class AdminCarController : ControllerBase   
+    public class AdminCarsController : ControllerBase   
     {
         private readonly IAdminCarService _adminCarService;
 
-        public AdminCarController(IAdminCarService adminCarService)
+        public AdminCarsController(IAdminCarService adminCarService)
         {
             _adminCarService = adminCarService;
         }
