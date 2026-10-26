@@ -1,12 +1,9 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using RentACar.Business.Abstract;
 using RentACar.Core.Exceptions;
-using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 using RentACar.Dtos.ColorDtos;
-using RentACar.Entities.Concrete;
 
 namespace RentACar.Business.Concrete
 {
@@ -14,60 +11,18 @@ namespace RentACar.Business.Concrete
     {
         private readonly IColorRepository _colorRepository;
         private readonly IMapper _mapper;
-        private readonly ICarService _carService;
-        private readonly IReferenceCheckService _referenceCheckService;
 
-        public ColorManager(IColorRepository colorRepository, IMapper mapper, ICarService carService, IReferenceCheckService referenceCheckService)
+        public ColorManager(IColorRepository colorRepository, IMapper mapper)
         {
             _colorRepository = colorRepository;
             _mapper = mapper;
-            _carService = carService;
-            _referenceCheckService = referenceCheckService;
-        }
-
-        public async Task<IDataResult<int>> AddAsync(ColorCreateDto colorAddDto)
-        {
-            colorAddDto.Name = colorAddDto.Name.Trim();
-
-            // ASİSTAN KONTROLÜ: Aynı renk isminden var mı?
-            IResult? result = BusinessRules.Run(await CheckIfColorNameExistsAsync(colorAddDto.Name));
-            if (result != null)
-            {
-                // Hata varsa kırmızı alarm!
-                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
-            }
-
-            var color = _mapper.Map<Color>(colorAddDto);
-            await _colorRepository.AddAsync(color);
-            return new SuccessDataResult<int>(color.Id, "Renk başarıyla eklendi.");
-        }
-
-        public async Task<IResult> DeleteAsync(int id)
-        {
-            var existingColor = await _colorRepository.GetAsync(x => x.Id == id);
-            if (existingColor == null)
-            {
-                throw new BusinessException("Silinecek renk bulunamadı.");
-            }
-
-            IResult? result = BusinessRules.Run(await _referenceCheckService.CheckIfColorIsUsedByAnyCarAsync(id));
-            if (result != null)
-            {
-                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen hata oluştu!");
-            }
-
-            // SENİOR NOTU: Biz sadece silme emrini (DeleteAsync) veriyoruz. 
-            // Fiziksel silme (Hard Delete) mi yoksa çöpe atma (Soft Delete) mı yapılacağına 
-            // DataAccess katmanındaki DbContext (Gümrük Memuru) otonom olarak karar verir!
-            await _colorRepository.DeleteAsync(existingColor);
-            return new SuccessResult("Renk başarıyla silindi.");
         }
 
         public async Task<IDataResult<List<ColorResultDto>>> GetAllAsync()
         {
             var colors = await _colorRepository.GetAllAsync();
-            var sortedColorss = colors.OrderByDescending(x => x.CreatedDate).ToList();
-            var colorDtos = _mapper.Map<List<ColorResultDto>>(sortedColorss);
+            var sortedColors = colors.OrderByDescending(x => x.CreatedDate).ToList();
+            var colorDtos = _mapper.Map<List<ColorResultDto>>(sortedColors);
             return new SuccessDataResult<List<ColorResultDto>>(colorDtos, "Renkler başarıyla listelendi.");
         }
 
@@ -76,54 +31,10 @@ namespace RentACar.Business.Concrete
             var color = await _colorRepository.GetAsync(x => x.Id == id);
             if (color == null)
             {
-                // BUM! Eski ErrorDataResult silindi, Kırmızı Alarm eklendi!
                 throw new BusinessException("Aranan renk bulunamadı.");
             }
-
             var colorDto = _mapper.Map<ColorResultDto>(color);
             return new SuccessDataResult<ColorResultDto>(colorDto, "Renk başarıyla getirildi.");
-        }
-
-        public async Task<IResult> UpdateAsync(ColorUpdateDto colorUpdateDto)
-        {
-            colorUpdateDto.Name = colorUpdateDto.Name.Trim();
-
-            IResult? result = BusinessRules.Run(await CheckIfColorNameExistsForUpdateAsync(colorUpdateDto.Name, colorUpdateDto.Id));
-            if (result != null)
-            {
-                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
-            }
-
-            var existingColor = await _colorRepository.GetAsync(x => x.Id == colorUpdateDto.Id);
-            if (existingColor == null)
-            {
-                throw new BusinessException("Güncellenecek renk bulunamadı.");
-            }
-
-            _mapper.Map(colorUpdateDto, existingColor);
-            await _colorRepository.UpdateAsync(existingColor);
-            return new SuccessResult("Renk başarıyla güncellendi.");
-        }
-
-        private async Task<IResult> CheckIfColorNameExistsAsync(string colorName)
-        {
-            // ILike ile büyük/küçük harf duyarsız arama
-            bool existColorName = await _colorRepository.AnyAsync(x => Microsoft.EntityFrameworkCore.EF.Functions.ILike(x.Name, colorName));
-            if (existColorName)
-            {
-                return new ErrorResult("Bu renk zaten kayıtlı!");
-            }
-            return new SuccessResult();
-        }
-
-        private async Task<IResult> CheckIfColorNameExistsForUpdateAsync(string colorName, int colorId)
-        {
-            bool isExist = await _colorRepository.AnyAsync(x => Microsoft.EntityFrameworkCore.EF.Functions.ILike(x.Name, colorName) && x.Id != colorId);
-            if (isExist)
-            {
-                return new ErrorResult("Bu renk zaten sistemde kayıtlı!");
-            }
-            return new SuccessResult();
         }
     }
 }

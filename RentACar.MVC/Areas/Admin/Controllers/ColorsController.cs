@@ -42,7 +42,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.DeleteAsync($"api/Colors/{id}");
+            var responseMessage = await client.DeleteAsync($"api/admin/colors/{id}");
             if (responseMessage.IsSuccessStatusCode)
             {
                 return Json(new { success = true });
@@ -66,7 +66,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 
             var jsonData = JsonConvert.SerializeObject(colorCreateDto);
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            var responseMessage = await client.PostAsync("api/Colors", stringContent);
+            var responseMessage = await client.PostAsync("api/admin/colors", stringContent);
             if (responseMessage.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");
@@ -107,7 +107,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 
             var jsonData = JsonConvert.SerializeObject(colorUpdateDto);
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            var responseMessage = await client.PutAsync($"api/Colors/{colorUpdateDto.Id}", stringContent);
+            var responseMessage = await client.PutAsync($"api/admin/colors/{colorUpdateDto.Id}", stringContent);
             if (responseMessage.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");

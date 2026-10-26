@@ -6,27 +6,15 @@ namespace RentACar.Business.Concrete
 {
     public class ReferenceCheckService : IReferenceCheckService
     {
-        private readonly ICarRepository _carRepository;
         private readonly IUserRepository _userRepository;
         private readonly IRentalRepository _rentalRepository;
         private readonly IOperationClaimRepository _operationClaimRepository;
 
-        public ReferenceCheckService(ICarRepository carRepository, IUserRepository userRepository, IRentalRepository rentalRepository, IOperationClaimRepository operationClaimRepository)
+        public ReferenceCheckService(IUserRepository userRepository, IRentalRepository rentalRepository, IOperationClaimRepository operationClaimRepository)
         {
-            _carRepository = carRepository;
             _userRepository = userRepository;
             _rentalRepository = rentalRepository;
             _operationClaimRepository = operationClaimRepository;
-        }
-
-        public async Task<IResult> CheckIfColorIsUsedByAnyCarAsync(int colorId)
-        {
-            bool existingCar = await _carRepository.AnyAsync(x => x.ColorId == colorId);
-            if (!existingCar)
-            {
-                return new SuccessResult();
-            }
-            return new ErrorResult("Bu renk sistemdeki araçlar tarafından kullanıldığı için silinemez!");
         }
 
         public async Task<IResult> CheckIfOfficeHasRentalsAsync(int officeId)
