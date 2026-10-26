@@ -23,7 +23,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.GetAsync($"api/CarImages/Cars/{carId}");
+            var responseMessage = await client.GetAsync($"api/carimages/cars/{carId}");
             // SENIOR NOTU: Kullanıcı 'Yeni Resim Ekle' dediğinde hangi arabaya ekleme yapacağımızı
             // bilmek için bu ID'yi HTML'e ufak bir Post-it notu olarak yolluyoruz.
             ViewBag.CarId = carId;
@@ -43,7 +43,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         public async Task<IActionResult> DeletedImages(int carId)
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
-            var responseMessage = await client.GetAsync($"api/CarImages/Cars/{carId}/deleted");
+            var responseMessage = await client.GetAsync($"api/admin/carimages/cars/{carId}/deleted");
             ViewBag.CarId = carId;
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -62,7 +62,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.DeleteAsync($"api/CarImages/{id}");
+            var responseMessage = await client.DeleteAsync($"api/admin/carimages/{id}");
             if (responseMessage.IsSuccessStatusCode)
             {
                 return Json(new { success = true });
@@ -76,7 +76,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
             // İkinci parametre olan null, API'a fazladan bir JSON nesnesi göndermediğimizi, sadece URL'deki id'nin yeterli olduğunu söyler.
-            var responseMessage = await client.PatchAsync($"api/CarImages/{id}/restore", null);
+            var responseMessage = await client.PatchAsync($"api/admin/carimages/{id}/restore", null);
             if (responseMessage.IsSuccessStatusCode)
             {
                 return Json(new { success = true });
@@ -126,7 +126,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(carImageCreateDto.ImageFile.ContentType);
             content.Add(streamContent, "ImageFile", carImageCreateDto.ImageFile.FileName);
 
-            var responseMessage = await client.PostAsync("api/CarImages", content);
+            var responseMessage = await client.PostAsync("api/admin/carimages", content);
 
             if (responseMessage.IsSuccessStatusCode)
             {

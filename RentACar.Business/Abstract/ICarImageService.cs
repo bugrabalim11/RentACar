@@ -1,17 +1,10 @@
 ﻿using RentACar.Core.Utilities.Results;
 using RentACar.Dtos.CarImageDtos;
-using IResult = RentACar.Core.Utilities.Results.IResult;
 
 namespace RentACar.Business.Abstract
 {
     public interface ICarImageService
     {
-        Task<IDataResult<int>> AddAsync(CarImageCreateDto carImageAddDto);
-        Task<IResult> UpdateAsync(CarImageUpdateDto carImageUpdateDto);
-        Task<IResult> DeleteAsync(int id);
         Task<IDataResult<List<CarImageDetailDto>>> GetImagesByCarIdAsync(int carId);
-        Task<IResult> DeleteOldImagesAsync();
-        Task<IResult> RestoreAsync(int id);
-        Task<IDataResult<List<CarImageDeletedDto>>> GetDeletedImagesByCarIdAsync(int carId);
     }
 }
