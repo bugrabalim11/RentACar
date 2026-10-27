@@ -34,7 +34,8 @@ namespace RentACar.Business.DependencyResolvers.Autofac
             builder.RegisterType<BrandBusinessRules>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<ColorBusinessRules>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<CarImageBusinessRules>().AsSelf().InstancePerLifetimeScope();
-            builder.RegisterType<AuthBusinessRule>().AsSelf().InstancePerLifetimeScope();
+            builder.RegisterType<AuthBusinessRules>().AsSelf().InstancePerLifetimeScope();
+            builder.RegisterType<OperationClaimBusinessRules>().AsSelf().InstancePerLifetimeScope();
 
             // 2. DATA ACCESS BİNASI (Ajansız, düz veritabanı işçileri)
             // Eskiden C#'a bana CarRepository'nin yaşadığı binayı (Assembly) bul diye adres veriyorduk 

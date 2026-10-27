@@ -18,14 +18,14 @@ namespace RentACar.Business.Concrete
         private readonly IUserService _userService;
         private readonly ITokenHelper _tokenHelper;
         private readonly IMapper _mapper;
-        private readonly AuthBusinessRule _authBusinessRule;
+        private readonly AuthBusinessRules _authBusinessRules;
 
-        public AuthManager(IUserService userService, ITokenHelper tokenHelper, IMapper mapper, AuthBusinessRule authBusinessRule)
+        public AuthManager(IUserService userService, ITokenHelper tokenHelper, IMapper mapper, AuthBusinessRules authBusinessRules)
         {
             _userService = userService;
             _tokenHelper = tokenHelper;
             _mapper = mapper;
-            _authBusinessRule = authBusinessRule;
+            _authBusinessRules = authBusinessRules;
         }
 
         public async Task<IResult> ChangePassword(int userId, UserChangePasswordDto userChangePasswordDto)
@@ -77,7 +77,7 @@ namespace RentACar.Business.Concrete
 
             // 2. AKTİFLİK KONTROLÜ: İş kuralları motoru (Asistan) raporu inceler.
             IResult? result = BusinessRules.Run(
-                _authBusinessRule.CheckIfUserActive(userToCheck.Data.IsDeleted)
+                _authBusinessRules.CheckIfUserActive(userToCheck.Data.IsDeleted)
             );
             if (result != null)
             {

@@ -2,7 +2,7 @@
 
 namespace RentACar.Business.Rules
 {
-    public class AuthBusinessRule
+    public class AuthBusinessRules
     {
         public IResult CheckIfUserActive(bool isDeleted)
         {
