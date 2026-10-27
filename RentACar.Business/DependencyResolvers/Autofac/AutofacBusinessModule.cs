@@ -28,11 +28,13 @@ namespace RentACar.Business.DependencyResolvers.Autofac
                    .InstancePerLifetimeScope();;
 
             // MÜFETTİŞİN YAKA KARTI (Interface'i olmadığı için AsSelf kullanıyoruz)
+            // TODO: Bunları otomatik hale getir
             builder.RegisterType<RentalBusinessRules>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<CarBusinessRules>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<BrandBusinessRules>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<ColorBusinessRules>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<CarImageBusinessRules>().AsSelf().InstancePerLifetimeScope();
+            builder.RegisterType<AuthBusinessRule>().AsSelf().InstancePerLifetimeScope();
 
             // 2. DATA ACCESS BİNASI (Ajansız, düz veritabanı işçileri)
             // Eskiden C#'a bana CarRepository'nin yaşadığı binayı (Assembly) bul diye adres veriyorduk 

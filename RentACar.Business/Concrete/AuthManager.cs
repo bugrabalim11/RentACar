@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
+using RentACar.Business.Rules;
 using RentACar.Core.Aspects.Autofac.Transaction;
 using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Exceptions;
@@ -17,12 +18,14 @@ namespace RentACar.Business.Concrete
         private readonly IUserService _userService;
         private readonly ITokenHelper _tokenHelper;
         private readonly IMapper _mapper;
+        private readonly AuthBusinessRule _authBusinessRule;
 
-        public AuthManager(IUserService userService, ITokenHelper tokenHelper, IMapper mapper)
+        public AuthManager(IUserService userService, ITokenHelper tokenHelper, IMapper mapper, AuthBusinessRule authBusinessRule)
         {
             _userService = userService;
             _tokenHelper = tokenHelper;
             _mapper = mapper;
+            _authBusinessRule = authBusinessRule;
         }
 
         public async Task<IResult> ChangePassword(int userId, UserChangePasswordDto userChangePasswordDto)
@@ -73,7 +76,9 @@ namespace RentACar.Business.Concrete
             }
 
             // 2. AKTİFLİK KONTROLÜ: İş kuralları motoru (Asistan) raporu inceler.
-            IResult? result = BusinessRules.Run(CheckIfUserActive(userToCheck.Data.IsDeleted));
+            IResult? result = BusinessRules.Run(
+                _authBusinessRule.CheckIfUserActive(userToCheck.Data.IsDeleted)
+            );
             if (result != null)
             {
                 // Asistan hata bulursa kırmızı alarma bas!
@@ -118,17 +123,6 @@ namespace RentACar.Business.Concrete
             // 5. KAYIT: Yeni kullanıcıyı veritabanına ekle.
             await _userService.AddAsync(user);
             return new SuccessDataResult<User>(user, "Kayıt işlemi başarıyla tamamlandı.");
-        }
-
-        // KURAL USTASI (Sadece rapor tutar, kırmızı alarma basmaz)
-        // O yüzden ErrrorResult kullandık
-        private IResult CheckIfUserActive(bool isDeleted)
-        {
-            if (isDeleted)
-            {
-                return new ErrorResult("Kullanıcı hesabınız pasif durumdadır, giriş yapamazsınız");
-            }
-            return new SuccessResult();
         }
     }
 }
