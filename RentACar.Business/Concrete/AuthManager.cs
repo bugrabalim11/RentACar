@@ -15,23 +15,25 @@ namespace RentACar.Business.Concrete
 {
     public class AuthManager : IAuthService
     {
-        private readonly IUserService _userService;
+        private readonly IUserAuthService _userAuthService;
         private readonly ITokenHelper _tokenHelper;
         private readonly IMapper _mapper;
         private readonly AuthBusinessRules _authBusinessRules;
+        private readonly UserBusinessRules _userBusinessRules;
 
-        public AuthManager(IUserService userService, ITokenHelper tokenHelper, IMapper mapper, AuthBusinessRules authBusinessRules)
+        public AuthManager(IUserAuthService userAuthService, ITokenHelper tokenHelper, IMapper mapper, AuthBusinessRules authBusinessRules,UserBusinessRules userBusinessRules)
         {
-            _userService = userService;
+            _userAuthService = userAuthService;
             _tokenHelper = tokenHelper;
             _mapper = mapper;
             _authBusinessRules = authBusinessRules;
+            _userBusinessRules = userBusinessRules;
         }
 
         public async Task<IResult> ChangePassword(int userId, UserChangePasswordDto userChangePasswordDto)
         {
             // 1. KİMLİK TESPİTİ: Adamı veritabanından bul.
-            var user = await _userService.GetByIdForAuthAsync(userId);
+            var user = await _userAuthService.GetByIdForAuthAsync(userId);
             if (!user.Success || user.Data == null)
             {
                 throw new BusinessException("Kullanıcı bulunamadı.");
@@ -50,14 +52,14 @@ namespace RentACar.Business.Concrete
             user.Data.PasswordSalt = passwordSalt;
 
             // 4. KAYIT: Güncel bilgileri veritabanına işle.
-            var result = await _userService.UpdateForAuthAsync(user.Data);
+            var result = await _userAuthService.UpdateForAuthAsync(user.Data);
             return new SuccessResult(result.Message ?? "Şifre başarıyla değiştirildi.");
         }
 
         public async Task<IDataResult<AccessToken>> CreateAccessToken(User user)
         {
             // 1. YETKİ KONTROLÜ: Adamın rollerini (VIP listesini) getir.
-            var claimsResult = await _userService.GetClaimsAsync(user);
+            var claimsResult = await _userAuthService.GetClaimsAsync(user);
 
             // 2. MATBAA: VIP listesini (claimsResult.Data) matbaaya ver ve Token'ı (Bileti) üret.
             var accessToken = _tokenHelper.CreateToken(user, claimsResult.Data);
@@ -69,7 +71,7 @@ namespace RentACar.Business.Concrete
         {
             // 1. E-POSTA KONTROLÜ: Kullanıcı var mı?
             // Hacker'ı kör etmek için bulunamama durumunda da "E-posta veya şifre hatalı" diyoruz.
-            var userToCheck = await _userService.GetByMailAsync(userForLoginDto.Email);
+            var userToCheck = await _userAuthService.GetByMailAsync(userForLoginDto.Email);
             if (!userToCheck.Success || userToCheck.Data == null)
             {
                 throw new BusinessException("E-posta veya şifre hatalı!");
@@ -101,7 +103,9 @@ namespace RentACar.Business.Concrete
             // 1. E-POSTA TEMİZLİĞİ VE KONTROLÜ
             userForRegisterDto.Email = userForRegisterDto.Email.Trim().ToLower();
 
-            IResult? result = BusinessRules.Run(await _userService.CheckIfEmailExistsAsync(userForRegisterDto.Email));
+            IResult? result = BusinessRules.Run(
+                await _userBusinessRules.CheckIfEmailExistsAsync(userForRegisterDto.Email)
+            );
             if (result != null)
             {
                 // Asistan (result) hata raporu getirirse kırmızı alarma bas (Middleware tetiklensin).
@@ -121,7 +125,7 @@ namespace RentACar.Business.Concrete
             user.IsDeleted = false;  // Sisteme ilk kayıt olanı aktif yapıyoruz
 
             // 5. KAYIT: Yeni kullanıcıyı veritabanına ekle.
-            await _userService.AddAsync(user);
+            await _userAuthService.AddAsync(user);
             return new SuccessDataResult<User>(user, "Kayıt işlemi başarıyla tamamlandı.");
         }
     }

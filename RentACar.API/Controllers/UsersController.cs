@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
-using RentACar.Core.Exceptions;
 using RentACar.Core.Extensions;
 using RentACar.Dtos.UserDtos;
 
@@ -28,26 +27,10 @@ namespace RentACar.API.Controllers
         }
 
         [Authorize(Roles = "admin")]
-        [HttpGet("admin-details")]
-        public async Task<IActionResult> GetAllForAdminAsync()
-        {
-            var result = await _userService.GetAllForAdminAsync();
-            return Ok(result);
-        }
-
-        [Authorize(Roles = "admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await _userService.GetByIdAsync(id);
-            return Ok(result);
-        }
-
-        [Authorize(Roles = "admin")]
-        [HttpGet("{id}/update-form")]
-        public async Task<IActionResult> GetByIdForUpdate(int id)
-        {
-            var result = await _userService.GetByIdForUpdateAsync(id);
             return Ok(result);
         }
 
@@ -59,26 +42,6 @@ namespace RentACar.API.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = "admin")]
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateByAdminAsync(int id, UserUpdateByAdminDto userUpdateForAdminDto)
-        {
-            if (id != userUpdateForAdminDto.Id)
-            {
-                throw new BusinessException("Güvenlik İhlali: URL'deki ID ile gönderilen kullanıcı ID'si eşleşmiyor!");
-            }
-            var result = await _userService.UpdateForAdminAsync(userUpdateForAdminDto);
-            return Ok(result);
-        }
-
-        [Authorize(Roles = "admin")]
-        [HttpPost]
-        public async Task<IActionResult> CreateByAdminAsync(UserCreateByAdminDto userCreateForAdminDto)
-        {
-            var result = await _userService.CreateForAdminAsync(userCreateForAdminDto);
-            return Ok(result);
-        }
-
         [HttpPut("profile")]
         public async Task<IActionResult> UpdateMyProfile(UserProfileUpdateDto userProfileUpdateDto)
         {
@@ -87,27 +50,11 @@ namespace RentACar.API.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = "admin")]
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(int id)
-        {
-            var result = await _userService.DeleteAsync(id);
-            return Ok(result);
-        }
-
-        [Authorize(Roles = "admin")]
-        [HttpPatch("{id}/restore")]
-        public async Task<IActionResult> RestoreAsync(int id)
-        {
-            var result = await _userService.RestoreAsync(id);
-            return Ok(result);
-        }
-
         [HttpDelete("profile")]
         public async Task<IActionResult> DeleteMyAccount()
         {
             int userId = User.GetUserId();
-            var result = await _userService.DeleteAsync(userId);
+            var result = await _userService.DeleteMyAccountAsync(userId);
             return Ok(result);
         }
     }
