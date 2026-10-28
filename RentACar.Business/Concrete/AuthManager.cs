@@ -10,6 +10,7 @@ using RentACar.Core.Utilities.Security.Hashing;
 using RentACar.Core.Utilities.Security.Jwt;
 using RentACar.Dtos.AuthDtos;
 using RentACar.Dtos.UserDtos;
+using RentACar.Dtos.UserOperationClaimDtos;
 
 namespace RentACar.Business.Concrete
 {
@@ -18,14 +19,18 @@ namespace RentACar.Business.Concrete
         private readonly IUserAuthService _userAuthService;
         private readonly ITokenHelper _tokenHelper;
         private readonly IMapper _mapper;
+        private readonly IAdminUserOperationClaimService _adminUserOperationClaimService;
+        private readonly IOperationClaimService _operationClaimService;
         private readonly AuthBusinessRules _authBusinessRules;
         private readonly UserBusinessRules _userBusinessRules;
 
-        public AuthManager(IUserAuthService userAuthService, ITokenHelper tokenHelper, IMapper mapper, AuthBusinessRules authBusinessRules,UserBusinessRules userBusinessRules)
+        public AuthManager(IUserAuthService userAuthService, ITokenHelper tokenHelper, IMapper mapper, IAdminUserOperationClaimService adminUserOperationClaimService, IOperationClaimService operationClaimService, AuthBusinessRules authBusinessRules, UserBusinessRules userBusinessRules)
         {
             _userAuthService = userAuthService;
             _tokenHelper = tokenHelper;
             _mapper = mapper;
+            _adminUserOperationClaimService = adminUserOperationClaimService;
+            _operationClaimService = operationClaimService;
             _authBusinessRules = authBusinessRules;
             _userBusinessRules = userBusinessRules;
         }
@@ -126,6 +131,15 @@ namespace RentACar.Business.Concrete
 
             // 5. KAYIT: Yeni kullanıcıyı veritabanına ekle.
             await _userAuthService.AddAsync(user);
+
+            var defaultRole = await _operationClaimService.GetIdByNameAsync("user");
+            UserOperationClaimCreateDto userOperationClaimCreateDto = new UserOperationClaimCreateDto
+            {
+                UserId = user.Id,
+                OperationClaimId = defaultRole.Data
+            };
+            await _adminUserOperationClaimService.AddAsync(userOperationClaimCreateDto);
+
             return new SuccessDataResult<User>(user, "Kayıt işlemi başarıyla tamamlandı.");
         }
     }

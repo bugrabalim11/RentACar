@@ -37,5 +37,13 @@ namespace RentACar.Business.Concrete
             var operationClaimDto = _mapper.Map<OperationClaimResultDto>(operationClaim);
             return new SuccessDataResult<OperationClaimResultDto>(operationClaimDto, "Yetki başarıyla getirildi.");
         }
+
+        public async Task<IDataResult<int>> GetIdByNameAsync(string name)
+        {
+            name = name.ToLower().Trim();
+            var existingClaim = await _operationClaimRepository.GetAsync(x => x.Name == name);
+            if (existingClaim == null) { return new ErrorDataResult<int>("İstenen rütbe bulunamdı!"); }
+            return new SuccessDataResult<int>(existingClaim.Id);
+        }
     }
 }
