@@ -27,7 +27,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.GetAsync("api/UserOperationClaims/details");
+            var responseMessage = await client.GetAsync("api/useroperationclaims/details");
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
@@ -45,7 +45,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.DeleteAsync($"api/UserOperationClaims/{id}");
+            var responseMessage = await client.DeleteAsync($"api/admin/useroperationclaims/{id}");
             if (responseMessage.IsSuccessStatusCode)
             {
                 return Json(new { success = true });
@@ -75,7 +75,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 
             var jsonData = JsonConvert.SerializeObject(userOperationClaimCreateViewModel.UserOperationClaimCreate);
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            var responseMessage = await client.PostAsync("api/UserOperationClaims", stringContent);
+            var responseMessage = await client.PostAsync("api/admin/useroperationclaims", stringContent);
             if (responseMessage.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");
@@ -90,7 +90,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.GetAsync($"api/UserOperationClaims/{id}");
+            var responseMessage = await client.GetAsync($"api/useroperationclaims/{id}");
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
@@ -126,7 +126,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 
             var jsonData = JsonConvert.SerializeObject(userOperationClaimUpdateViewModel.UserOperationClaimUpdate);
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            var responseMessage = await client.PutAsync($"api/UserOperationClaims/{userOperationClaimUpdateViewModel.UserOperationClaimUpdate.Id}", stringContent);
+            var responseMessage = await client.PutAsync($"api/admin/useroperationclaims/{userOperationClaimUpdateViewModel.UserOperationClaimUpdate.Id}", stringContent);
             if (responseMessage.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");
@@ -140,8 +140,8 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var usersResponseMessage = await client.GetAsync("api/Users");
-            var claimsResponseMessage = await client.GetAsync("api/OperationClaims");
+            var usersResponseMessage = await client.GetAsync("api/users");
+            var claimsResponseMessage = await client.GetAsync("api/operationclaims");
             ViewBag.UserList = new List<object>();
             ViewBag.ClaimList = new List<object>();
             if (usersResponseMessage.IsSuccessStatusCode && claimsResponseMessage.IsSuccessStatusCode)

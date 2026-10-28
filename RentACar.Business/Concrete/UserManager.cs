@@ -16,11 +16,13 @@ namespace RentACar.Business.Concrete
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly IUserOperationClaimService _userOperationClaimService;
-        public UserManager(IUserRepository userRepository, IMapper mapper, IUserOperationClaimService userOperationClaimService)
+        private readonly IAdminUserOperationClaimService _adminUserOperationClaimService;
+        public UserManager(IUserRepository userRepository, IMapper mapper, IUserOperationClaimService userOperationClaimService, IAdminUserOperationClaimService adminUserOperationClaimService)
         {
             _userRepository = userRepository;
             _mapper = mapper;
             _userOperationClaimService = userOperationClaimService;
+            _adminUserOperationClaimService = adminUserOperationClaimService;
         }
 
         public async Task<IResult> DeleteAsync(int id)
@@ -155,7 +157,7 @@ namespace RentACar.Business.Concrete
                     UserId = user.Id,
                     OperationClaimId = userCreateForAdminDto.OperationClaimId.Value
                 };
-                await _userOperationClaimService.AddAsync(userOperationClaimCreateDto);
+                await _adminUserOperationClaimService.AddAsync(userOperationClaimCreateDto);
                 return new SuccessDataResult<int>(userOperationClaimCreateDto.UserId, "Kullanıcı başarıyla eklendi ve rütbe ataması yapıldı.");
             }
 
@@ -194,13 +196,13 @@ namespace RentACar.Business.Concrete
                     // Admin yeni bir rütbe seçmiş, kartı güncelliyoruz.
                     // .Value diyerek int? içindeki kesin int değerini alıyoruz (Hatanın çözümü!)
                     claimResult.Data.OperationClaimId = userUpdateForAdminDto.OperationClaimId.Value;
-                    await _userOperationClaimService.UpdateAsync(claimResult.Data);
+                    await _adminUserOperationClaimService.UpdateAsync(claimResult.Data);
                 }
                 else
                 {
                     // Admin formda "Rütbesiz" seçeneğini seçmiş (null göndermiş). 
                     // Adamın mevcut rütbe kartını yırtıp atıyoruz!
-                    await _userOperationClaimService.DeleteAsync(claimResult.Data.Id);
+                    await _adminUserOperationClaimService.DeleteAsync(claimResult.Data.Id);
                 }
             }
             else
@@ -213,7 +215,7 @@ namespace RentACar.Business.Concrete
                         UserId = existingUser.Id,
                         OperationClaimId = userUpdateForAdminDto.OperationClaimId.Value
                     };
-                    await _userOperationClaimService.AddAsync(userOperationClaimCreateDto);
+                    await _adminUserOperationClaimService.AddAsync(userOperationClaimCreateDto);
                 }
             }
             return new SuccessResult("Kullanıcı başarıyla güncellendi.");

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
+using RentACar.Business.Rules;
 using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
@@ -13,20 +14,20 @@ namespace RentACar.Business.Concrete
     {
         private readonly ICustomerRepository _customerRepository;
         private readonly IMapper _mapper;
-        private readonly IReferenceCheckService _referenceCheckService;
+        private readonly UserOperationClaimBusinessRules _userOperationClaimBusinessRules;
 
-        public CustomerManager(ICustomerRepository customerRepository, IMapper mapper, IReferenceCheckService referenceCheckService)
+        public CustomerManager(ICustomerRepository customerRepository, IMapper mapper, UserOperationClaimBusinessRules userOperationClaimBusinessRules)
         {
             _customerRepository = customerRepository;
             _mapper = mapper;
-            _referenceCheckService = referenceCheckService;
+            _userOperationClaimBusinessRules = userOperationClaimBusinessRules;
         }
         public async Task<IDataResult<int>> AddForAdminAsync(CustomerCreateByAdminDto customerAddByAdminDto)
         {
             customerAddByAdminDto.NationalIdentity = customerAddByAdminDto.NationalIdentity.Trim();
 
             IResult? result = BusinessRules.Run(
-            await _referenceCheckService.CheckIfUserExistsAsync(customerAddByAdminDto.UserId),
+            await _userOperationClaimBusinessRules.CheckIfUserExistsAsync(customerAddByAdminDto.UserId),
             await CheckIfUserAlreadyHasCustomerProfileAsync(customerAddByAdminDto.UserId),
             await CheckIfNationalIdentityExists(customerAddByAdminDto.NationalIdentity)
             );
@@ -45,7 +46,7 @@ namespace RentACar.Business.Concrete
             customerAddDto.NationalIdentity = customerAddDto.NationalIdentity.Trim();
 
             IResult? result = BusinessRules.Run(
-            await _referenceCheckService.CheckIfUserExistsAsync(userId),
+            await _userOperationClaimBusinessRules.CheckIfUserExistsAsync(userId),
             await CheckIfUserAlreadyHasCustomerProfileAsync(userId),
             await CheckIfNationalIdentityExists(customerAddDto.NationalIdentity)
             );
