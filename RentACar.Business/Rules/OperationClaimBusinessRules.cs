@@ -6,10 +6,12 @@ namespace RentACar.Business.Rules
     public class OperationClaimBusinessRules
     {
         private readonly IOperationClaimRepository _operationClaimRepository;
+        private readonly IUserOperationClaimRepository _userOperationClaimRepository;
 
-        public OperationClaimBusinessRules(IOperationClaimRepository operationClaimRepository)
+        public OperationClaimBusinessRules(IOperationClaimRepository operationClaimRepository, IUserOperationClaimRepository userOperationClaimRepository)
         {
             _operationClaimRepository = operationClaimRepository;
+            _userOperationClaimRepository = userOperationClaimRepository;
         }
 
         public async Task<IResult> CheckIfOperationClaimExistsAsync(string operationClaim)
@@ -28,6 +30,16 @@ namespace RentACar.Business.Rules
             if (isExist)
             {
                 return new ErrorResult("Bu statü sistemde kayıtlı! Lütfen başka statü girmeyi deneyin.");
+            }
+            return new SuccessResult();
+        }
+
+        public async Task<IResult> CheckIfOperationClaimInUseAsync(int operationClaimId)
+        {
+            bool isExist = await _userOperationClaimRepository.AnyAsync(x => x.OperationClaimId == operationClaimId);
+            if (isExist)
+            {
+                return new ErrorResult("Bu rütbe şu an bazı kullanıcılar tarafından kullanılıyor. Silmek için önce kullanıcıların yetkilerini almalısınız!");
             }
             return new SuccessResult();
         }

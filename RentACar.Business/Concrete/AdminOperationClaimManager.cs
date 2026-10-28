@@ -48,7 +48,8 @@ namespace RentACar.Business.Concrete
             }
 
             IResult? result = BusinessRules.Run(
-                _operationClaimBusinessRules.CheckIfOperationClaimNameIsAdmin(existingOperationClaim.Name)
+                _operationClaimBusinessRules.CheckIfOperationClaimNameIsAdmin(existingOperationClaim.Name),
+                await _operationClaimBusinessRules.CheckIfOperationClaimInUseAsync(existingOperationClaim.Id)
             );
             if (result != null)
             {
