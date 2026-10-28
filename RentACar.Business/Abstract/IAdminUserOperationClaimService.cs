@@ -8,5 +8,6 @@ namespace RentACar.Business.Abstract
         Task<IDataResult<int>> AddAsync(UserOperationClaimCreateDto userOperationClaimAddDto);
         Task<IResult> UpdateAsync(UserOperationClaimUpdateDto userOperationClaimUpdateDto);
         Task<IResult> DeleteAsync(int id);
+        Task<IResult> SetUserClaimAsync(int userId, int? operationClaimId);
     }
 }

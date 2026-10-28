@@ -95,38 +95,8 @@ namespace RentACar.Business.Concrete
             _mapper.Map(userUpdateForAdminDto, existingUser);
             await _userRepository.UpdateAsync(existingUser);
 
-            // 4. Yetki Kartı (Rütbe) Operasyonu: Adamın mevcut bir rütbe kartı var mı diye arıyoruz.
-            var claimResult = await _userOperationClaimService.GetUpdateDtoByUserIdAsync(existingUser.Id);
-            if (claimResult.Success)
-            {
-                // Durum A: Adamın zaten bir yetki kartı var.
-                if (userUpdateForAdminDto.OperationClaimId.HasValue)
-                {
-                    // Admin yeni bir rütbe seçmiş, kartı güncelliyoruz.
-                    // .Value diyerek int? içindeki kesin int değerini alıyoruz (Hatanın çözümü!)
-                    claimResult.Data.OperationClaimId = userUpdateForAdminDto.OperationClaimId.Value;
-                    await _adminUserOperationClaimService.UpdateAsync(claimResult.Data);
-                }
-                else
-                {
-                    // Admin formda "Rütbesiz" seçeneğini seçmiş (null göndermiş). 
-                    // Adamın mevcut rütbe kartını yırtıp atıyoruz!
-                    await _adminUserOperationClaimService.DeleteAsync(claimResult.Data.Id);
-                }
-            }
-            else
-            {
-                if (userUpdateForAdminDto.OperationClaimId.HasValue)
-                {
-                    // Durum B: Adamın önceden kartı YOKTU. Eğer Admin formdan yeni bir rütbe seçmişse, adama sıfırdan bir yetki kartı basıyoruz.
-                    UserOperationClaimCreateDto userOperationClaimCreateDto = new UserOperationClaimCreateDto
-                    {
-                        UserId = existingUser.Id,
-                        OperationClaimId = userUpdateForAdminDto.OperationClaimId.Value
-                    };
-                    await _adminUserOperationClaimService.AddAsync(userOperationClaimCreateDto);
-                }
-            }
+            // 4. Yetki Kartı Operasyonunu Zimmet Defteri Departmanına Devrediyoruz (Clean Code!)
+            await _adminUserOperationClaimService.SetUserClaimAsync(existingUser.Id, userUpdateForAdminDto.OperationClaimId);
             return new SuccessResult("Kullanıcı başarıyla güncellendi.");
         }
 

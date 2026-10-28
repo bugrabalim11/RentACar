@@ -15,12 +15,14 @@ namespace RentACar.Business.Concrete
         private readonly IUserOperationClaimRepository _userOperationClaimRepository;
         private readonly IMapper _mapper;
         private readonly UserOperationClaimBusinessRules _userOperationClaimBusinessRules;
+        private readonly IUserOperationClaimService _userOperationClaimService;
 
-        public AdminUserOperationClaimManager(IUserOperationClaimRepository userOperationClaimRepository, IMapper mapper,UserOperationClaimBusinessRules userOperationClaimBusinessRules)
+        public AdminUserOperationClaimManager(IUserOperationClaimRepository userOperationClaimRepository, IMapper mapper,UserOperationClaimBusinessRules userOperationClaimBusinessRules,IUserOperationClaimService userOperationClaimService)
         {
             _userOperationClaimRepository = userOperationClaimRepository;
             _mapper = mapper;
             _userOperationClaimBusinessRules = userOperationClaimBusinessRules;
+            _userOperationClaimService = userOperationClaimService;
         }
 
         public async Task<IDataResult<int>> AddAsync(UserOperationClaimCreateDto userOperationClaimAddDto)
@@ -49,6 +51,42 @@ namespace RentACar.Business.Concrete
             }
             await _userOperationClaimRepository.DeleteAsync(existingUserOperationClaim);
             return new SuccessResult("Kullanıcının yetkisi başarıyla kaldırıldı.");
+        }
+
+        public async Task<IResult> SetUserClaimAsync(int userId, int? operationClaimId)
+        {
+            var claimResult = await _userOperationClaimService.GetUpdateDtoByUserIdAsync(userId);
+            if (claimResult.Success)
+            {
+                // Durum A: Adamın zaten bir yetki kartı var.
+                if (operationClaimId.HasValue)
+                {
+                    // Admin yeni bir rütbe seçmiş, kartı güncelliyoruz.
+                    // .Value diyerek int? içindeki kesin int değerini alıyoruz (Hatanın çözümü!)
+                    claimResult.Data.OperationClaimId = operationClaimId.Value;
+                    await UpdateAsync(claimResult.Data);
+                }
+                else
+                {
+                    // Admin formda "Rütbesiz" seçeneğini seçmiş (null göndermiş). 
+                    // Adamın mevcut rütbe kartını yırtıp atıyoruz!
+                    await DeleteAsync(claimResult.Data.Id);
+                }
+            }
+            else
+            {
+                if (operationClaimId.HasValue)
+                {
+                    // Durum B: Adamın önceden kartı YOKTU. Eğer Admin formdan yeni bir rütbe seçmişse, adama sıfırdan bir yetki kartı basıyoruz.
+                    UserOperationClaimCreateDto userOperationClaimCreateDto = new UserOperationClaimCreateDto
+                    {
+                        UserId = userId,
+                        OperationClaimId = operationClaimId.Value
+                    };
+                    await AddAsync(userOperationClaimCreateDto);
+                }
+            }
+            return new SuccessResult("Kullanıcının yetkileri başarıyla ayarlandı.");
         }
 
         public async Task<IResult> UpdateAsync(UserOperationClaimUpdateDto userOperationClaimUpdateDto)
