@@ -26,9 +26,9 @@ namespace RentACar.Business.Concrete
         private readonly ICarService _carService;
         private readonly ICarStatusService _carStatusService;
         private readonly ICustomerService _customerService;
-        private readonly RentalBusinessRules _rules;
+        private readonly RentalBusinessRules _rentalBusinessRules;
 
-        public RentalManager(IRentalRepository rentalRepository, IMapper mapper, IPosService posService, IPaymentService paymentService, IMailService mailService, ICarService carService, ICarStatusService carStatusService, ICustomerService customerService, RentalBusinessRules rules)
+        public RentalManager(IRentalRepository rentalRepository, IMapper mapper, IPosService posService, IPaymentService paymentService, IMailService mailService, ICarService carService, ICarStatusService carStatusService, ICustomerService customerService, RentalBusinessRules rentalBusinessRules)
         {
             _rentalRepository = rentalRepository;
             _mapper = mapper;
@@ -38,7 +38,7 @@ namespace RentACar.Business.Concrete
             _carService = carService;
             _carStatusService = carStatusService;
             _customerService = customerService;
-            _rules = rules; 
+            _rentalBusinessRules = rentalBusinessRules; 
         }
 
         [TransactionScopeAspect]
@@ -68,12 +68,12 @@ namespace RentACar.Business.Concrete
 
             // Kurallardan biri bile patlarsa kod aşağıya inmez, işlem anında kesilir.
             IResult? result = BusinessRules.Run(
-            _rules.CheckIfRentDateBeforeToday(rentalAddDto.RentDate),
-            await _carService.CheckIfCarExistsAsync(rentalAddDto.CarId),
-            await _carStatusService.CheckIfCarIsInMaintenanceAsync(rentalAddDto.CarId, rentalAddDto.RentDate, rentalAddDto.ReturnDate),
-            await _rules.CheckIfCustomerDrivingExperienceIsSufficient(rentalAddDto.CarId, customerResult.Data.Id),
-            await _rules.CheckIfCustomerFindexScoreIsSufficient(rentalAddDto.CarId, customerResult.Data.Id),
-            await _rules.CheckIfCarAvailable(rentalAddDto.CarId, rentalAddDto.RentDate, rentalAddDto.ReturnDate)
+                _rentalBusinessRules.CheckIfRentDateBeforeToday(rentalAddDto.RentDate),
+                await _rentalBusinessRules.CheckIfCarExistsAsync(rentalAddDto.CarId),
+                await _rentalBusinessRules.CheckIfCarIsInMaintenanceAsync(rentalAddDto.CarId, rentalAddDto.RentDate, rentalAddDto.ReturnDate),
+                await _rentalBusinessRules.CheckIfCustomerDrivingExperienceIsSufficient(rentalAddDto.CarId, customerResult.Data.Id),
+                await _rentalBusinessRules.CheckIfCustomerFindexScoreIsSufficient(rentalAddDto.CarId, customerResult.Data.Id),
+                await _rentalBusinessRules.CheckIfCarAvailable(rentalAddDto.CarId, rentalAddDto.RentDate, rentalAddDto.ReturnDate)
             );
             if (result != null)
             {
@@ -181,10 +181,9 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException("Bu kiralamayı güncellemeye yetkiniz yok!");
             }
 
-            IResult? result = BusinessRules.Run
-            (
-                _rules.CheckIfRentalIsAlreadyCompleted(existingRental.ReturnDate),
-                await _rules.CheckIfCarAvailableForUpdate(rentalId, existingRental.CarId, existingRental.RentDate, rentalUpdateReturnDateDto.ReturnDate)
+            IResult? result = BusinessRules.Run(
+                _rentalBusinessRules.CheckIfRentalIsAlreadyCompleted(existingRental.ReturnDate),
+                await _rentalBusinessRules.CheckIfCarAvailableForUpdate(rentalId, existingRental.CarId, existingRental.RentDate, rentalUpdateReturnDateDto.ReturnDate)
             );
             if (result != null)
             {

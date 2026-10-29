@@ -1,4 +1,5 @@
-﻿using RentACar.Business.Abstract;
+﻿using Microsoft.AspNetCore.Http.Metadata;
+using RentACar.Business.Abstract;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 
@@ -9,14 +10,31 @@ namespace RentACar.Business.Rules
         private readonly ICarService _carService;
         private readonly ICustomerService _customerService;
         private readonly IFindexScoreService _findexScoreService;
+        private readonly ICarStatusService _carStatusService;
         private readonly IRentalRepository _rentalRepository;
 
-        public RentalBusinessRules(ICarService carService, ICustomerService customerService, IFindexScoreService findexScoreService, IRentalRepository rentalRepository)
+        public RentalBusinessRules(ICarService carService, ICustomerService customerService, IFindexScoreService findexScoreService, ICarStatusService carStatusService, IRentalRepository rentalRepository)
         {
             _carService = carService;
             _customerService = customerService;
             _findexScoreService = findexScoreService;
+            _carStatusService = carStatusService;
             _rentalRepository = rentalRepository;
+        }
+
+        public async Task<IResult> CheckIfCustomerExistsAsync(int customerId)
+        {
+            return await _customerService.CheckIfCustomerExistsByIdAsync(customerId);
+        }
+
+        public async Task<IResult> CheckIfCarExistsAsync(int carId)
+        {
+            return await _carService.CheckIfCarExistsAsync(carId);
+        }
+
+        public async Task<IResult> CheckIfCarIsInMaintenanceAsync(int carId, DateTime startDate, DateTime? endDate)
+        {
+            return await _carStatusService.CheckIfCarIsInMaintenanceAsync(carId, startDate, endDate);
         }
 
         public async Task<IResult> CheckIfCustomerDrivingExperienceIsSufficient(int carId, int customerId)

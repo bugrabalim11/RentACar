@@ -98,9 +98,9 @@ namespace RentACar.Business.Concrete
             }
 
             IResult? result = BusinessRules.Run(
-            await _userOperationClaimBusinessRules.CheckIfUserHasThisClaimAlreadyForUpdateAsync(existingUserOperationClaim.UserId, userOperationClaimUpdateDto.OperationClaimId, userOperationClaimUpdateDto.Id),
-            await _userOperationClaimBusinessRules.CheckIfOperationClaimExistsAsync(userOperationClaimUpdateDto.OperationClaimId),
-            await _userOperationClaimBusinessRules.CheckIfUserExistsAsync(existingUserOperationClaim.UserId)
+                await _userOperationClaimBusinessRules.CheckIfUserHasThisClaimAlreadyForUpdateAsync(existingUserOperationClaim.UserId, userOperationClaimUpdateDto.OperationClaimId, userOperationClaimUpdateDto.Id),
+                await _userOperationClaimBusinessRules.CheckIfOperationClaimExistsAsync(userOperationClaimUpdateDto.OperationClaimId),
+                await _userOperationClaimBusinessRules.CheckIfUserExistsAsync(existingUserOperationClaim.UserId)
             );
             if (result != null)
             {

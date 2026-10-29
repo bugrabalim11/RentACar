@@ -14,13 +14,13 @@ namespace RentACar.Business.Concrete
     {
         private readonly ICarRepository _carRepository;
         private readonly IMapper _mapper;
-        private readonly CarBusinessRules _rules;
+        private readonly CarBusinessRules _carBusinessRules;
 
-        public AdminCarManager(ICarRepository carRepository, IMapper mapper, CarBusinessRules rules)
+        public AdminCarManager(ICarRepository carRepository, IMapper mapper, CarBusinessRules carBusinessRules)
         {
             _carRepository = carRepository;
             _mapper = mapper;
-            _rules = rules;
+            _carBusinessRules = carBusinessRules;
         }
 
         public async Task<IDataResult<int>> AddAsync(CarCreateDto carAddDto)
@@ -28,16 +28,15 @@ namespace RentACar.Business.Concrete
             carAddDto.Plate = carAddDto.Plate.Replace(" ", "").ToUpper();
 
             IResult? result = BusinessRules.Run(
-            await _rules.CheckIfCarPlateExistsAsync(carAddDto.Plate),
-            await _rules.CheckIfBrandExistsAsync(carAddDto.BrandId),
-            await _rules.CheckIfColorExistsAsync(carAddDto.ColorId)
+                await _carBusinessRules.CheckIfCarPlateExistsAsync(carAddDto.Plate),
+                await _carBusinessRules.CheckIfBrandExistsAsync(carAddDto.BrandId),
+                await _carBusinessRules.CheckIfColorExistsAsync(carAddDto.ColorId)
             );
             if (result != null)
             {
                 throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
-            // 3. KAYIT (Her şey tamamsa yemeği pişir)
             var car = _mapper.Map<Car>(carAddDto);
             await _carRepository.AddAsync(car);
             return new SuccessDataResult<int>(car.Id, "Araç başarıyla eklendi.");
@@ -69,16 +68,15 @@ namespace RentACar.Business.Concrete
             carUpdateDto.Plate = carUpdateDto.Plate.Replace(" ", "").ToUpper();
 
             IResult? result = BusinessRules.Run(
-            await _rules.CheckIfCarPlateExitsForUpdateAsync(carUpdateDto.Plate, carUpdateDto.Id),
-            await _rules.CheckIfBrandExistsAsync(carUpdateDto.BrandId),
-            await _rules.CheckIfColorExistsAsync(carUpdateDto.ColorId)
+                await _carBusinessRules.CheckIfCarPlateExitsForUpdateAsync(carUpdateDto.Plate, carUpdateDto.Id),
+                await _carBusinessRules.CheckIfBrandExistsAsync(carUpdateDto.BrandId),
+                await _carBusinessRules.CheckIfColorExistsAsync(carUpdateDto.ColorId)
             );
             if (result != null)
             {
                 throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
-            // 4. EŞLEŞTİRME VE KAYIT
             _mapper.Map(carUpdateDto, existingCar);
             await _carRepository.UpdateAsync(existingCar);
             return new SuccessResult("Araç başarıyla güncellendi.");
