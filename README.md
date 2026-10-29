@@ -45,6 +45,30 @@ Projedeki kodların tamamı, kas hafızasını güçlendirmek ve mimari disiplin
 
 **Google Gemini** bir "Senior Mentor ve Kodlama Arkadaşı" olarak aktif danışmanlık yapmış, projenin kurumsal standartlara ulaşmasında omuz omuza bir çalışma yürütülmüştür. 
 
+## 🚀 Kurulum ve Çalıştırma (How to Run)
+
+Projeyi kendi bilgisayarınızda (Local) ayağa kaldırmak için aşağıdaki adımları izleyebilirsiniz:
+
+**1. Gereksinimler (Prerequisites):**
+* .NET SDK 
+* PostgreSQL (PgAdmin)
+
+**2. Veritabanı Tesisatını Bağlama (Connection String):**
+`RentACar.API` klasörünün içindeki `appsettings.json` dosyasını açın ve PostgreSQL bağlantı bilgilerinizi girin:
+
+```json
+"ConnectionStrings": {
+  "DefaultConnection": "Server=localhost;Port=5432;Database=RentACarDb;User Id=postgres;Password=sizin_sifreniz;"
+}
+(Not: E-posta ve Token gibi hassas veriler güvenlik amacıyla secrets.json (User Secrets) üzerinden yönetilmektedir.)
+
+**3. Şantiyeyi İnşa Etme (Migrations):
+Visual Studio'da Package Manager Console penceresini açın. Üst kısımdaki Default project menüsünden RentACar.DataAccess katmanını seçerek tabloları oluşturun:
+
+PowerShell
+Update-Database
+**4. Projeyi Başlatma:RentACar.API projesini başlangıç projesi (Startup Project) olarak ayarlayın ve F5 ile çalıştırın.
+
 ## 👨‍💻 Geliştirici
 **Buğra Balım** - *Management Information Systems (MIS) Student & Backend Developer*
 [GitHub Profilim](https://github.com/bugrabalim11)
