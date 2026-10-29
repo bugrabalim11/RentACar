@@ -1,13 +1,11 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
-using RentACar.Core.Entities.Concrete;
+using RentACar.Business.Rules;
 using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
-using RentACar.Core.Utilities.Security.Hashing;
 using RentACar.DataAccess.Abstract;
 using RentACar.Dtos.UserDtos;
-using RentACar.Dtos.UserOperationClaimDtos;
 
 namespace RentACar.Business.Concrete
 {
@@ -15,40 +13,29 @@ namespace RentACar.Business.Concrete
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
-        private readonly IUserOperationClaimService _userOperationClaimService;
-        public UserManager(IUserRepository userRepository, IMapper mapper, IUserOperationClaimService userOperationClaimService)
+        private readonly UserBusinessRules _userBusinessRules;
+
+        public UserManager(IUserRepository userRepository, IMapper mapper, UserBusinessRules userBusinessRules)
         {
             _userRepository = userRepository;
             _mapper = mapper;
-            _userOperationClaimService = userOperationClaimService;
+            _userBusinessRules = userBusinessRules;
         }
 
-        public async Task<IResult> DeleteAsync(int id)
+        public async Task<IResult> CheckIfUserExistsAsync(int userId)
+        {
+            return await _userBusinessRules.CheckIfUserExistsAsync(userId);
+        }
+
+        public async Task<IResult> DeleteMyAccountAsync(int id)
         {
             var existingUser = await _userRepository.GetAsync(x => x.Id == id);
             if (existingUser == null)
             {
                 throw new BusinessException("Silinecek kullanıcı bulunamadı.");
             }
-
-            // SENİOR NOTU: Biz sadece silme emrini (DeleteAsync) veriyoruz. 
-            // Fiziksel silme (Hard Delete) mi yoksa çöpe atma (Soft Delete) mı yapılacağına 
-            // DataAccess katmanındaki DbContext (Gümrük Memuru) otonom olarak karar verir!
             await _userRepository.DeleteAsync(existingUser);
             return new SuccessResult("Kullanıcı başarıyla silindi.");
-        }
-
-        public async Task<IResult> RestoreAsync(int id)
-        {
-            var deletedUser = await _userRepository.GetAsync(x => x.Id == id && x.IsDeleted == true, ignoreQueryFilters: true);
-            if (deletedUser == null)
-            {
-                throw new BusinessException("Geri Getirilecek kullanıcı bulunamadı.");
-            }
-            deletedUser.IsDeleted = false;
-            deletedUser.DeletedDate = null;
-            await _userRepository.UpdateAsync(deletedUser);
-            return new SuccessResult("Kullanıcı başarıyla geri getirildi.");
         }
 
         public async Task<IDataResult<List<UserResultDto>>> GetAllAsync()
@@ -57,14 +44,6 @@ namespace RentACar.Business.Concrete
             var sortedUsers = users.OrderByDescending(x => x.CreatedDate).ToList();
             var userDtos = _mapper.Map<List<UserResultDto>>(sortedUsers);
             return new SuccessDataResult<List<UserResultDto>>(userDtos, "Kullanıcılar başarıyla listelendi.");
-        }
-
-        public async Task<IDataResult<List<UserResultByAdminDto>>> GetAllForAdminAsync()
-        {
-            var users = await _userRepository.GetAllAsync(ignoreQueryFilters: true);
-            var sortedUsers = users.OrderByDescending(x => x.CreatedDate).ToList();
-            var userDtos = _mapper.Map<List<UserResultByAdminDto>>(sortedUsers);
-            return new SuccessDataResult<List<UserResultByAdminDto>>(userDtos, "Kullanıcılar başarıyla listelendi.");
         }
 
         public async Task<IDataResult<UserResultDto>> GetByIdAsync(int id)
@@ -79,35 +58,6 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<UserResultDto>(userDto, "Kullancı başarıyla getirildi.");
         }
 
-        public async Task<IDataResult<UserUpdateByAdminDto>> GetByIdForUpdateAsync(int id)
-        {
-            // 1. Kullanıcıyı bul
-            var user = await _userRepository.GetAsync(x => x.Id == id);
-            if (user == null)
-            {
-                throw new BusinessException("Kullanıcı bulunamadı.");
-            }
-
-            var userDto = _mapper.Map<UserUpdateByAdminDto>(user);
-
-            // 2. DOĞRU ŞEFİ, DOĞRU METOTLA ÇAĞIR! (GetByIdAsync DEĞİL!)
-            var claimResult = await _userOperationClaimService.GetUpdateDtoByUserIdAsync(id);
-
-            // 3. Şef başarılı döndüyse (Yani adamın gerçekten bir rütbe kartı varsa)
-            if (claimResult.Success)
-            {
-                // DİKKAT: .Data.Id DEĞİL, .Data.OperationClaimId !!!
-                userDto.OperationClaimId = claimResult.Data.OperationClaimId;
-            }
-            else
-            {
-                // Adamın rütbesi yoksa hata fırlatma, sadece null bırak. Formda "Rütbesiz" görünsün.
-                userDto.OperationClaimId = null;
-            }
-
-            return new SuccessDataResult<UserUpdateByAdminDto>(userDto, "Kullancı başarıyla getirildi.");
-        }
-
         public async Task<IDataResult<UserResultDto>> GetMyProfile(int id)
         {
             var user = await _userRepository.GetAsync(x => x.Id == id);
@@ -120,105 +70,6 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<UserResultDto>(userDto, "Profil başarıyla getirildi.");
         }
 
-        public async Task<IDataResult<int>> CreateForAdminAsync(UserCreateByAdminDto userCreateForAdminDto)
-        {
-            // 1. İş Kuralı Kontrolü: Bu e-posta daha önce alınmış mı diye güvenlik kurallarımıza soruyoruz.
-            userCreateForAdminDto.Email = userCreateForAdminDto.Email.Trim().ToLower();
-            IResult? result = BusinessRules.Run(await CheckIfEmailExistsAsync(userCreateForAdminDto.Email));
-            if (result != null)
-            {
-                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
-            }
-
-            // 2. Güvenlik (Hashing): Gelen çıplak şifreyi blenderdan geçirip (Hash ve Salt) şifreli hale getiriyoruz.
-            byte[] passwordHash, passwordSalt;
-            HashingHelper.CreatePasswordHash(userCreateForAdminDto.Password, out passwordHash, out passwordSalt);
-
-            // 3. Çevirmen (AutoMapper): Dışarıdan gelen bavulu (DTO), veritabanının anladığı gerçek Entity nesnesine dönüştürüyoruz.
-            var user = _mapper.Map<User>(userCreateForAdminDto);
-
-            // 4. Mühürleme: Şifre güvenlik verilerini ve varsayılan aktiflik durumunu nesneye manuel zerk ediyoruz.
-            user.PasswordHash = passwordHash;
-            user.PasswordSalt = passwordSalt;
-            user.IsDeleted = false;
-
-            // 5. Kimlik Basımı: Kullanıcıyı depoya kaydediyoruz. Bu işlem bittiğinde EF Core, kullanıcıya otomatik bir Id atamış (user.Id) olacak.
-            await _userRepository.AddAsync(user);
-
-            // Admin kayıt yaparken rütbeyi doldurdu mu?
-            if (userCreateForAdminDto.OperationClaimId.HasValue)
-            {
-                // 6. Yetki Kartı (Rol) Ataması: Yeni oluşan kimlik numarasıyla (user.Id),
-                // Admin'in vitrinden seçtiği rol numarasını eşleştirip yetki tablosuna kaydediyoruz.
-                UserOperationClaimCreateDto userOperationClaimCreateDto = new UserOperationClaimCreateDto
-                {
-                    UserId = user.Id,
-                    OperationClaimId = userCreateForAdminDto.OperationClaimId.Value
-                };
-                await _userOperationClaimService.AddAsync(userOperationClaimCreateDto);
-                return new SuccessDataResult<int>(userOperationClaimCreateDto.UserId, "Kullanıcı başarıyla eklendi ve rütbe ataması yapıldı.");
-            }
-
-            return new SuccessDataResult<int>(user.Id, "Kullanıcı başarıyla eklendi.");
-        }
-
-        public async Task<IResult> UpdateForAdminAsync(UserUpdateByAdminDto userUpdateForAdminDto)
-        {
-            // 1. Kimlik Kontrolü: Güncellenmek istenen adam gerçekten veritabanında (depoda) var mı?
-            userUpdateForAdminDto.Email = userUpdateForAdminDto.Email.Trim().ToLower();
-            var existingUser = await _userRepository.GetAsync(x => x.Id == userUpdateForAdminDto.Id);
-            if (existingUser == null)
-            {
-                throw new BusinessException("Güncellenecek kullanıcı bulunamadı.");
-            }
-
-            // 2. Güvenlik Duvarı: Adam e-postasını değiştiriyorsa, bu yeni e-posta sistemde başkası tarafından kullanılıyor mu?
-            IResult? result = BusinessRules.Run(await CheckIfEmailExistsForUpdateAsync(userUpdateForAdminDto.Email, userUpdateForAdminDto.Id));
-            if (result != null)
-            {
-                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
-            }
-
-            // 3. Kimlik Kartını Güncelleme: Dışarıdan gelen formdaki (DTO) yeni bilgileri, veritabanından çektiğimiz gerçek nesnenin üzerine yazıyoruz.
-            // : Map(Kaynak, Hedef)
-            _mapper.Map(userUpdateForAdminDto, existingUser);
-            await _userRepository.UpdateAsync(existingUser);
-
-            // 4. Yetki Kartı (Rütbe) Operasyonu: Adamın mevcut bir rütbe kartı var mı diye arıyoruz.
-            var claimResult = await _userOperationClaimService.GetUpdateDtoByUserIdAsync(existingUser.Id);
-            if (claimResult.Success)
-            {
-                // Durum A: Adamın zaten bir yetki kartı var.
-                if (userUpdateForAdminDto.OperationClaimId.HasValue)
-                {
-                    // Admin yeni bir rütbe seçmiş, kartı güncelliyoruz.
-                    // .Value diyerek int? içindeki kesin int değerini alıyoruz (Hatanın çözümü!)
-                    claimResult.Data.OperationClaimId = userUpdateForAdminDto.OperationClaimId.Value;
-                    await _userOperationClaimService.UpdateAsync(claimResult.Data);
-                }
-                else
-                {
-                    // Admin formda "Rütbesiz" seçeneğini seçmiş (null göndermiş). 
-                    // Adamın mevcut rütbe kartını yırtıp atıyoruz!
-                    await _userOperationClaimService.DeleteAsync(claimResult.Data.Id);
-                }
-            }
-            else
-            {
-                if (userUpdateForAdminDto.OperationClaimId.HasValue)
-                {
-                    // Durum B: Adamın önceden kartı YOKTU. Eğer Admin formdan yeni bir rütbe seçmişse, adama sıfırdan bir yetki kartı basıyoruz.
-                    UserOperationClaimCreateDto userOperationClaimCreateDto = new UserOperationClaimCreateDto
-                    {
-                        UserId = existingUser.Id,
-                        OperationClaimId = userUpdateForAdminDto.OperationClaimId.Value
-                    };
-                    await _userOperationClaimService.AddAsync(userOperationClaimCreateDto);
-                }
-            }
-            return new SuccessResult("Kullanıcı başarıyla güncellendi.");
-        }
-
         public async Task<IResult> UpdateMyProfileAsync(int userId, UserProfileUpdateDto userProfileUpdateDto)
         {
             userProfileUpdateDto.Email = userProfileUpdateDto.Email.Trim().ToLower();
@@ -228,7 +79,9 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException("Güncellenecek kullanıcı bulunamadı!");
             }
 
-            IResult? result = BusinessRules.Run(await CheckIfEmailExistsForUpdateAsync(userProfileUpdateDto.Email, existingUser.Id));
+            IResult? result = BusinessRules.Run(
+                await _userBusinessRules.CheckIfEmailExistsForUpdateAsync(userProfileUpdateDto.Email, existingUser.Id)
+            );
             if (result != null)
             {
                 throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
@@ -237,78 +90,6 @@ namespace RentACar.Business.Concrete
             _mapper.Map(userProfileUpdateDto, existingUser);
             await _userRepository.UpdateAsync(existingUser);
             return new SuccessResult("Kullanıcı başarıyla güncellendi.");
-        }
-
-
-
-        /// <summary>
-        /// Sistem içi yetkilendirme (AuthManager) süreçlerinde kullanılmak üzere, kullanıcının veritabanındaki rollerini (OperationClaims) getirir.
-        /// Dikkat: Bu metot dışarıya (API'ye) açık değildir, DTO yerine çıplak Entity ile çalışır.
-        /// </summary>
-
-        public async Task<IDataResult<List<OperationClaim>>> GetClaimsAsync(User user)
-        {
-            // Depocunun o özel GetClaims metodunu çağırıp adamın rollerini alıyoruz.
-            var claims = await _userRepository.GetClaimsAsync(user);
-            return new SuccessDataResult<List<OperationClaim>>(claims, "Kullancı yetkileri başarıyla getirildi.");
-        }
-
-
-        public async Task<IDataResult<int>> AddAsync(User user)
-        {
-            // Senior Vizyonu: Burada neden Validation (Kapı Memuru) veya AutoMapper yok?
-            // Çünkü bu metodu sadece AuthManager çağıracak. AuthManager zaten kapıda şifre kurallarına baktı, 
-            // DTO'yu User'a çevirdi, şifreyi Hash'ledi. Burada tekrar kontrol yaparsak kodu tekrar etmiş (Spagetti) oluruz.
-            // O yüzden direkt ameleyle (Repository) depoya yolluyoruz!
-
-            await _userRepository.AddAsync(user);
-            return new SuccessDataResult<int>(user.Id, "Kullancı güvenli bir şekilde sisteme eklendi.");
-        }
-
-        public async Task<IResult> CheckIfEmailExistsAsync(string email)
-        {
-            bool existingEmail = await _userRepository.AnyAsync(x => x.Email == email, ignoreQueryFilters: true);
-            if (existingEmail)
-            {
-                return new ErrorResult("Bu e-posta adresi zaten kayıtlı! Lütfen başka deneyiniz.");
-            }
-            return new SuccessResult();
-        }
-
-        private async Task<IResult> CheckIfEmailExistsForUpdateAsync(string email, int currentUserId)
-        {
-            bool isExist = await _userRepository.AnyAsync(x => x.Email == email && x.Id != currentUserId, ignoreQueryFilters: true);
-            if (isExist)
-            {
-                return new ErrorResult("Bu e-posta adresi zaten kayıtlı! Lütfen başka deneyiniz.");
-            }
-            return new SuccessResult();
-        }
-
-        public async Task<IDataResult<User>> GetByMailAsync(string email)
-        {
-            var user = await _userRepository.GetAsync(u => u.Email == email, ignoreQueryFilters: true);
-            if (user == null)
-            {
-                return new ErrorDataResult<User>("Bu e-posta adresine sahip kullanıcı bulunamadı.");
-            }
-            return new SuccessDataResult<User>(user);
-        }
-
-        public async Task<IDataResult<User>> GetByIdForAuthAsync(int id)
-        {
-            var user = await _userRepository.GetAsync(u => u.Id == id);
-            if (user == null)
-            {
-                return new ErrorDataResult<User>("Bu ID'ye sahip kullanıcı bulunamadı.");
-            }
-            return new SuccessDataResult<User>(user);
-        }
-
-        public async Task<IResult> UpdateForAuthAsync(User user)
-        {
-            await _userRepository.UpdateAsync(user);
-            return new SuccessResult("Şifre başarıyla güncellendi.");
         }
     }
 }

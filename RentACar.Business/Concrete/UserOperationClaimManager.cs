@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
-using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Exceptions;
-using RentACar.Core.Utilities.Business;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 using RentACar.Dtos.UserOperationClaimDtos;
@@ -13,47 +11,12 @@ namespace RentACar.Business.Concrete
     {
         private readonly IUserOperationClaimRepository _userOperationClaimRepository;
         private readonly IMapper _mapper;
-        private readonly IReferenceCheckService _referenceCheckService;
 
-        public UserOperationClaimManager(IUserOperationClaimRepository userOperationClaimRepository, IMapper mapper, IReferenceCheckService referenceCheckService)
+        public UserOperationClaimManager(IUserOperationClaimRepository userOperationClaimRepository, IMapper mapper)
         {
             _userOperationClaimRepository = userOperationClaimRepository;
             _mapper = mapper;
-            _referenceCheckService = referenceCheckService;
-        }
-
-        public async Task<IDataResult<int>> AddAsync(UserOperationClaimCreateDto userOperationClaimAddDto)
-        {
-            // İŞ KURALI(BUSINESS RULE) KONTROLÜ - YENİ EKLENEN KISIM
-            IResult? result = BusinessRules.Run(
-            await CheckIfUserHasThisClaimAlreadyAsync(userOperationClaimAddDto.UserId, userOperationClaimAddDto.OperationClaimId),
-            await _referenceCheckService.CheckIfOperationClaimExistsAsync(userOperationClaimAddDto.OperationClaimId),
-            await _referenceCheckService.CheckIfUserExistsAsync(userOperationClaimAddDto.UserId)
-            );
-            if (result != null)
-            {
-                throw new BusinessException(result.Message ?? "İş kurallarında bir hata oluştu!");
-            }
-
-            var userOperationClaim = _mapper.Map<UserOperationClaim>(userOperationClaimAddDto);
-            await _userOperationClaimRepository.AddAsync(userOperationClaim);
-            return new SuccessDataResult<int>(userOperationClaim.Id, "Kullanıcıya yetki başarıyla atandı.");
-        }
-
-        public async Task<IResult> DeleteAsync(int id)
-        {
-            var existingUserOperationClaim = await _userOperationClaimRepository.GetAsync(x => x.Id == id);
-            if (existingUserOperationClaim == null)
-            {
-                throw new BusinessException("Silinmek istenen yetki ataması bulunamadı.");
-            }
-
-            // SENİOR NOTU: Biz sadece silme emrini (DeleteAsync) veriyoruz. 
-            // Fiziksel silme (Hard Delete) mi yoksa çöpe atma (Soft Delete) mı yapılacağına 
-            // DataAccess katmanındaki DbContext (Gümrük Memuru) otonom olarak karar verir!
-            await _userOperationClaimRepository.DeleteAsync(existingUserOperationClaim);
-            return new SuccessResult("Kullanıcının yetkisi başarıyla kaldırıldı.");
-        }
+        }       
 
         public async Task<IDataResult<List<UserOperationClaimResultDto>>> GetAllAsync()
         {
@@ -86,74 +49,17 @@ namespace RentACar.Business.Concrete
 
         public async Task<IDataResult<List<UserOperationClaimDetailDto>>> GetClaimDetailsAsync()
         {
-            // 1. Telsizle depocuya (Repository) seslen ve özel tabağı (JOIN sorgusunu) iste
             var claimDetails = await _userOperationClaimRepository.GetClaimDetailsAsync();
-
-            // 2. Gelen bu özel tabağı, şirketimizin resmi "Başarılı Sonuç" kutusuna koy ve mesajını ekle
             return new SuccessDataResult<List<UserOperationClaimDetailDto>>(claimDetails, "Kullanıcı yetkileri detaylı olarak listelendi.");
-        }
-
-        public async Task<IResult> UpdateAsync(UserOperationClaimUpdateDto userOperationClaimUpdateDto)
-        {
-            var existingUserOperationClaim = await _userOperationClaimRepository.GetAsync(x => x.Id == userOperationClaimUpdateDto.Id);
-            if (existingUserOperationClaim == null)
-            {
-                throw new BusinessException("Güncellenmek istenen yetki ataması bulunamadı.");
-            }
-
-            IResult? result = BusinessRules.Run(
-            await CheckIfUserHasThisClaimAlreadyForUpdateAsync(existingUserOperationClaim.UserId, userOperationClaimUpdateDto.OperationClaimId, userOperationClaimUpdateDto.Id),
-            await _referenceCheckService.CheckIfOperationClaimExistsAsync(userOperationClaimUpdateDto.OperationClaimId),
-            await _referenceCheckService.CheckIfUserExistsAsync(existingUserOperationClaim.UserId)
-            );
-            if (result != null)
-            {
-                throw new BusinessException(result.Message ?? "İş kurallarında bir hata oluştu!");
-            }
-
-            _mapper.Map(userOperationClaimUpdateDto, existingUserOperationClaim);
-            await _userOperationClaimRepository.UpdateAsync(existingUserOperationClaim);
-            return new SuccessResult("Kullanıcı yetkisi başarıyla güncellendi.");
-        }
-
-        private async Task<IResult> CheckIfUserHasThisClaimAlreadyAsync(int userId, int operationClaimId)
-        {
-            // Telsizle depoya sor: "Böyle bir kayıt var mı? (Evet/Hayır)"
-            // AnyAsync sana true ya da false dönecek.
-            var result = await _userOperationClaimRepository.AnyAsync(uoc => uoc.UserId == userId && uoc.OperationClaimId == operationClaimId);
-
-            // result zaten true veya false olduğu için direkt if (result) yazabiliriz.
-            // "Eğer result true ise (yani kayıt VARSA)" demek ki adam zaten bu rütbeye sahip!
-            if (result)
-            {
-                return new ErrorResult("Kullanıcı zaten bu yetkiye sahip.");
-            }
-            return new SuccessResult();
-        }
-
-
-
-        // Bu adama ait ve bu role sahip, AMA Id'si benim güncellediğim kaydın Id'sinden farklı (!=) başka bir kayıt var mı?
-        private async Task<IResult> CheckIfUserHasThisClaimAlreadyForUpdateAsync(int userId, int operationClaimId, int currentId)
-        {
-            bool isExist = await _userOperationClaimRepository.AnyAsync(x => x.UserId == userId && x.OperationClaimId == operationClaimId && x.Id != currentId);
-            if (isExist)
-            {
-                return new ErrorResult("Bu yetki zaten kullanıcıda mevcut!");
-            }
-            return new SuccessResult();
         }
 
         public async Task<IDataResult<UserOperationClaimUpdateDto>> GetUpdateDtoByUserIdAsync(int userId)
         {
-            // 1. Depodan çıplak ürünü al (Sen bunu zaten yazdın, harika!)
             var existingClaim = await _userOperationClaimRepository.GetAsync(x => x.UserId == userId);
             if (existingClaim == null)
             {
                 return new ErrorDataResult<UserOperationClaimUpdateDto>("Kullanıcıya ait rütbe bulunamadı!");
             }
-
-            // 2. Çıplak ürünü, müşterinin istediği kutuya (DTO'ya) çevir!
             var claimDto = _mapper.Map<UserOperationClaimUpdateDto>(existingClaim);
             return new SuccessDataResult<UserOperationClaimUpdateDto>(claimDto, "Yetki formu getirildi.");
         }

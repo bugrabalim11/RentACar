@@ -9,20 +9,39 @@ namespace RentACar.Business.Rules
         private readonly ICarService _carService;
         private readonly ICustomerService _customerService;
         private readonly IFindexScoreService _findexScoreService;
+        private readonly ICarStatusService _carStatusService;
         private readonly IRentalRepository _rentalRepository;
+        private readonly IAdminCustomerService _adminCustomerService;
 
-        public RentalBusinessRules(ICarService carService, ICustomerService customerService, IFindexScoreService findexScoreService, IRentalRepository rentalRepository)
+        public RentalBusinessRules(ICarService carService, ICustomerService customerService, IFindexScoreService findexScoreService, ICarStatusService carStatusService, IRentalRepository rentalRepository,IAdminCustomerService adminCustomerService)
         {
             _carService = carService;
             _customerService = customerService;
             _findexScoreService = findexScoreService;
+            _carStatusService = carStatusService;
             _rentalRepository = rentalRepository;
+            _adminCustomerService = adminCustomerService;
+        }
+
+        public async Task<IResult> CheckIfCustomerExistsAsync(int customerId)
+        {
+            return await _customerService.CheckIfCustomerExistsByIdAsync(customerId);
+        }
+
+        public async Task<IResult> CheckIfCarExistsAsync(int carId)
+        {
+            return await _carService.CheckIfCarExistsAsync(carId);
+        }
+
+        public async Task<IResult> CheckIfCarIsInMaintenanceAsync(int carId, DateTime startDate, DateTime? endDate)
+        {
+            return await _carStatusService.CheckIfCarIsInMaintenanceAsync(carId, startDate, endDate);
         }
 
         public async Task<IResult> CheckIfCustomerDrivingExperienceIsSufficient(int carId, int customerId)
         {
             var carResult = await _carService.GetByIdAsync(carId);
-            var customerResult = await _customerService.GetByIdAsync(customerId);
+            var customerResult = await _adminCustomerService.GetByIdAsync(customerId);
 
             int customerExperience = DateTime.UtcNow.Year - customerResult.Data.DrivingLicenseYear;
             if (customerExperience < carResult.Data.MinDrivingExperience)
@@ -35,7 +54,7 @@ namespace RentACar.Business.Rules
         public async Task<IResult> CheckIfCustomerFindexScoreIsSufficient(int carId, int customerId)
         {
             var carResult = await _carService.GetByIdAsync(carId);
-            var customerResult = await _customerService.GetByIdAsync(customerId);
+            var customerResult = await _adminCustomerService.GetByIdAsync(customerId);
 
             int findexResult = _findexScoreService.GetScoreByCustomerId(customerId);
             if (findexResult < carResult.Data.MinFindexScore)

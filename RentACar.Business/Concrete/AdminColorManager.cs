@@ -28,7 +28,7 @@ namespace RentACar.Business.Concrete
             colorAddDto.Name = colorAddDto.Name.Trim();
             IResult? result = BusinessRules.Run(
                 await _colorBusinessRules.CheckIfColorNameExistsAsync(colorAddDto.Name)
-                );
+            );
             if (result != null)
             {
                 throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
@@ -49,7 +49,7 @@ namespace RentACar.Business.Concrete
 
             IResult? result = BusinessRules.Run(
                 await _colorBusinessRules.CheckIfColorIsUsedByAnyCarAsync(id)
-                );
+            );
             if (result != null)
             {
                 throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen hata oluştu!");
@@ -68,7 +68,7 @@ namespace RentACar.Business.Concrete
 
             IResult? result = BusinessRules.Run(
                 await _colorBusinessRules.CheckIfColorNameExistsForUpdateAsync(colorUpdateDto.Name, colorUpdateDto.Id)
-                );
+            );
             if (result != null)
             {
                 throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");

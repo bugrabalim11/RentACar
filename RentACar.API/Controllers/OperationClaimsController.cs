@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
-using RentACar.Core.Exceptions;
-using RentACar.Dtos.OperationClaimDtos;
 
 namespace RentACar.API.Controllers
 {
@@ -29,32 +27,6 @@ namespace RentACar.API.Controllers
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await _operationClaimService.GetByIdAsync(id);
-            return Ok(result);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> CreateAsync(OperationClaimCreateDto operationClaimAddDto)
-        {
-            var result = await _operationClaimService.AddAsync(operationClaimAddDto);
-            return Ok(result);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAsync(int id, OperationClaimUpdateDto operationClaimUpdateDto)
-        {
-            if (operationClaimUpdateDto.Id != id)
-            {
-                throw new BusinessException("Güvenlik İhlali: URL'deki ID ile gönderilen yetki ID'si eşleşmiyor!");
-            }
-
-            var result = await _operationClaimService.UpdateAsync(operationClaimUpdateDto);
-            return Ok(result);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(int id)
-        {
-            var result = await _operationClaimService.DeleteAsync(id);
             return Ok(result);
         }
     }

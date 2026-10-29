@@ -27,7 +27,8 @@ namespace RentACar.Business.Concrete
         {
             brandAddDto.Name = brandAddDto.Name.Trim();
             IResult? result = BusinessRules.Run(
-                await _brandBusinessRules.CheckIfBrandNameExistAsync(brandAddDto.Name));
+                await _brandBusinessRules.CheckIfBrandNameExistAsync(brandAddDto.Name)
+            );
             if (result != null)
             {
                 throw new BusinessException(result.Message ?? "Bu marka zaten sistemde kayıtlı! Lütfen başka marka deneyiniz.");
@@ -48,7 +49,7 @@ namespace RentACar.Business.Concrete
 
             IResult? result = BusinessRules.Run(
                 await _brandBusinessRules.CheckIfBrandIsUsedByAnyCarAsync(id)
-                );
+            );
             if (result != null)
             {
                 throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
