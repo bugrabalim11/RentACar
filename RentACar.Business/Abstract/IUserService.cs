@@ -10,5 +10,6 @@ namespace RentACar.Business.Abstract
         Task<IDataResult<UserResultDto>> GetMyProfile(int id);
         Task<IResult> UpdateMyProfileAsync(int userId, UserProfileUpdateDto userProfileUpdateDto);
         Task<IResult> DeleteMyAccountAsync(int id);
+        Task<IResult> CheckIfUserExistsAsync(int userId);
     }
 }

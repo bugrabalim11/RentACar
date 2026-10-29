@@ -1,4 +1,5 @@
-﻿using RentACar.Core.Utilities.Results;
+﻿using RentACar.Business.Abstract;
+using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 
 namespace RentACar.Business.Rules
@@ -7,13 +8,13 @@ namespace RentACar.Business.Rules
     {
         private readonly IUserOperationClaimRepository _userOperationClaimRepository;
         private readonly IOperationClaimRepository _operationClaimRepository;
-        private readonly IUserRepository _userRepository;
+        private readonly IUserService _userService;
 
-        public UserOperationClaimBusinessRules(IUserOperationClaimRepository userOperationClaimRepository, IOperationClaimRepository operationClaimRepository, IUserRepository userRepository)
+        public UserOperationClaimBusinessRules(IUserOperationClaimRepository userOperationClaimRepository, IOperationClaimRepository operationClaimRepository, IUserService userService)
         {
             _userOperationClaimRepository = userOperationClaimRepository;
             _operationClaimRepository = operationClaimRepository;
-            _userRepository = userRepository;
+            _userService = userService;
         }
 
         public async Task<IResult> CheckIfUserHasThisClaimAlreadyAsync(int userId, int operationClaimId)
@@ -48,12 +49,7 @@ namespace RentACar.Business.Rules
 
         public async Task<IResult> CheckIfUserExistsAsync(int userId)
         {
-            bool existingUser = await _userRepository.AnyAsync(x => x.Id == userId);
-            if (existingUser)
-            {
-                return new SuccessResult();
-            }
-            return new ErrorResult("Bu kullanıcı sistemde bulunamadı!");
+            return await _userService.CheckIfUserExistsAsync(userId);
         }
     }
 }

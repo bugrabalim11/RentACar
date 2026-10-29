@@ -31,5 +31,15 @@ namespace RentACar.Business.Rules
             }
             return new SuccessResult();
         }
+
+        public async Task<IResult> CheckIfUserExistsAsync(int userId)
+        {
+            bool existingUser = await _userRepository.AnyAsync(x => x.Id == userId);
+            if (existingUser)
+            {
+                return new SuccessResult();
+            }
+            return new ErrorResult("Bu kullanıcı sistemde bulunamadı!");
+        }
     }
 }

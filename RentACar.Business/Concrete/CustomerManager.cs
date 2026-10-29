@@ -14,31 +14,13 @@ namespace RentACar.Business.Concrete
     {
         private readonly ICustomerRepository _customerRepository;
         private readonly IMapper _mapper;
-        private readonly UserOperationClaimBusinessRules _userOperationClaimBusinessRules;
+        private readonly CustomerBusinessRules _customerBusinessRules;
 
-        public CustomerManager(ICustomerRepository customerRepository, IMapper mapper, UserOperationClaimBusinessRules userOperationClaimBusinessRules)
+        public CustomerManager(ICustomerRepository customerRepository, IMapper mapper, CustomerBusinessRules customerBusinessRules)
         {
             _customerRepository = customerRepository;
             _mapper = mapper;
-            _userOperationClaimBusinessRules = userOperationClaimBusinessRules;
-        }
-        public async Task<IDataResult<int>> AddForAdminAsync(CustomerCreateByAdminDto customerAddByAdminDto)
-        {
-            customerAddByAdminDto.NationalIdentity = customerAddByAdminDto.NationalIdentity.Trim();
-
-            IResult? result = BusinessRules.Run(
-            await _userOperationClaimBusinessRules.CheckIfUserExistsAsync(customerAddByAdminDto.UserId),
-            await CheckIfUserAlreadyHasCustomerProfileAsync(customerAddByAdminDto.UserId),
-            await CheckIfNationalIdentityExists(customerAddByAdminDto.NationalIdentity)
-            );
-            if (result != null)
-            {
-                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
-            }
-
-            var customer = _mapper.Map<Customer>(customerAddByAdminDto);
-            await _customerRepository.AddAsync(customer);
-            return new SuccessDataResult<int>(customer.Id, "Müşteri profili başarıyla oluşturuldu.");
+            _customerBusinessRules = customerBusinessRules;
         }
 
         public async Task<IDataResult<int>> AddAsync(int userId, CustomerCreateDto customerAddDto)
@@ -46,11 +28,10 @@ namespace RentACar.Business.Concrete
             customerAddDto.NationalIdentity = customerAddDto.NationalIdentity.Trim();
 
             IResult? result = BusinessRules.Run(
-            await _userOperationClaimBusinessRules.CheckIfUserExistsAsync(userId),
-            await CheckIfUserAlreadyHasCustomerProfileAsync(userId),
-            await CheckIfNationalIdentityExists(customerAddDto.NationalIdentity)
+                await _customerBusinessRules.CheckIfUserExistsAsync(userId),
+                await _customerBusinessRules.CheckIfUserAlreadyHasCustomerProfileAsync(userId),
+                await _customerBusinessRules.CheckIfNationalIdentityExists(customerAddDto.NationalIdentity)
             );
-
             if (result != null)
             {
                 throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
@@ -60,38 +41,6 @@ namespace RentACar.Business.Concrete
             customer.UserId = userId;
             await _customerRepository.AddAsync(customer);
             return new SuccessDataResult<int>(customer.Id, "Müşteri başarıyla eklendi.");
-        }
-
-        public async Task<IResult> DeleteAsync(int id)
-        {
-            var existingCustomer = await _customerRepository.GetAsync(x => x.Id == id);
-            if (existingCustomer == null)
-            {
-                throw new BusinessException("Silinecek müşteri bulunamadı.");
-            }
-
-            await _customerRepository.DeleteAsync(existingCustomer);
-            return new SuccessResult("Müşteri başarıyla silindi.");
-        }
-
-        public async Task<IDataResult<List<CustomerResultDto>>> GetAllAsync()
-        {
-            var customers = await _customerRepository.GetCustomersWithDetailsAsync();
-            var sortedCustomers = customers.OrderByDescending(x => x.CreatedDate).ToList();
-            var customerDtos = _mapper.Map<List<CustomerResultDto>>(sortedCustomers);
-            return new SuccessDataResult<List<CustomerResultDto>>(customerDtos, "Müşteriler başarıyla listelendi.");
-        }
-
-        public async Task<IDataResult<CustomerDetailDto>> GetByIdAsync(int id)
-        {
-            var customer = await _customerRepository.GetCustomerWithDetailsAsync(id);
-            if (customer == null)
-            {
-                throw new BusinessException("Müşteri bulunamadı.");
-            }
-
-            var customerDto = _mapper.Map<CustomerDetailDto>(customer);
-            return new SuccessDataResult<CustomerDetailDto>(customerDto, "Müşteri başarıyla getirildi.");
         }
 
         public async Task<IDataResult<CustomerDetailDto>> GetMyCustomerProfileAsync(int userId)
@@ -106,27 +55,6 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<CustomerDetailDto>(customerDto, "Müşteri bilgileri başarıyla getirildi.");
         }
 
-        public async Task<IResult> UpdateAsync(CustomerUpdateByAdminDto customerUpdateDto)
-        {
-            customerUpdateDto.NationalIdentity = customerUpdateDto.NationalIdentity.Trim();
-            var existingCustomer = await _customerRepository.GetAsync(x => x.Id == customerUpdateDto.Id);
-            if (existingCustomer == null)
-            {
-                throw new BusinessException("Güncellenecek müşteri bulunamadı.");
-            }
-
-            IResult? result = BusinessRules.Run(await CheckIfNationalIdentityExistsForUpdate(customerUpdateDto.NationalIdentity, customerUpdateDto.Id));
-            if (result != null)
-            {
-                throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
-            }
-
-            // Doğru kullanım: Map(Kaynak, Hedef)
-            _mapper.Map(customerUpdateDto, existingCustomer);
-            await _customerRepository.UpdateAsync(existingCustomer);
-            return new SuccessResult("Müşteri başarıyla güncellendi.");
-        }
-
         public async Task<IResult> UpdateMyProfileAsync(int userId, CustomerUpdateMyProfileDto customerUpdateMyProfileDto)
         {
             customerUpdateMyProfileDto.NationalIdentity = customerUpdateMyProfileDto.NationalIdentity.Trim();
@@ -136,7 +64,9 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException("Güncellenecek müşteri bulunamadı.");
             }
 
-            IResult? result = BusinessRules.Run(await CheckIfNationalIdentityExistsForUpdate(customerUpdateMyProfileDto.NationalIdentity, existingCustomer.Id));
+            IResult? result = BusinessRules.Run(
+                await _customerBusinessRules.CheckIfNationalIdentityExistsForUpdate(customerUpdateMyProfileDto.NationalIdentity, existingCustomer.Id)
+            );
             if (result != null)
             {
                 throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
@@ -147,44 +77,9 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Müşteri başarıyla güncellendi.");
         }
 
-        private async Task<IResult> CheckIfNationalIdentityExistsForUpdate(string nationalId, int currentCustomerId)
-        {
-            bool existingNationalId = await _customerRepository.AnyAsync(x => x.NationalIdentity == nationalId && x.Id != currentCustomerId);
-            if (existingNationalId)
-            {
-                return new ErrorResult("Bu kimlik numarası zaten kayıtlı!");
-            }
-            return new SuccessResult();
-        }
-
-        private async Task<IResult> CheckIfNationalIdentityExists(string nationalId)
-        {
-            bool existingNationalId = await _customerRepository.AnyAsync(x => x.NationalIdentity == nationalId);
-            if (existingNationalId)
-            {
-                return new ErrorResult("Bu kimlik numarası zaten kayıtlı! Lütfen tekrar deneyiniz.");
-            }
-            return new SuccessResult();
-        }
-
-        private async Task<IResult> CheckIfUserAlreadyHasCustomerProfileAsync(int userId)
-        {
-            bool customerIsExist = await _customerRepository.AnyAsync(x => x.UserId == userId);
-            if (customerIsExist)
-            {
-                return new ErrorResult("Bu kullanıcıya ait bir müşteri profili sistemde zaten mevcut!");
-            }
-            return new SuccessResult();
-        }
-
         public async Task<IResult> CheckIfCustomerExistsByIdAsync(int customerId)
         {
-            bool customerIsExist = await _customerRepository.AnyAsync(x => x.Id == customerId);
-            if (!customerIsExist)
-            {
-                return new ErrorResult("Sistemde böyle bir müşteri yok devam etmek için lütfen oluşturun!");
-            }
-            return new SuccessResult();
+            return await _customerBusinessRules.CheckIfCustomerExistsByIdAsync(customerId);
         }
     }
 

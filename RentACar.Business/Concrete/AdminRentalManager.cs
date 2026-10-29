@@ -20,7 +20,7 @@ namespace RentACar.Business.Concrete
     {
         private readonly IRentalRepository _rentalRepository;
         private readonly IMapper _mapper;
-        private readonly ICustomerService _customerService;
+        private readonly IAdminCustomerService _adminCustomerService;
         private readonly ICarService _carService;
         private readonly ICarStatusService _carStatusService;
         private readonly IPosService _posService;
@@ -28,11 +28,11 @@ namespace RentACar.Business.Concrete
         private readonly IMailService _mailService;
         private readonly RentalBusinessRules _rentalBusinessRules;
 
-        public AdminRentalManager(IRentalRepository rentalRepository, IMapper mapper, ICustomerService customerService, ICarService carService, ICarStatusService carStatusService, IPosService posService, IPaymentService paymentService, IMailService mailService, RentalBusinessRules rentalBusinessRules)
+        public AdminRentalManager(IRentalRepository rentalRepository, IMapper mapper, IAdminCustomerService adminCustomerService, ICarService carService, ICarStatusService carStatusService, IPosService posService, IPaymentService paymentService, IMailService mailService, RentalBusinessRules rentalBusinessRules)
         {
             _rentalRepository = rentalRepository;
             _mapper = mapper;
-            _customerService = customerService;
+            _adminCustomerService = adminCustomerService;
             _carService = carService;
             _carStatusService = carStatusService;
             _posService = posService;
@@ -120,7 +120,7 @@ namespace RentACar.Business.Concrete
 
             // İş kurallarında kullanıcı var mı dite kontrol etmiştik bir daha etmemize gerek yok.
             // E-posta ve isim soyisim bilgileri için bu veriyi çektik
-            var customerResult = await _customerService.GetByIdAsync(rentalAddByAdminDto.CustomerId);
+            var customerResult = await _adminCustomerService.GetByIdAsync(rentalAddByAdminDto.CustomerId);
 
             // Sadece KUTULARI fırlat, asistan kendi içinde zımbalasın!
             await SendRentalSuccessEmailAsync(
@@ -225,7 +225,7 @@ namespace RentACar.Business.Concrete
                 existingRental.TotalAmount = newTotalAmount;
             }
 
-            var customerResult = await _customerService.GetByIdAsync(existingRental.CustomerId);
+            var customerResult = await _adminCustomerService.GetByIdAsync(existingRental.CustomerId);
 
             await SendRentalUpdateEmailAsync(
             customerResult.Data,

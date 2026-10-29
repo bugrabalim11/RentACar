@@ -22,6 +22,11 @@ namespace RentACar.Business.Concrete
             _userBusinessRules = userBusinessRules;
         }
 
+        public async Task<IResult> CheckIfUserExistsAsync(int userId)
+        {
+            return await _userBusinessRules.CheckIfUserExistsAsync(userId);
+        }
+
         public async Task<IResult> DeleteMyAccountAsync(int id)
         {
             var existingUser = await _userRepository.GetAsync(x => x.Id == id);
