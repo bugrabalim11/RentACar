@@ -22,9 +22,8 @@ namespace RentACar.Business.Concrete
         private readonly IAdminUserOperationClaimService _adminUserOperationClaimService;
         private readonly IOperationClaimService _operationClaimService;
         private readonly AuthBusinessRules _authBusinessRules;
-        private readonly UserBusinessRules _userBusinessRules;
 
-        public AuthManager(IUserAuthService userAuthService, ITokenHelper tokenHelper, IMapper mapper, IAdminUserOperationClaimService adminUserOperationClaimService, IOperationClaimService operationClaimService, AuthBusinessRules authBusinessRules, UserBusinessRules userBusinessRules)
+        public AuthManager(IUserAuthService userAuthService, ITokenHelper tokenHelper, IMapper mapper, IAdminUserOperationClaimService adminUserOperationClaimService, IOperationClaimService operationClaimService, AuthBusinessRules authBusinessRules)
         {
             _userAuthService = userAuthService;
             _tokenHelper = tokenHelper;
@@ -32,25 +31,23 @@ namespace RentACar.Business.Concrete
             _adminUserOperationClaimService = adminUserOperationClaimService;
             _operationClaimService = operationClaimService;
             _authBusinessRules = authBusinessRules;
-            _userBusinessRules = userBusinessRules;
         }
 
         public async Task<IResult> ChangePassword(int userId, UserChangePasswordDto userChangePasswordDto)
         {
-            // 1. KİMLİK TESPİTİ: Adamı veritabanından bul.
             var user = await _userAuthService.GetByIdForAuthAsync(userId);
             if (!user.Success || user.Data == null)
             {
                 throw new BusinessException("Kullanıcı bulunamadı.");
             }
 
-            // 2. GÜVENLİK DUVARI: Eski şifre doğru mu? (Blender kontrolü)
+            // GÜVENLİK DUVARI: Eski şifre doğru mu? (Blender kontrolü)
             if (!HashingHelper.VerifyPasswordHash(userChangePasswordDto.OldPassword, user.Data.PasswordHash, user.Data.PasswordSalt))
             {
                 throw new BusinessException("Eski şifreniz hatalı!");
             }
 
-            // 3. YENİ MÜHÜR: Yeni şifreyi püre yap ve kavanozları (Hash/Salt) güncelle.
+            // YENİ MÜHÜR: Yeni şifreyi püre yap ve kavanozları (Hash/Salt) güncelle.
             byte[] passwordHash, passwordSalt;
             HashingHelper.CreatePasswordHash(userChangePasswordDto.NewPassword, out passwordHash, out passwordSalt);
             user.Data.PasswordHash = passwordHash;
@@ -63,10 +60,9 @@ namespace RentACar.Business.Concrete
 
         public async Task<IDataResult<AccessToken>> CreateAccessToken(User user)
         {
-            // 1. YETKİ KONTROLÜ: Adamın rollerini (VIP listesini) getir.
             var claimsResult = await _userAuthService.GetClaimsAsync(user);
 
-            // 2. MATBAA: VIP listesini (claimsResult.Data) matbaaya ver ve Token'ı (Bileti) üret.
+            // MATBAA: VIP listesini (claimsResult.Data) matbaaya ver ve Token'ı (Bileti) üret.
             var accessToken = _tokenHelper.CreateToken(user, claimsResult.Data);
 
             return new SuccessDataResult<AccessToken>(accessToken, "Erişim bileti (Token) başarıyla oluşturuldu.");
@@ -74,62 +70,50 @@ namespace RentACar.Business.Concrete
 
         public async Task<IDataResult<User>> Login(UserForLoginDto userForLoginDto)
         {
-            // 1. E-POSTA KONTROLÜ: Kullanıcı var mı?
-            // Hacker'ı kör etmek için bulunamama durumunda da "E-posta veya şifre hatalı" diyoruz.
             var userToCheck = await _userAuthService.GetByMailAsync(userForLoginDto.Email);
             if (!userToCheck.Success || userToCheck.Data == null)
             {
                 throw new BusinessException("E-posta veya şifre hatalı!");
             }
-
-            // 2. AKTİFLİK KONTROLÜ: İş kuralları motoru (Asistan) raporu inceler.
             IResult? result = BusinessRules.Run(
                 _authBusinessRules.CheckIfUserActive(userToCheck.Data.IsDeleted)
             );
             if (result != null)
             {
-                // Asistan hata bulursa kırmızı alarma bas!
                 throw new BusinessException(result.Message ?? "Kullanıcı pasif durumda.");
             }
 
-            // 3. ŞİFRE KONTROLÜ: Blender makinemizi tersine çalıştırıyoruz.
+            // ŞİFRE KONTROLÜ: Blender makinemizi tersine çalıştırıyoruz.
             if (!HashingHelper.VerifyPasswordHash(userForLoginDto.Password, userToCheck.Data.PasswordHash, userToCheck.Data.PasswordSalt))
             {
                 throw new BusinessException("E-posta veya şifre hatalı!");
             }
-
-            // 4. ZAFER: Bütün güvenlik duvarları aşıldı, mutlu son.
             return new SuccessDataResult<User>(userToCheck.Data, "Sisteme başarıyla giriş yapıldı.");
         }
 
         [TransactionScopeAspect]
         public async Task<IDataResult<User>> Register(UserForRegisterDto userForRegisterDto, string password)
         {
-            // 1. E-POSTA TEMİZLİĞİ VE KONTROLÜ
             userForRegisterDto.Email = userForRegisterDto.Email.Trim().ToLower();
-
             IResult? result = BusinessRules.Run(
-                await _userBusinessRules.CheckIfEmailExistsAsync(userForRegisterDto.Email)
+                await _authBusinessRules.CheckIfEmailExistsAsync(userForRegisterDto.Email)
             );
             if (result != null)
             {
-                // Asistan (result) hata raporu getirirse kırmızı alarma bas (Middleware tetiklensin).
                 throw new BusinessException(result.Message ?? "Bu kullancı kayıtlı! Lütfen başka deneyiniz.");
             }
 
-            // 2. BLENDER MAKİNESİ: Şifreyi püre yap (out ile kavanozları dolduruyoruz).
+            // BLENDER MAKİNESİ: Şifreyi püre yap (out ile kavanozları dolduruyoruz).
             byte[] passwordHash, passwordSalt;
             HashingHelper.CreatePasswordHash(password, out passwordHash, out passwordSalt);
 
-            // 3. ÇEVİRMEN: DTO formunu gerçek bir veritabanı varlığına (User) dönüştür.
             var user = _mapper.Map<User>(userForRegisterDto);
 
-            // 4. MÜHÜRLEME: Güvenlik bilgilerini manuel olarak nesneye zerk et.
+            // MÜHÜRLEME: Güvenlik bilgilerini manuel olarak nesneye zerk et.
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
             user.IsDeleted = false;  // Sisteme ilk kayıt olanı aktif yapıyoruz
 
-            // 5. KAYIT: Yeni kullanıcıyı veritabanına ekle.
             await _userAuthService.AddAsync(user);
 
             var defaultRole = await _operationClaimService.GetIdByNameAsync("user");

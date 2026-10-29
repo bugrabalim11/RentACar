@@ -1,4 +1,5 @@
 ﻿using RentACar.Business.Abstract;
+using RentACar.Business.Rules;
 using RentACar.Core.Entities.Concrete;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
@@ -8,10 +9,12 @@ namespace RentACar.Business.Concrete
     public class UserAuthManager : IUserAuthService
     {
         private readonly IUserRepository _userRepository;
+        private readonly UserBusinessRules _userBusinessRules;
 
-        public UserAuthManager(IUserRepository userRepository)
+        public UserAuthManager(IUserRepository userRepository, UserBusinessRules userBusinessRules)
         {
             _userRepository = userRepository;
+            _userBusinessRules = userBusinessRules;
         }
 
         public async Task<IDataResult<int>> AddAsync(User user)
@@ -50,6 +53,11 @@ namespace RentACar.Business.Concrete
         {
             await _userRepository.UpdateAsync(user);
             return new SuccessResult("Şifre başarıyla güncellendi.");
+        }
+
+        public async Task<IResult> CheckIfEmailExistsAsync(string email)
+        {
+            return await _userBusinessRules.CheckIfEmailExistsAsync(email);
         }
     }
 }
