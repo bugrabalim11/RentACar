@@ -60,13 +60,15 @@ Projeyi kendi bilgisayarınızda (Local) ayağa kaldırmak için aşağıdaki ad
 "ConnectionStrings": {
   "DefaultConnection": "Server=localhost;Port=5432;Database=RentACarDb;User Id=postgres;Password=sizin_sifreniz;"
 }
+```
 (Not: E-posta ve Token gibi hassas veriler güvenlik amacıyla secrets.json (User Secrets) üzerinden yönetilmektedir.)
 
 **3. Şantiyeyi İnşa Etme (Migrations):
 Visual Studio'da Package Manager Console penceresini açın. Üst kısımdaki Default project menüsünden RentACar.DataAccess katmanını seçerek tabloları oluşturun:
 
-PowerShell
+```powershell
 Update-Database
+```
 **4. Projeyi Başlatma:RentACar.API projesini başlangıç projesi (Startup Project) olarak ayarlayın ve F5 ile çalıştırın.
 
 ## 👨‍💻 Geliştirici
