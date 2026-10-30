@@ -58,5 +58,15 @@ namespace RentACar.Business.Rules
             }
             return new SuccessResult();
         }
+
+        public async Task<IResult> CheckIfBrandIsUsedByAnyCarAsync(int brandId)
+        {
+            bool existingCar = await _carRepository.AnyAsync(c => c.BrandId == brandId);
+            if (existingCar)
+            {
+                return new ErrorResult("Bu markaya ait sistemde araçlar bulunduğu için marka silinemez!");
+            }
+            return new SuccessResult();
+        }
     }
 }

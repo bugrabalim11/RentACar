@@ -10,5 +10,6 @@ namespace RentACar.Business.Abstract
         Task<IDataResult<List<CarResultDto>>> GetAllAsync();
         Task<IDataResult<CarDetailDto>> GetByIdAsync(int id);
         Task<IResult> CheckIfCarExistsAsync(int carId);
+        Task<IResult> CheckIfBrandIsUsedByAnyCarAsync(int brandId);
     }
 }
