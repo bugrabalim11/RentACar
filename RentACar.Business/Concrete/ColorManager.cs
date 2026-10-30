@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
+using RentACar.Business.Rules;
 using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
@@ -11,11 +12,18 @@ namespace RentACar.Business.Concrete
     {
         private readonly IColorRepository _colorRepository;
         private readonly IMapper _mapper;
+        private readonly ColorBusinessRules _colorBusinessRules;
 
-        public ColorManager(IColorRepository colorRepository, IMapper mapper)
+        public ColorManager(IColorRepository colorRepository, IMapper mapper, ColorBusinessRules colorBusinessRules)
         {
             _colorRepository = colorRepository;
             _mapper = mapper;
+            _colorBusinessRules = colorBusinessRules;
+        }
+
+        public async Task<IResult> CheckIfColorExistsAsync(int colorId)
+        {
+            return await _colorBusinessRules.CheckIfColorExistsAsync(colorId);
         }
 
         public async Task<IDataResult<List<ColorResultDto>>> GetAllAsync()

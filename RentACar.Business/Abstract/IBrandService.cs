@@ -7,5 +7,6 @@ namespace RentACar.Business.Abstract
     {
         Task<IDataResult<List<BrandResultDto>>> GetAllAsync();
         Task<IDataResult<BrandResultDto>> GetByIdAsync(int id);
+        Task<IResult> CheckIfBrandExistsAsync(int brandId);
     }
 }

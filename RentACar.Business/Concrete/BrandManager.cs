@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
+using RentACar.Business.Rules;
 using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
@@ -11,11 +12,18 @@ namespace RentACar.Business.Concrete
     {
         private readonly IBrandRepository _brandRepository;
         private readonly IMapper _mapper;
+        private readonly BrandBusinessRules _brandBusinessRules;
 
-        public BrandManager(IBrandRepository brandRepository, IMapper mapper)
+        public BrandManager(IBrandRepository brandRepository, IMapper mapper, BrandBusinessRules brandBusinessRules)
         {
             _brandRepository = brandRepository;
             _mapper = mapper;
+            _brandBusinessRules = brandBusinessRules;
+        }
+
+        public async Task<IResult> CheckIfBrandExistsAsync(int brandId)
+        {
+            return await _brandBusinessRules.CheckIfBrandExistsAsync(brandId);
         }
 
         public async Task<IDataResult<List<BrandResultDto>>> GetAllAsync()

@@ -43,5 +43,15 @@ namespace RentACar.Business.Rules
             }
             return new SuccessResult();
         }
+
+        public async Task<IResult> CheckIfColorExistsAsync(int colorId)
+        {
+            bool existingColor = await _colorRepository.AnyAsync(x => x.Id == colorId);
+            if (existingColor)
+            {
+                return new SuccessResult();
+            }
+            return new ErrorResult("Bu renk sistemde bulunamadı!");
+        }
     }
 }

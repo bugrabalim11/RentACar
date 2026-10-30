@@ -64,10 +64,5 @@ namespace RentACar.Business.Concrete
             }
             return new SuccessResult();
         }
-
-        public async Task<IResult> CheckIfBrandIsUsedByAnyCarAsync(int brandId)
-        {
-            return await _carBusinessRules.CheckIfBrandIsUsedByAnyCarAsync(brandId);
-        }
     }
 }

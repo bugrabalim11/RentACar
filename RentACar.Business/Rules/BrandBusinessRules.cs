@@ -7,17 +7,17 @@ namespace RentACar.Business.Rules
     public class BrandBusinessRules
     {
         private readonly IBrandRepository _brandRepository;
-        private readonly ICarService _carService;
+        private readonly ICarReferenceService _carReferenceService;
 
-        public BrandBusinessRules(IBrandRepository brandRepository, ICarService carService)
+        public BrandBusinessRules(IBrandRepository brandRepository, ICarReferenceService carReferenceService)
         {
             _brandRepository = brandRepository;
-            _carService = carService;
+            _carReferenceService = carReferenceService;
         }
 
         public async Task<IResult> CheckIfBrandIsUsedByAnyCarAsync(int brandId)
         {
-            return await _carService.CheckIfBrandIsUsedByAnyCarAsync(brandId);
+            return await _carReferenceService.CheckIfBrandIsUsedByAnyCarAsync(brandId);
         }
 
         public async Task<IResult> CheckIfBrandNameExistAsync(string name)
@@ -39,6 +39,16 @@ namespace RentACar.Business.Rules
                 return new ErrorResult("Bu marka zaten kayıtlı! Lütfen başka bir marka deneyiniz.");
             }
             return new SuccessResult();
+        }
+
+        public async Task<IResult> CheckIfBrandExistsAsync(int brandId)
+        {
+            bool existingBrand = await _brandRepository.AnyAsync(x => x.Id == brandId);
+            if (existingBrand)
+            {
+                return new SuccessResult();
+            }
+            return new ErrorResult("Bu marka sistemde bulunamadı!");
         }
     }
 }
