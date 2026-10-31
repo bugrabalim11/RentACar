@@ -27,6 +27,16 @@ namespace RentACar.Business.Rules
             return await _colorService.CheckIfColorExistsAsync(colorId);
         }
 
+        public async Task<IResult> CheckIfCarExistsAsync(int carId)
+        {
+            bool isExists = await _carRepository.AnyAsync(x => x.Id == carId);
+            if (!isExists)
+            {
+                return new ErrorResult("Bu araç sistemde bulunamadı!");
+            }
+            return new SuccessResult();
+        }
+
         public async Task<IResult> CheckIfCarPlateExistsAsync(string plate)
         {
 

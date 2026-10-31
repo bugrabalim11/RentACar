@@ -57,12 +57,7 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> CheckIfCarExistsAsync(int carId)
         {
-            bool isExist = await _carRepository.AnyAsync(x => x.Id == carId);
-            if (!isExist)
-            {
-                return new ErrorResult("Böyle bir araç sistemde bulunamadı!");
-            }
-            return new SuccessResult();
+            return await _carBusinessRules.CheckIfCarExistsAsync(carId);
         }
     }
 }

@@ -17,22 +17,20 @@ namespace RentACar.Business.Concrete
         private readonly ICarImageRepository _carImageRepository;
         private readonly IFileHelper _fileHelper;
         private readonly IMapper _mapper;
-        private readonly ICarService _carService;
         private readonly CarImageBusinessRules _carImageBusinessRules;
 
-        public AdminCarImageManager(ICarImageRepository carImageRepository, IFileHelper fileHelper, IMapper mapper, ICarService carService, CarImageBusinessRules carImageBusinessRules)
+        public AdminCarImageManager(ICarImageRepository carImageRepository, IFileHelper fileHelper, IMapper mapper, CarImageBusinessRules carImageBusinessRules)
         {
             _carImageRepository = carImageRepository;
             _fileHelper = fileHelper;
             _mapper = mapper;
-            _carService = carService;
             _carImageBusinessRules = carImageBusinessRules;
         }
 
         public async Task<IDataResult<int>> AddAsync(CarImageCreateDto carImageAddDto)
         {
-            var car = await _carService.GetByIdAsync(carImageAddDto.CarId);
             IResult? result = BusinessRules.Run(
+                await _carImageBusinessRules.CheckIfCarExistsAsync(carImageAddDto.CarId),
                 await _carImageBusinessRules.CheckIfCarImageLimitExceededAsync(carImageAddDto.CarId)
             );
             if (result != null)
@@ -99,7 +97,6 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> UpdateAsync(CarImageUpdateDto carImageUpdateDto)
         {
-            var car = await _carService.GetByIdAsync(carImageUpdateDto.CarId);
             var existingCarImage = await _carImageRepository.GetAsync(x => x.Id == carImageUpdateDto.Id);
             if (existingCarImage == null)
             {
