@@ -1,4 +1,5 @@
-﻿using RentACar.Core.Utilities.Results;
+﻿using RentACar.Business.Abstract;
+using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 
 namespace RentACar.Business.Rules
@@ -6,12 +7,12 @@ namespace RentACar.Business.Rules
     public class OperationClaimBusinessRules
     {
         private readonly IOperationClaimRepository _operationClaimRepository;
-        private readonly IUserOperationClaimRepository _userOperationClaimRepository;
+        private readonly IUserOperationClaimReferenceService _userOperationClaimReferenceService;
 
-        public OperationClaimBusinessRules(IOperationClaimRepository operationClaimRepository, IUserOperationClaimRepository userOperationClaimRepository)
+        public OperationClaimBusinessRules(IOperationClaimRepository operationClaimRepository, IUserOperationClaimReferenceService userOperationClaimReferenceService)
         {
             _operationClaimRepository = operationClaimRepository;
-            _userOperationClaimRepository = userOperationClaimRepository;
+            _userOperationClaimReferenceService = userOperationClaimReferenceService;
         }
 
         public async Task<IResult> CheckIfOperationClaimExistsAsync(string operationClaim)
@@ -36,12 +37,7 @@ namespace RentACar.Business.Rules
 
         public async Task<IResult> CheckIfOperationClaimInUseAsync(int operationClaimId)
         {
-            bool isExist = await _userOperationClaimRepository.AnyAsync(x => x.OperationClaimId == operationClaimId);
-            if (isExist)
-            {
-                return new ErrorResult("Bu rütbe şu an bazı kullanıcılar tarafından kullanılıyor. Silmek için önce kullanıcıların yetkilerini almalısınız!");
-            }
-            return new SuccessResult();
+            return await _userOperationClaimReferenceService.CheckIfOperationClaimInUseAsync(operationClaimId);
         }
 
         public IResult CheckIfOperationClaimNameIsAdmin(string name)
