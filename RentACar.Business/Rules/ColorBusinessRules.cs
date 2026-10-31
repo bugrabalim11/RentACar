@@ -1,4 +1,5 @@
-﻿using RentACar.Core.Utilities.Results;
+﻿using RentACar.Business.Abstract;
+using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 
 namespace RentACar.Business.Rules
@@ -6,12 +7,12 @@ namespace RentACar.Business.Rules
     public class ColorBusinessRules
     {
         private readonly IColorRepository _colorRepository;
-        private readonly ICarRepository _carRepository;
+        private readonly ICarReferenceService _carReferenceService;
 
-        public ColorBusinessRules(IColorRepository colorRepository, ICarRepository carRepository)
+        public ColorBusinessRules(IColorRepository colorRepository, ICarReferenceService carReferenceService)
         {
             _colorRepository = colorRepository;
-            _carRepository = carRepository;
+            _carReferenceService = carReferenceService;
         }
 
         public async Task<IResult> CheckIfColorNameExistsAsync(string colorName)
@@ -36,12 +37,7 @@ namespace RentACar.Business.Rules
 
         public async Task<IResult> CheckIfColorIsUsedByAnyCarAsync(int colorId)
         {
-            bool existingCar = await _carRepository.AnyAsync(x => x.ColorId == colorId);
-            if (existingCar)
-            {
-                return new ErrorResult("Bu renk sistemdeki araçlar tarafından kullanıldığı için silinemez!");
-            }
-            return new SuccessResult();
+            return await _carReferenceService.CheckIfColorIsUsedByAnyCarAsync(colorId);
         }
 
         public async Task<IResult> CheckIfColorExistsAsync(int colorId)

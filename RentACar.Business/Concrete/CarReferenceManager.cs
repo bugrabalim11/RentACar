@@ -22,5 +22,15 @@ namespace RentACar.Business.Concrete
             }
             return new SuccessResult();
         }
+
+        public async Task<IResult> CheckIfColorIsUsedByAnyCarAsync(int colorId)
+        {
+            bool existingCar = await _carRepository.AnyAsync(x => x.ColorId == colorId);
+            if (existingCar)
+            {
+                return new ErrorResult("Bu renk sistemdeki araçlar tarafından kullanıldığı için silinemez!");
+            }
+            return new SuccessResult();
+        }
     }
 }
