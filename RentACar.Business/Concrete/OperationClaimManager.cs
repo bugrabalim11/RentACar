@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
+using RentACar.Business.Rules;
 using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
@@ -11,11 +12,18 @@ namespace RentACar.Business.Concrete
     {
         private readonly IOperationClaimRepository _operationClaimRepository;
         private readonly IMapper _mapper;
+        private readonly OperationClaimBusinessRules _operationClaimBusinessRules;
 
-        public OperationClaimManager(IOperationClaimRepository operationClaimRepository, IMapper mapper)
+        public OperationClaimManager(IOperationClaimRepository operationClaimRepository, IMapper mapper, OperationClaimBusinessRules operationClaimBusinessRules)
         {
             _operationClaimRepository = operationClaimRepository;
             _mapper = mapper;
+            _operationClaimBusinessRules = operationClaimBusinessRules;
+        }
+
+        public async Task<IResult> CheckIfOperationClaimExistsByIdAsync(int operationClaimId)
+        {
+            return await _operationClaimBusinessRules.CheckIfOperationClaimExistsByIdAsync(operationClaimId);
         }
 
         public async Task<IDataResult<List<OperationClaimResultDto>>> GetAllAsync()

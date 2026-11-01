@@ -1,4 +1,5 @@
-﻿using RentACar.Core.Utilities.Results;
+﻿using RentACar.Business.Abstract;
+using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 
 namespace RentACar.Business.Rules
@@ -6,15 +7,25 @@ namespace RentACar.Business.Rules
     public class OperationClaimBusinessRules
     {
         private readonly IOperationClaimRepository _operationClaimRepository;
-        private readonly IUserOperationClaimRepository _userOperationClaimRepository;
+        private readonly IUserOperationClaimReferenceService _userOperationClaimReferenceService;
 
-        public OperationClaimBusinessRules(IOperationClaimRepository operationClaimRepository, IUserOperationClaimRepository userOperationClaimRepository)
+        public OperationClaimBusinessRules(IOperationClaimRepository operationClaimRepository, IUserOperationClaimReferenceService userOperationClaimReferenceService)
         {
             _operationClaimRepository = operationClaimRepository;
-            _userOperationClaimRepository = userOperationClaimRepository;
+            _userOperationClaimReferenceService = userOperationClaimReferenceService;
         }
 
-        public async Task<IResult> CheckIfOperationClaimExistsAsync(string operationClaim)
+        public async Task<IResult> CheckIfOperationClaimExistsByIdAsync(int operationClaimId)
+        {
+            bool existOperationClaim = await _operationClaimRepository.AnyAsync(x => x.Id == operationClaimId);
+            if (!existOperationClaim)
+            {
+                return new ErrorResult("Böyle bir yetki sistemde bulunamadı!");
+            }
+            return new SuccessResult();
+        }
+
+        public async Task<IResult> CheckIfOperationClaimNameExistsAsync(string operationClaim)
         {
             bool existOperationClaim = await _operationClaimRepository.AnyAsync(x => x.Name.ToLower() == operationClaim.ToLower());
             if (existOperationClaim)
@@ -36,12 +47,7 @@ namespace RentACar.Business.Rules
 
         public async Task<IResult> CheckIfOperationClaimInUseAsync(int operationClaimId)
         {
-            bool isExist = await _userOperationClaimRepository.AnyAsync(x => x.OperationClaimId == operationClaimId);
-            if (isExist)
-            {
-                return new ErrorResult("Bu rütbe şu an bazı kullanıcılar tarafından kullanılıyor. Silmek için önce kullanıcıların yetkilerini almalısınız!");
-            }
-            return new SuccessResult();
+            return await _userOperationClaimReferenceService.CheckIfOperationClaimInUseAsync(operationClaimId);
         }
 
         public IResult CheckIfOperationClaimNameIsAdmin(string name)

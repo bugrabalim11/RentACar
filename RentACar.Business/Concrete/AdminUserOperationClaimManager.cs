@@ -29,7 +29,7 @@ namespace RentACar.Business.Concrete
         {
             IResult? result = BusinessRules.Run(
             await _userOperationClaimBusinessRules.CheckIfUserHasThisClaimAlreadyAsync(userOperationClaimAddDto.UserId, userOperationClaimAddDto.OperationClaimId),
-            await _userOperationClaimBusinessRules.CheckIfOperationClaimExistsAsync(userOperationClaimAddDto.OperationClaimId),
+            await _userOperationClaimBusinessRules.CheckIfOperationClaimExistsByIdAsync(userOperationClaimAddDto.OperationClaimId),
             await _userOperationClaimBusinessRules.CheckIfUserExistsAsync(userOperationClaimAddDto.UserId)
             );
             if (result != null)
@@ -99,7 +99,7 @@ namespace RentACar.Business.Concrete
 
             IResult? result = BusinessRules.Run(
                 await _userOperationClaimBusinessRules.CheckIfUserHasThisClaimAlreadyForUpdateAsync(existingUserOperationClaim.UserId, userOperationClaimUpdateDto.OperationClaimId, userOperationClaimUpdateDto.Id),
-                await _userOperationClaimBusinessRules.CheckIfOperationClaimExistsAsync(userOperationClaimUpdateDto.OperationClaimId),
+                await _userOperationClaimBusinessRules.CheckIfOperationClaimExistsByIdAsync(userOperationClaimUpdateDto.OperationClaimId),
                 await _userOperationClaimBusinessRules.CheckIfUserExistsAsync(existingUserOperationClaim.UserId)
             );
             if (result != null)

@@ -1,27 +1,23 @@
-﻿using RentACar.Core.Utilities.Results;
+﻿using RentACar.Business.Abstract;
+using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 
 namespace RentACar.Business.Rules
 {
     public class BrandBusinessRules
     {
-        private readonly ICarRepository _carRepository;
         private readonly IBrandRepository _brandRepository;
+        private readonly ICarReferenceService _carReferenceService;
 
-        public BrandBusinessRules(ICarRepository carRepository, IBrandRepository brandRepository)
+        public BrandBusinessRules(IBrandRepository brandRepository, ICarReferenceService carReferenceService)
         {
-            _carRepository = carRepository;
             _brandRepository = brandRepository;
+            _carReferenceService = carReferenceService;
         }
 
         public async Task<IResult> CheckIfBrandIsUsedByAnyCarAsync(int brandId)
         {
-            bool existingCar = await _carRepository.AnyAsync(c => c.BrandId == brandId);
-            if (existingCar)
-            {
-                return new ErrorResult("Bu markaya ait sistemde araçlar bulunduğu için marka silinemez!");
-            }
-            return new SuccessResult();
+            return await _carReferenceService.CheckIfBrandIsUsedByAnyCarAsync(brandId);
         }
 
         public async Task<IResult> CheckIfBrandNameExistAsync(string name)
@@ -43,6 +39,16 @@ namespace RentACar.Business.Rules
                 return new ErrorResult("Bu marka zaten kayıtlı! Lütfen başka bir marka deneyiniz.");
             }
             return new SuccessResult();
+        }
+
+        public async Task<IResult> CheckIfBrandExistsAsync(int brandId)
+        {
+            bool existingBrand = await _brandRepository.AnyAsync(x => x.Id == brandId);
+            if (existingBrand)
+            {
+                return new SuccessResult();
+            }
+            return new ErrorResult("Bu marka sistemde bulunamadı!");
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using RentACar.Business.Abstract;
+using RentACar.Business.Rules;
 using RentACar.Core.Exceptions;
 using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
@@ -11,12 +12,14 @@ namespace RentACar.Business.Concrete
     {
         private readonly ICarRepository _carRepository;
         private readonly IMapper _mapper;
+        private readonly CarBusinessRules _carBusinessRules;
 
-        public CarManager(ICarRepository carRepository, IMapper mapper)
+        public CarManager(ICarRepository carRepository, IMapper mapper, CarBusinessRules carBusinessRules)
         {
             _carRepository = carRepository;
             _mapper = mapper;
-        }    
+            _carBusinessRules = carBusinessRules;
+        }
 
         public async Task<IDataResult<List<CarResultDto>>> GetAllAsync()
         {
@@ -37,7 +40,7 @@ namespace RentACar.Business.Concrete
             var carDetailDto = _mapper.Map<CarDetailDto>(car);
             return new SuccessDataResult<CarDetailDto>(carDetailDto, "Araba detayı getirildi.");
         }
-        
+
         public async Task<IDataResult<List<CarResultDto>>> GetAllByBrandIdAsync(int brandId)
         {
             var existingCars = await _carRepository.GetAllAsync(x => x.BrandId == brandId);
@@ -54,12 +57,7 @@ namespace RentACar.Business.Concrete
 
         public async Task<IResult> CheckIfCarExistsAsync(int carId)
         {
-            bool isExist = await _carRepository.AnyAsync(x => x.Id == carId);
-            if (!isExist)
-            {
-                return new ErrorResult("Böyle bir araç sistemde bulunamadı!");
-            }
-            return new SuccessResult();
+            return await _carBusinessRules.CheckIfCarExistsAsync(carId);
         }
     }
 }

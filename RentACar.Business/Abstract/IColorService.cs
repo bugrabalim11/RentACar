@@ -7,5 +7,6 @@ namespace RentACar.Business.Abstract
     {
         Task<IDataResult<List<ColorResultDto>>> GetAllAsync();
         Task<IDataResult<ColorResultDto>> GetByIdAsync(int id);
+        Task<IResult> CheckIfColorExistsAsync(int colorId);
     }
 }

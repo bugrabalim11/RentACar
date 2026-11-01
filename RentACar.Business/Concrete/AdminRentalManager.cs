@@ -22,51 +22,45 @@ namespace RentACar.Business.Concrete
         private readonly IMapper _mapper;
         private readonly IAdminCustomerService _adminCustomerService;
         private readonly ICarService _carService;
-        private readonly ICarStatusService _carStatusService;
         private readonly IPosService _posService;
         private readonly IPaymentService _paymentService;
         private readonly IMailService _mailService;
+        private readonly IFindexScoreService _findexScoreService;
         private readonly RentalBusinessRules _rentalBusinessRules;
 
-        public AdminRentalManager(IRentalRepository rentalRepository, IMapper mapper, IAdminCustomerService adminCustomerService, ICarService carService, ICarStatusService carStatusService, IPosService posService, IPaymentService paymentService, IMailService mailService, RentalBusinessRules rentalBusinessRules)
+        public AdminRentalManager(IRentalRepository rentalRepository, IMapper mapper, IAdminCustomerService adminCustomerService, ICarService carService, IPosService posService, IPaymentService paymentService, IMailService mailService, RentalBusinessRules rentalBusinessRules, IFindexScoreService findexScoreService)
         {
             _rentalRepository = rentalRepository;
             _mapper = mapper;
             _adminCustomerService = adminCustomerService;
             _carService = carService;
-            _carStatusService = carStatusService;
             _posService = posService;
             _paymentService = paymentService;
             _mailService = mailService;
             _rentalBusinessRules = rentalBusinessRules;
+            _findexScoreService = findexScoreService;
         }
 
         [TransactionScopeAspect]
         public async Task<IDataResult<int>> AddByAdminAsync(RentalCreateByAdminDto rentalAddByAdminDto)
         {
-            // ===================================================================================
-            // BÖLÜM 1: ÖN HAZIRLIK VE GÜVENLİK (Preparation)
-            // ===================================================================================
-
-            // Tarih Formatlama (UTC Koruması)  
-            rentalAddByAdminDto.RentDate = DateTime.SpecifyKind(rentalAddByAdminDto.RentDate, DateTimeKind.Utc);
+            rentalAddByAdminDto.RentDate = rentalAddByAdminDto.RentDate.ToUniversalTime();
             if (rentalAddByAdminDto.ReturnDate.HasValue)
             {
-                rentalAddByAdminDto.ReturnDate = DateTime.SpecifyKind(rentalAddByAdminDto.ReturnDate.Value, DateTimeKind.Utc);
+                rentalAddByAdminDto.ReturnDate = rentalAddByAdminDto.ReturnDate.Value.ToUniversalTime();
             }
 
-            // ===================================================================================
-            // BÖLÜM 2: İŞ KURALLARI DUVARI (Validation & Business Rules)
-            // ===================================================================================
+            var car = await _carService.GetByIdAsync(rentalAddByAdminDto.CarId);
+            var customer = await _adminCustomerService.GetByIdAsync(rentalAddByAdminDto.CustomerId);
+            int customerFindexScore = _findexScoreService.GetScoreByCustomerId(customer.Data.Id);
 
-            // Kurallardan biri bile patlarsa kod aşağıya inmez, işlem anında kesilir.
             IResult? result = BusinessRules.Run(
             _rentalBusinessRules.CheckIfRentDateBeforeToday(rentalAddByAdminDto.RentDate),
+            _rentalBusinessRules.CheckIfCustomerDrivingExperienceIsSufficient(car.Data.MinDrivingExperience, customer.Data.DrivingLicenseYear),
+            _rentalBusinessRules.CheckIfCustomerFindexScoreIsSufficient(car.Data.MinFindexScore, customerFindexScore),
             await _rentalBusinessRules.CheckIfCustomerExistsAsync(rentalAddByAdminDto.CustomerId),
             await _rentalBusinessRules.CheckIfCarExistsAsync(rentalAddByAdminDto.CarId),
             await _rentalBusinessRules.CheckIfCarIsInMaintenanceAsync(rentalAddByAdminDto.CarId, rentalAddByAdminDto.RentDate, rentalAddByAdminDto.ReturnDate),
-            await _rentalBusinessRules.CheckIfCustomerDrivingExperienceIsSufficient(rentalAddByAdminDto.CarId, rentalAddByAdminDto.CustomerId),
-            await _rentalBusinessRules.CheckIfCustomerFindexScoreIsSufficient(rentalAddByAdminDto.CarId, rentalAddByAdminDto.CustomerId),
             await _rentalBusinessRules.CheckIfCarAvailable(rentalAddByAdminDto.CarId, rentalAddByAdminDto.RentDate, rentalAddByAdminDto.ReturnDate)
             );
             if (result != null)
@@ -74,37 +68,18 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
-            // ===================================================================================
-            // BÖLÜM 3: FİNANS VE HARİCİ SİSTEMLER (Finance & POS)
-            // ===================================================================================
-
-            // 1. Veri Hazırlığı 
             var rental = _mapper.Map<Rental>(rentalAddByAdminDto);
 
-            // 2. Tutar Hesaplama
-            var car = await _carService.GetByIdAsync(rental.CarId);
             decimal totalAmount = CalculateTotalAmount(rental.RentDate, rental.ReturnDate, car.Data.DailyPrice);
             rental.TotalAmount = totalAmount;
 
-            // 3. POS Cihazı ile Tahsilat
-            // DİKKAT: Veritabanına dokunmadan ÖNCE parayı çekiyoruz. 
-            // Kartta para yoksa sistem burada hata fırlatır ve DB yorulmaz.
             var posResult = await _posService.PayAsync(rentalAddByAdminDto.CreditCardInformation, totalAmount);
             if (!posResult.Success)
             {
                 throw new BusinessException(posResult.Message ?? "Ödeme sırasında bir hata oluştu, lütfen tekrar deneyin!");
             }
 
-            // ===================================================================================
-            // BÖLÜM 4: VERİTABANI İŞLEMLERİ (Database Writes - Transaction Koruması Altında)
-            // ===================================================================================
-
-            // Eğer buralarda SQL çökerse, tepedeki [TransactionScopeAspect] zamanı geri sarar!
-
-            // 1. Araç Kiralama Fişini Kes (Rental)
             await _rentalRepository.AddAsync(rental);
-
-            // 2. Kasa Defterine Dekont Yaz (Payment)
             var paymentDto = new PaymentCreateDto
             {
                 RentalId = rental.Id,
@@ -114,24 +89,14 @@ namespace RentACar.Business.Concrete
             };
             await _paymentService.AddAsync(paymentDto);
 
-            // ===================================================================================
-            // BÖLÜM 5: ÇIKIŞ (Return)
-            // ===================================================================================
-
-            // İş kurallarında kullanıcı var mı dite kontrol etmiştik bir daha etmemize gerek yok.
-            // E-posta ve isim soyisim bilgileri için bu veriyi çektik
-            var customerResult = await _adminCustomerService.GetByIdAsync(rentalAddByAdminDto.CustomerId);
-
-            // Sadece KUTULARI fırlat, asistan kendi içinde zımbalasın!
             await SendRentalSuccessEmailAsync(
-                customerResult.Data,
+                customer.Data,
                 car.Data,
                 totalAmount,
                 rental.RentDate,
                 rental.ReturnDate
                 );
 
-            // Postman/UI otomasyonları için üretilen yeni ID'yi teslim et.
             return new SuccessDataResult<int>(rental.Id, "Araç kiralama başarıyla oluşturuldu.");
         }
 
@@ -171,8 +136,6 @@ namespace RentACar.Business.Concrete
         [TransactionScopeAspect]
         public async Task<IResult> UpdateByAdminAsync(RentalUpdateByAdminDto rentalUpdateDto)
         {
-            // AsNoTracking kullandığımız için GetRentalWithDetailsByIdAsync metodu yerine GetAsync metodunu kullanıyoruz.
-            // Çünkü c# asnotracing ile takibi bırakıyor ve update işlemi için entity framework'ün takibine ihtiyaç duyuyoruz.
             var existingRental = await _rentalRepository.GetAsync(x => x.Id == rentalUpdateDto.Id);
             if (existingRental == null)
             {
@@ -185,13 +148,17 @@ namespace RentACar.Business.Concrete
                 rentalUpdateDto.ReturnDate = rentalUpdateDto.ReturnDate.Value.ToUniversalTime();
             }
 
+            var car = await _carService.GetByIdAsync(rentalUpdateDto.CarId);
+            var customer = await _adminCustomerService.GetByIdAsync(existingRental.CustomerId);
+            int customerFindexScore = _findexScoreService.GetScoreByCustomerId(customer.Data.Id);
+
             IResult? result = BusinessRules.Run(
             _rentalBusinessRules.CheckIfRentalIsAlreadyCompleted(existingRental.ReturnDate),
             _rentalBusinessRules.CheckIfRentDateBeforeToday(rentalUpdateDto.RentDate),
+            _rentalBusinessRules.CheckIfCustomerDrivingExperienceIsSufficient(car.Data.MinDrivingExperience, customer.Data.DrivingLicenseYear),
+            _rentalBusinessRules.CheckIfCustomerFindexScoreIsSufficient(car.Data.MinFindexScore, customerFindexScore),
             await _rentalBusinessRules.CheckIfCarExistsAsync(rentalUpdateDto.CarId),
             await _rentalBusinessRules.CheckIfCarIsInMaintenanceAsync(rentalUpdateDto.CarId, rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate),
-            await _rentalBusinessRules.CheckIfCustomerDrivingExperienceIsSufficient(rentalUpdateDto.CarId, existingRental.CustomerId),
-            await _rentalBusinessRules.CheckIfCustomerFindexScoreIsSufficient(rentalUpdateDto.CarId, existingRental.CustomerId),
             await _rentalBusinessRules.CheckIfCarAvailableForUpdate(rentalUpdateDto.Id, rentalUpdateDto.CarId, rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate)
             );
             if (result != null)
@@ -201,8 +168,7 @@ namespace RentACar.Business.Concrete
 
             _mapper.Map(rentalUpdateDto, existingRental);
 
-            var carResult = await _carService.GetByIdAsync(rentalUpdateDto.CarId);
-            var newTotalAmount = CalculateTotalAmount(rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate, carResult.Data.DailyPrice);
+            var newTotalAmount = CalculateTotalAmount(rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate, car.Data.DailyPrice);
             var difference = newTotalAmount - existingRental.TotalAmount;
 
             if (difference > 0)
@@ -225,11 +191,9 @@ namespace RentACar.Business.Concrete
                 existingRental.TotalAmount = newTotalAmount;
             }
 
-            var customerResult = await _adminCustomerService.GetByIdAsync(existingRental.CustomerId);
-
             await SendRentalUpdateEmailAsync(
-            customerResult.Data,
-            carResult.Data,
+            customer.Data,
+            car.Data,
             existingRental.TotalAmount,
             difference > 0 ? difference : 0, // Eğer difference 0'dan büyükse difference'ın kendisini kullan; DEĞİLSE 0 kullan.
             rentalUpdateDto.RentDate,

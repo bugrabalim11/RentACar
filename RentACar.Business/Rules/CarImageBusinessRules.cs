@@ -1,4 +1,5 @@
-﻿using RentACar.Core.Utilities.Results;
+﻿using RentACar.Business.Abstract;
+using RentACar.Core.Utilities.Results;
 using RentACar.DataAccess.Abstract;
 
 namespace RentACar.Business.Rules
@@ -6,10 +7,16 @@ namespace RentACar.Business.Rules
     public class CarImageBusinessRules
     {
         private readonly ICarImageRepository _carImageRepository;
+        private readonly ICarService _carService;
 
-        public CarImageBusinessRules(ICarImageRepository carImageRepository)
+        public CarImageBusinessRules(ICarImageRepository carImageRepository, ICarService carService)
         {
             _carImageRepository = carImageRepository;
+            _carService = carService;
+        }
+        public async Task<IResult> CheckIfCarExistsAsync(int carId)
+        {
+            return await _carService.CheckIfCarExistsAsync(carId);
         }
 
         public async Task<IResult> CheckIfCarImageLimitExceededAsync(int carId)
