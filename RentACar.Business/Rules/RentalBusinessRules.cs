@@ -8,19 +8,15 @@ namespace RentACar.Business.Rules
     {
         private readonly ICarService _carService;
         private readonly ICustomerService _customerService;
-        private readonly IFindexScoreService _findexScoreService;
         private readonly ICarStatusService _carStatusService;
         private readonly IRentalRepository _rentalRepository;
-        private readonly IAdminCustomerService _adminCustomerService;
 
-        public RentalBusinessRules(ICarService carService, ICustomerService customerService, IFindexScoreService findexScoreService, ICarStatusService carStatusService, IRentalRepository rentalRepository,IAdminCustomerService adminCustomerService)
+        public RentalBusinessRules(ICarService carService, ICustomerService customerService, ICarStatusService carStatusService, IRentalRepository rentalRepository)
         {
             _carService = carService;
             _customerService = customerService;
-            _findexScoreService = findexScoreService;
             _carStatusService = carStatusService;
             _rentalRepository = rentalRepository;
-            _adminCustomerService = adminCustomerService;
         }
 
         public async Task<IResult> CheckIfCustomerExistsAsync(int customerId)
@@ -38,26 +34,19 @@ namespace RentACar.Business.Rules
             return await _carStatusService.CheckIfCarIsInMaintenanceAsync(carId, startDate, endDate);
         }
 
-        public async Task<IResult> CheckIfCustomerDrivingExperienceIsSufficient(int carId, int customerId)
+        public IResult CheckIfCustomerDrivingExperienceIsSufficient(int minDrivingExperience, int drivingLicenseYear)
         {
-            var carResult = await _carService.GetByIdAsync(carId);
-            var customerResult = await _adminCustomerService.GetByIdAsync(customerId);
-
-            int customerExperience = DateTime.UtcNow.Year - customerResult.Data.DrivingLicenseYear;
-            if (customerExperience < carResult.Data.MinDrivingExperience)
+            int experience = DateTime.UtcNow.Year - drivingLicenseYear;
+            if (experience < minDrivingExperience)
             {
                 return new ErrorResult("Bu aracı kiralayabilmek için ehliyet süreniz yetersizdir!");
             }
             return new SuccessResult();
         }
 
-        public async Task<IResult> CheckIfCustomerFindexScoreIsSufficient(int carId, int customerId)
+        public IResult CheckIfCustomerFindexScoreIsSufficient(int minFindexScore, int customerFindexScore)
         {
-            var carResult = await _carService.GetByIdAsync(carId);
-            var customerResult = await _adminCustomerService.GetByIdAsync(customerId);
-
-            int findexResult = _findexScoreService.GetScoreByCustomerId(customerId);
-            if (findexResult < carResult.Data.MinFindexScore)
+            if (customerFindexScore < minFindexScore)
             {
                 return new ErrorResult("Bu aracı kiralamaya findex puanınız yetmiyor!");
             }
