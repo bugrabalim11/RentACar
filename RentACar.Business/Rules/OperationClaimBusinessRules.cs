@@ -15,7 +15,17 @@ namespace RentACar.Business.Rules
             _userOperationClaimReferenceService = userOperationClaimReferenceService;
         }
 
-        public async Task<IResult> CheckIfOperationClaimExistsAsync(string operationClaim)
+        public async Task<IResult> CheckIfOperationClaimExistsByIdAsync(int operationClaimId)
+        {
+            bool existOperationClaim = await _operationClaimRepository.AnyAsync(x => x.Id == operationClaimId);
+            if (!existOperationClaim)
+            {
+                return new ErrorResult("Böyle bir yetki sistemde bulunamadı!");
+            }
+            return new SuccessResult();
+        }
+
+        public async Task<IResult> CheckIfOperationClaimNameExistsAsync(string operationClaim)
         {
             bool existOperationClaim = await _operationClaimRepository.AnyAsync(x => x.Name.ToLower() == operationClaim.ToLower());
             if (existOperationClaim)

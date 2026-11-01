@@ -27,7 +27,7 @@ namespace RentACar.Business.Concrete
         {
             operationClaimAddDto.Name = operationClaimAddDto.Name.Trim();
             IResult? result = BusinessRules.Run(
-                await _operationClaimBusinessRules.CheckIfOperationClaimExistsAsync(operationClaimAddDto.Name)
+                await _operationClaimBusinessRules.CheckIfOperationClaimNameExistsAsync(operationClaimAddDto.Name)
             );
             if (result != null)
             {

@@ -7,13 +7,13 @@ namespace RentACar.Business.Rules
     public class UserOperationClaimBusinessRules
     {
         private readonly IUserOperationClaimRepository _userOperationClaimRepository;
-        private readonly IOperationClaimRepository _operationClaimRepository;
+        private readonly IOperationClaimService _operationClaimService;
         private readonly IUserService _userService;
 
-        public UserOperationClaimBusinessRules(IUserOperationClaimRepository userOperationClaimRepository, IOperationClaimRepository operationClaimRepository, IUserService userService)
+        public UserOperationClaimBusinessRules(IUserOperationClaimRepository userOperationClaimRepository, IOperationClaimService operationClaimService, IUserService userService)
         {
             _userOperationClaimRepository = userOperationClaimRepository;
-            _operationClaimRepository = operationClaimRepository;
+            _operationClaimService = operationClaimService;
             _userService = userService;
         }
 
@@ -37,14 +37,9 @@ namespace RentACar.Business.Rules
             return new SuccessResult();
         }
 
-        public async Task<IResult> CheckIfOperationClaimExistsAsync(int operationClaimId)
+        public async Task<IResult> CheckIfOperationClaimExistsByIdAsync(int operationClaimId)
         {
-            bool existOperationClaim = await _operationClaimRepository.AnyAsync(x => x.Id == operationClaimId);
-            if (!existOperationClaim)
-            {
-                return new ErrorResult("Böyle bir yetki sistemde bulunamadı!");
-            }
-            return new SuccessResult();
+            return await _operationClaimService.CheckIfOperationClaimExistsByIdAsync(operationClaimId);
         }
 
         public async Task<IResult> CheckIfUserExistsAsync(int userId)
