@@ -23,7 +23,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.GetAsync("api/ContactMessages");
+            var responseMessage = await client.GetAsync("api/admin/contact-messages");
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
@@ -40,7 +40,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
-            var responseMessage = await client.DeleteAsync($"api/ContactMessages/{id}");
+            var responseMessage = await client.DeleteAsync($"api/admin/contact-messages/{id}");
             if (responseMessage.IsSuccessStatusCode)
             {
                 return Json(new { success = true });
@@ -53,17 +53,12 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         public async Task<IActionResult> Details(int id)
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
-
-            // Gölge Kurye: Mektubu getirmeden hemen önce veritabanında sessizce "Okundu" (IsRead = true) olarak işaretle.
-            await client.PatchAsync($"api/ContactMessages/MarkAsRead/{id}", null);
-
-            // Asıl Kurye: Okundu durumu güncellenmiş güncel mektubu vitrine (UI) taşımak için getir.
-            var responseMessage = await client.GetAsync($"api/ContactMessages/{id}");
+            await client.PatchAsync($"api/admin/contact-messages/MarkAsRead/{id}", null);
+            var responseMessage = await client.GetAsync($"api/admin/contact-messages/{id}");
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
                 var response = JsonConvert.DeserializeObject<ResponseModel<ContactMessageResultDto>>(jsonData);
-                // Koli geldi mi ve aşçıbaşı içine tabağı (Data) koydu mu kontrolü (Defensive Programming)
                 if (response != null && response.Data != null)
                 {
                     return View(response.Data);
