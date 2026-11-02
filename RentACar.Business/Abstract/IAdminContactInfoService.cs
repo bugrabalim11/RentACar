@@ -1,0 +1,12 @@
+﻿using RentACar.Core.Utilities.Results;
+using RentACar.Dtos.ContactInfoDtos;
+
+namespace RentACar.Business.Abstract
+{
+    public interface IAdminContactInfoService
+    {
+        Task<IDataResult<int>> AddAsync(ContactInfoCreateDto contactInfoAddDto);
+        Task<IResult> UpdateAsync(ContactInfoUpdateDto contactInfoUpdateDto);
+        Task<IResult> DeleteAsync(int id);
+    }
+}
