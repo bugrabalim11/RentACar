@@ -19,6 +19,16 @@ namespace RentACar.Business.Rules
             _rentalRepository = rentalRepository;
         }
 
+        public async Task<IResult> CheckIfOfficeHasRentalsAsync(int officeId)
+        {
+            var checkRental = await _rentalRepository.AnyAsync(x => x.PickUpOfficeId == officeId || x.DropOffOfficeId == officeId);
+            if (checkRental)
+            {
+                return new ErrorResult("Ofise ait kiralama işlemleri mevcut, bu yüzden silinemez!");
+            }
+            return new SuccessResult();
+        }
+
         public async Task<IResult> CheckIfCustomerExistsAsync(int customerId)
         {
             return await _customerService.CheckIfCustomerExistsByIdAsync(customerId);

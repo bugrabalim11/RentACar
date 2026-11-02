@@ -24,7 +24,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.GetAsync("api/Offices");
+            var responseMessage = await client.GetAsync("api/offices");
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
@@ -41,7 +41,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
-            var responseMessage = await client.DeleteAsync($"api/Offices/{id}");
+            var responseMessage = await client.DeleteAsync($"api/admin/offices/{id}");
             if (responseMessage.IsSuccessStatusCode)
             {
                 return Json(new { success = true });
@@ -65,7 +65,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 
             var jsonData = JsonConvert.SerializeObject(officeCreateDto);
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            var responseMessage = await client.PostAsync("api/Offices", stringContent);
+            var responseMessage = await client.PostAsync("api/admin/offices", stringContent);
             if (responseMessage.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");
@@ -78,7 +78,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         public async Task<IActionResult> Update(int id)
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
-            var resposneMessage = await client.GetAsync($"api/Offices/{id}");
+            var resposneMessage = await client.GetAsync($"api/offices/{id}");
             if (resposneMessage.IsSuccessStatusCode)
             {
                 var jsonData = await resposneMessage.Content.ReadAsStringAsync();
@@ -106,7 +106,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 
             var jsonData = JsonConvert.SerializeObject(officeUpdateDto);
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            var responseMessage = await client.PutAsync($"api/Offices/{officeUpdateDto.Id}", stringContent);
+            var responseMessage = await client.PutAsync($"api/admin/offices/{officeUpdateDto.Id}", stringContent);
             if (responseMessage.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");

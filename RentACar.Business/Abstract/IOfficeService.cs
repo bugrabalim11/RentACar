@@ -7,8 +7,5 @@ namespace RentACar.Business.Abstract
     {
         Task<IDataResult<List<OfficeResultDto>>> GetAllAsync();
         Task<IDataResult<OfficeResultDto>> GetByIdAsync(int id);
-        Task<IDataResult<int>> AddAsync(OfficeCreateDto officeAddDto);
-        Task<IResult> UpdateAsync(OfficeUpdateDto officeUpdateDto);
-        Task<IResult> DeleteAsync(int id);
     }
 }
