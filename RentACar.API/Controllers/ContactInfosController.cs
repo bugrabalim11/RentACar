@@ -1,14 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
-using RentACar.Core.Exceptions;
-using RentACar.Dtos.ContactInfoDtos;
 
 namespace RentACar.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/contact-infos")]
     [ApiController]
-    [Authorize(Roles = "admin")]
+    [AllowAnonymous]
+
     public class ContactInfosController : ControllerBase
     {
         private readonly IContactInfoService _contactInfoService;
@@ -18,7 +17,6 @@ namespace RentACar.API.Controllers
             _contactInfoService = contactInfoService;
         }
 
-        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetAllAsync()
         {
@@ -26,37 +24,10 @@ namespace RentACar.API.Controllers
             return Ok(result);
         }
 
-        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await _contactInfoService.GetByIdAsync(id);
-            return Ok(result);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> CreateAsync(ContactInfoCreateDto contactInfoAddDto)
-        {
-            var result = await _contactInfoService.AddAsync(contactInfoAddDto);
-            return Ok(result);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAsync(int id, ContactInfoUpdateDto contactInfoUpdateDto)
-        {
-            if (id != contactInfoUpdateDto.Id)
-            {
-                throw new BusinessException("Güvenlik İhlali: URL'deki ID ile gönderilen iletişim bilgisi ID'si eşleşmiyor!");
-            }
-
-            var result = await _contactInfoService.UpdateAsync(contactInfoUpdateDto);
-            return Ok(result);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(int id)
-        {
-            var result = await _contactInfoService.DeleteAsync(id);
             return Ok(result);
         }
     }

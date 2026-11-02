@@ -105,6 +105,11 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<int>(rental.Id, "Araç kiralama başarıyla oluşturuldu.");
         }
 
+        public async Task<IResult> CheckIfOfficeHasRentalsAsync(int officeId)
+        {
+            return await _rentalBusinessRules.CheckIfOfficeHasRentalsAsync(officeId);
+        }
+
         public async Task<IDataResult<List<RentalResultDto>>> GetAllByUserIdAsync(int userId)
         {
             var rentals = await _rentalRepository.GetRentalsByUserIdAsync(userId);

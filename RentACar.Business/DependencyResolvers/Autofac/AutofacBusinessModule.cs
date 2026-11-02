@@ -1,7 +1,6 @@
 ﻿using Autofac;
 using Autofac.Extras.DynamicProxy;
 using Castle.DynamicProxy;
-using RentACar.Business.Rules;
 using RentACar.Core.Utilities.Interceptors;
 using System.Reflection;
 using Module = Autofac.Module; // Autofac'in Module sınıfını kullanacağımızı belirtiyoruz
@@ -27,18 +26,14 @@ namespace RentACar.Business.DependencyResolvers.Autofac
                    })
                    .InstancePerLifetimeScope();;
 
-            // MÜFETTİŞİN YAKA KARTI (Interface'i olmadığı için AsSelf kullanıyoruz)
-            // TODO: Bunları otomatik hale getir
-            builder.RegisterType<RentalBusinessRules>().AsSelf().InstancePerLifetimeScope();
-            builder.RegisterType<CarBusinessRules>().AsSelf().InstancePerLifetimeScope();
-            builder.RegisterType<BrandBusinessRules>().AsSelf().InstancePerLifetimeScope();
-            builder.RegisterType<ColorBusinessRules>().AsSelf().InstancePerLifetimeScope();
-            builder.RegisterType<CarImageBusinessRules>().AsSelf().InstancePerLifetimeScope();
-            builder.RegisterType<AuthBusinessRules>().AsSelf().InstancePerLifetimeScope();
-            builder.RegisterType<OperationClaimBusinessRules>().AsSelf().InstancePerLifetimeScope();
-            builder.RegisterType<UserOperationClaimBusinessRules>().AsSelf().InstancePerLifetimeScope();
-            builder.RegisterType<UserBusinessRules>().AsSelf().InstancePerLifetimeScope();
-            builder.RegisterType<CustomerBusinessRules>().AsSelf().InstancePerLifetimeScope();
+            // MÜFETTİŞLERİN OTOMATİK İŞE ALINMASI (BusinessRules Otomasyonu)
+            // Mantık: Business binasındaki (Assembly) tüm odaları (Types) gez.
+            // Eğer odanın kapısında "BusinessRules" yazıyorsa (Name.EndsWith),
+            // Onu kendi ismiyle (AsSelf) sisteme kaydet!
+            builder.RegisterAssemblyTypes(businessAssembly)
+                   .Where(t => t.Name.EndsWith("BusinessRules"))
+                   .AsSelf()
+                   .InstancePerLifetimeScope(); ;
 
             // 2. DATA ACCESS BİNASI (Ajansız, düz veritabanı işçileri)
             // Eskiden C#'a bana CarRepository'nin yaşadığı binayı (Assembly) bul diye adres veriyorduk 

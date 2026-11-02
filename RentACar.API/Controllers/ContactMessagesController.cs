@@ -5,9 +5,9 @@ using RentACar.Dtos.ContactMessageDtos;
 
 namespace RentACar.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/contact-messages")]
     [ApiController]
-    [Authorize(Roles = "admin")]
+    [AllowAnonymous]
     public class ContactMessagesController : ControllerBase
     {
         private readonly IContactMessageService _contactMessageService;
@@ -17,39 +17,10 @@ namespace RentACar.API.Controllers
             _contactMessageService = contactMessageService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAllAsync()
-        {
-            var result = await _contactMessageService.GetAllAsync();
-            return Ok(result);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdAsync(int id)
-        {
-            var result = await _contactMessageService.GetByIdAsync(id);
-            return Ok(result);
-        }
-
-        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> CreateAsync(ContactMessageCreateDto contactMessageAddDto)
         {
             var result = await _contactMessageService.AddAsync(contactMessageAddDto);
-            return Ok(result);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(int id)
-        {
-            var result = await _contactMessageService.DeleteAsync(id);
-            return Ok(result);
-        }
-
-        [HttpPatch("MarkAsRead/{id}")]
-        public async Task<IActionResult> MarkAsReadAsync(int id)
-        {
-            var result = await _contactMessageService.MarkAsReadAsync(id);
             return Ok(result);
         }
     }
