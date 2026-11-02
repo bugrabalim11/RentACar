@@ -7,9 +7,5 @@ namespace RentACar.Business.Abstract
     {
         Task<IDataResult<List<CarMaintenanceResultDto>>> GetAllAsync();
         Task<IDataResult<CarMaintenanceResultDto>> GetByIdAsync(int id);
-        Task<IDataResult<int>> AddAsync(CarMaintenanceCreateDto carMaintenanceAddDto);
-        Task<IResult> UpdateAsync(CarMaintenanceUpdateDto carMaintenanceUpdateDto);
-        Task<IResult> DeleteAsync(int id);
-        Task<IResult> CheckIfCarAvailableForMaintenance(int carId, DateTime checkInTime, DateTime? checkOutTime);
     }
 }
