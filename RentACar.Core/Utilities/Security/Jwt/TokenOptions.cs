@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace RentACar.Core.Utilities.Security.Jwt
+﻿namespace RentACar.Core.Utilities.Security.Jwt
 {
+    /// <summary>
+    /// appsettings.json içerisindeki JWT (JSON Web Token) konfigürasyonlarını karşılayan modeldir.
+    /// </summary>
     public class TokenOptions
     {
         public string Audience { get; set; } = null!;

@@ -77,17 +77,15 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var viewModel = new CarCreateViewModel();
             viewModel.CarCreate = new CarCreateDto();
-            await PopulateDropdowns(viewModel); // Komi API'ye gider, listeleri tepsiye dizer
-            return View(viewModel); // Sen de dolu tepsiyi müşteriye (View'a) sunarsın
+            await PopulateDropdowns(viewModel); 
+            return View(viewModel); 
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(CarCreateViewModel carCreateViewModel)
         {
-            // GÜVENLİK KONTROLÜ (Form eksik mi?)
             if (!ModelState.IsValid)
             {
-                // Form eksikse, müşteriye geri yollayacağımız tepsinin boşalan listelerini Komi'ye doldurtuyoruz.
                 await PopulateDropdowns(carCreateViewModel);
                 return View(carCreateViewModel);
             }
@@ -154,11 +152,6 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 
         private async Task PopulateDropdowns(ICarDropdownViewModel carDropdownViewModel)
         {
-            // SENİOR NOTU (YARDIMCI METOT):
-            // Bu metodun TEK BİR GÖREVİ vardır: Parametre olarak gelen tepsinin (model) içine
-            // API'den güncel Marka ve Renk listelerini çekip yerleştirmek.
-            // Başka hiçbir işe (Validasyon veya View döndürme) karışmaz!
-
             var client = _httpClientFactory.CreateClient("RentACarApi");
             var brandsResponseMessage = await client.GetAsync("api/Brands");
             var colorsResponseMessage = await client.GetAsync("api/Colors");
@@ -173,8 +166,6 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 var colorsResponseBox = JsonConvert.DeserializeObject<ResponseModel<List<ColorResultDto>>>(colorsJsonData);
                 if (brandsResponseBox != null && brandsResponseBox.Data != null && colorsResponseBox != null && colorsResponseBox.Data != null)
                 {
-                    // DİKKAT: 'new ViewModel()' DEMİYORUZ! Kullanıcının doldurduğu mevcut 'viewModel' içine 
-                    // sadece eksik olan listeleri monte ediyoruz ki adamın yazdığı veriler silinmesin!
                     carDropdownViewModel.Brands = brandsResponseBox.Data;
                     carDropdownViewModel.Colors = colorsResponseBox.Data;
                 }

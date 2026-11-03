@@ -3,28 +3,22 @@ using System.Reflection;
 
 namespace RentACar.Core.Utilities.Interceptors
 {
-    // IInterceptorSelector: Castle.DynamicProxy'den gelir. "Ben araya giren ajanları seçen trafik polisiyim" demektir.
+    /// <summary>
+    /// Sınıf (Class) ve Metot seviyesindeki Aspect'leri okuyup, 
+    /// Priority (Öncelik) sırasına göre çalıştırılmak üzere sıralayan ve IoC konteynerine ileten seçici sınıftır.
+    /// </summary>
     public class AspectInterceptorSelector : IInterceptorSelector
     {
         public IInterceptor[]? SelectInterceptors(Type type, MethodInfo method, IInterceptor[] interceptors)
         {
-            // 1. Sınıfın (Class) tepesindeki mühürleri (Attribute) listele
-            // type.GetCustomAttributes: O an çalışan sınıfın tepesindeki mühürleri okur.
             var classAttributes = type.GetCustomAttributes<MethodInterceptionBaseAttribute>(true).ToList();
-
-            // 2. O an çalışan Metodun (Method) tepesindeki mühürleri listele
-            // DOĞRU OLAN: Dedektife metodun adıyla birlikte, aldığı parametrelerin tiplerini (parmak izini) de veriyoruz ki adaş metotlarla karıştırmasın!
             var methodAttributes = type.GetMethod(method.Name, method.GetParameters().Select(p => p.ParameterType).ToArray())?.GetCustomAttributes<MethodInterceptionBaseAttribute>(true);
 
-            // 3. Sınıftaki ve metottaki mühürleri aynı listede birleştir (Polis listeyi hazırlıyor)
             if (methodAttributes != null)
             {
                 classAttributes.AddRange(methodAttributes);
             }
 
-            // (Opsiyonel Vizyon: Murat Yücedağ burada bazen "Tüm sisteme otomatik Loglama ekle" gibi varsayılan kurallar da yazar. Şimdilik MVP'de tutuyoruz.)
-
-            // 4. Listeyi Priority (Öncelik) değerine göre sırala ve diziye çevirip Autofac'e teslim et.
             return classAttributes.OrderBy(x => x.Priority).ToArray();
         }
     }

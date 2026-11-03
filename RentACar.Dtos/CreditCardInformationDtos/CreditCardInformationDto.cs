@@ -2,9 +2,6 @@
 
 namespace RentACar.Dtos.CreditCardInformationDtos
 {
-    /// <summary>
-    /// Müşterinin ödeme ekranında gireceği kredi kartı bilgilerini taşıyan kargo nesnesidir.
-    /// </summary>
     public class CreditCardInformationDto : IDto
     {
         public string CardHolderFullName { get; set; } = null!;

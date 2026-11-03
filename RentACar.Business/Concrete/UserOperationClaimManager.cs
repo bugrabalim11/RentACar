@@ -41,9 +41,6 @@ namespace RentACar.Business.Concrete
         public async Task<IDataResult<List<UserOperationClaimDetailDto>>> GetMyOperationClaimsAsync(int userId)
         {
             var myOperationClaims = await _userOperationClaimRepository.GetMyOperationClaimsAsync(userId);
-            // Bir Junior refleksi şudur: "Acaba result == null diye kontrol etmeli miyim?"
-            //Senior Mimar der ki: Hayır! Entity Framework'te ToListAsync() metodu eğer veritabanında
-            //hiçbir kayıt bulamazsa null dönmez; içi boş bir liste (Örn: []) döner. Bu yüzden null kontrolü yapmana gerek yoktur.
             return new SuccessDataResult<List<UserOperationClaimDetailDto>>(myOperationClaims, "Size ait yetkiler başarıyla getirildi.");
         }
 

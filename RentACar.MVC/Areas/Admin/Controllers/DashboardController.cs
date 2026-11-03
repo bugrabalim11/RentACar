@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace RentACar.MVC.Areas.Admin.Controllers
 {
-    [Area("Admin")] // İşte bu yaka kartı!
+    [Area("Admin")] 
     [Authorize(Roles = "admin")]
     public class DashboardController : Controller
     {

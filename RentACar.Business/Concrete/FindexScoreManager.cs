@@ -7,7 +7,7 @@ namespace RentACar.Business.Concrete
         public int GetScoreByCustomerId(int customerId)
         {
             Random random = new Random();
-            int result = random.Next(0, 1901); // 1900 dahil olması için 1901 yazarız.
+            int result = random.Next(0, 1901); 
             return result;
         }
     }

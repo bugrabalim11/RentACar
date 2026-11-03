@@ -15,41 +15,35 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Arabanın beynine (Host) diyoruz ki: "İnsan Kaynakları Fabrikası olarak artık Autofac'i kullan!"
+// --- 1. IoC Container & Autofac Configuration ---
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
-
-// 2. Autofac'in konteynerini (kutusunu) yapılandırmak için alanı açıyoruz.
 builder.Host.ConfigureContainer<ContainerBuilder>(options =>
 {
-    // Yaptığımız o efsanevi şubeyi (Modülü) sisteme kaydediyoruz!
     options.RegisterModule(new AutofacBusinessModule());
 });
 
-// Add services to the container.
+// --- 2. Controllers & Filters ---
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ValidationFilters>();
 });
 
+// --- 3. Background Services ---
 builder.Services.AddHostedService<CarImageCleanupService>();
 
-// 1. Adım: FluentValidation'ın otomatik doğrulama (AutoValidation) özelliğini aktif et.
+// --- 4. FluentValidation Setup ---
 builder.Services.AddFluentValidationAutoValidation();
-
-// 2. Adım: Validator kurallarımızın (RuleFor...) nerede olduğunu sisteme göster.
-// (OfficeCreateDtoValidator veya herhangi bir Validator sınıfını referans verebilirsin, sistem o projedeki hepsini bulur)
 builder.Services.AddValidatorsFromAssemblyContaining<OfficeCreateDtoValidator>();
 
-// Kendi yazdığımız güvenlik ve JWT ayarlarını içeri alıyoruz
-builder.Services.AddSecurityServices(builder.Configuration);
-
-// Microsoft'a "ModelState'i otomatik kontrol etme, ben kendi cihazımı kullanacağım" demektir
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.SuppressModelStateInvalidFilter = true;
 });
 
-// .NET 10 Modern OpenAPI / Swagger Kaydı
+// --- 5. Security & Authentication ---
+builder.Services.AddSecurityServices(builder.Configuration);
+
+// --- 6. OpenAPI & Scalar (Swagger Alternative) Setup ---
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi(options =>
 {
@@ -77,36 +71,36 @@ builder.Services.AddOpenApi(options =>
     });
 });
 
-
+// --- 7. AutoMapper Setup ---
 builder.Services.AddAutoMapper(cfg =>
 {
-    // AutoMapper v15+ Lisans Yapılandırması
     cfg.LicenseKey = "Community-Student-License";
 }, typeof(RentACar.Business.Profiles.CarProfile));
 
-// PostgreSQL ve DbContext Kaydı
+// --- 8. Database Context Setup ---
 builder.Services.AddDbContext<RentACarContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
+// --- 9. HTTP Request Pipeline (Middleware) ---
+
+// Exception Middleware (Global Hata Yönetimi) - Her zaman en başta olmalı
+app.UseMiddleware<RentACar.API.Middlewares.ExceptionMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi(); // .NET 10 Endpoint'ini açık
-
-    // Scalar Arayüzünü .NET 10 Standartlarında Tetikliyoruz
+    app.MapOpenApi(); 
     app.MapScalarApiReference(options => options.Theme = ScalarTheme.Moon);
 }
 
 app.UseHttpsRedirection();
-//Artık mutfak, wwwroot içindeki dosyaları internete servis etmeye hazır
-app.UseStaticFiles();
-// Kendi yazdığımız hata yakalayıcı kalkanı boru hattının en başına takıyoruz
-app.UseMiddleware<RentACar.API.Middlewares.ExceptionMiddleware>();
 
-// Authentication - Kimlik Doğrulama
+// Statik Dosyalar (wwwroot)
+app.UseStaticFiles();
+
+// Authentication & Authorization
 app.UseAuthentication();
-// Authorization - Yetkilendirme
 app.UseAuthorization();
 app.MapControllers();
 app.Run();

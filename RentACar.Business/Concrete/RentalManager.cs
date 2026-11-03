@@ -89,7 +89,7 @@ namespace RentACar.Business.Concrete
             {
                 RentalId = rental.Id,
                 Amount = totalAmount,
-                TransactionId = Guid.NewGuid().ToString(), // Şimdilik uydurma banka işlem numarası
+                TransactionId = Guid.NewGuid().ToString(), 
                 IsSuccessful = true
             };
             await _paymentService.AddAsync(paymentDto);
@@ -207,26 +207,17 @@ namespace RentACar.Business.Concrete
             if (returnDate.HasValue)
             {
                 var timeSpan = returnDate.Value - rentDate;
-
-                // SENİOR NOTU: Neden (decimal) ile Casting (Bilinçli Tip Dönüşümü) yaptık?
-                // Math.Ceiling fonksiyonu bize 'double' döner (Bilim İnsanı mantığı: virgüllü ve esnek).
-                // Ancak para işlemleri (dailyPrice) sıfır hata payı isteyen 'decimal' (Muhasebeci mantığı) tipindedir.
-                // C# derleyicisi bu iki farklı dünyanın çarpılmasına güvenlik gereği izin vermez.
-                // Bu yüzden (decimal) yazarak "Bilim insanının yuvarladığı sayıyı, muhasebecinin diline çevir" dedik.
                 totalDays = (decimal)Math.Ceiling(timeSpan.TotalDays);
-
                 if (totalDays == 0 || totalDays < 0) { totalDays = 1; }
             }
             var totalAmount = totalDays * dailyPrice;
             return totalAmount;
         }
 
-        // Veznedarın fatura ve kargo işlerini halleden özel asistanı
         private async Task SendRentalSuccessEmailAsync(CustomerDetailDto customer, CarDetailDto car, decimal totalAmount, DateTime rentDate, DateTime? returnDate)
         {
             try
             {
-                // 1. Matbaacıdan hazır kargo kutusunu (Zarfı) al
                 var mailRequest = MailTemplateHelper.CreateRentalSuccessMail(
                     $"{customer.FirstName} {customer.LastName}",
                     customer.Email,
@@ -235,13 +226,11 @@ namespace RentACar.Business.Concrete
                     rentDate,
                     returnDate);
 
-                // 2. Postacıya teslim et ve yola çıkar
                 await _mailService.SendEmailAsync(mailRequest);
             }
             catch (Exception)
             {
-                // Mail atılamasa bile kiralama işlemi iptal OLMASIN! 
-                // Hata yutulur (İstersen buraya ileride NLog ile loglama yapabiliriz).
+
             }
         }
 
@@ -249,7 +238,6 @@ namespace RentACar.Business.Concrete
         {
             try
             {
-                // 1. Matbaacıdan hazır kargo kutusunu (Zarfı) al
                 var mailRequest = MailTemplateHelper.CreateRentalUpdateMail(
                     $"{customer.FirstName} {customer.LastName}",
                     customer.Email,

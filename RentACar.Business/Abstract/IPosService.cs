@@ -8,12 +8,6 @@ namespace RentACar.Business.Abstract
     /// </summary>
     public interface IPosService
     {
-        /// <summary>
-        /// Kredi kartından belirtilen tutarı çekme işlemini simüle eder.
-        /// </summary>
-        /// <param name="creditCard">Müşterinin kredi kartı bilgileri</param>
-        /// <param name="amount">Çekilecek toplam kiralama tutarı</param>
-        /// <returns>İşlemin başarı durumunu (IResult) döner</returns>
         Task<IResult> PayAsync(CreditCardInformationDto creditCard, decimal amount);
     }
 }

@@ -1,10 +1,10 @@
 ﻿namespace RentACar.Core.Utilities.Results
 {
-    // T: Hangi tipi (Car, Brand, List<Color> vb.) döndüreceğimizi temsil eder.
-    // IResult'tan miras alıyoruz çünkü DataResult'ın da Success ve Message'ı olmalı!
+    /// <summary>
+    /// İşlem sonucu ve mesajına ek olarak, geriye bir veri (Data) döndüren sözleşmedir.
+    /// </summary>
     public interface IDataResult<T> : IResult
     {
-        // İşlem sonucunda döndürülecek veri
         T Data { get; }
     }
 }

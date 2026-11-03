@@ -17,8 +17,8 @@ namespace RentACar.Business.ValidationRules.RentalValidators
                 .GreaterThanOrEqualTo(DateTime.Today).WithMessage("Kiralama tarihi bugünün tarihinden önce olamaz!");
 
             RuleFor(x => x.ReturnDate)
-                .GreaterThan(x => x.RentDate)   // İade tarihi, kiralama tarihinden büyük olmalı
-                .When(x => x.ReturnDate.HasValue) // SADECE iade tarihi girilmişse (null değilse) bu kuralı çalıştır
+                .GreaterThan(x => x.RentDate)  
+                .When(x => x.ReturnDate.HasValue) 
                 .WithMessage("İade tarihi, kiralama tarihinden önce olamaz!");
 
             RuleFor(x => x.CreditCardInformation).SetValidator(new CreditCardInformationValidator());

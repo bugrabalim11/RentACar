@@ -51,7 +51,6 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 return Json(new { success = true });
             }
 
-            // Eğer patladıysa, Bölge Müdürünü (BaseController) ara, hatayı metin olarak al ve JS kuryesine JSON olarak ver!
             string errorMessage = await GetApiErrorMessageAsync(responseMessage);
             return Json(new { success = false, message = errorMessage });
         }
@@ -61,11 +60,6 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            // NOT: Patch işlemi kural gereği bir veri paketi (Body) bekler.
-            // SENİOR NOTU: Sadece ID gönderdiğimiz için kuryenin (HttpClient) eline fiziki bir veri (Body) vermiyoruz, boş bir kutu ("") veriyoruz.
-            // Ancak API'nin kapısındaki güvenlik çok katı olduğu için, kutu boş bile olsa üzerine
-            // "Bu bir JSON paketidir" (application/json) etiketini yapıştırmak ZORUNDAYIZ. 
-            // Aksi halde API kapıdan "Bu kutunun cinsi belli değil (415 Unsupported Media Type)" diyerek kargomuzu reddeder!
             var responseMessage = await client.PatchAsync($"api/admin/users/{id}/restore", new StringContent("", System.Text.Encoding.UTF8, "application/json"));
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -79,10 +73,6 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         public async Task<IActionResult> Create()
         {
             var viewModel = new UserCreateByAdminViewModel();
-            // SENİOR NOTU: Tepsinin (ViewModel) içine boş bir UserCreateForAdminDto (Sipariş Fişi) koyuyoruz.
-            // Eğer bunu yapmazsak, View (HTML) tarafı '@Model.UserCreate.FirstName' gibi değerleri okumaya çalıştığında 
-            // "Masa var ama üstünde kağıt yok!" diyerek Null Reference Exception (CS0120) hatası fırlatabilir.
-            // Bu hamle, bellekte (RAM) o boş kağıda fiziksel bir yer ayırır. İşimi şansa bırakmıyoruz!
             viewModel.UserCreate = new UserCreateByAdminDto();
             await PopulateDropdown(viewModel);
             return View(viewModel);
@@ -107,7 +97,6 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Refactor: DRY prensibi gereği, bu hata yakalama if-else bloğu BaseController'a taşındı!
             await HandleApiErrorAsync(responseMessage);
             await PopulateDropdown(userCreateForAdminViewModel);
             return View(userCreateForAdminViewModel);
@@ -155,7 +144,6 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Refactor: DRY prensibi gereği, bu hata yakalama if-else bloğu BaseController'a taşındı!
             await HandleApiErrorAsync(responseMessage);
             await PopulateDropdown(userUpdateForAdminViewModel);
             return View(userUpdateForAdminViewModel);

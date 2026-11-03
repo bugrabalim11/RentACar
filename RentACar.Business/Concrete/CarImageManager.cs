@@ -23,8 +23,6 @@ namespace RentACar.Business.Concrete
         {
             var car = await _carService.GetByIdAsync(carId);
             var carImages = await _carImageRepository.GetImagesWithCarDetailsAsync(carId);
-
-            // EF Core liste dönerken asla null dönmez, boş liste döner. Bu yüzden null yerine Any() ile kutunun içini kontrol ediyoruz.
             if (!carImages.Any())
             {
                 return new SuccessDataResult<List<CarImageDetailDto>>(new List<CarImageDetailDto>(), "Resim yok.");

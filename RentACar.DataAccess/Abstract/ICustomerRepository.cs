@@ -5,9 +5,7 @@ namespace RentACar.DataAccess.Abstract
     public interface ICustomerRepository : IRepository<Customer>
     {
         Task<List<Customer>> GetCustomersWithDetailsAsync();
-
         Task<Customer?> GetCustomerWithDetailsAsync(int id);
-
         Task<Customer?> GetCustomerByUserIdWithDetailsAsync(int userId);
     }
 }
