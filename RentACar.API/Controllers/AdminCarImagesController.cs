@@ -6,7 +6,7 @@ using RentACar.Dtos.CarImageDtos;
 
 namespace RentACar.API.Controllers
 {
-    [Route("api/admin/carimages")]
+    [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "admin")]
     public class AdminCarImagesController : ControllerBase
@@ -39,7 +39,7 @@ namespace RentACar.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(int id)
+        public async Task<IActionResult> DeleteAsync(int id)    
         {
             var result = await _adminCarImageService.DeleteAsync(id);
             return Ok(result);

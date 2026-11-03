@@ -6,7 +6,7 @@ using RentACar.Dtos.BrandDtos;
 
 namespace RentACar.API.Controllers
 {
-    [Route("api/admin/brands")]
+    [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "admin")]
     public class AdminBrandsController : ControllerBase

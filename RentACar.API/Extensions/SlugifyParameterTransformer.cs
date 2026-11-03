@@ -14,9 +14,9 @@ namespace RentACar.API.Extensions
 
             string str = value.ToString()!;
 
-            string kebabCase = Regex.Replace(str, "([a-z])([A-Z])", "$1-$2").ToLower();
+            string kebabCase = Regex.Replace(str, "([a-z])([A-Z])", "$1-$2").ToLowerInvariant();
 
-            return kebabCase.ToLower();
+            return kebabCase;
         }
     }
 }
