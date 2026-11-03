@@ -2,10 +2,12 @@
 
 namespace RentACar.MVC.Handlers
 {
-    // 1. DelegatingHandler'dan miras aldık (Artık bu sınıf bir gümrük memuru)
+    /// <summary>
+    /// MVC uygulamasından API'ye giden tüm HttpClient HTTP isteklerinin arasına girerek (Interception),
+    /// eğer kullanıcı giriş yapmışsa (Cookie'de AccessToken varsa) bu token'ı Authorization Bearer Header olarak isteğe otomatik ekler.
+    /// </summary>
     public class AuthTokenHandler : DelegatingHandler
     {
-        // 2. Cüzdana ulaşmak için Maymuncuk Anahtarı tanımladık
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public AuthTokenHandler(IHttpContextAccessor httpContextAccessor)
@@ -13,20 +15,15 @@ namespace RentACar.MVC.Handlers
             _httpContextAccessor = httpContextAccessor;
         }
 
-        // 3. Memurun asıl işi yapacağı Gümrük Kapısı metodu (Birazdan içini dolduracağız)
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            // 1. Cüzdanı aç ve "AccessToken" etiketli kartı bulmaya çalış
             var token = _httpContextAccessor.HttpContext?.Request.Cookies["AccessToken"];
 
-            // 2. Eğer cüzdanda kart (token) boş değilse:
             if(!string.IsNullOrEmpty(token))
             {
-                // Kuryenin (request) yakasına (Headers.Authorization) bu kartı "Bearer" olarak tak!
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
 
-            // 3. Kuryeyi API'ye doğru yola sal
             return await base.SendAsync(request, cancellationToken);
         }
     }

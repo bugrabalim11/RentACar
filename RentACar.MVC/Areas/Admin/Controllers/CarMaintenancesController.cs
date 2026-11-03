@@ -53,26 +53,16 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        // Ana menüden "Yeni Bakım Ekle"ye basılırsa kurye not getirmez(carId null olur).
-        // Arabalar listesinden basılırsa kurye not getirir(carId dolu olur).
+
         public async Task<IActionResult> Create(int? carId)
         {
-            // 1. KURYEDEN GELEN KUTU: Kutu boş (null) da olabilir, içinde bir sayı da olabilir.
-            // Garsonun tepsisini (ViewModel) 'new' diyerek fiziksel olarak inşa ediyoruz (Constructor burada devreye girip içindeki DTO'yu da üretiyor).
             var viewModel = new CarMaintenanceCreateViewModel();
-
-            // 2. VIP KONTROLÜ: Eğer kurye bir araba ID'si getirdiyse (Kısayol butonuna basıldıysa)
             if (carId.HasValue)
             {
-                // Kuryenin kutusundaki gerçek sayıyı (.Value) al ve DTO'nun içine yerleştir.
                 viewModel.CarMaintenanceCreate.CarId = carId.Value;
             }
 
-            // 3. STANDART İŞLEM: Adam VIP (carId var) olsa da olmasa da, o vitrindeki Dropdown (Araçlar Listesi) dolmak ZORUNDA!
-            // Artık ViewBag ile taşıyoruz
             await PopulateDropdowns();
-
-            // 4. SERVİS: Hazırlanan tepsiyi müşteriye (View'a) sun.
             return View(viewModel);
         }
 

@@ -3,9 +3,6 @@ using RentACar.Dtos.CarDtos;
 
 namespace RentACar.Business.ValidationRules.CarValidators
 {
-    // Sınıfımızın FluentValidation'ın AbstractValidator'ından miras alması gerekiyor
-    // İçine de hangi DTO'yu denetleyeceğini (CarCreateDto) yazıyoruz.
-    // Bool değerlere kural yazmadık çünkü FluentValidation'da bool değerler için genellikle kural yazmaya gerek yoktur.
     public class CarCreateDtoValidator : AbstractValidator<CarCreateDto>
     {
         public CarCreateDtoValidator()
@@ -22,7 +19,6 @@ namespace RentACar.Business.ValidationRules.CarValidators
                 .NotEmpty().WithMessage("Araç plakası boş bırakılamaz.")
                 .MaximumLength(10).WithMessage("Araç plakası en fazla 10 karakter olmalıdır.");
 
-            // YENİ HALİ:
             RuleFor(x => x.TransmissionType).IsInEnum().WithMessage("Lütfen geçerli bir vites tipi seçiniz (1: Manuel, 2: Otomatik, 3: Yarı Otomatik).");
             RuleFor(x => x.LuggageCapacity).IsInEnum().WithMessage("Lütfen geçerli bir bagaj boyutu seçiniz (1: Small, 2: Medium, 3: Large).");
 

@@ -28,7 +28,6 @@ namespace RentACar.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync(int id, BrandUpdateDto brandUpdateDto)
         {
-            // GÜVENLİK DUVARI: Garson ilk URL ve Form uyuşmazlığını yakalarsa kırmızı alarma basar!
             if (id != brandUpdateDto.Id)
             {
                 throw new BusinessException("Güvenlik İhlali: URL'deki ID ile gönderilen marka ID'si eşleşmiyor!");

@@ -40,7 +40,6 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
-            // Güvenlik (Hashing): Gelen çıplak şifreyi blenderdan geçirip (Hash ve Salt) şifreli hale getiriyoruz.
             byte[] passwordHash, passwordSalt;
             HashingHelper.CreatePasswordHash(userCreateForAdminDto.Password, out passwordHash, out passwordSalt);
 
@@ -54,8 +53,6 @@ namespace RentACar.Business.Concrete
 
             if (userCreateForAdminDto.OperationClaimId.HasValue)
             {
-                // Yetki Kartı (Rol) Ataması: Yeni oluşan kimlik numarasıyla (user.Id),
-                // Admin'in vitrinden seçtiği rol numarasını eşleştirip yetki tablosuna kaydediyoruz.
                 UserOperationClaimCreateDto userOperationClaimCreateDto = new UserOperationClaimCreateDto
                 {
                     UserId = user.Id,
@@ -84,12 +81,9 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
-            // Kimlik Kartını Güncelleme: Dışarıdan gelen formdaki (DTO) yeni bilgileri, veritabanından çektiğimiz gerçek nesnenin üzerine yazıyoruz.
-            // : Map(Kaynak, Hedef)
             _mapper.Map(userUpdateForAdminDto, existingUser);
             await _userRepository.UpdateAsync(existingUser);
 
-            // 4. Yetki Kartı Operasyonunu Zimmet Defteri Departmanına Devrediyoruz (Clean Code!)
             await _adminUserOperationClaimService.SetUserClaimAsync(existingUser.Id, userUpdateForAdminDto.OperationClaimId);
             return new SuccessResult("Kullanıcı başarıyla güncellendi.");
         }

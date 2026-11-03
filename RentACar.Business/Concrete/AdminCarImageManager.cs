@@ -38,14 +38,12 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
-            // FİZİKSEL YÜKLEME: Resmi sunucunun (wwwroot) klasörüne yükle.
             string? imagePath = _fileHelper.Upload(carImageAddDto.ImageFile, PathConstants.ImagesPath);
             if (imagePath == null)
             {
                 throw new BusinessException("Resim yüklenirken bir hata oluştu veya dosya boş.");
             }
 
-            // VERİTABANI KAYDI
             CarImage carImage = new CarImage
             {
                 CarId = carImageAddDto.CarId,
@@ -118,9 +116,6 @@ namespace RentACar.Business.Concrete
         public async Task<IResult> DeleteOldImagesAsync()
         {
             var oldImages = await _carImageRepository.GetAllAsync(x => x.IsDeleted && x.DeletedDate < DateTime.UtcNow.AddDays(-30), ignoreQueryFilters: true);
-
-            // KORUMA KALKANI (Guard Clause / Early Return): 
-            // Eğer silinecek resim yoksa gereksiz yere foreach döngüsüne girmemek için kapıdan dön.
             if (oldImages == null || !oldImages.Any())
             {
                 return new SuccessResult("Silinecek eski resim bulunamadı.");
@@ -128,10 +123,7 @@ namespace RentACar.Business.Concrete
 
             foreach (var image in oldImages)
             {
-                // ÖNCE FİZİKSEL TEMİZLİK: Sunucunun klasöründeki asıl JPG/PNG dosyasını uçuruyoruz.
                 _fileHelper.Delete(image.ImagePath);
-
-                // SONRA VERİTABANI TEMİZLİĞİ: SQL'den o kaydı kalıcı olarak (Hard Delete) siliyoruz.
                 await _carImageRepository.HardDeleteByIdAsync(image.Id);
             }
             return new SuccessResult();

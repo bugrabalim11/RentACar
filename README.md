@@ -26,13 +26,15 @@ Projede, modern yazılım endüstrisinin kabul gördüğü en güncel teknolojil
 
 ## 🏢 Katmanlı Mimari (N-Tier Architecture) Yapısı
 
-Sistem birbirinden bağımsız, ancak birbiriyle sözleşmeler (Interface'ler) üzerinden konuşan katmanlardan oluşur:
+Sistem birbirinden bağımsız, ancak birbiriyle sözleşmeler (Interface'ler) üzerinden konuşan 7 ana katmandan oluşur:
 
-1.  **Core Katmanı:** Projenin kalbidir. Hata yönetimi (Exceptions), Güvenlik (JWT), Interceptor'lar, Evrensel Kurallar ve Base sınıfları barındırır. Başka hiçbir katmana bağımlı değildir.
-2.  **Entities Katmanı:** Veritabanı nesnelerimizi (Car, Brand, User, Customer vb.) ve DTO (Data Transfer Object) sınıflarını içerir.
-3.  **DataAccess Katmanı:** Veritabanı operasyonlarının (Entity Framework) yönetildiği depomuzdur.
-4.  **Business Katmanı:** İş kurallarının (Business Rules) işletildiği mutfaktır. Spagetti koddan kaçınılmış, her kural "BusinessRules Engine" üzerinden modüler olarak kontrol edilmiştir.
-5.  **WebAPI Katmanı:** Dış dünyanın (MVC, Mobil Uygulama, React vb.) sistemle konuştuğu gişedir.
+1. **Core Katmanı:** Projenin kalbidir. Hata yönetimi (Exceptions), Güvenlik (JWT), Interceptor'lar, Evrensel Kurallar ve Base sınıfları barındırır. Başka hiçbir katmana bağımlı değildir.
+2. **Entities Katmanı:** Veritabanı tablolarımızın (Car, Brand, User vb.) C# nesnesi olarak (Entity) modellendiği katmandır.
+3. **DTOs (Data Transfer Objects) Katmanı:** Veritabanı nesnelerini doğrudan dışarı açmamak için kullandığımız, sadece müşteriye veya UI tarafına gidecek verileri taşıyan "kargo kolisi" modellerimizdir.
+4. **DataAccess Katmanı:** Veritabanı operasyonlarının (Entity Framework Core) yönetildiği depomuzdur.
+5. **Business Katmanı:** İş kurallarının (Business Rules) işletildiği mutfaktır. Her kural "BusinessRules Engine" üzerinden modüler olarak kontrol edilmiştir.
+6. **WebAPI Katmanı:** Dış dünyanın sistemin backend'i ile haberleştiği, JSON dönen arka uç (Backend) gişesidir.
+7. **MVC Katmanı:** Sistemimizin web tarafındaki vitrinidir (Client). WebAPI ile HTTP istekleri (HttpClient/DelegatingHandler) üzerinden haberleşerek son kullanıcıya ve yöneticilere (Admin) arayüz sunar.
 
 ## 🤝 Geliştirme Süreci & AI Pair Programming (Eşli Programlama)
 

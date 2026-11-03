@@ -20,8 +20,6 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
               .Include(x => x.Customer).ThenInclude(c => c.User)
               .Include(x => x.PickUpOffice)
               .Include(x => x.DropOffOffice)
-              // "Ey veritabanı, bana o kiralamaları getir ki, o kiralamaya bağlı olan Müşterinin
-              // (Customer) bağlı olduğu Kullanıcı ID'si (UserId), benim sana verdiğim userId'ye eşit olsun.
               .Where(x => x.Customer.UserId == userId)
               .ToListAsync();
         }
@@ -29,7 +27,6 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
         public async Task<List<Rental>> GetRentalsWithDetailsAsync()
         {
             return await _context.Rentals
-               // Sadece listeleme yapıyoruz, veriyi değiştirmeyeceğiz. Dedektiflere gerek yok! Performansı uçururur
                .AsNoTracking()
                .Include(x => x.Car).ThenInclude(c => c.Brand)
                .Include(x => x.Customer).ThenInclude(c => c.User)

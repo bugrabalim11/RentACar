@@ -4,7 +4,6 @@ using RentACar.Entities.Concrete;
 
 namespace RentACar.DataAccess.Concrete.EntityFramework
 {
-    // Genel depocu yeteneklerini base sınıftan alıyor, özel sözleşmeyi uyguluyor
     public class CarRepository : Repository<Car>, ICarRepository
     {
         private readonly RentACarContext _context;
@@ -16,7 +15,6 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
 
         public async Task<List<Car>> GetCarsWithDetailsAsync()
         {
-            // Entity Framework'ün Include kancalarını kullanarak tabloları SQL'de JOIN ediyoruz
             return await _context.Cars
                 .Include(c => c.Brand)
                 .Include(c => c.Color)
@@ -26,7 +24,6 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
 
         public async Task<Car?> GetCarWithDetailsAsync(int id)
         {
-            // Arabalar tablosuna git, Marka ve Rengi dahil et, ID'si benim gönderdiğim ID olanı bul ve getir.
             return await _context.Cars
                 .Include(c => c.Brand)
                 .Include(c => c.Color)

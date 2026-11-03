@@ -8,7 +8,5 @@ namespace RentACar.Dtos.PaymentDtos
         public decimal Amount { get; set; }
         public string TransactionId { get; set; } = null!;
         public bool IsSuccessful { get; set; }
-
-        // Id, CreatedDate, UpdatedDate YOK! Onları Gümrük Memuru ve SQL halledecek!
     }
 }

@@ -58,18 +58,14 @@ namespace RentACar.Business.Concrete
             var claimResult = await _userOperationClaimService.GetUpdateDtoByUserIdAsync(userId);
             if (claimResult.Success)
             {
-                // Durum A: Adamın zaten bir yetki kartı var.
                 if (operationClaimId.HasValue)
                 {
-                    // Admin yeni bir rütbe seçmiş, kartı güncelliyoruz.
-                    // .Value diyerek int? içindeki kesin int değerini alıyoruz (Hatanın çözümü!)
                     claimResult.Data.OperationClaimId = operationClaimId.Value;
                     await UpdateAsync(claimResult.Data);
                 }
                 else
                 {
-                    // Admin formda "Rütbesiz" seçeneğini seçmiş (null göndermiş). 
-                    // Adamın mevcut rütbe kartını yırtıp atıyoruz!
+                    // Adamınmevcut rütbe kartını yırtıp atıyoruz!
                     await DeleteAsync(claimResult.Data.Id);
                 }
             }
@@ -77,7 +73,6 @@ namespace RentACar.Business.Concrete
             {
                 if (operationClaimId.HasValue)
                 {
-                    // Durum B: Adamın önceden kartı YOKTU. Eğer Admin formdan yeni bir rütbe seçmişse, adama sıfırdan bir yetki kartı basıyoruz.
                     UserOperationClaimCreateDto userOperationClaimCreateDto = new UserOperationClaimCreateDto
                     {
                         UserId = userId,

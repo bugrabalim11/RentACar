@@ -50,9 +50,6 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException("Silincek araç bulunamadı.");
             }
 
-            // SENİOR NOTU: Biz sadece silme emrini (DeleteAsync) veriyoruz. 
-            // Fiziksel silme (Hard Delete) mi yoksa çöpe atma (Soft Delete) mı yapılacağına 
-            // DataAccess katmanındaki DbContext (Gümrük Memuru) otonom olarak karar verir!
             await _carRepository.DeleteAsync(existingCar);
             return new SuccessResult("Araç başarıyla silindi.");
         }

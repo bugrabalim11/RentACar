@@ -55,9 +55,6 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException(result.Message ?? "İş kurallarında beklenmeyen bir hata oluştu!");
             }
 
-            // SENİOR NOTU: Biz sadece silme emrini (DeleteAsync) veriyoruz. 
-            // Fiziksel silme (Hard Delete) mi yoksa çöpe atma (Soft Delete) mı yapılacağına 
-            // DataAccess katmanındaki DbContext (Gümrük Memuru) otonom olarak karar verir!
             await _brandRepository.DeleteAsync(existingBrand);
             return new SuccessResult("Marka başarıyla silindi.");
         }

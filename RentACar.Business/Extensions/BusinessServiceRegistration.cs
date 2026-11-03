@@ -6,16 +6,15 @@ using System.Reflection;
 
 namespace RentACar.Business.Extensions
 {
-    // Sınıf static olmalı!
+    /// <summary>
+    /// Business katmanına ait servislerin, genel repository'lerin ve FluentValidation kurallarının
+    /// .NET'in yerleşik IoC konteynerine (IServiceCollection) kaydedilmesini sağlar.
+    /// </summary>
     public static class BusinessServiceRegistration
     {
-        // IServiceCollection'ı genişletiyoruz (Extension Method)
         public static IServiceCollection AddBusinessServices(this IServiceCollection services)
         {
-            // DataAccess kayıtları
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-
-            // Business katmanındaki tüm Validator sınıflarını tara ve otomatik olarak sisteme kaydet
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
             return services;

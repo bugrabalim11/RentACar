@@ -24,8 +24,6 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
             var responseMessage = await client.GetAsync($"api/carimages/cars/{carId}");
-            // SENIOR NOTU: Kullanıcı 'Yeni Resim Ekle' dediğinde hangi arabaya ekleme yapacağımızı
-            // bilmek için bu ID'yi HTML'e ufak bir Post-it notu olarak yolluyoruz.
             ViewBag.CarId = carId;
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -75,7 +73,6 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         public async Task<IActionResult> Restore(int id)
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
-            // İkinci parametre olan null, API'a fazladan bir JSON nesnesi göndermediğimizi, sadece URL'deki id'nin yeterli olduğunu söyler.
             var responseMessage = await client.PatchAsync($"api/admin/carimages/{id}/restore", null);
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -88,9 +85,6 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult Create(int carId)
         {
-            // SENIOR NOTU: Müşterinin masasına (View) eli boş gitmiyoruz.
-            // HTML'deki 'asp-for' etiketlerinin patlamaması için masaya boş bir sipariş fişi (DTO) bırakıyoruz.
-            // Aynı zamanda fişin üzerine gizlice hangi arabaya (CarId) ait olduğunu damgalıyoruz ki POST işleminde kaybolmasın.
             CarImageCreateDto carImageCreateDto = new CarImageCreateDto
             {
                 CarId = carId,
@@ -101,28 +95,15 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(CarImageCreateDto carImageCreateDto)
         {
-            // 1. GARSONUN ÖN KONTROLÜ: Eğer DTO'daki [Required] kuralları ihlal edildiyse (resim seçilmediyse),
-            // kuryeyi (HttpClient) hiç yola çıkarmadan masadaki formu (View) hatalarıyla geri döndür.
             if (!ModelState.IsValid)
             {
                 return View(carImageCreateDto);
             }
 
             var client = _httpClientFactory.CreateClient("RentACarApi");
-
-            // SENIOR NOTU: using kelimesi, bu devasa kargo kolisi (MultipartFormDataContent) API'ye 
-            // ulaştığı an bekleme yapmadan RAM'den silinmesini (Garbage Collector) sağlar.
             using var content = new MultipartFormDataContent();
-
-            // Arabanın ID'sini koliye bir kağıt (StringContent) olarak ekliyoruz.
             content.Add(new StringContent(carImageCreateDto.CarId.ToString()), "CarId");
-
-            // Resmi parça parça akış (Stream) olarak koliye ekliyoruz.
             var streamContent = new StreamContent(carImageCreateDto.ImageFile.OpenReadStream());
-            // SENIOR NOTU: Kuryenin (HttpClient) taşıdığı fiziksel koliye dijital bir etiket (MIME type) basıyoruz.
-            // Eğer bunu yazmazsak, C# koliye varsayılan olarak "Bilinmeyen Dijital Yük" (application/octet-stream) etiketi basar.
-            // Mutfak (API) kargoyu açıp bu etiketi gördüğünde, FluentValidation kurallarımız "Bu bir resim değil!" diyerek paketi reddeder.
-            // Bu yüzden HTML'den gelen orijinal etiketini (örn: image/jpeg) koliye aynen kopyalıyoruz.
             streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(carImageCreateDto.ImageFile.ContentType);
             content.Add(streamContent, "ImageFile", carImageCreateDto.ImageFile.FileName);
 
@@ -130,11 +111,9 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 
             if (responseMessage.IsSuccessStatusCode)
             {
-                // Başarılıysa müşteriyi albüm odasına yolla
                 return RedirectToAction("Index", new { carId = carImageCreateDto.CarId });
             }
 
-            // Refactor: BaseController ile hatayı ekrana bas
             await HandleApiErrorAsync(responseMessage);
             return View(carImageCreateDto);
         }

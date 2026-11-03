@@ -41,19 +41,16 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException("Kullanıcı bulunamadı.");
             }
 
-            // GÜVENLİK DUVARI: Eski şifre doğru mu? (Blender kontrolü)
             if (!HashingHelper.VerifyPasswordHash(userChangePasswordDto.OldPassword, user.Data.PasswordHash, user.Data.PasswordSalt))
             {
                 throw new BusinessException("Eski şifreniz hatalı!");
             }
 
-            // YENİ MÜHÜR: Yeni şifreyi püre yap ve kavanozları (Hash/Salt) güncelle.
             byte[] passwordHash, passwordSalt;
             HashingHelper.CreatePasswordHash(userChangePasswordDto.NewPassword, out passwordHash, out passwordSalt);
             user.Data.PasswordHash = passwordHash;
             user.Data.PasswordSalt = passwordSalt;
 
-            // 4. KAYIT: Güncel bilgileri veritabanına işle.
             var result = await _userAuthService.UpdateForAuthAsync(user.Data);
             return new SuccessResult(result.Message ?? "Şifre başarıyla değiştirildi.");
         }
@@ -61,10 +58,7 @@ namespace RentACar.Business.Concrete
         public async Task<IDataResult<AccessToken>> CreateAccessToken(User user)
         {
             var claimsResult = await _userAuthService.GetClaimsAsync(user);
-
-            // MATBAA: VIP listesini (claimsResult.Data) matbaaya ver ve Token'ı (Bileti) üret.
             var accessToken = _tokenHelper.CreateToken(user, claimsResult.Data);
-
             return new SuccessDataResult<AccessToken>(accessToken, "Erişim bileti (Token) başarıyla oluşturuldu.");
         }
 
@@ -75,6 +69,7 @@ namespace RentACar.Business.Concrete
             {
                 throw new BusinessException("E-posta veya şifre hatalı!");
             }
+
             IResult? result = BusinessRules.Run(
                 _authBusinessRules.CheckIfUserActive(userToCheck.Data.IsDeleted)
             );
@@ -83,7 +78,6 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException(result.Message ?? "Kullanıcı pasif durumda.");
             }
 
-            // ŞİFRE KONTROLÜ: Blender makinemizi tersine çalıştırıyoruz.
             if (!HashingHelper.VerifyPasswordHash(userForLoginDto.Password, userToCheck.Data.PasswordHash, userToCheck.Data.PasswordSalt))
             {
                 throw new BusinessException("E-posta veya şifre hatalı!");
@@ -103,16 +97,14 @@ namespace RentACar.Business.Concrete
                 throw new BusinessException(result.Message ?? "Bu kullancı kayıtlı! Lütfen başka deneyiniz.");
             }
 
-            // BLENDER MAKİNESİ: Şifreyi püre yap (out ile kavanozları dolduruyoruz).
             byte[] passwordHash, passwordSalt;
             HashingHelper.CreatePasswordHash(password, out passwordHash, out passwordSalt);
 
             var user = _mapper.Map<User>(userForRegisterDto);
 
-            // MÜHÜRLEME: Güvenlik bilgilerini manuel olarak nesneye zerk et.
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
-            user.IsDeleted = false;  // Sisteme ilk kayıt olanı aktif yapıyoruz
+            user.IsDeleted = false;  
 
             await _userAuthService.AddAsync(user);
 

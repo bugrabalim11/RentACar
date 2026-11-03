@@ -5,6 +5,9 @@ using System.Linq.Expressions;
 
 namespace RentACar.DataAccess.Concrete.EntityFramework
 {
+    /// <summary>
+    /// Entity Framework Core kullanarak IRepository sözleşmesini uygulayan temel (Generic) veri erişim sınıfıdır.
+    /// </summary>
     public class Repository<T> : IRepository<T> where T : class, IEntity, new()
     {
         private readonly RentACarContext _context;
@@ -16,7 +19,6 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
 
         public async Task AddAsync(T entity)
         {
-            // Set<T>() o an hangi tabloyla çalışıyorsak (Örn: Cars) o tabloya konumlanır ve veriyi ekler
             await _context.Set<T>().AddAsync(entity);
             await _context.SaveChangesAsync();
         }
@@ -28,7 +30,6 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
             {
                 query = query.IgnoreQueryFilters();
             }
-            // Sadece şarta uyan kayıt var mı diye bakar, True/False döner.
             return await query.AnyAsync(filter);
         }
 
@@ -39,48 +40,38 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
 
         public async Task DeleteAsync(T entity)
         {
-            // Silme işlemi önce RAM'de kaydın durumunu 'Silindi' olarak işaretler (O yüzden await yok)
             _context.Set<T>().Remove(entity);
             await _context.SaveChangesAsync();
         }
 
-        // Çoklu kayıt (Liste) getirme işlemi
         public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, bool ignoreQueryFilters = false)
         {
-            // 1. Önce tabloyu seçiyoruz
             IQueryable<T> query = _context.Set<T>();
 
-            // 2. Eğer 'pelerini çıkar' şifresi geldiyse, global filtreyi yoksayıyoruz!
             if (ignoreQueryFilters)
             {
                 query = query.IgnoreQueryFilters();
             }
 
-            // 3. Klasik filtreleme ve listeleme (Senin yazdığın mantığın aynısı)
-            // Ternary If (üçlü operatör) kullandık:
-            // Eğer üst katmandan bir filtre gönderilmediyse (null ise) -> Tüm tabloyu listele (ToListAsync)
-            // Eğer filtre gönderildiyse -> Önce Where(filter) ile filtrele, sonra listele (ToListAsync)
             return filter == null
                 ? await query.ToListAsync()
                 : await query.Where(filter).ToListAsync();
         }
 
-        // Tek bir kayıt getirme işlemi
         public async Task<T?> GetAsync(Expression<Func<T, bool>> filter, bool ignoreQueryFilters = false)
         {
             IQueryable<T> query = _context.Set<T>();
+
             if (ignoreQueryFilters)
             {
                 query = query.IgnoreQueryFilters();
             }
 
-            // SingleOrDefaultAsync(filter) ise o tablodan gönderdiğimiz şarta uyan TEK BİR kaydı asenkron getirir.
             return await query.SingleOrDefaultAsync(filter);
         }
 
         public async Task UpdateAsync(T entity)
         {
-            // Güncelleme işlemi önce RAM'de (hafızada) kaydın durumunu 'Güncellendi' olarak işaretler (O yüzden await yok)
             _context.Set<T>().Update(entity);
             await _context.SaveChangesAsync();
         }

@@ -5,10 +5,9 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// Restoran (MVC) fedaisine kural kitabını veriyoruz!
+// JWT Authentication & Cookie Entegrasyonu
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -18,72 +17,54 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
-            // Kasadaki TokenOptions altındaki Issuer'ı getir:
             ValidIssuer = builder.Configuration["TokenOptions:Issuer"],
-
-            // Kasadaki TokenOptions altındaki Audience'ı getir:
             ValidAudience = builder.Configuration["TokenOptions:Audience"],
-
-            // Kasadaki SecurityKey'i getir ve byte dizisine (demire) çevirip mühür yap:
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["TokenOptions:SecurityKey"]!))
         };
 
-        // SİHİRLİ DOKUNUŞ: Fedaiye "VIP Kartı cebinden (Cookie) çıkarıp oku!" diyoruz.
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>
             {
-                // Tarayıcıdaki cüzdanı aç, AccessToken var mı bak
                 var token = context.Request.Cookies["AccessToken"];
                 if (!string.IsNullOrEmpty(token))
                 {
-                    // Varsa bunu fedaiye teslim et
                     context.Token = token;
                 }   
                 return Task.CompletedTask;
             },
-
-            // SENIOR NOTU: Eğer adam kapıdan 401 yiyip kovulursa (Challenge) devreye girecek olan telsiz:
             OnChallenge = context =>
             {
-                // 1. API'nin o ruhsuz, 401 hatasını (karanlık sokağı) iptal et diyoruz:
                 context.HandleResponse();
-
-                // 2. Müşteriyi kibarca kolundan tutup Login kapısına (bilet gişesine) yönlendir (Redirect) diyoruz:
                 context.Response.Redirect("/Admin/Login/Index");
-
                 return Task.CompletedTask;
             }
         };
     });
 
-// 1. Maymuncuk Anahtarı (Cüzdana erişim için)
+// IoC Container (Servis Kayıtları)
 builder.Services.AddHttpContextAccessor();
-
-// 2. Gümrük Memurunu işe al (Her istekte yeni bir memur - Transient)
 builder.Services.AddTransient<AuthTokenHandler>();
 
-// 3. Kuryeyi yarat VE YAKASINA MEMURU TAK! (İşte kritik nokta burası)
+// HttpClient ve Interceptor (DelegatingHandler) Konfigürasyonu
 builder.Services.AddHttpClient("RentACarApi", client =>
 {
-    // Ayar defterindeki o BaseUrl adresini okuyup kuryenin çantasına sabitliyoruz
     client.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!);
 })
-.AddHttpMessageHandler<AuthTokenHandler>(); // <-- BUM! Kurye artık çıkarken memura uğrayacak.
+.AddHttpMessageHandler<AuthTokenHandler>(); 
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// HTTP Request Pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
-// Adamın hangi odaya gitmek istediğini buluruz
 app.UseRouting();
+
 // Adama "Sen kimsin, cüzdanında Token var mı?
 app.UseAuthentication();
 // Adamın o odaya girmeye yetkisi var mı?

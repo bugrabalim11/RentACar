@@ -22,7 +22,6 @@ namespace RentACar.MVC.Controllers
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
-                // TODO İleride bu DTO'ları iki tarafın da görebileceği ortak bir klasöre taşıyacağız
                 var responseBox = JsonConvert.DeserializeObject<ResponseModel<List<CarResultDto>>>(jsonData);
                 if (responseBox != null && responseBox.Success)
                 {

@@ -14,9 +14,6 @@ namespace RentACar.Business.Profiles
             CreateMap<CustomerUpdateMyProfileDto, Customer>();
 
             CreateMap<Customer, CustomerResultDto>()
-                // DİKKAT: API sözleşmesini (DTO) veritabanı hiyerarşisine bağımlı kılmamak
-                // adına AutoMapper'ın Flattening (Düzleştirme) özelliği bilerek kullanılmamıştır.
-                // User tablosundaki isimler, DTO'ya manuel olarak (Explicit Mapping) haritalanmıştır.
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.User.FirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.User.LastName));
 

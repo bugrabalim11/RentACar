@@ -1,7 +1,7 @@
 ﻿namespace RentACar.Core.Utilities.Mailing
 {
     /// <summary>
-    /// Sistemin dış dünyaya göndereceği e-posta kargo kutusudur (DTO).
+    /// Gönderilecek e-postanın alıcı, konu ve içerik bilgilerini taşıyan veri transfer nesnesidir (DTO).
     /// </summary>
     public class MailRequest
     {

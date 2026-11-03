@@ -104,8 +104,6 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                     };
                     await PopulateDropdowns();
 
-                    // Örnek Pusu Kurulumu:
-                    // View da yaptığımız Türkiye saat dilimine çevirme işlemini burada da getiriyoruz
                     viewModel.RentalUpdateByAdmin.RentDate = viewModel.RentalUpdateByAdmin.RentDate.ToLocalTime();
                     if (viewModel.RentalUpdateByAdmin.ReturnDate.HasValue)
                     {

@@ -55,13 +55,13 @@ namespace RentACar.Business.Concrete
             int customerFindexScore = _findexScoreService.GetScoreByCustomerId(customer.Data.Id);
 
             IResult? result = BusinessRules.Run(
-            _rentalBusinessRules.CheckIfRentDateBeforeToday(rentalAddByAdminDto.RentDate),
-            _rentalBusinessRules.CheckIfCustomerDrivingExperienceIsSufficient(car.Data.MinDrivingExperience, customer.Data.DrivingLicenseYear),
-            _rentalBusinessRules.CheckIfCustomerFindexScoreIsSufficient(car.Data.MinFindexScore, customerFindexScore),
-            await _rentalBusinessRules.CheckIfCustomerExistsAsync(rentalAddByAdminDto.CustomerId),
-            await _rentalBusinessRules.CheckIfCarExistsAsync(rentalAddByAdminDto.CarId),
-            await _rentalBusinessRules.CheckIfCarIsInMaintenanceAsync(rentalAddByAdminDto.CarId, rentalAddByAdminDto.RentDate, rentalAddByAdminDto.ReturnDate),
-            await _rentalBusinessRules.CheckIfCarAvailable(rentalAddByAdminDto.CarId, rentalAddByAdminDto.RentDate, rentalAddByAdminDto.ReturnDate)
+                _rentalBusinessRules.CheckIfRentDateBeforeToday(rentalAddByAdminDto.RentDate),
+                _rentalBusinessRules.CheckIfCustomerDrivingExperienceIsSufficient(car.Data.MinDrivingExperience, customer.Data.DrivingLicenseYear),
+                _rentalBusinessRules.CheckIfCustomerFindexScoreIsSufficient(car.Data.MinFindexScore, customerFindexScore),
+                await _rentalBusinessRules.CheckIfCustomerExistsAsync(rentalAddByAdminDto.CustomerId),
+                await _rentalBusinessRules.CheckIfCarExistsAsync(rentalAddByAdminDto.CarId),
+                await _rentalBusinessRules.CheckIfCarIsInMaintenanceAsync(rentalAddByAdminDto.CarId, rentalAddByAdminDto.RentDate, rentalAddByAdminDto.ReturnDate),
+                await _rentalBusinessRules.CheckIfCarAvailable(rentalAddByAdminDto.CarId, rentalAddByAdminDto.RentDate, rentalAddByAdminDto.ReturnDate)
             );
             if (result != null)
             {
@@ -153,13 +153,13 @@ namespace RentACar.Business.Concrete
             int customerFindexScore = _findexScoreService.GetScoreByCustomerId(customer.Data.Id);
 
             IResult? result = BusinessRules.Run(
-            _rentalBusinessRules.CheckIfRentalIsAlreadyCompleted(existingRental.ReturnDate),
-            _rentalBusinessRules.CheckIfRentDateBeforeToday(rentalUpdateDto.RentDate),
-            _rentalBusinessRules.CheckIfCustomerDrivingExperienceIsSufficient(car.Data.MinDrivingExperience, customer.Data.DrivingLicenseYear),
-            _rentalBusinessRules.CheckIfCustomerFindexScoreIsSufficient(car.Data.MinFindexScore, customerFindexScore),
-            await _rentalBusinessRules.CheckIfCarExistsAsync(rentalUpdateDto.CarId),
-            await _rentalBusinessRules.CheckIfCarIsInMaintenanceAsync(rentalUpdateDto.CarId, rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate),
-            await _rentalBusinessRules.CheckIfCarAvailableForUpdate(rentalUpdateDto.Id, rentalUpdateDto.CarId, rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate)
+                _rentalBusinessRules.CheckIfRentalIsAlreadyCompleted(existingRental.ReturnDate),
+                _rentalBusinessRules.CheckIfRentDateBeforeToday(rentalUpdateDto.RentDate),
+                _rentalBusinessRules.CheckIfCustomerDrivingExperienceIsSufficient(car.Data.MinDrivingExperience, customer.Data.DrivingLicenseYear),
+                _rentalBusinessRules.CheckIfCustomerFindexScoreIsSufficient(car.Data.MinFindexScore, customerFindexScore),
+                await _rentalBusinessRules.CheckIfCarExistsAsync(rentalUpdateDto.CarId),
+                await _rentalBusinessRules.CheckIfCarIsInMaintenanceAsync(rentalUpdateDto.CarId, rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate),
+                await _rentalBusinessRules.CheckIfCarAvailableForUpdate(rentalUpdateDto.Id, rentalUpdateDto.CarId, rentalUpdateDto.RentDate, rentalUpdateDto.ReturnDate)
             );
             if (result != null)
             {
@@ -211,11 +211,10 @@ namespace RentACar.Business.Concrete
             {
                 var timeSpan = returnDate.Value - rentDate;
 
-                // SENİOR NOTU: Neden (decimal) ile Casting (Bilinçli Tip Dönüşümü) yaptık?
-                // Math.Ceiling fonksiyonu bize 'double' döner (Bilim İnsanı mantığı: virgüllü ve esnek).
-                // Ancak para işlemleri (dailyPrice) sıfır hata payı isteyen 'decimal' (Muhasebeci mantığı) tipindedir.
+                // Math.Ceiling fonksiyonu bize 'double' döner.
+                // Ancak para işlemleri (dailyPrice) sıfır hata payı isteyen 'decimal' tipindedir.
                 // C# derleyicisi bu iki farklı dünyanın çarpılmasına güvenlik gereği izin vermez.
-                // Bu yüzden (decimal) yazarak "Bilim insanının yuvarladığı sayıyı, muhasebecinin diline çevir" dedik.
+                // Bu yüzden (decimal) yazdık.
                 totalDays = (decimal)Math.Ceiling(timeSpan.TotalDays);
 
                 if (totalDays == 0 || totalDays < 0) { totalDays = 1; }
@@ -228,7 +227,6 @@ namespace RentACar.Business.Concrete
         {
             try
             {
-                // 1. Matbaacıdan hazır kargo kutusunu (Zarfı) al
                 var mailRequest = MailTemplateHelper.CreateRentalSuccessMail(
                     $"{customer.FirstName} {customer.LastName}",
                     customer.Email,
@@ -237,13 +235,11 @@ namespace RentACar.Business.Concrete
                     rentDate,
                     returnDate);
 
-                // 2. Postacıya teslim et ve yola çıkar
                 await _mailService.SendEmailAsync(mailRequest);
             }
             catch (Exception)
             {
-                // Mail atılamasa bile kiralama işlemi iptal OLMASIN! 
-                // Hata yutulur (İstersen buraya ileride NLog ile loglama yapabiliriz).
+
             }
         }
 
@@ -251,7 +247,6 @@ namespace RentACar.Business.Concrete
         {
             try
             {
-                // 1. Matbaacıdan hazır kargo kutusunu (Zarfı) al
                 var mailRequest = MailTemplateHelper.CreateRentalUpdateMail(
                     $"{customer.FirstName} {customer.LastName}",
                     customer.Email,
