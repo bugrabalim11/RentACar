@@ -135,7 +135,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.GetAsync("api/users");
+            var responseMessage = await client.GetAsync("api/admin-users");
             ViewBag.CustomerList = new List<object>(); 
             if (responseMessage.IsSuccessStatusCode)
             {

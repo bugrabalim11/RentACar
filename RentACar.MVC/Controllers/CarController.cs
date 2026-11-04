@@ -18,7 +18,7 @@ namespace RentACar.MVC.Controllers
         public async Task<IActionResult> Index()
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
-            var responseMessage = await client.GetAsync("api/Cars");
+            var responseMessage = await client.GetAsync("api/cars");
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
@@ -36,7 +36,7 @@ namespace RentACar.MVC.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.GetAsync($"api/Cars/{id}");
+            var responseMessage = await client.GetAsync($"api/cars/{id}");
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();

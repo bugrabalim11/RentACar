@@ -90,7 +90,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.GetAsync($"api/admin-user-operation-claims/{id}");
+            var responseMessage = await client.GetAsync($"api/user-operation-claims/{id}");
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();

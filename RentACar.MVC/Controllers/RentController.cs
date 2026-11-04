@@ -39,7 +39,7 @@ namespace RentACar.MVC.Controllers
             var client = _httpClientFactory.CreateClient("RentACarApi");
             var jsonData = JsonConvert.SerializeObject(viewModel.RentalCreateDto);
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            var responseMessage = await client.PostAsync("api/Rentals/rental", stringContent);
+            var responseMessage = await client.PostAsync("api/rentals", stringContent);
             if (responseMessage.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index", "Home");
@@ -52,7 +52,7 @@ namespace RentACar.MVC.Controllers
         private async Task PopulateDropdowns()
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
-            var officeResponseMessage = await client.GetAsync("api/Offices");
+            var officeResponseMessage = await client.GetAsync("api/offices");
             ViewBag.OfficeList = new List<object>();
             if (officeResponseMessage.IsSuccessStatusCode)
             {
