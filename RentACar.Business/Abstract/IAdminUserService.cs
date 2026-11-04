@@ -5,11 +5,11 @@ namespace RentACar.Business.Abstract
 {
     public interface IAdminUserService
     {
+        Task<IDataResult<UserResultDto>> GetByIdAsync(int id);
         Task<IResult> UpdateForAdminAsync(UserUpdateByAdminDto userUpdateForAdminDto);
         Task<IDataResult<int>> CreateForAdminAsync(UserCreateByAdminDto userCreateForAdminDto);
         Task<IResult> DeleteAsync(int id);
         Task<IResult> RestoreAsync(int id);
-        Task<IDataResult<List<UserResultByAdminDto>>> GetAllForAdminAsync();
-        Task<IDataResult<UserUpdateByAdminDto>> GetByIdForUpdateAsync(int id);
+        Task<IDataResult<List<UserResultByAdminDto>>> GetAllAsync();
     }
 }

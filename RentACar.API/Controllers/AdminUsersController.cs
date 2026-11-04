@@ -2,12 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Business.Abstract;
 using RentACar.Core.Exceptions;
-using RentACar.Core.Extensions;
 using RentACar.Dtos.UserDtos;
 
 namespace RentACar.API.Controllers
 {
-    [Route("api/admin/users")]
+    [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "admin")]
     public class AdminUsersController : ControllerBase
@@ -51,17 +50,17 @@ namespace RentACar.API.Controllers
             return Ok(result);
         }
 
-        [HttpGet("admin-details")]
-        public async Task<IActionResult> GetAllForAdminAsync()
+        [HttpGet]
+        public async Task<IActionResult> GetAllAsync()
         {
-            var result = await _adminUserService.GetAllForAdminAsync();
+            var result = await _adminUserService.GetAllAsync();
             return Ok(result);
         }
 
-        [HttpGet("{id}/update-form")]
-        public async Task<IActionResult> GetByIdForUpdate(int id)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetByIdAsync(int id)
         {
-            var result = await _adminUserService.GetByIdForUpdateAsync(id);
+            var result = await _adminUserService.GetByIdAsync(id);
             return Ok(result);
         }
     }

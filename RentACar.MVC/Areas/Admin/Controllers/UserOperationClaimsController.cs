@@ -140,7 +140,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var usersResponseMessage = await client.GetAsync("api/users");
+            var usersResponseMessage = await client.GetAsync("api/admin-users");
             var claimsResponseMessage = await client.GetAsync("api/operation-claims");
             ViewBag.UserList = new List<object>();
             ViewBag.ClaimList = new List<object>();
