@@ -6,7 +6,7 @@ using RentACar.Dtos.CustomerDtos;
 
 namespace RentACar.API.Controllers
 {
-    [Route("api/admin/customers")]
+    [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "admin")]
     public class AdminCustomersController : ControllerBase
@@ -19,7 +19,7 @@ namespace RentACar.API.Controllers
         }
         
         [HttpGet]
-        public async Task<IActionResult> GelAllAsync()
+        public async Task<IActionResult> GetAllAsync()
         {
             var result = await _adminCustomerService.GetAllAsync();
             return Ok(result);
