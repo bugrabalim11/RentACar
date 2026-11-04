@@ -5,7 +5,7 @@ using RentACar.Dtos.ContactMessageDtos;
 
 namespace RentACar.API.Controllers
 {
-    [Route("api/contact-messages")]
+    [Route("api/[controller]")]
     [ApiController]
     [AllowAnonymous]
     public class ContactMessagesController : ControllerBase

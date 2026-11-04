@@ -23,7 +23,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.GetAsync("api/admin/contact-messages");
+            var responseMessage = await client.GetAsync("api/admin-contact-messages");
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
@@ -40,7 +40,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
-            var responseMessage = await client.DeleteAsync($"api/admin/contact-messages/{id}");
+            var responseMessage = await client.DeleteAsync($"api/admin-contact-messages/{id}");
             if (responseMessage.IsSuccessStatusCode)
             {
                 return Json(new { success = true });
@@ -53,8 +53,8 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         public async Task<IActionResult> Details(int id)
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
-            await client.PatchAsync($"api/admin/contact-messages/MarkAsRead/{id}", null);
-            var responseMessage = await client.GetAsync($"api/admin/contact-messages/{id}");
+            await client.PatchAsync($"api/admin-contact-messages/{id}/mark-as-read", null);
+            var responseMessage = await client.GetAsync($"api/admin-contact-messages/{id}");
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();

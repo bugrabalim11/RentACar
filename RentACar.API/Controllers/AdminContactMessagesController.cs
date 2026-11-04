@@ -4,7 +4,7 @@ using RentACar.Business.Abstract;
 
 namespace RentACar.API.Controllers
 {
-    [Route("api/admin/contact-messages")]
+    [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "admin")]
     public class AdminContactMessagesController : ControllerBase
@@ -37,7 +37,7 @@ namespace RentACar.API.Controllers
             return Ok(result);
         }
 
-        [HttpPatch("MarkAsRead/{id}")]
+        [HttpPatch("{id}/mark-as-read")]
         public async Task<IActionResult> MarkAsReadAsync(int id)
         {
             var result = await _adminContactMessageService.MarkAsReadAsync(id);
