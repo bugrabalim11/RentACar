@@ -6,7 +6,7 @@ using RentACar.Dtos.UserOperationClaimDtos;
 
 namespace RentACar.API.Controllers
 {
-    [Route("api/admin/useroperationclaims")]
+    [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "admin")]
     public class AdminUserOperationClaimsController : ControllerBase
