@@ -6,7 +6,7 @@ using RentACar.Dtos.CarDtos;
 
 namespace RentACar.API.Controllers
 {
-    [Route("api/admin/cars")]
+    [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "admin")]
     public class AdminCarsController : ControllerBase   

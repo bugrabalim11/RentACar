@@ -6,7 +6,7 @@ using RentACar.Dtos.ContactInfoDtos;
 
 namespace RentACar.API.Controllers
 {
-    [Route("api/admin/contact-infos")]
+    [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "admin")]
     public class AdminContactInfosController : ControllerBase

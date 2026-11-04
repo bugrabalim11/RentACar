@@ -29,6 +29,21 @@ namespace RentACar.Business.Concrete
             _mapper = mapper;
         }
 
+        public async Task<IDataResult<UserResultDto>> GetByIdAsync(int id)
+        {
+            var user = await _userRepository.GetAsync(x => x.Id == id);
+            if (user == null)
+            {
+                throw new BusinessException("Kullanıcı bulunamadı.");
+            }
+            var claims = await _userRepository.GetClaimsAsync(user);
+
+            var userDto = _mapper.Map<UserResultDto>(user);
+            userDto.OperationClaimId = claims.FirstOrDefault()?.Id ?? 0;
+
+            return new SuccessDataResult<UserResultDto>(userDto, "Kullancı başarıyla getirildi.");
+        }
+
         public async Task<IDataResult<int>> CreateForAdminAsync(UserCreateByAdminDto userCreateForAdminDto)
         {
             userCreateForAdminDto.Email = userCreateForAdminDto.Email.Trim().ToLower();
@@ -112,33 +127,12 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Kullanıcı başarıyla geri getirildi.");
         }
 
-        public async Task<IDataResult<List<UserResultByAdminDto>>> GetAllForAdminAsync()
+        public async Task<IDataResult<List<UserResultByAdminDto>>> GetAllAsync()
         {
             var users = await _userRepository.GetAllAsync(ignoreQueryFilters: true);
             var sortedUsers = users.OrderByDescending(x => x.CreatedDate).ToList();
             var userDtos = _mapper.Map<List<UserResultByAdminDto>>(sortedUsers);
             return new SuccessDataResult<List<UserResultByAdminDto>>(userDtos, "Kullanıcılar başarıyla listelendi.");
-        }
-
-        public async Task<IDataResult<UserUpdateByAdminDto>> GetByIdForUpdateAsync(int id)
-        {
-            var user = await _userRepository.GetAsync(x => x.Id == id);
-            if (user == null)
-            {
-                throw new BusinessException("Kullanıcı bulunamadı.");
-            }
-            var userDto = _mapper.Map<UserUpdateByAdminDto>(user);
-            var claimResult = await _userOperationClaimService.GetUpdateDtoByUserIdAsync(id);
-            if (claimResult.Success)
-            {
-                userDto.OperationClaimId = claimResult.Data.OperationClaimId;
-            }
-            else
-            {
-                userDto.OperationClaimId = null;
-            }
-
-            return new SuccessDataResult<UserUpdateByAdminDto>(userDto, "Kullancı başarıyla getirildi.");
         }
     }
 }

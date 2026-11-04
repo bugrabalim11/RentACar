@@ -18,22 +18,6 @@ namespace RentACar.API.Controllers
             _userService = userService;
         }
 
-        [Authorize(Roles = "admin")]
-        [HttpGet]
-        public async Task<IActionResult> GetAllAsync()
-        {
-            var result = await _userService.GetAllAsync();
-            return Ok(result);
-        }
-
-        [Authorize(Roles = "admin")]
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdAsync(int id)
-        {
-            var result = await _userService.GetByIdAsync(id);
-            return Ok(result);
-        }
-
         [HttpGet("profile")]
         public async Task<IActionResult> GetMyProfileAsync()
         {

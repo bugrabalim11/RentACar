@@ -6,7 +6,7 @@ using RentACar.Dtos.OfficeDtos;
 
 namespace RentACar.API.Controllers
 {
-    [Route("api/admin/offices")]
+    [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "admin")]
     public class AdminOfficesController : ControllerBase

@@ -4,7 +4,7 @@ using RentACar.Business.Abstract;
 
 namespace RentACar.API.Controllers
 {
-    [Route("api/car-maintenances")]
+    [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "admin")]
     public class CarMaintenancesController : ControllerBase

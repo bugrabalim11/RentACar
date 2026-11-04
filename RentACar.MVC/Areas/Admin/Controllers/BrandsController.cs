@@ -23,7 +23,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.GetAsync("api/Brands");
+            var responseMessage = await client.GetAsync("api/brands");
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
@@ -41,7 +41,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.DeleteAsync($"api/admin/brands/{id}");
+            var responseMessage = await client.DeleteAsync($"api/admin-brands/{id}");
             if (responseMessage.IsSuccessStatusCode)
             {
                 return Json(new { success = true });
@@ -64,7 +64,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             var client = _httpClientFactory.CreateClient("RentACarApi");
             var jsonData = JsonConvert.SerializeObject(brandCreateDto);
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            var responseMessage = await client.PostAsync("api/admin/brands", stringContent);
+            var responseMessage = await client.PostAsync("api/admin-brands", stringContent);
 
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -80,7 +80,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessasge = await client.GetAsync($"api/Brands/{id}");
+            var responseMessasge = await client.GetAsync($"api/brands/{id}");
             if (responseMessasge.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessasge.Content.ReadAsStringAsync();
@@ -107,7 +107,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 
             var jsonData = JsonConvert.SerializeObject(brandUpdateDto);
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            var responseMessage = await client.PutAsync($"api/admin/brands/{brandUpdateDto.Id}", stringContent);
+            var responseMessage = await client.PutAsync($"api/admin-brands/{brandUpdateDto.Id}", stringContent);
             if (responseMessage.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");

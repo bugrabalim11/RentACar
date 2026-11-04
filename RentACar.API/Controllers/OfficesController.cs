@@ -4,7 +4,7 @@ using RentACar.Business.Abstract;
 
 namespace RentACar.API.Controllers
 {
-    [Route("api/offices")]
+    [Route("api/[controller]")]
     [ApiController]
     [AllowAnonymous]
     public class OfficesController : ControllerBase

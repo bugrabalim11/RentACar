@@ -18,7 +18,7 @@ namespace RentACar.API.Controllers
             _rentalService = rentalService;
         }
 
-        [HttpPost("rental")]
+        [HttpPost]
         public async Task<IActionResult> CreateAsync(RentalCreateDto rentalAddDto)
         {
             int userId = User.GetUserId();
@@ -26,7 +26,7 @@ namespace RentACar.API.Controllers
             return Ok(result);
         }
 
-        [HttpGet("rentals")]
+        [HttpGet("my-rentals")]
         public async Task<IActionResult> GetMyRentalsAsync()
         {
             int userId = User.GetUserId();
@@ -34,19 +34,19 @@ namespace RentACar.API.Controllers
             return Ok(result);
         }
 
-        [HttpGet("{rentalId}/rental")]
-        public async Task<IActionResult> GetMyRentalByIdAsync(int rentalId)
+        [HttpGet("my-rentals/{id}")]
+        public async Task<IActionResult> GetMyRentalByIdAsync(int id)
         {
             int userId = User.GetUserId();
-            var result = await _rentalService.GetMyRentalByIdAsync(rentalId, userId);
+            var result = await _rentalService.GetMyRentalByIdAsync(id, userId);
             return Ok(result);
         }
 
-        [HttpPut("{rentalId}/rental")]
-        public async Task<IActionResult> UpdateMyRentalAsync(int rentalId, RentalUpdateReturnDateDto rentalUpdateReturnDateDto)
+        [HttpPut("my-rentals/{id}")]
+        public async Task<IActionResult> UpdateMyRentalAsync(int id, RentalUpdateReturnDateDto rentalUpdateReturnDateDto)
         {
             int userId = User.GetUserId();
-            var result = await _rentalService.UpdateMyRentalAsync(userId, rentalId, rentalUpdateReturnDateDto);
+            var result = await _rentalService.UpdateMyRentalAsync(userId, id, rentalUpdateReturnDateDto);
             return Ok(result);
         }
     }

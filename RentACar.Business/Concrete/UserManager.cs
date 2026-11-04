@@ -38,26 +38,6 @@ namespace RentACar.Business.Concrete
             return new SuccessResult("Kullanıcı başarıyla silindi.");
         }
 
-        public async Task<IDataResult<List<UserResultDto>>> GetAllAsync()
-        {
-            var users = await _userRepository.GetAllAsync();
-            var sortedUsers = users.OrderByDescending(x => x.CreatedDate).ToList();
-            var userDtos = _mapper.Map<List<UserResultDto>>(sortedUsers);
-            return new SuccessDataResult<List<UserResultDto>>(userDtos, "Kullanıcılar başarıyla listelendi.");
-        }
-
-        public async Task<IDataResult<UserResultDto>> GetByIdAsync(int id)
-        {
-            var user = await _userRepository.GetAsync(x => x.Id == id);
-            if (user == null)
-            {
-                throw new BusinessException("Kullanıcı bulunamadı.");
-            }
-
-            var userDto = _mapper.Map<UserResultDto>(user);
-            return new SuccessDataResult<UserResultDto>(userDto, "Kullancı başarıyla getirildi.");
-        }
-
         public async Task<IDataResult<UserResultDto>> GetMyProfile(int id)
         {
             var user = await _userRepository.GetAsync(x => x.Id == id);

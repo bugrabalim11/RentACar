@@ -3,6 +3,7 @@ using Autofac.Extensions.DependencyInjection;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using RentACar.API.BackgroundServices;
@@ -26,6 +27,7 @@ builder.Host.ConfigureContainer<ContainerBuilder>(options =>
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ValidationFilters>();
+    options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
 });
 
 // --- 3. Background Services ---

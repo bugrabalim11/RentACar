@@ -27,7 +27,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.GetAsync("api/admin/users/admin-details");
+            var responseMessage = await client.GetAsync("api/admin-users");
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
@@ -45,7 +45,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.DeleteAsync(($"api/admin/users/{id}"));
+            var responseMessage = await client.DeleteAsync(($"api/admin-users/{id}"));
             if (responseMessage.IsSuccessStatusCode)
             {
                 return Json(new { success = true });
@@ -60,7 +60,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.PatchAsync($"api/admin/users/{id}/restore", new StringContent("", System.Text.Encoding.UTF8, "application/json"));
+            var responseMessage = await client.PatchAsync($"api/admin-users/{id}/restore", new StringContent("", System.Text.Encoding.UTF8, "application/json"));
             if (responseMessage.IsSuccessStatusCode)
             {
                 return Json(new { success = true });
@@ -91,7 +91,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 
             var jsonData = JsonConvert.SerializeObject(userCreateForAdminViewModel.UserCreate);
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            var responseMessage = await client.PostAsync("api/admin/users", stringContent);
+            var responseMessage = await client.PostAsync("api/admin-users", stringContent);
             if (responseMessage.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");
@@ -107,7 +107,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.GetAsync($"api/admin/users/{id}/update-form");
+            var responseMessage = await client.GetAsync($"api/admin-users/{id}");
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
@@ -138,7 +138,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 
             var jsonData = JsonConvert.SerializeObject(userUpdateForAdminViewModel.UserUpdate);
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            var responseMessage = await client.PutAsync($"api/admin/users/{userUpdateForAdminViewModel.UserUpdate.Id}", stringContent);
+            var responseMessage = await client.PutAsync($"api/admin-users/{userUpdateForAdminViewModel.UserUpdate.Id}", stringContent);
             if (responseMessage.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");
@@ -152,7 +152,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         private async Task PopulateDropdown(IUserDropdownViewModel userDropdownViewModel)
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
-            var responseMessage = await client.GetAsync("api/operationclaims");
+            var responseMessage = await client.GetAsync("api/operation-claims");
             userDropdownViewModel.Roles = new List<OperationClaimResultDto>();
             if (responseMessage.IsSuccessStatusCode)
             {

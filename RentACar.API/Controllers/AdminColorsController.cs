@@ -6,7 +6,7 @@ using RentACar.Dtos.ColorDtos;
 
 namespace RentACar.API.Controllers
 {
-    [Route("api/admin/colors")]
+    [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "admin")]
     public class AdminColorsController : ControllerBase

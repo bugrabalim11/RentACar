@@ -23,7 +23,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.GetAsync($"api/carimages/cars/{carId}");
+            var responseMessage = await client.GetAsync($"api/car-images/car/{carId}");
             ViewBag.CarId = carId;
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -41,7 +41,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         public async Task<IActionResult> DeletedImages(int carId)
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
-            var responseMessage = await client.GetAsync($"api/admin/carimages/cars/{carId}/deleted");
+            var responseMessage = await client.GetAsync($"api/admin-car-images/cars/{carId}/deleted");
             ViewBag.CarId = carId;
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -60,7 +60,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.DeleteAsync($"api/admin/carimages/{id}");
+            var responseMessage = await client.DeleteAsync($"api/admin-car-images/{id}");
             if (responseMessage.IsSuccessStatusCode)
             {
                 return Json(new { success = true });
@@ -73,7 +73,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         public async Task<IActionResult> Restore(int id)
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
-            var responseMessage = await client.PatchAsync($"api/admin/carimages/{id}/restore", null);
+            var responseMessage = await client.PatchAsync($"api/admin-car-images/{id}/restore", null);
             if (responseMessage.IsSuccessStatusCode)
             {
                 return Json(new { success = true });
@@ -107,7 +107,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(carImageCreateDto.ImageFile.ContentType);
             content.Add(streamContent, "ImageFile", carImageCreateDto.ImageFile.FileName);
 
-            var responseMessage = await client.PostAsync("api/admin/carimages", content);
+            var responseMessage = await client.PostAsync("api/admin-car-images", content);
 
             if (responseMessage.IsSuccessStatusCode)
             {

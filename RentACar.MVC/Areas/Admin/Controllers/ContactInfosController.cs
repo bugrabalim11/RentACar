@@ -41,7 +41,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
-            var responseMessage = await client.DeleteAsync($"api/admin/contact-infos/{id}");
+            var responseMessage = await client.DeleteAsync($"api/admin-contact-infos/{id}");
             if (responseMessage.IsSuccessStatusCode)
             {
                 return Json(new { success = true });
@@ -65,7 +65,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 
             var jsonData = JsonConvert.SerializeObject(contactInfoCreateDto);
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            var responseMessage = await client.PostAsync("api/admin/contact-infos", stringContent);
+            var responseMessage = await client.PostAsync("api/admin-contact-infos", stringContent);
             if (responseMessage.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");
@@ -106,7 +106,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 
             var jsonData = JsonConvert.SerializeObject(contactInfoUpdateDto);
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            var responseMessage = await client.PutAsync($"api/admin/contact-infos/{contactInfoUpdateDto.Id}", stringContent);
+            var responseMessage = await client.PutAsync($"api/admin-contact-infos/{contactInfoUpdateDto.Id}", stringContent);
             if (responseMessage.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");

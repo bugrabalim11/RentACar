@@ -28,7 +28,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.GetAsync("api/Cars");
+            var responseMessage = await client.GetAsync("api/cars");
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
@@ -45,7 +45,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
-            var responseMessage = await client.DeleteAsync($"api/admin/cars/{id}");
+            var responseMessage = await client.DeleteAsync($"api/admin-cars/{id}");
             if (responseMessage.IsSuccessStatusCode)
             {
                 return Json(new { success = true });
@@ -59,7 +59,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.GetAsync($"api/Cars/{id}");
+            var responseMessage = await client.GetAsync($"api/cars/{id}");
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
@@ -93,7 +93,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
             var client = _httpClientFactory.CreateClient("RentACarApi");
             var jsonData = JsonConvert.SerializeObject(carCreateViewModel.CarCreate);
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            var responseMessage = await client.PostAsync("api/admin/cars", stringContent);
+            var responseMessage = await client.PostAsync("api/admin-cars", stringContent);
             if (responseMessage.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");
@@ -109,7 +109,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
 
-            var responseMessage = await client.GetAsync($"api/Cars/{id}");
+            var responseMessage = await client.GetAsync($"api/cars/{id}");
             if (responseMessage.IsSuccessStatusCode)
             {
                 var jsonData = await responseMessage.Content.ReadAsStringAsync();
@@ -140,7 +140,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 
             var jsonData = JsonConvert.SerializeObject(carUpdateViewModel.CarUpdate);
             var stringContent = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            var responseMessage = await client.PutAsync($"api/admin/cars/{carUpdateViewModel.CarUpdate.Id}", stringContent);
+            var responseMessage = await client.PutAsync($"api/admin-cars/{carUpdateViewModel.CarUpdate.Id}", stringContent);
             if (responseMessage.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");
@@ -153,8 +153,8 @@ namespace RentACar.MVC.Areas.Admin.Controllers
         private async Task PopulateDropdowns(ICarDropdownViewModel carDropdownViewModel)
         {
             var client = _httpClientFactory.CreateClient("RentACarApi");
-            var brandsResponseMessage = await client.GetAsync("api/Brands");
-            var colorsResponseMessage = await client.GetAsync("api/Colors");
+            var brandsResponseMessage = await client.GetAsync("api/brands");
+            var colorsResponseMessage = await client.GetAsync("api/colors");
             carDropdownViewModel.Brands = new List<BrandResultDto>();
             carDropdownViewModel.Colors = new List<ColorResultDto>();
             if (brandsResponseMessage.IsSuccessStatusCode && colorsResponseMessage.IsSuccessStatusCode)

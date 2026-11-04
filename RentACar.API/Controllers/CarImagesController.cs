@@ -16,7 +16,7 @@ namespace RentACar.API.Controllers
             _carImageService = carImageService;
         }
 
-        [HttpGet("cars/{carId}")]
+        [HttpGet("car/{carId}")]
         public async Task<IActionResult> GetImagesByCarIdAsync(int carId)
         {
             var result = await _carImageService.GetImagesByCarIdAsync(carId);
