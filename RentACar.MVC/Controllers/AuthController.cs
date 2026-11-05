@@ -7,23 +7,23 @@ using RentACar.MVC.Extensions;
 namespace RentACar.MVC.Controllers
 {
     [AllowAnonymous]
-    public class LoginController : BaseController
+    public class AuthController : BaseController
     {
         private readonly IHttpClientFactory _httpClientFactory;
 
-        public LoginController(IHttpClientFactory httpClientFactory)
+        public AuthController(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }
 
         [HttpGet]
-        public IActionResult Index()
+        public IActionResult Login()
         {
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Index(UserForLoginDto userForLoginDto)
+        public async Task<IActionResult> Login(UserForLoginDto userForLoginDto)
         {
             if (!ModelState.IsValid) { return View(userForLoginDto); }
             var client = _httpClientFactory.CreateClient("RentACarApi");
@@ -48,10 +48,10 @@ namespace RentACar.MVC.Controllers
 
             Response.Cookies.Append("AccessToken", tokenData.Token, new CookieOptions
             {
-                HttpOnly = true, 
+                HttpOnly = true,
                 SameSite = SameSiteMode.Strict,
                 Secure = false,
-                Expires = DateTime.Now.AddDays(1) 
+                Expires = DateTime.Now.AddDays(1)
             });
 
             var userRole = tokenData.Token.GetRoleFromJwt();
