@@ -38,7 +38,6 @@ namespace RentACar.MVC.Controllers
             }
 
             var successJsonData = await responseMessage.Content.ReadAsStringAsync();
-
             var tokenData = JsonConvert.DeserializeObject<AccessTokenResponseDto>(successJsonData);
             if (tokenData == null)
             {
@@ -51,7 +50,7 @@ namespace RentACar.MVC.Controllers
                 HttpOnly = true,
                 SameSite = SameSiteMode.Strict,
                 Secure = false,
-                Expires = DateTime.Now.AddDays(1)
+                Expires = DateTime.UtcNow.AddDays(1)
             });
 
             var userRole = tokenData.Token.GetRoleFromJwt();
@@ -59,7 +58,51 @@ namespace RentACar.MVC.Controllers
             {
                 return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
             }
+            return RedirectToAction("Index", "Home");
+        }
 
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Register(UserForRegisterDto userForRegisterDto)
+        {
+            if (!ModelState.IsValid) { return View(userForRegisterDto); }
+            var client = _httpClientFactory.CreateClient("RentACarApi");
+
+            var jsonData = JsonConvert.SerializeObject(userForRegisterDto);
+            var stringContent = new StringContent(jsonData, System.Text.Encoding.UTF8, "application/json");
+            var responseMessage = await client.PostAsync("api/auths/register", stringContent);
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                await HandleApiErrorAsync(responseMessage);
+                return View(userForRegisterDto);
+            }
+
+            var successJsonData = await responseMessage.Content.ReadAsStringAsync();
+            var tokenData = JsonConvert.DeserializeObject<AccessTokenResponseDto>(successJsonData);
+            if (tokenData == null)
+            {
+                ModelState.AddModelError(string.Empty, "Token bilgisi alınamadı.");
+                return View(userForRegisterDto);
+            }
+
+            Response.Cookies.Append("AccessToken", tokenData.Token, new CookieOptions
+            {
+                HttpOnly = true,
+                SameSite = SameSiteMode.Strict,
+                Secure = false,
+                Expires = DateTime.UtcNow.AddDays(1)
+            });
+
+            var userRole = tokenData.Token.GetRoleFromJwt();
+            if (userRole == "admin")
+            {
+                return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+            }
             return RedirectToAction("Index", "Home");
         }
     }
