@@ -2,11 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RentACar.Dtos.AuthDtos;
-using RentACar.MVC.Controllers;
+using RentACar.MVC.Extensions;
 
-namespace RentACar.MVC.Areas.Admin.Controllers
+namespace RentACar.MVC.Controllers
 {
-    [Area("Admin")]
     [AllowAnonymous]
     public class LoginController : BaseController
     {
@@ -31,7 +30,7 @@ namespace RentACar.MVC.Areas.Admin.Controllers
 
             var jsonData = JsonConvert.SerializeObject(userForLoginDto);
             var stringContent = new StringContent(jsonData, System.Text.Encoding.UTF8, "application/json");
-            var responseMessage = await client.PostAsync("api/Auths/Login", stringContent);
+            var responseMessage = await client.PostAsync("api/auths/login", stringContent);
             if (!responseMessage.IsSuccessStatusCode)
             {
                 await HandleApiErrorAsync(responseMessage);
@@ -55,7 +54,13 @@ namespace RentACar.MVC.Areas.Admin.Controllers
                 Expires = DateTime.Now.AddDays(1) 
             });
 
-            return RedirectToAction("Index", "Dashboard");
+            var userRole = tokenData.Token.GetRoleFromJwt();
+            if (userRole == "admin")
+            {
+                return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+            }
+
+            return RedirectToAction("Index", "Home");
         }
     }
 }

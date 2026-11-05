@@ -19,7 +19,7 @@ namespace RentACar.API.Controllers
         }
 
 
-        [HttpPost("Login")]
+        [HttpPost("login")]
         public async Task<IActionResult> Login(UserForLoginDto userForLoginDto)
         {
             var userToLogin = await _authService.Login(userForLoginDto);
@@ -27,7 +27,7 @@ namespace RentACar.API.Controllers
             return Ok(result.Data);
         }
 
-        [HttpPost("Register")]
+        [HttpPost("register")]
         public async Task<IActionResult> Register(UserForRegisterDto userForRegisterDto)
         {
             var registerResult = await _authService.Register(userForRegisterDto, userForRegisterDto.Password);

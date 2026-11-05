@@ -27,7 +27,7 @@ namespace RentACar.Business.Rules
 
         public async Task<IResult> CheckIfOperationClaimNameExistsAsync(string operationClaim)
         {
-            bool existOperationClaim = await _operationClaimRepository.AnyAsync(x => x.Name.ToLower() == operationClaim.ToLower());
+            bool existOperationClaim = await _operationClaimRepository.AnyAsync(x => x.Name == operationClaim);
             if (existOperationClaim)
             {
                 return new ErrorResult("Bu statü sistemde kayıtlı! Lütfen başka statü girmeyi deneyin.");
@@ -37,7 +37,7 @@ namespace RentACar.Business.Rules
 
         public async Task<IResult> CheckIfOperationClaimExistsForUpdateAsync(string operationClaim, int operationClaimId)
         {
-            bool isExist = await _operationClaimRepository.AnyAsync(x => x.Name.ToLower() == operationClaim.ToLower() && x.Id != operationClaimId);
+            bool isExist = await _operationClaimRepository.AnyAsync(x => x.Name == operationClaim && x.Id != operationClaimId);
             if (isExist)
             {
                 return new ErrorResult("Bu statü sistemde kayıtlı! Lütfen başka statü girmeyi deneyin.");

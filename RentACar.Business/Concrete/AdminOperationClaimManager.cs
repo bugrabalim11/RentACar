@@ -26,6 +26,7 @@ namespace RentACar.Business.Concrete
         public async Task<IDataResult<int>> AddAsync(OperationClaimCreateDto operationClaimAddDto)
         {
             operationClaimAddDto.Name = operationClaimAddDto.Name.Trim();
+            operationClaimAddDto.Name = operationClaimAddDto.Name.ToLowerInvariant();
             IResult? result = BusinessRules.Run(
                 await _operationClaimBusinessRules.CheckIfOperationClaimNameExistsAsync(operationClaimAddDto.Name)
             );
@@ -63,6 +64,7 @@ namespace RentACar.Business.Concrete
         public async Task<IResult> UpdateAsync(OperationClaimUpdateDto operationClaimUpdateDto)
         {
             operationClaimUpdateDto.Name = operationClaimUpdateDto.Name.Trim();
+            operationClaimUpdateDto.Name = operationClaimUpdateDto.Name.ToLowerInvariant();
             var existingOperationClaim = await _operationClaimRepository.GetAsync(x => x.Id == operationClaimUpdateDto.Id);
             if (existingOperationClaim == null)
             {
