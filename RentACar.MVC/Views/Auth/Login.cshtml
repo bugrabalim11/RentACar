@@ -18,7 +18,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
 
-    <title>Rent A Car | Admin Girişi</title>
+    <title>Rent A Car | Giriş Yap</title>
 
     <meta name="description" content="" />
 
@@ -120,28 +120,20 @@
                         <h4 class="mb-1">Araç kiralamaya hoşgeldin! 👋</h4>
                         <p class="mb-6">Lütfen hesabınızla giriş yapın ve maceraya başlayın</p>
 
-                        <form id="formAuthentication" class="mb-6" asp-action="Index" method="post">
-                            <div class="mb-6">
-                                <label for="email" class="form-label">E-posta</label>
-                                <input type="email"
-                                       class="form-control"
-                                       asp-for="Email"
-                                       placeholder="E-postanızı Giriniz"
-                                       autofocus />
-                                <span asp-validation-for="Email" class="text-danger"></span>
-                            </div>
+                        <form id="formAuthentication" class="mb-6" asp-action="Login" method="post">
+                             <div class="mb-6">
+        <label class="form-label">E-Posta</label>
+        <input type="email" class="form-control" asp-for="Email" placeholder="E-Posta Adresinizi giriniz" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
                             <div class="mb-6 form-password-toggle">
-                                <label class="form-label" for="password">Şifre</label>
-                                <div class="input-group input-group-merge">
-                                    <input type="password"                                   
-                                           class="form-control"
-                                           asp-for="Password"
-                                           placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
-                                           aria-describedby="password" />
-                                    <span class="input-group-text cursor-pointer"><i class="icon-base bx bx-hide"></i></span>
-                                </div>
-                                <span asp-validation-for="Password" class="text-danger"></span>
-                            </div>
+    <label class="form-label">Şifre</label>
+    <div class="input-group input-group-merge">
+        <input type="password" class="form-control" asp-for="Password" placeholder="Şifrenizi giriniz" />
+        <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
+    </div>
+    <span asp-validation-for="Password" class="text-danger"></span>
+</div>
                             <div class="mb-8">
                                 <div class="d-flex justify-content-between">
                                     <div class="form-check mb-0">
@@ -161,7 +153,7 @@
             </div>
         </div>
     </div>
-    @section Scripts{
+
     <!-- Core JS -->
 
     <script src="~/adminAssets/vendor/libs/jquery/jquery.js"></script>
@@ -182,6 +174,6 @@
     <!-- Page JS -->
     <!-- Place this tag before closing body tag for github widget button. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
-    }
+
 </body>
 </html>

@@ -19,20 +19,18 @@ namespace RentACar.API.Controllers
         }
 
 
-        [HttpPost("Login")]
+        [HttpPost("login")]
         public async Task<IActionResult> Login(UserForLoginDto userForLoginDto)
         {
-            var userToLogin = await _authService.Login(userForLoginDto);
-            var result = await _authService.CreateAccessToken(userToLogin.Data);
-            return Ok(result.Data);
+            var loginResult = await _authService.Login(userForLoginDto);
+            return Ok(loginResult.Data);
         }
 
-        [HttpPost("Register")]
+        [HttpPost("register")]
         public async Task<IActionResult> Register(UserForRegisterDto userForRegisterDto)
         {
-            var registerResult = await _authService.Register(userForRegisterDto, userForRegisterDto.Password);
-            var result = await _authService.CreateAccessToken(registerResult.Data);
-            return Ok(result.Data);
+            var registerResult = await _authService.Register(userForRegisterDto);
+            return Ok(registerResult.Data);
         }
 
         [Authorize]

@@ -55,6 +55,15 @@ namespace RentACar.Business.Concrete
             return new SuccessResult(result.Message ?? "Şifre başarıyla değiştirildi.");
         }
 
+        public async Task<IResult> Logout(string refreshToken)
+        {
+            // TODO: [V2 - Mobil API Entegrasyonu] Gelen refreshToken veritabanından bulunup silinecek (Invalidate işlemi).
+            throw new NotImplementedException("Refresh token mimarisi V2'de eklenecek.");
+        }
+
+        // TODO: [V2 - Mobil API Entegrasyonu] 
+        // 1. Kullanıcı login/register olduğunda AccessToken'ın yanında uzun ömürlü bir RefreshToken üretilecek.
+        // 2. Üretilen RefreshToken, UserTokens tablosuna (veritabanına) bitiş tarihiyle kaydedilecek.
         public async Task<IDataResult<AccessToken>> CreateAccessToken(User user)
         {
             var claimsResult = await _userAuthService.GetClaimsAsync(user);
@@ -62,7 +71,7 @@ namespace RentACar.Business.Concrete
             return new SuccessDataResult<AccessToken>(accessToken, "Erişim bileti (Token) başarıyla oluşturuldu.");
         }
 
-        public async Task<IDataResult<User>> Login(UserForLoginDto userForLoginDto)
+        public async Task<IDataResult<AccessToken>> Login(UserForLoginDto userForLoginDto)
         {
             var userToCheck = await _userAuthService.GetByMailAsync(userForLoginDto.Email);
             if (!userToCheck.Success || userToCheck.Data == null)
@@ -82,11 +91,14 @@ namespace RentACar.Business.Concrete
             {
                 throw new BusinessException("E-posta veya şifre hatalı!");
             }
-            return new SuccessDataResult<User>(userToCheck.Data, "Sisteme başarıyla giriş yapıldı.");
+
+            var accessTokenResult = await CreateAccessToken(userToCheck.Data);
+
+            return new SuccessDataResult<AccessToken>(accessTokenResult.Data, "Sisteme başarıyla giriş yapıldı.");
         }
 
         [TransactionScopeAspect]
-        public async Task<IDataResult<User>> Register(UserForRegisterDto userForRegisterDto, string password)
+        public async Task<IDataResult<AccessToken>> Register(UserForRegisterDto userForRegisterDto)
         {
             userForRegisterDto.Email = userForRegisterDto.Email.Trim().ToLower();
             IResult? result = BusinessRules.Run(
@@ -98,7 +110,7 @@ namespace RentACar.Business.Concrete
             }
 
             byte[] passwordHash, passwordSalt;
-            HashingHelper.CreatePasswordHash(password, out passwordHash, out passwordSalt);
+            HashingHelper.CreatePasswordHash(userForRegisterDto.Password, out passwordHash, out passwordSalt);
 
             var user = _mapper.Map<User>(userForRegisterDto);
 
@@ -116,7 +128,9 @@ namespace RentACar.Business.Concrete
             };
             await _adminUserOperationClaimService.AddAsync(userOperationClaimCreateDto);
 
-            return new SuccessDataResult<User>(user, "Kayıt işlemi başarıyla tamamlandı.");
+            var accessTokenResult = await CreateAccessToken(user);
+
+            return new SuccessDataResult<AccessToken>(accessTokenResult.Data, "Kayıt işlemi başarıyla tamamlandı.");
         }
     }
 }

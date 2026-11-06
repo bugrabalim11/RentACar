@@ -8,9 +8,10 @@ namespace RentACar.Business.Abstract
 {
     public interface IAuthService
     {
-        Task<IDataResult<User>> Register(UserForRegisterDto userForRegisterDto, string password);
-        Task<IDataResult<User>> Login(UserForLoginDto userForLoginDto);
+        Task<IDataResult<AccessToken>> Register(UserForRegisterDto userForRegisterDto);
+        Task<IDataResult<AccessToken>> Login(UserForLoginDto userForLoginDto);
         Task<IDataResult<AccessToken>> CreateAccessToken(User user);
         Task<IResult> ChangePassword(int userId, UserChangePasswordDto userChangePasswordDto);
+        Task<IResult> Logout(string refreshToken);
     }
 }
