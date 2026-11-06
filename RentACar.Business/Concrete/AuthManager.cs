@@ -55,6 +55,15 @@ namespace RentACar.Business.Concrete
             return new SuccessResult(result.Message ?? "Şifre başarıyla değiştirildi.");
         }
 
+        public async Task<IResult> Logout(string refreshToken)
+        {
+            // TODO: [V2 - Mobil API Entegrasyonu] Gelen refreshToken veritabanından bulunup silinecek (Invalidate işlemi).
+            throw new NotImplementedException("Refresh token mimarisi V2'de eklenecek.");
+        }
+
+        // TODO: [V2 - Mobil API Entegrasyonu] 
+        // 1. Kullanıcı login/register olduğunda AccessToken'ın yanında uzun ömürlü bir RefreshToken üretilecek.
+        // 2. Üretilen RefreshToken, UserTokens tablosuna (veritabanına) bitiş tarihiyle kaydedilecek.
         public async Task<IDataResult<AccessToken>> CreateAccessToken(User user)
         {
             var claimsResult = await _userAuthService.GetClaimsAsync(user);

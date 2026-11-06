@@ -12,5 +12,6 @@ namespace RentACar.Business.Abstract
         Task<IDataResult<AccessToken>> Login(UserForLoginDto userForLoginDto);
         Task<IDataResult<AccessToken>> CreateAccessToken(User user);
         Task<IResult> ChangePassword(int userId, UserChangePasswordDto userChangePasswordDto);
+        Task<IResult> Logout(string refreshToken);
     }
 }

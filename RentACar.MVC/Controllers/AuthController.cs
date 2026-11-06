@@ -62,6 +62,13 @@ namespace RentACar.MVC.Controllers
         }
 
         [HttpGet]
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("AccessToken");
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
         public IActionResult Register()
         {
             return View();

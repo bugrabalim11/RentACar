@@ -18,13 +18,23 @@
 
               <nav class="site-navigation text-right ml-auto d-none d-lg-block" role="navigation">
                 <ul class="site-menu main-menu js-clone-nav ml-auto ">
-                  <li class="active"><a href="index.html" class="nav-link">Home</a></li>
-                  <li><a href="services.html" class="nav-link">Services</a></li>
+                  <li class="active"><a href="index.html" class="nav-link">Anasayfa</a></li>
+                  <li><a href="services.html" class="nav-link">Servisler</a></li>
                   <li><a href="Car/Index" class="nav-link">Arabalar</a></li>
-                  <li><a href="about.html" class="nav-link">About</a></li>
+                  <li><a href="about.html" class="nav-link">Hakkımızda</a></li>
                   <li><a href="blog.html" class="nav-link">Blog</a></li>
-                  <li><a href="contact.html" class="nav-link">Contact</a></li>
-                </ul>
+                  <li><a href="contact.html" class="nav-link">İletişim</a></li>
+
+                        @if (Context.Request.Cookies.ContainsKey("AccessToken"))
+                        {
+                            <a href="/Auth/Logout" class="nav-link" style="color: red !important;">Çıkış Yap</a>
+                        }
+                        else
+                        {
+                            <li><a href="Auth/Login" class="nav-link">Giriş Yap</a></li>
+                            <li><a href="Auth/Register" class="nav-link">Kayıt Ol</a></li>
+                        }
+                    </ul>
               </nav>
             </div>
 
