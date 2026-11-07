@@ -5,9 +5,13 @@ Bu proje, kurumsal mimari standartlarına (N-Tier Architecture, Clean Code, SOLI
 Proje, sadece temel CRUD işlemlerini değil; JWT tabanlı güvenliği, dinamik rol yönetimini (Role-Based Access Control), Findex puanı entegrasyonunu, araç bakım (Maintenance) modüllerini ve AOP (Aspect Oriented Programming) yaklaşımlarını barındıran tam donanımlı bir motor olarak tasarlanmıştır.
 
 ## 🚀 Proje Vizyonu ve Yol Haritası (Roadmap)
+
 - [x] **Faz 1:** Kurumsal Backend API'nin N-Tier mimariyle inşası ve testlerinin tamamlanması.
-- [ ] **Faz 2:** ASP.NET Core MVC kullanılarak projenin Web tarafının MVP (Minimum Viable Product) olarak canlıya alınması. (Şu an geliştiriliyor 🛠️)
-- [ ] **Faz 3:** Cross-Platform Mobil Uygulama geliştirme süreçlerinin başlatılması.
+- [x] **Faz 2:** ASP.NET Core MVC kullanılarak projenin Web tarafının MVP (Minimum Viable Product) olarak canlıya alınması.
+  - *MVC Mimarisi:* Hazır UI teması `YAGNI` (İhtiyacın Olmayacak) ve `DRY` (Kendini Tekrar Etme) prensipleriyle optimize edildi.
+  - *Güvenlik & Entegrasyon:* Kullanıcı tarafı için Auth (Login/Register) ve Araç Kiralama (Checkout) işlemleri tamamlandı. API ile haberleşmede JWT token'lar `DelegatingHandler` kullanılarak HttpClient isteklerine dinamik olarak eklendi.
+  - *Admin Paneli:* İstatistik modülleri hariç tüm CRUD ve yönetim operasyonları MVC üzerinden Backend'e bağlandı.
+- [ ] **Faz 3:** Cross-Platform Mobil Uygulama geliştirme süreçlerinin başlatılması. (Sıradaki Hedefimiz 📱)
 
 ## 🛠️ Kullanılan Teknolojiler & Mimari Yaklaşımlar
 
