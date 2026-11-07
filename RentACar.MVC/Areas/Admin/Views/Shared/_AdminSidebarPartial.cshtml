@@ -1,6 +1,6 @@
 ﻿<aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
     <div class="app-brand demo">
-        <a href="index.html" class="app-brand-link">
+        <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="app-brand-link">
             <span class="app-brand-logo demo">
                 <span class="text-primary">
                     <svg width="25"
@@ -46,7 +46,7 @@
                     </svg>
                 </span>
             </span>
-            <span class="app-brand-text demo menu-text fw-bold ms-2">Sneat</span>
+            <span class="app-brand-text demo menu-text fw-bold ms-2">RentACar</span>
         </a>
 
         <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
@@ -59,90 +59,74 @@
     <div class="menu-inner-shadow"></div>
 
     <ul class="menu-inner py-1">
-        <!-- Dashboards -->
-        <li class="menu-item active open">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-home-smile"></i>
-                <div class="text-truncate" data-i18n="Dashboards">Dashboards</div>
-                <span class="badge rounded-pill bg-danger ms-auto">5</span>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item active">
-                    <a href="index.html" class="menu-link">
-                        <div class="text-truncate" data-i18n="Analytics">Analytics</div>
-                    </a>
-                </li>
-            </ul>
-        </li>
         <!-- MARKALAR MENÜSÜ -->
-        <li class="menu-item">
-            <!-- href yerine asp-area, asp-controller ve asp-action (Akıllı Tabela) kullanıyoruz! -->
-            <a asp-area="Admin" asp-controller="Brands" asp-action="Index" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-purchase-tag"></i>
-                <div class="text-truncate">Markalar</div>
-            </a>
-        </li>
-        <li class="menu-item">
-            <a asp-area="Admin" asp-controller="Rentals" asp-action="Index" class="menu-link">
-                <i class="menu-icon tf-icons  bx bx-lira"></i>
-                <div class="text-truncate">Araç Kiralamaları</div>
-            </a>
-        </li>
-        <li class="menu-item">
+<li class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Brands" ? "active" : "")">
+    <a asp-area="Admin" asp-controller="Brands" asp-action="Index" class="menu-link">
+        <i class="menu-icon tf-icons bx bx-purchase-tag"></i>
+        <div class="text-truncate">Markalar</div>
+    </a>
+</li>
+        <li class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Rentals" ? "active" : "")">
+    <a asp-area="Admin" asp-controller="Rentals" asp-action="Index" class="menu-link">
+        <i class="menu-icon tf-icons bx bx-lira"></i>
+        <div class="text-truncate">Araç Kiralamaları</div>
+    </a>
+</li>
+        <li class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Colors" ? "active" : "")">
             <a asp-area="Admin" asp-controller="Colors" asp-action="Index" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-palette"></i>
                 <div class="text-truncate">Renkler</div>
             </a>
         </li>
-        <li class="menu-item">
+        <li class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Offices" ? "active" : "")">
             <a asp-area="Admin" asp-controller="Offices" asp-action="Index" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-building"></i>
                 <div class="text-truncate">Ofisler</div>
             </a>
         </li>
-        <li class="menu-item">
+        <li class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "ContactInfos" ? "active" : "")">
             <a asp-area="Admin" asp-controller="ContactInfos" asp-action="Index" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-envelope"></i>
                 <div class="text-truncate">İletişim Bilgileri</div>
             </a>
         </li>
-        <li class="menu-item">
+        <li class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "ContactMessages" ? "active" : "")">
             <a asp-area="Admin" asp-controller="ContactMessages" asp-action="Index" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-message-rounded-dots"></i>
                 <div class="text-truncate">İletişim Mesajları</div>
             </a>
         </li>
-        <li class="menu-item">
+        <li class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Cars" ? "active" : "")">
             <a asp-area="Admin" asp-controller="Cars" asp-action="Index" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-car"></i>
                 <div class="text-truncate">Arabalar</div>
             </a>
         </li>
-        <li class="menu-item">
+        <li class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "CarMaintenances" ? "active" : "")">
             <a asp-area="Admin" asp-controller="CarMaintenances" asp-action="Index" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-wrench"></i>
                 <div class="text-truncate">Araç Bakımları</div>
             </a>
         </li>
-        <li class="menu-item">
+        <li class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Users" ? "active" : "")">
             <a asp-area="Admin" asp-controller="Users" asp-action="Index" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-user"></i>
                 <div class="text-truncate">Kullanıcılar</div>
             </a>
         </li>
-        <li class="menu-item">
+        <li class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "OperationClaims" ? "active" : "")">
             <a asp-area="Admin" asp-controller="OperationClaims" asp-action="Index" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-diamond"></i>
                 <div class="text-truncate">Statüler</div>
             </a>
         </li>
-         <li class="menu-item">
+         <li class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "UserOperationClaims" ? "active" : "")">
             <a asp-area="Admin" asp-controller="UserOperationClaims" asp-action="Index" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-user-pin"></i>
                 <div class="text-truncate">Kullanıcı Statüleri</div>
             </a>
         </li>
-        <li class="menu-item">
+        <li class="menu-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Customers" ? "active" : "")">
             <a asp-area="Admin" asp-controller="Customers" asp-action="Index" class="menu-link">
                 <i class="menu-icon tf-icons  bx bx-id-card"></i>
                 <div class="text-truncate">Müşteriler</div>

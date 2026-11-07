@@ -3,6 +3,10 @@ using RentACar.Core.Utilities.Results;
 
 namespace RentACar.Business.Abstract
 {
+    /// <summary>
+    /// Bu sözleşme, AuthManager (Business) ile UserRepository (Data) arasındaki İÇ HAT (Internal) operasyonlarını yönetir.
+    /// Dış dünyaya (Controller/API) açılmadığı için DTO yerine kasıtlı olarak saf 'User' Entity'si kullanılmıştır.
+    /// </summary>
     public interface IUserAuthService
     {
         Task<IDataResult<int>> AddAsync(User user);

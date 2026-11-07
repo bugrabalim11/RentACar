@@ -125,7 +125,7 @@
                       </svg>
                     </span>
                   </span>
-                  <span class="app-brand-text demo text-heading fw-bold">Sneat</span>
+                  <span class="app-brand-text demo text-heading fw-bold">RentACar</span>
                 </a>
               </div>
               <!-- /Logo -->
@@ -177,8 +177,7 @@
 
               <p class="text-center">
                 <span>Zaten bir hesabınız var mı? Giriş Yapın</span>
-                <a href="/Auth/Login">
-                  <span>Hemen Giriş Yap</span>
+                <a asp-controller="Auth" asp-action="Login">Hemen Giriş Yap</a>
                 </a>
               </p>
             </div>
@@ -209,7 +208,8 @@
 
     <!-- Page JS -->
 
-    <!-- Place this tag before closing body tag for github widget button. -->
-    <script async defer src="https://buttons.github.io/buttons.js"></script>
+ <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+
   </body>
 </html>

@@ -113,7 +113,7 @@
                                         </svg>
                                     </span>
                                 </span>
-                                <span class="app-brand-text demo text-heading fw-bold">Sneat</span>
+                                <span class="app-brand-text demo text-heading fw-bold">RentACar</span>
                             </a>
                         </div>
                         <!-- /Logo -->
@@ -144,6 +144,12 @@
                             </div>
                             <div class="mb-6">
                                 <button class="btn btn-primary d-grid w-100" type="submit">Giriş Yap</button>
+                                <p class="text-center mt-4">
+    <span>Henüz hesabınız yok mu?</span>
+    <a asp-controller="Auth" asp-action="Register">
+        <span>Hemen Kayıt Olun</span>
+    </a>
+</p>
                             </div>
                         </form>
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
@@ -171,9 +177,8 @@
 
     <script src="~/adminAssets/js/main.js"></script>
 
-    <!-- Page JS -->
-    <!-- Place this tag before closing body tag for github widget button. -->
-    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
 
 </body>
 </html>
