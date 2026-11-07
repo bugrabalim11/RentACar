@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RentACar.Dtos.OfficeDtos;
 using RentACar.Dtos.RentalDtos;
@@ -8,7 +9,7 @@ using System.Text;
 
 namespace RentACar.MVC.Controllers
 {
-    //[Authorize]
+    [Authorize]
     public class RentController : BaseController
     {
         private readonly IHttpClientFactory _httpClientFactory;
@@ -27,7 +28,7 @@ namespace RentACar.MVC.Controllers
             await PopulateDropdowns();
             return View(viewModel);
         }
-        // TODO: Login ekranı yapınca burayı test et
+        
         [HttpPost]
         public async Task<IActionResult> CheckOut(UIRentalCreateViewModel viewModel)
         {
