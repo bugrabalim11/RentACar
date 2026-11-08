@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
-namespace RentACar.MAUI
+﻿namespace RentACar.MAUI
 {
     public partial class App : Application
     {
@@ -9,9 +7,11 @@ namespace RentACar.MAUI
             InitializeComponent();
         }
 
+# pragma warning disable CA1416
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new AppShell());
+            return new Window(new Views.LoginView());
         }
+# pragma warning restore CA1416
     }
 }
