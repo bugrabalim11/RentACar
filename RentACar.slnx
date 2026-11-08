@@ -5,5 +5,6 @@
   <Project Path="RentACar.DataAccess/RentACar.DataAccess.csproj" />
   <Project Path="RentACar.Dtos/RentACar.Dtos.csproj" Id="fdad14a0-6d5e-4e67-85c8-09fa9ceba239" />
   <Project Path="RentACar.Entities/RentACar.Entities.csproj" />
+  <Project Path="RentACar.MAUI/RentACar.MAUI.csproj" Id="b3af40f2-5f19-43ab-99c2-5abd996d0d41" />
   <Project Path="RentACar.MVC/RentACar.MVC.csproj" />
 </Solution>
