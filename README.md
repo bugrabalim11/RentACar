@@ -69,13 +69,19 @@ Projeyi kendi bilgisayarınızda (Local) ayağa kaldırmak için aşağıdaki ad
 ```
 (Not: E-posta ve Token gibi hassas veriler güvenlik amacıyla secrets.json (User Secrets) üzerinden yönetilmektedir.)
 
-**3. Şantiyeyi İnşa Etme (Migrations):
-Visual Studio'da Package Manager Console penceresini açın. Üst kısımdaki Default project menüsünden RentACar.DataAccess katmanını seçerek tabloları oluşturun:
+**3. Şantiyeyi İnşa Etme (Migrations):**
+Visual Studio'da Package Manager Console penceresini açın. Üst kısımdaki Default project menüsünden `RentACar.DataAccess` katmanını seçerek tabloları oluşturun:
 
 ```powershell
 Update-Database
 ```
-**4. Projeyi Başlatma:RentACar.API projesini başlangıç projesi (Startup Project) olarak ayarlayın ve F5 ile çalıştırın.
+**4. Veritabanı Tohumlama (Data Seeding) ve Varsayılan Admin Hesabı:**
+Proje ilk kez ayağa kalktığında, Update-Database komutu çalıştığı an sistem otomatik olarak test süreçlerini kolaylaştırmak için veritabanına varsayılan bir Admin yetkilisi tohumlar (Seed Data). Ekstra bir SQL sorgusu yazmanıza gerek yoktur.
+
+* Email: admin@rentacar.com
+* Şifre: Admin123(Not: Sistemi canlıya (Production) alırken bu kurucu şifrenin değiştirilmesi zorunludur.)
+
+**5. Projeyi Başlatma:RentACar.API projesini başlangıç projesi (Startup Project) olarak ayarlayın ve F5 ile çalıştırın.**
 
 ## 👨‍💻 Geliştirici
 **Buğra Balım** - *Management Information Systems (MIS) Student & Backend Developer*

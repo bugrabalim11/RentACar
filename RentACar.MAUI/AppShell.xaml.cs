@@ -1,4 +1,4 @@
-﻿namespace RentACar.MAUI
+﻿    namespace RentACar.MAUI
 {
     public partial class AppShell : Shell
     {
