@@ -55,10 +55,10 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
         {
             // İki ofis alanı (PickUp, DropOff) için kaskad (Cascade) silme davranışlarını kapatıyoruz
             modelBuilder.Entity<Rental>()
-                .HasOne(r => r.PickUpOffice)           
-                .WithMany()                             
-                .HasForeignKey(r => r.PickUpOfficeId)  
-                .OnDelete(DeleteBehavior.Restrict);     
+                .HasOne(r => r.PickUpOffice)
+                .WithMany()
+                .HasForeignKey(r => r.PickUpOfficeId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Rental>()
                 .HasOne(r => r.DropOffOffice)
@@ -83,6 +83,42 @@ namespace RentACar.DataAccess.Concrete.EntityFramework
             modelBuilder.Entity<CarImage>().HasQueryFilter(ci => ci.IsDeleted == false);
             modelBuilder.Entity<CarMaintenance>().HasQueryFilter(cm => cm.IsDeleted == false);
             modelBuilder.Entity<Payment>().HasQueryFilter(p => p.IsDeleted == false);
+
+
+            // --- DATA SEEDING (VERİ TOHUMLAMA) ALANI ---
+            byte[] passwordSalt = System.Text.Encoding.UTF8.GetBytes("RentACar-Secret-Static-Salt-Key-123");
+            byte[] passwordHash;
+            using (var hmac = new System.Security.Cryptography.HMACSHA512(passwordSalt))
+            {
+                passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes("Admin123"));
+            }
+
+            DateTime staticDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+            modelBuilder.Entity<User>().HasData(new User
+            {
+                Id = 1,
+                FirstName = "System",
+                LastName = "Admin",
+                Email = "admin@rentacar.com",
+                PasswordHash = passwordHash,
+                PasswordSalt = passwordSalt,
+                CreatedDate = staticDate
+            });
+
+            modelBuilder.Entity<OperationClaim>().HasData(
+                new OperationClaim { Id = 1, Name = "admin", CreatedDate = staticDate },
+                new OperationClaim { Id = 2, Name = "user", CreatedDate = staticDate }
+            );
+
+            modelBuilder.Entity<UserOperationClaim>().HasData(new UserOperationClaim
+            {
+                Id = 1,
+                UserId = 1,
+                OperationClaimId = 1,
+                IsDeleted = false,
+                CreatedDate = staticDate
+            });
         }
     }
 }
