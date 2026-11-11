@@ -10,13 +10,18 @@ namespace RentACar.DataAccess.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // AlterColumn yerine AddColumn yapıyoruz
+            // Önceki InitialCreate ile string (text) olarak gelen eski kolonu siliyoruz
+            migrationBuilder.DropColumn(
+                name: "TransmissionType",
+                table: "Cars");
+
+            // Ardından enum (int) tipindeki yeni kolonu ekliyoruz
             migrationBuilder.AddColumn<int>(
                 name: "TransmissionType",
                 table: "Cars",
                 type: "integer",
                 nullable: false,
-                defaultValue: 1); // Varsayılan olarak 1 (Manual) atıyoruz
+                defaultValue: 1); // Varsayılan olarak 1 (Manual)
         }
 
         /// <inheritdoc />
@@ -25,6 +30,13 @@ namespace RentACar.DataAccess.Migrations
             migrationBuilder.DropColumn(
                 name: "TransmissionType",
                 table: "Cars");
+
+            migrationBuilder.AddColumn<string>(
+                name: "TransmissionType",
+                table: "Cars",
+                type: "text",
+                nullable: false,
+                defaultValue: "");
         }
     }
 }
