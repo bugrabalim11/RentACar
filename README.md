@@ -39,6 +39,7 @@ Sistem birbirinden bağımsız, ancak birbiriyle sözleşmeler (Interface'ler) �
 5. **Business Katmanı:** İş kurallarının (Business Rules) işletildiği mutfaktır. Her kural "BusinessRules Engine" üzerinden modüler olarak kontrol edilmiştir.
 6. **WebAPI Katmanı:** Dış dünyanın sistemin backend'i ile haberleştiği, JSON dönen arka uç (Backend) gişesidir.
 7. **MVC Katmanı:** Sistemimizin web tarafındaki vitrinidir (Client). WebAPI ile HTTP istekleri (HttpClient/DelegatingHandler) üzerinden haberleşerek son kullanıcıya ve yöneticilere (Admin) arayüz sunar.
+8. **MAUI Katmanı (Client/Mobile):** Projenin cross-platform (Android, iOS, Windows) mobil vitrindir. MVVM (Model-View-ViewModel) tasarım deseni ile inşa edilmiş olup, WebAPI katmanıyla HTTP (kurye) üzerinden haberleşerek son kullanıcıya esnek ve hızlı bir mobil deneyim sunar.
 
 ## 🤝 Geliştirme Süreci & AI Pair Programming (Eşli Programlama)
 
@@ -78,8 +79,10 @@ Update-Database
 **4. Veritabanı Tohumlama (Data Seeding) ve Varsayılan Admin Hesabı:**
 Proje ilk kez ayağa kalktığında, Update-Database komutu çalıştığı an sistem otomatik olarak test süreçlerini kolaylaştırmak için veritabanına varsayılan bir Admin yetkilisi tohumlar (Seed Data). Ekstra bir SQL sorgusu yazmanıza gerek yoktur.
 
-* Email: admin@rentacar.com
-* Şifre: Admin123(Not: Sistemi canlıya (Production) alırken bu kurucu şifrenin değiştirilmesi zorunludur.)
+* Email: `admin@rentacar.com`
+* Şifre: `Admin123`
+
+> ⚠️ **GÜVENLİK UYARISI:** Bu kimlik bilgileri (Default Credentials) yalnızca geliştirme (Development) ve test ortamlarında sistemi hızlıca ayağa kaldırmak için seedlenmiştir (tohumlanmıştır). Projeyi canlı (Production) sunucuya taşırken veritabanı üzerinden bu şifrenin güçlü bir hash ile güncellenmesi veya bu test hesabının silinmesi mimari bir zorunluluktur.
 
 **5. Projeyi Başlatma:RentACar.API projesini başlangıç projesi (Startup Project) olarak ayarlayın ve F5 ile çalıştırın.**
 
