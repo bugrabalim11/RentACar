@@ -18,7 +18,7 @@ namespace RentACar.MAUI
                 });
 
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
             // --- DEPENDENCY INJECTION & HTTP CLIENT REGISTRATION ---
             builder.Services.AddHttpClient<IAuthService, AuthService>(client =>
@@ -26,6 +26,8 @@ namespace RentACar.MAUI
                 // DİKKAT: Android emülatörü "localhost" anlamaz, PC'ye ulaşmak için 10.0.2.2 kullanır!
                 client.BaseAddress = new Uri("http://10.0.2.2:7085/");
             });
+            builder.Services.AddTransient<ViewModels.LoginViewModel>();
+            builder.Services.AddTransient<Views.LoginView>();
 
             return builder.Build();
         }
