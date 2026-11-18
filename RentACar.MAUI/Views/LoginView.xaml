@@ -8,6 +8,21 @@
 
         <Label Text="RentACar'a Hoş Geldiniz!" FontSize="24" HorizontalOptions="Center" FontAttributes="Bold"/>
 
+        <Entry Placeholder="E-posta adresiniz" 
+               Text="{Binding Email}"
+               Keyboard="Email" />
+        
+        <Entry Placeholder="Şifreniz" 
+               Text="{Binding Password}"
+               IsPassword="True"
+               Keyboard="Password" />
+
+        <Button Text="Giriş Yap"
+                Command="{Binding LoginCommand}"
+                CornerRadius="8"
+                BackgroundColor="#2b3c5a"
+                TextColor="White"/>
+
     </VerticalStackLayout>
 </ContentPage>
 
