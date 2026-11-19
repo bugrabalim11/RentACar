@@ -34,8 +34,11 @@ namespace RentACar.MAUI
 #endif
                 return handler;
             });
+
             builder.Services.AddTransient<ViewModels.LoginViewModel>();
             builder.Services.AddTransient<Views.LoginView>();
+
+            builder.Services.AddSingleton<IDialogService, DialogService>();
 
             return builder.Build();
         }
