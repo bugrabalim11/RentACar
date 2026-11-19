@@ -10,10 +10,12 @@ namespace RentACar.MAUI.ViewModels
     public class LoginViewModel
     {
         private readonly IAuthService _authService;
+        private readonly IDialogService _dialogService;
 
-        public LoginViewModel(IAuthService authService)
+        public LoginViewModel(IAuthService authService, IDialogService dialogService)
         {
             _authService = authService;
+            _dialogService = dialogService;
             LoginCommand = new Command(async () => await PerformLoginAsync());
         }
 
@@ -26,13 +28,9 @@ namespace RentACar.MAUI.ViewModels
         /// </summary>
         private async Task PerformLoginAsync()
         {
-            // TODO: UI bağımlılığını kaldırmak için IDialogService eklenecek.
             if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
             {
-                if (Application.Current?.Windows.Count > 0)
-                {
-                    await Application.Current.Windows[0].Page!.DisplayAlertAsync("Uyarı", "Lütfen e-posta ve şifre alanlarını doldurunuz.", "Tamam");
-                }
+                await _dialogService.ShowAlertAsync("Uyarı", "Lütfen e-posta ve şifre alanlarını doldurunuz!");
                 return;
             }
 
@@ -47,23 +45,17 @@ namespace RentACar.MAUI.ViewModels
                 var responseDto = await _authService.LoginAsync(requestDto);
                 if (responseDto != null)
                 {
-                    await SecureStorage.Default.SetAsync("AuthToken", responseDto.Token);   
+                    await SecureStorage.Default.SetAsync("AuthToken", responseDto.Token);
                     // TODO: Giriş sonrası ana sayfaya (Dashboard/AppShell) yönlendirilecek.
                 }
                 else
                 {
-                    if (Application.Current?.Windows.Count > 0)
-                    {
-                        await Application.Current.Windows[0].Page!.DisplayAlertAsync("Hata", "E-posta veya şifre hatalı!", "Tekrar Dene");
-                    }
+                    await _dialogService.ShowAlertAsync("Hata", "E-posta veya şifre hatalı!", "Tekrar Dene");
                 }
             }
             catch (Exception ex)
             {
-                if (Application.Current?.Windows.Count > 0)
-                {
-                    await Application.Current.Windows[0].Page!.DisplayAlertAsync("Bağlantı Hatası", $"Sunucuya ulaşılamadı. Detay: {ex.Message}", "Tamam");
-                }
+                await _dialogService.ShowAlertAsync("Bağlantı Hatası", $"Sunucuya ulaşılamadı. Detay:{ex.Message}");
             }
         }
     }
