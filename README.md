@@ -17,12 +17,12 @@ Proje, sadece temel CRUD işlemlerini değil; JWT tabanlı güvenliği, dinamik 
 
 Projede, modern yazılım endüstrisinin kabul gördüğü en güncel teknolojiler ve "Best Practice" yöntemleri kullanılmıştır:
 
-*   **Platform & Dil:** C#, .NET Core, ASP.NET Core Web API, MVC
-*   **Mimari:** N-Tier Architecture (Çok Katmanlı Mimari)
+*   **Platform & Dil:** C#, .NET Core, ASP.NET Core Web API, MVC, .Net MAUI
+*   **Mimari:** N-Tier Architecture (Çok Katmanlı Mimari), BusinessExceptionMiddleware, ValidationFilter
 *   **Veri Erişimi (ORM):** Entity Framework Core (Code-First)
 *   **Veritabanı:** PostgreSQL (Altyapı MicrosoftSQL Server/MongoDB'ye kolayca entegre edilebilir şekilde soyutlanmıştır.)
 *   **IoC Container:** Autofac (Dependency Injection yönetimi için)
-*   **Güvenlik:** JWT (JSON Web Token) ile Kimlik Doğrulama ve Dinamik Yetkilendirme
+*   **Güvenlik:** JWT (JSON Web Token), Hashing ile Kimlik Doğrulama ve Dinamik Yetkilendirme
 *   **Nesne Eşleme:** AutoMapper (DTO - Entity dönüşümleri için)
 *   **Validasyon:** FluentValidation
 *   **AOP (Aspect Oriented Programming):** Castle.DynamicProxy (Validation, Caching, Transaction yönetimi için Interceptor yapısı)
@@ -30,7 +30,7 @@ Projede, modern yazılım endüstrisinin kabul gördüğü en güncel teknolojil
 
 ## 🏢 Katmanlı Mimari (N-Tier Architecture) Yapısı
 
-Sistem birbirinden bağımsız, ancak birbiriyle sözleşmeler (Interface'ler) üzerinden konuşan 7 ana katmandan oluşur:
+Sistem birbirinden bağımsız, ancak birbiriyle sözleşmeler (Interface'ler) üzerinden konuşan 8 ana katmandan oluşur:
 
 1. **Core Katmanı:** Projenin kalbidir. Hata yönetimi (Exceptions), Güvenlik (JWT), Interceptor'lar, Evrensel Kurallar ve Base sınıfları barındırır. Başka hiçbir katmana bağımlı değildir.
 2. **Entities Katmanı:** Veritabanı tablolarımızın (Car, Brand, User vb.) C# nesnesi olarak (Entity) modellendiği katmandır.
