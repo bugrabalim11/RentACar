@@ -5,8 +5,7 @@ using System.Windows.Input;
 namespace RentACar.MAUI.ViewModels
 {
     /// <summary>
-    /// Uygulamanın giriş ekranındaki kullanıcı etkileşimlerini, 
-    /// veri bağlamalarını ve kimlik doprulama opeerasyonlarını yöneten ViewMoedl sınıfıdır.
+    /// Giriş ekranının veri bağlamalarını ve kimlik doğrulama akışını yönetir.
     /// </summary>
     public class LoginViewModel
     {
@@ -20,18 +19,20 @@ namespace RentACar.MAUI.ViewModels
 
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
-
         public ICommand LoginCommand { get; }
 
         /// <summary>
-        /// Kullanıcının girdiği e-posta ve şifre bilgilerini DTO'ya paketleyip, AuythService üzerinden API'a göneririr.
-        /// Başarılı olursa döenen token'ı işler, başarısız olursa kullanıcıya uyarı verir
+        /// Kullanıcı bilgilerini doğrulayıp API üzerinden giriş yapar ve dönen token'ı saklar.
         /// </summary>
         private async Task PerformLoginAsync()
         {
-            if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrEmpty(Password))
+            // TODO: UI bağımlılığını kaldırmak için IDialogService eklenecek.
+            if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
             {
-                // TODO: İleride buraya ekrana fırlayan bir "Lütfen alanları doldurun" uyarı kutusu (DisplayAlert) ekleyeceğiz.
+                if (Application.Current?.Windows.Count > 0)
+                {
+                    await Application.Current.Windows[0].Page!.DisplayAlertAsync("Uyarı", "Lütfen e-posta ve şifre alanlarını doldurunuz.", "Tamam");
+                }
                 return;
             }
 
@@ -41,17 +42,28 @@ namespace RentACar.MAUI.ViewModels
                 Password = this.Password
             };
 
-            var responseDto = await _authService.LoginAsync(requestDto);
-
-            if (responseDto != null)
+            try
             {
-                // TODO: İleride bu Token'ı donanımsal çelik kasaya (SecureStorage) kilitleyip, Ana Sayfaya yönlendirme yapacağız.
-                Console.WriteLine($"Giriş başarılı! Gelen Token: {responseDto.Token}");
+                var responseDto = await _authService.LoginAsync(requestDto);
+                if (responseDto != null)
+                {
+                    await SecureStorage.Default.SetAsync("AuthToken", responseDto.Token);   
+                    // TODO: Giriş sonrası ana sayfaya (Dashboard/AppShell) yönlendirilecek.
+                }
+                else
+                {
+                    if (Application.Current?.Windows.Count > 0)
+                    {
+                        await Application.Current.Windows[0].Page!.DisplayAlertAsync("Hata", "E-posta veya şifre hatalı!", "Tekrar Dene");
+                    }
+                }
             }
-            else
+            catch (Exception ex)
             {
-                // TODO: İleride buraya "E-posta veya şifre hatalı" uyarısı ekleyeceğiz.
-                Console.WriteLine($"Giriş başarısız! Kurye eli boş döndü.");
+                if (Application.Current?.Windows.Count > 0)
+                {
+                    await Application.Current.Windows[0].Page!.DisplayAlertAsync("Bağlantı Hatası", $"Sunucuya ulaşılamadı. Detay: {ex.Message}", "Tamam");
+                }
             }
         }
     }
