@@ -12,6 +12,7 @@
 # pragma warning disable CA1416
         protected override Window CreateWindow(IActivationState? activationState)
         {
+            // TODO: MVP tamamlandığında Misafir Modu (Guest-First) başlangıç sayfası AppShell yapılacak.
             return new Window(_loginView);
         }
 # pragma warning restore CA1416
