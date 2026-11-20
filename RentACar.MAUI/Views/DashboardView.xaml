@@ -1,15 +1,54 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:RentACar.MAUI.Models"
              x:Class="RentACar.MAUI.Views.DashboardView"
-             Title="Araçlar">
-    <VerticalStackLayout Padding="20" Spacing="15" VerticalOptions="Center">
-        <Label 
-            Text="{Binding WelcomeMessage}"
-            FontSize="20"
-            FontAttributes="Bold"
-            HorizontalOptions="Center"
-            HorizontalTextAlignment="Center"
-            />
-    </VerticalStackLayout>
+             Title="Kiralanabilir Araçlar"
+             BackgroundColor="#F5F5F5">
+
+    <CollectionView ItemsSource="{Binding Cars}" Margin="15">
+        <CollectionView.ItemsLayout>
+            <LinearItemsLayout Orientation="Vertical" ItemSpacing="12" />
+        </CollectionView.ItemsLayout>
+
+        <CollectionView.ItemTemplate>
+            <DataTemplate x:DataType="models:CarDto">
+                <Border StrokeShape="RoundRectangle 12"
+                        Stroke="#E0E0E0"
+                        BackgroundColor="White"
+                        Padding="15">
+                    <VerticalStackLayout Spacing="6">
+
+                        <HorizontalStackLayout Spacing="6">
+                            <Label Text="{Binding BrandName}"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   TextColor="#1A1A1A" />
+                            <Label Text="{Binding ModelName}"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   TextColor="#4A4A4A" />
+                        </HorizontalStackLayout>
+
+                        <HorizontalStackLayout Spacing="15">
+                            <Label Text="{Binding Plate, StringFormat='Plaka: {0}'}"
+                                   FontSize="13"
+                                   TextColor="Gray" />
+                            <Label Text="{Binding Kilometer, StringFormat='{0:N0} km'}"
+                                   FontSize="13"
+                                   TextColor="Gray" />
+                        </HorizontalStackLayout>
+
+                        <Label Text="{Binding DailyPrice, StringFormat='{0:N0} ₺ / Gün'}"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="#2E7D32"
+                               HorizontalOptions="End" />
+
+                    </VerticalStackLayout>
+                </Border>
+            </DataTemplate>
+        </CollectionView.ItemTemplate>
+    </CollectionView>
+
 </ContentPage>

@@ -26,7 +26,6 @@ namespace RentACar.MAUI
                 // Android emülatörü yerel makineye 10.0.2.2 üzerinden erişir.
                 client.BaseAddress = new Uri("https://10.0.2.2:7085/");
             })
-            .AddHttpMessageHandler<Handlers.AuthHeaderHandler>()
             .ConfigurePrimaryHttpMessageHandler(() =>
             {
                 var handler = new HttpClientHandler();
@@ -35,6 +34,19 @@ namespace RentACar.MAUI
 #endif
                 return handler;
             });
+            builder.Services.AddHttpClient<ICarService, CarService>(client =>
+            {
+                client.BaseAddress = new Uri("https://10.0.2.2:7085/");
+            })
+           .AddHttpMessageHandler<Handlers.AuthHeaderHandler>()
+           .ConfigurePrimaryHttpMessageHandler(() =>
+           {
+               var handler = new HttpClientHandler();
+#if DEBUG
+               handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
+#endif
+               return handler;
+           });
 
             builder.Services.AddTransient<Handlers.AuthHeaderHandler>();
             builder.Services.AddTransient<ViewModels.LoginViewModel>();
