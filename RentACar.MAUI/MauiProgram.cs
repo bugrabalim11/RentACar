@@ -26,6 +26,7 @@ namespace RentACar.MAUI
                 // Android emülatörü yerel makineye 10.0.2.2 üzerinden erişir.
                 client.BaseAddress = new Uri("https://10.0.2.2:7085/");
             })
+            .AddHttpMessageHandler<Handlers.AuthHeaderHandler>()
             .ConfigurePrimaryHttpMessageHandler(() =>
             {
                 var handler = new HttpClientHandler();
