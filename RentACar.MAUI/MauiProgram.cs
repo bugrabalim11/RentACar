@@ -35,6 +35,7 @@ namespace RentACar.MAUI
                 return handler;
             });
 
+            builder.Services.AddTransient<Handlers.AuthHeaderHandler>();
             builder.Services.AddTransient<ViewModels.LoginViewModel>();
             builder.Services.AddTransient<Views.LoginView>();
             builder.Services.AddTransient<ViewModels.DashboardViewModel>();
