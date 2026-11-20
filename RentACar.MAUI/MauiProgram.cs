@@ -37,6 +37,8 @@ namespace RentACar.MAUI
 
             builder.Services.AddTransient<ViewModels.LoginViewModel>();
             builder.Services.AddTransient<Views.LoginView>();
+            builder.Services.AddTransient<ViewModels.DashboardViewModel>();
+            builder.Services.AddTransient<Views.DashboardView>();
 
             builder.Services.AddSingleton<IDialogService, DialogService>();
 
