@@ -92,11 +92,14 @@ app.UseMiddleware<RentACar.API.Middlewares.ExceptionMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi(); 
+    app.MapOpenApi();
     app.MapScalarApiReference(options => options.Theme = ScalarTheme.Moon);
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 // Statik Dosyalar (wwwroot)
 app.UseStaticFiles();

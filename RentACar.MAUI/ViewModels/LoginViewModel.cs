@@ -46,7 +46,14 @@ namespace RentACar.MAUI.ViewModels
                 if (responseDto != null)
                 {
                     await SecureStorage.Default.SetAsync("AuthToken", responseDto.Token);
-                    // TODO: Giriş sonrası ana sayfaya (Dashboard/AppShell) yönlendirilecek.
+
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        if (Application.Current?.Windows.Count > 0)
+                        {
+                            Application.Current?.Windows[0].Page = new AppShell();
+                        }
+                    });
                 }
                 else
                 {
