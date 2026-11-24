@@ -19,6 +19,13 @@
                         Padding="15">
                     <VerticalStackLayout Spacing="6">
 
+                        <Border StrokeShape="RoundRectangle 8"
+                                StrokeThickness="0"
+                                HeightRequest="180">
+                            <Image Source="{Binding FullImageUrl}"
+                                Aspect="AspectFill" />
+                        </Border>
+
                         <HorizontalStackLayout Spacing="6">
                             <Label Text="{Binding BrandName}"
                                    FontSize="18"
