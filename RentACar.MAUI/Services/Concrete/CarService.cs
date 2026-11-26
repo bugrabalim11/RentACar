@@ -13,10 +13,10 @@ namespace RentACar.MAUI.Services.Concrete
             _httpClient = httpClient;
         }
 
-        public async Task<List<CarDto>> GetAllCarsAsync()
+        public async Task<List<CarResultDto>> GetAllCarsAsync()
         {
-            var response = await _httpClient.GetFromJsonAsync<ApiResponse<List<CarDto>>>("api/cars");
-            return response?.Data ?? new List<CarDto>();
+            var response = await _httpClient.GetFromJsonAsync<ApiResponse<List<CarResultDto>>>("api/cars");
+            return response?.Data ?? new List<CarResultDto>();
         }
     }
 }

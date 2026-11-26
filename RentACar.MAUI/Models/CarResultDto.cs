@@ -1,8 +1,6 @@
-﻿using System.Text.Json.Serialization;
-
-namespace RentACar.MAUI.Models
+﻿namespace RentACar.MAUI.Models
 {
-    public class CarDto
+    public class CarResultDto
     {
         public int Id { get; set; }
         public string BrandName { get; set; } = null!;

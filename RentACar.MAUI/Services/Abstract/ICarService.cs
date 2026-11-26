@@ -4,6 +4,6 @@ namespace RentACar.MAUI.Services.Abstract
 {
     public interface ICarService
     {
-        Task<List<CarDto>>GetAllCarsAsync();
+        Task<List<CarResultDto>>GetAllCarsAsync();
     }
 }

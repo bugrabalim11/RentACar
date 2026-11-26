@@ -12,7 +12,7 @@
         </CollectionView.ItemsLayout>
 
         <CollectionView.ItemTemplate>
-            <DataTemplate x:DataType="models:CarDto">
+            <DataTemplate x:DataType="models:CarResultDto">
                 <Border StrokeShape="RoundRectangle 12"
                         Stroke="#E0E0E0"
                         BackgroundColor="White"

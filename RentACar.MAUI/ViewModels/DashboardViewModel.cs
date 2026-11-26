@@ -10,7 +10,7 @@ namespace RentACar.MAUI.ViewModels
         private readonly IDialogService _dialogService;
 
         // Araç eklenip veya silindiğinde ekranı anında yeniletir
-        public ObservableCollection<CarDto> Cars { get; } = new();
+        public ObservableCollection<CarResultDto> Cars { get; } = new();
 
         public DashboardViewModel(ICarService carService, IDialogService dialogService)
         {
