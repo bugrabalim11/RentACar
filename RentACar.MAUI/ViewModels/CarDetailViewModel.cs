@@ -6,13 +6,11 @@ using System.Runtime.CompilerServices;
 
 namespace RentACar.MAUI.ViewModels
 {
+    [QueryProperty(nameof(CarId), "CarId")]
     public class CarDetailViewModel : INotifyPropertyChanged
     {
         private readonly ICarService _carService;
         private readonly IDialogService _dialogService;
-        private CarDetailDto? _carDetail;
-        public CarDetailDto? CarDetail { get { return _carDetail; } set { _carDetail = value; OnPropertyChanged(); } }
-        public ObservableCollection<string> CarImages { get; } = new();
 
         public CarDetailViewModel(ICarService carService, IDialogService dialogService)
         {
@@ -21,6 +19,10 @@ namespace RentACar.MAUI.ViewModels
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
+        public int CarId { get; set { field = value; _ = LoadCarDetailsAsync(value); } }
+        private CarDetailDto? _carDetail;
+        public CarDetailDto? CarDetail { get { return _carDetail; } set { _carDetail = value; OnPropertyChanged(); } }
+        public ObservableCollection<string> CarImages { get; } = new();
 
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {

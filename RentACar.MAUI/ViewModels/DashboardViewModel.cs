@@ -1,6 +1,8 @@
 ﻿using RentACar.MAUI.Models;
 using RentACar.MAUI.Services.Abstract;
+using RentACar.MAUI.Views;
 using System.Collections.ObjectModel;
+using System.Windows.Input;
 
 namespace RentACar.MAUI.ViewModels
 {
@@ -8,15 +10,15 @@ namespace RentACar.MAUI.ViewModels
     {
         private readonly ICarService _carService;
         private readonly IDialogService _dialogService;
-
-        // Araç eklenip veya silindiğinde ekranı anında yeniletir
-        public ObservableCollection<CarResultDto> Cars { get; } = new();
+        public ICommand SelectCarCommand { get; }
 
         public DashboardViewModel(ICarService carService, IDialogService dialogService)
         {
             _carService = carService;
             _dialogService = dialogService;
+            SelectCarCommand = new Command<CarResultDto>(async (car) => await GoToCarDetailAsync(car));
         }
+        public ObservableCollection<CarResultDto> Cars { get; } = new();
 
         public async Task LoadCarsAsync()
         {
@@ -34,6 +36,12 @@ namespace RentACar.MAUI.ViewModels
             {
                 await _dialogService.ShowAlertAsync("Hata", $"Araçlar yüklenirken bir sorun oluştu: {ex.Message}");
             }
+        }
+
+        private async Task GoToCarDetailAsync(CarResultDto car)
+        {
+            if (car == null) return;
+            await Shell.Current.GoToAsync($"{nameof(CarDetailView)}?CarId={car.Id}");
         }
     }
 }
