@@ -1,0 +1,93 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:RentACar.MAUI.ViewModels"
+             x:DataType="viewmodels:CarDetailViewModel"
+             x:Class="RentACar.MAUI.Views.CarDetailView"
+             Title="Araç Detayı" BackgroundColor="#F5F5F5">
+    <ScrollView>
+        
+        
+        <VerticalStackLayout Padding="15" Spacing="15">
+            <CarouselView ItemsSource="{Binding CarImages}" IndicatorView="indicatorView" HeightRequest="240" Loop="False">
+                <CarouselView.ItemTemplate>
+                    <DataTemplate x:DataType="x:String">
+                        <Border StrokeShape="RoundRectangle 12"
+                                StrokeThickness="0">
+                            <Image Aspect="AspectFill" Source="{Binding .}"/>
+                        </Border>
+                    </DataTemplate>
+                </CarouselView.ItemTemplate>
+            </CarouselView>
+            <IndicatorView x:Name="indicatorView"
+                           IndicatorColor="LightGray"
+                           SelectedIndicatorColor="#1A1A1A"
+                           HorizontalOptions="Center"/>
+
+            
+            <Border StrokeShape="RoundRectangle 12"
+                    Stroke="#E0E0E0"
+                    BackgroundColor="White"
+                    Padding="15">
+                <HorizontalStackLayout Spacing="6">
+                    <Label Text="{Binding CarDetail.BrandName}"
+                           FontSize="22"
+                           FontAttributes="Bold"/>
+                    <Label Text="{Binding CarDetail.ModelName}"
+                           FontSize="22"
+                           FontAttributes="Bold"/>
+                </HorizontalStackLayout>
+            </Border>
+            
+            
+            <Border StrokeShape="RoundRectangle 12"
+                    Stroke="#E0E0E0"
+                    BackgroundColor="White"
+                    Padding="15">
+                <VerticalStackLayout>
+                    <Label Text="{Binding CarDetail.Plate, StringFormat='Plaka: {0}'}"
+                           FontSize="14"
+                           TextColor="Gray"/>
+                    <Label Text="{Binding CarDetail.DailyPrice, StringFormat='{0:N0} ₺ / Gün'}"
+                           FontSize="20"
+                           TextColor="#2E7D32"
+                           FontAttributes="Bold"/>
+                </VerticalStackLayout>
+            </Border>
+
+            
+            <Border StrokeShape="RoundRectangle 12"
+                    Stroke="#E0E0E0"
+                    BackgroundColor="White"
+                    Padding="15">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Teknik Özellikler"
+                           FontSize="18"
+                           FontAttributes="Bold"/>
+                    <Grid ColumnDefinitions="*, *" ColumnSpacing="10" RowDefinitions="Auto, Auto, Auto" RowSpacing="10">
+                        <Label Grid.Row="0" Grid.Column="0" Text="{Binding CarDetail.TransmissionType, StringFormat='Vites: {0}'}"/>
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding CarDetail.ColorName, StringFormat='Renk: {0}'}"/>
+                        <Label Grid.Row="1" Grid.Column="0" Text="{Binding CarDetail.Kilometer, StringFormat='{0:N0} km'}"/>
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding CarDetail.DoorCount, StringFormat='{0} Kapı'}"/>
+                        <Label Grid.Row="2" Grid.Column="0" Text="{Binding CarDetail.SeatCount, StringFormat='{0} Koltuk'}"/>
+                        <Label Grid.Row="2" Grid.Column="1" Text="{Binding CarDetail.LuggageCapacity, StringFormat='Bagaj: {0}'}"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            
+            <Border StrokeShape="RoundRectangle 12"
+                    Stroke="#E0E0E0"
+                    BackgroundColor="White"
+                    Padding="15">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Kiralama Şartları"
+                           FontSize="18"
+                           FontAttributes="Bold"/>
+                    <Label Text="{Binding CarDetail.MinDriverAge, StringFormat='Minimum Yaş: {0}'}"/>
+                    <Label Text="{Binding CarDetail.MinDrivingExperience, StringFormat='Minimum Ehliyet Yılı: {0} Yıl'}"/>
+                    <Label Text="{Binding CarDetail.MinFindexScore, StringFormat='Minimum Findeks Puanı: {0}'}"/>
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

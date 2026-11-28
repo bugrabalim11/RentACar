@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="PROJECT_LOG.md" />
+  </Folder>
   <Project Path="RentACar.API/RentACar.API.csproj" />
   <Project Path="RentACar.Business/RentACar.Business.csproj" />
   <Project Path="RentACar.Core/RentACar.Core.csproj" Id="0578ae77-29a5-4155-98c6-447d772891e9" />
