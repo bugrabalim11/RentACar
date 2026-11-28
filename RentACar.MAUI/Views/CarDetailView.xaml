@@ -1,11 +1,25 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:RentACar.MAUI.ViewModels"
+             x:DataType="viewmodels:CarDetailViewModel"
              x:Class="RentACar.MAUI.Views.CarDetailView"
-             Title="CarDetailView">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             Title="Araç Detayı" BackgroundColor="#F5F5F5">
+    <ScrollView>
+        <VerticalStackLayout Padding="15" Spacing="15">
+            <CarouselView ItemsSource="{Binding CarImages}" IndicatorView="indicatorView" HeightRequest="240" Loop="False">
+                <CarouselView.ItemTemplate>
+                    <DataTemplate x:DataType="x:String">
+                        <Border StrokeShape="RoundRectangle 12"
+                                StrokeThickness="0">
+                            <Image Aspect="AspectFill" Source="{Binding .}"/>
+                        </Border>
+                    </DataTemplate>
+                </CarouselView.ItemTemplate>
+            </CarouselView>
+            <IndicatorView x:Name="indicatorView"
+                           IndicatorColor="LightGray"
+                           SelectedIndicatorColor="#1A1A1A"
+                           HorizontalOptions="Center"/>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>
